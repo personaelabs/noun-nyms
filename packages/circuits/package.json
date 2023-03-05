@@ -1,0 +1,11 @@
+{
+  "name": "nym-circuits",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "lsankar4033",
+  "license": "MIT",
+  "dependencies": {
+    "circomlib": "2.0.5",
+    "circomlibjs": "0.1.7"
+  }
+}
