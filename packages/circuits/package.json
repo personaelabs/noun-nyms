@@ -5,6 +5,7 @@
   "author": "lsankar4033",
   "license": "MIT",
   "dependencies": {
+    "@personaelabs/spartan-ecdsa-circuits": "^0.1.0",
     "circomlib": "2.0.5",
     "circomlibjs": "0.1.7"
   }
