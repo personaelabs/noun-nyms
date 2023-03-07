@@ -9,11 +9,19 @@ import { useSignMessage } from "wagmi";
 import { buildPoseidon } from "circomlibjs";
 
 export default function Home() {
-  // TODO: conditionally set nymCode based on input
-  const [nymCode, setNymCode] = useState("lsankar");
+  const [nymCode, setNymCode] = useState("");
+  const [nymHash, setNymHash] = useState("");
   const { signMessageAsync } = useSignMessage({
     message: nymCode,
   });
+
+  function displayNym() {
+    return `${nymCode}-${nymHash}`;
+  }
+
+  function handleNymCodeInputChange(event: any) {
+    setNymCode(event.target.value);
+  }
 
   const createNym = async () => {
     const signedNym = await signMessageAsync();
@@ -22,6 +30,14 @@ export default function Home() {
     const F = poseidon.F;
 
     const nymHash = F.toObject(poseidon([signedNym])).toString(16);
+
+    setNymHash(nymHash);
+
+    // TODO: this should probably be handled with component state
+    const nymCodeInput = document.getElementById(
+      "nymCodeInput"
+    ) as HTMLInputElement;
+    nymCodeInput.readOnly = true;
 
     console.log(`nym: ${nymCode}-${nymHash}`);
   };
@@ -33,11 +49,20 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-        <ConnectButton />
+      <ConnectButton />
 
+      <main className={styles.main}>
         <div className={styles.description}>
-          <button onClick={() => createNym()}>create nym</button>
+          <input
+            type="text"
+            id="nymCodeInput"
+            value={nymCode}
+            onChange={handleNymCodeInputChange}
+          />
+
+          {nymHash.length > 0 && <p>nym: {displayNym()}</p>}
+
+          <button onClick={() => createNym()}>select nym</button>
         </div>
       </main>
     </>
