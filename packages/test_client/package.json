@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@personaelabs/spartan-ecdsa": "^1.0.2",
+    "@personaelabs/spartan-ecdsa": "^2.0.0",
     "@rainbow-me/rainbowkit": "^0.7.4",
     "@types/node": "18.14.6",
     "@types/react": "18.0.28",

@@ -1115,6 +1115,16 @@
     circomlibjs "^0.1.7"
     elliptic "^6.5.4"
 
+"@personaelabs/spartan-ecdsa@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@personaelabs/spartan-ecdsa/-/spartan-ecdsa-2.0.0.tgz#9e84064d361ee56e42e5b8cb3762fcd6ced3a973"
+  integrity sha512-PhOdT0XylWr96Ucef2GOLFRHihHspKSul7leWYfaZJQYIgRYhRDkQgUE3Ot6yBKPD4RNI6hyerI9X1qmfiw6oA==
+  dependencies:
+    "@ethereumjs/util" "^8.0.3"
+    "@zk-kit/incremental-merkle-tree" "^1.0.0"
+    elliptic "^6.5.4"
+    snarkjs "^0.5.0"
+
 "@phenomnomnominal/tsquery@4.1.1":
   version "4.1.1"
   resolved "https://registry.npmjs.org/@phenomnomnominal/tsquery/-/tsquery-4.1.1.tgz"
@@ -1636,6 +1646,11 @@
   dependencies:
     js-yaml "^3.10.0"
     tslib "^2.4.0"
+
+"@zk-kit/incremental-merkle-tree@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@zk-kit/incremental-merkle-tree/-/incremental-merkle-tree-1.0.0.tgz#5a9ec2a2ebcb00972035b175c58906651ef6aa39"
+  integrity sha512-2iRLZfHnZ6wKE+oZN2CnpkKYCE5f5dpv6YRIwLDCz0xwJZrIMQ81AamFBdxPesQSYMMP0GkC0iv1rm6gxAL2Ow==
 
 "@zkochan/js-yaml@0.0.6":
   version "0.0.6"
@@ -2341,6 +2356,13 @@ circom_runtime@0.1.21:
   integrity sha512-qTkud630B/GK8y76hnOaaS1aNuF6prfV0dTrkeRsiJKnlP1ryQbP2FWLgDOPqn6aKyaPlam+Z+DTbBhkEzh8dA==
   dependencies:
     ffjavascript "0.2.56"
+
+circom_runtime@0.1.22:
+  version "0.1.22"
+  resolved "https://registry.yarnpkg.com/circom_runtime/-/circom_runtime-0.1.22.tgz#f957c47662cdd03cd3fb76979c434c719a366373"
+  integrity sha512-V/XYZWBhbZY8SotkaGH4FbiDYAZ8a1Md++MBiKPDOuWS/NIJB+Q+XIiTC8zKMgoDaa9cd2OiTvsC9J6te7twNg==
+  dependencies:
+    ffjavascript "0.2.57"
 
 circom_tester@^0.0.19:
   version "0.0.19"
@@ -3567,7 +3589,7 @@ ffjavascript@0.2.56:
     wasmcurves "0.2.0"
     web-worker "^1.2.0"
 
-ffjavascript@^0.2.45, ffjavascript@^0.2.48, ffjavascript@^0.2.56:
+ffjavascript@0.2.57, ffjavascript@^0.2.45, ffjavascript@^0.2.48, ffjavascript@^0.2.56:
   version "0.2.57"
   resolved "https://registry.npmjs.org/ffjavascript/-/ffjavascript-0.2.57.tgz"
   integrity sha512-V+vxZ/zPNcthrWmqfe/1YGgqdkTamJeXiED0tsk7B84g40DKlrTdx47IqZuiygqAVG6zMw4qYuvXftIJWsmfKQ==
@@ -6150,6 +6172,16 @@ r1csfile@0.0.41, r1csfile@^0.0.41:
     fastfile "0.0.20"
     ffjavascript "0.2.56"
 
+r1csfile@0.0.45:
+  version "0.0.45"
+  resolved "https://registry.yarnpkg.com/r1csfile/-/r1csfile-0.0.45.tgz#59d59a33f8b5280017fc00ee691d003a3d705fe0"
+  integrity sha512-YKIp4D441aZ6OoI9y+bfAyb2j4Cl+OFq/iiX6pPWDrL4ZO968h0dq0w07i65edvrTt7/G43mTnl0qEuLXyp/Yw==
+  dependencies:
+    "@iden3/bigarray" "0.0.2"
+    "@iden3/binfileutils" "0.0.11"
+    fastfile "0.0.20"
+    ffjavascript "0.2.57"
+
 randombytes@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/randombytes/-/randombytes-2.1.0.tgz"
@@ -6587,7 +6619,7 @@ smart-buffer@^4.2.0:
   resolved "https://registry.npmjs.org/smart-buffer/-/smart-buffer-4.2.0.tgz"
   integrity sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==
 
-snarkjs@0.5.0:
+snarkjs@0.5.0, snarkjs@^0.5.0:
   version "0.5.0"
   resolved "https://registry.npmjs.org/snarkjs/-/snarkjs-0.5.0.tgz"
   integrity sha512-KWz8mZ2Y+6wvn6GGkQo6/ZlKwETdAGohd40Lzpwp5TUZCn6N6O4Az1SuX1rw/qREGL6Im+ycb19suCFE8/xaKA==
@@ -6602,6 +6634,22 @@ snarkjs@0.5.0:
     js-sha3 "^0.8.0"
     logplease "^1.2.15"
     r1csfile "0.0.41"
+
+snarkjs@^0.6.7:
+  version "0.6.7"
+  resolved "https://registry.yarnpkg.com/snarkjs/-/snarkjs-0.6.7.tgz#e417fece9cd35e92599abac53144209ecf5be655"
+  integrity sha512-W/xzg+UXBsrC4Ttb3Lu1pG3DDFzS36R67OVzydwhDKFJ0mdQ4sSwOCvKLM9E2KdI+0mhEYhtWdljHsNUZo41kg==
+  dependencies:
+    "@iden3/binfileutils" "0.0.11"
+    bfj "^7.0.2"
+    blake2b-wasm "^2.4.0"
+    circom_runtime "0.1.22"
+    ejs "^3.1.6"
+    fastfile "0.0.20"
+    ffjavascript "0.2.57"
+    js-sha3 "^0.8.0"
+    logplease "^1.2.15"
+    r1csfile "0.0.45"
 
 socks-proxy-agent@^7.0.0:
   version "7.0.0"
