@@ -6,40 +6,37 @@ import { useState } from "react";
 
 import { useSignMessage } from "wagmi";
 
-import { buildPoseidon } from "circomlibjs";
+import NymSelector from "@/components/NymSelector";
 
 export default function Home() {
+  // NOTE: nym-selector component
   const [nymCode, setNymCode] = useState("");
   const [nymHash, setNymHash] = useState("");
+
   const { signMessageAsync } = useSignMessage({
     message: nymCode,
   });
 
   function displayNym() {
+    // NOTE: may want to shorten
     return `${nymCode}-${nymHash}`;
   }
 
-  function handleNymCodeInputChange(event: any) {
-    setNymCode(event.target.value);
+  // NOTE: conversations component
+  const [message, setMessage] = useState("");
+  function handleMessageChange(event: any) {
+    setMessage(event.target.value);
   }
+  const postMessage = async () => {
+    // TODO: generate proof, etc. and send message to server
+    console.log(`message: ${message}`);
+  };
 
-  const createNym = async () => {
-    const signedNym = await signMessageAsync();
-
-    const poseidon = await buildPoseidon();
-    const F = poseidon.F;
-
-    const nymHash = F.toObject(poseidon([signedNym])).toString(16);
-
+  const onNymSelected = (nymCode: string, nymHash: string) => {
+    setNymCode(nymCode);
     setNymHash(nymHash);
 
-    // TODO: this should probably be handled with component state
-    const nymCodeInput = document.getElementById(
-      "nymCodeInput"
-    ) as HTMLInputElement;
-    nymCodeInput.readOnly = true;
-
-    console.log(`nym: ${nymCode}-${nymHash}`);
+    console.log(displayNym());
   };
 
   return (
@@ -51,19 +48,30 @@ export default function Home() {
       </Head>
       <ConnectButton />
 
+      {/* NOTE: may not want this to live here exactly */}
+      <div>{nymHash.length > 0 && <p>nym: {displayNym()}</p>}</div>
+
       <main className={styles.main}>
-        <div className={styles.description}>
-          <input
-            type="text"
-            id="nymCodeInput"
-            value={nymCode}
-            onChange={handleNymCodeInputChange}
-          />
+        <NymSelector onNymSelected={onNymSelected}></NymSelector>
 
-          {nymHash.length > 0 && <p>nym: {displayNym()}</p>}
+        <br />
 
-          <button onClick={() => createNym()}>select nym</button>
-        </div>
+        {/* TODO: break out into 'conversations' component */}
+        {nymHash.length > 0 && (
+          <div>
+            <div className={styles.description}>
+              <input
+                type="text"
+                value={message}
+                onChange={handleMessageChange}
+              />
+
+              <button onClick={() => postMessage()}>post message</button>
+            </div>
+
+            <div className={styles.description}>messages go here</div>
+          </div>
+        )}
       </main>
     </>
   );

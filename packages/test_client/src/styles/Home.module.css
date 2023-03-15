@@ -1,7 +1,6 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: center;
   padding: 6rem;
   min-height: 100vh;
@@ -84,14 +83,12 @@
   background: var(--secondary-glow);
   border-radius: 50%;
   width: 480px;
-  height: 360px;
   margin-left: -400px;
 }
 
 .center::after {
   background: var(--primary-glow);
   width: 240px;
-  height: 180px;
   z-index: -1;
 }
 
@@ -200,7 +197,6 @@
 
   .center::before {
     transform: none;
-    height: 300px;
   }
 
   .description {
@@ -240,12 +236,6 @@
     pointer-events: none;
     inset: auto 0 0;
     padding: 2rem;
-    height: 200px;
-    background: linear-gradient(
-      to bottom,
-      transparent 0%,
-      rgb(var(--background-end-rgb)) 40%
-    );
     z-index: 1;
   }
 }
