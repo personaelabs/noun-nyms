@@ -2,41 +2,67 @@ import styles from "@/styles/Home.module.css";
 import { MerkleProof } from "@personaelabs/spartan-ecdsa";
 import { useState } from "react";
 
+import { ethers } from "ethers";
+import { useSignMessage } from "wagmi";
+
 type Props = {
   nymCode: string;
   signedNymCode: string; // NOTE: private
   nymHash: string;
 };
 
+// NOTE: should put this in prover file
 type ProofInputs = {
-  nymCodeMsgHash: Buffer;
+  nymCodeMsgHash: string;
   signedNymCode: string; // NOTE: private
   nymHash: string;
 
-  contentDataMsgHash: Buffer;
+  contentDataMsgHash: string;
   signedContentData: string; // NOTE: private
 
   merkleProof: MerkleProof;
 };
 
-// NOTE: when replyign to a parent, parent probably needs to be passed in
+// TODO: make this a legitimate proof
+const dummyMerkleProof: MerkleProof = {
+  root: BigInt(1),
+  siblings: [],
+  pathIndices: [],
+};
+
+// NOTE: when replying to a parent, parent probably needs to be passed in
 export default function PostMessage({
   nymCode,
   signedNymCode,
   nymHash,
 }: Props) {
   const [message, setMessage] = useState("");
+  const { signMessageAsync } = useSignMessage({
+    message,
+  });
 
   function handleMessageChange(event: any) {
     setMessage(event.target.value);
   }
 
-  function generateProofInputs(): ProofInputs {
-    // 1. ethers keccak nymCode
-    // 2. ethers keccak message
-    // 3. sign message
-    // 4. pull merkle proof from wherever it's served
-    throw new Error("not implemented");
+  async function generateProofInputs(): Promise<ProofInputs> {
+    const nymCodeMsgHash = ethers.utils.hashMessage(nymCode);
+
+    const contentDataMsgHash = ethers.utils.hashMessage(message);
+    const signedContentData = await signMessageAsync();
+
+    const merkleProof = dummyMerkleProof;
+
+    return {
+      nymCodeMsgHash,
+      signedNymCode,
+      nymHash,
+
+      contentDataMsgHash,
+      signedContentData,
+
+      merkleProof,
+    };
   }
 
   const postMessage = async () => {
