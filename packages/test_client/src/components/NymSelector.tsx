@@ -3,7 +3,11 @@ import { useState } from "react";
 import { useSignMessage } from "wagmi";
 
 type Props = {
-  onNymSelected: (nymCode: string, nymHash: string) => void;
+  onNymSelected: (
+    nymCode: string,
+    signedNymCode: string,
+    nymHash: string
+  ) => void;
 };
 
 export default function NymSelector({ onNymSelected }: Props) {
@@ -14,12 +18,12 @@ export default function NymSelector({ onNymSelected }: Props) {
   });
 
   const createNym = async () => {
-    const signedNym = await signMessageAsync();
+    const signedNymCode = await signMessageAsync();
 
     const poseidon = await buildPoseidon();
     const F = poseidon.F;
 
-    const nymHash = F.toObject(poseidon([signedNym])).toString(16);
+    const nymHash = F.toObject(poseidon([signedNymCode])).toString(16);
 
     // TODO: this should probably be handled with component state
     const nymCodeInput = document.getElementById(
@@ -27,7 +31,7 @@ export default function NymSelector({ onNymSelected }: Props) {
     ) as HTMLInputElement;
     nymCodeInput.readOnly = true;
 
-    onNymSelected(nymCode, nymHash);
+    onNymSelected(nymCode, signedNymCode, nymHash);
   };
 
   return (

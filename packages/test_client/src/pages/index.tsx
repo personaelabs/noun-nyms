@@ -4,37 +4,27 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 import { useState } from "react";
 
-import { useSignMessage } from "wagmi";
-
 import NymSelector from "@/components/NymSelector";
+import PostMessage from "@/components/PostMessage";
 
 export default function Home() {
-  // NOTE: nym-selector component
   const [nymCode, setNymCode] = useState("");
   const [nymHash, setNymHash] = useState("");
-
-  const { signMessageAsync } = useSignMessage({
-    message: nymCode,
-  });
+  const [signedNymCode, setSignedNymCode] = useState("");
 
   function displayNym() {
     // NOTE: may want to shorten
     return `${nymCode}-${nymHash}`;
   }
 
-  // NOTE: conversations component
-  const [message, setMessage] = useState("");
-  function handleMessageChange(event: any) {
-    setMessage(event.target.value);
-  }
-  const postMessage = async () => {
-    // TODO: generate proof, etc. and send message to server
-    console.log(`message: ${message}`);
-  };
-
-  const onNymSelected = (nymCode: string, nymHash: string) => {
+  const onNymSelected = (
+    nymCode: string,
+    nymHash: string,
+    signedNymCode: string
+  ) => {
     setNymCode(nymCode);
     setNymHash(nymHash);
+    setSignedNymCode(signedNymCode);
 
     console.log(displayNym());
   };
@@ -56,22 +46,15 @@ export default function Home() {
 
         <br />
 
-        {/* TODO: break out into 'conversations' component */}
         {nymHash.length > 0 && (
-          <div>
-            <div className={styles.description}>
-              <input
-                type="text"
-                value={message}
-                onChange={handleMessageChange}
-              />
-
-              <button onClick={() => postMessage()}>post message</button>
-            </div>
-
-            <div className={styles.description}>messages go here</div>
-          </div>
+          <PostMessage
+            nymCode={nymCode}
+            signedNymCode={signedNymCode}
+            nymHash={nymHash}
+          ></PostMessage>
         )}
+
+        {/* TODO: discussions */}
       </main>
     </>
   );

@@ -1,0 +1,5 @@
+generate_witness.js
+witness_calculator.js
+
+*.r1cs
+*.wasm
