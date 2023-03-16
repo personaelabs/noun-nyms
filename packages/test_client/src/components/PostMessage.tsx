@@ -4,23 +4,12 @@ import { useState } from "react";
 
 import { ethers } from "ethers";
 import { useSignMessage } from "wagmi";
+import { ProofInputs, Prover } from "@/utils/prover";
 
 type Props = {
   nymCode: string;
   signedNymCode: string; // NOTE: private
   nymHash: string;
-};
-
-// NOTE: should put this in prover file
-type ProofInputs = {
-  nymCodeMsgHash: string;
-  signedNymCode: string; // NOTE: private
-  nymHash: string;
-
-  contentDataMsgHash: string;
-  signedContentData: string; // NOTE: private
-
-  merkleProof: MerkleProof;
 };
 
 // TODO: make this a legitimate proof
@@ -66,11 +55,15 @@ export default function PostMessage({
   }
 
   const postMessage = async () => {
-    const proofInputs = generateProofInputs();
+    const proofInputs = await generateProofInputs();
 
-    // TODO: construct proof
+    const prover = new Prover();
+    prover.initWasm();
+    const proof = await prover.prove(proofInputs);
 
-    console.log(`message: ${message}`);
+    // TODO: what do we want to do with proof here?
+
+    console.log(`Successfully constructed proof!`);
   };
 
   return (
