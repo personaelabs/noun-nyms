@@ -36,6 +36,8 @@ template NymOwnership(treeLevels) {
     signal input contentSigTy;
     signal input contentSigUx;
     signal input contentSigUy;
+
+    // private content signature efficient-ecdsa artifact
     signal input contentSigS; 
 
     // merkle proof for membership check 
