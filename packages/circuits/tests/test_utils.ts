@@ -58,6 +58,11 @@ async function computeEffECDSASig(
   return { Tx, Ty, Ux, Uy, s };
 }
 
+async function computeNymHash(nymSigS: bigint) {
+  const poseidon = await buildPoseidon();
+  return poseidon([nymSigS, nymSigS]);
+}
+
 // NOTE: this method may not need be exposed, just generate proof
 export async function computeNymInput(
   membershipProof: MerkleProof,
@@ -71,14 +76,14 @@ export async function computeNymInput(
   const nymSig = await computeEffECDSASig(nymSigStr, nym);
   const contentSig = await computeEffECDSASig(contentSigStr, content);
 
-  // TODO: hash nymSig piece
-  // poseidon(nymSig.s, nymSig.s)
+  // TODO: type-check poseidon input properly once I'm testing proving
+  const nymHash = await computeNymHash(nymSig.s);
 
   return {
     membershipProof,
 
     nym,
-    nymHash: nym,
+    nymHash,
     nymSig,
 
     content,
