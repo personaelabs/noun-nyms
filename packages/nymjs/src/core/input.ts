@@ -59,12 +59,3 @@ export async function computeNymInput(
     contentSig,
   };
 }
-
-// NOTE: better name?
-// TODO: return proof type
-export async function proveNym(input: NymInput) {
-  // TODO: generate witness using typed input (requires witness gen wasm)
-  // TODO: load circuit from google storage
-  // TODO: get public input in bytes
-  // TODO: do proof with spartan wasm (requires spartan wasm bytes to be in repo)
-}

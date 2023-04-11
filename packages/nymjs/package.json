@@ -19,6 +19,7 @@
     "@ethereumjs/util": "^8.0.5",
     "@personaelabs/spartan-ecdsa": "^2.1.0",
     "circomlibjs": "^0.1.7",
-    "ethers": "^5"
+    "ethers": "^5",
+    "snarkjs": "0.5.0"
   }
 }

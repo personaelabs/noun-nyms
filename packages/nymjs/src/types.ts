@@ -22,3 +22,16 @@ export type NymInput = {
   content: string;
   contentSig: EffECDSASig;
 };
+
+export type ProverConfig = {
+  enableProfiler?: boolean;
+};
+
+export type PublicInput = {
+  // TODO!
+};
+
+export interface Proof {
+  proof: Uint8Array;
+  publicInput: PublicInput;
+}

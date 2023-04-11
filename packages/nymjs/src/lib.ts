@@ -1,2 +1,3 @@
 export * from "./types";
-export * from "./prover";
+export * from "./core/prover";
+export * from "./core/input";
