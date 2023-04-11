@@ -1,0 +1,24 @@
+{
+  "name": "nymjs",
+  "version": "1.0.0",
+  "description": "js lib for generating nym proofs",
+  "main": "./build/lib.js",
+  "types": "./build/lib.d.ts",
+  "files": [
+    "build/**/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lsankar4033",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "@ethereumjs/util": "^8.0.5",
+    "@personaelabs/spartan-ecdsa": "^2.1.0",
+    "circomlibjs": "^0.1.7",
+    "ethers": "^5"
+  }
+}
