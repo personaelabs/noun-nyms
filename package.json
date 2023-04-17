@@ -4,7 +4,35 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "format": "npm run --workspaces --if-present format",
+    "format:check": "npm run --workspaces --if-present format:check",
+    "lint": "npm run --workspaces --if-present lint",
+    "prepare": "husky install",
+    "test": "npm run --workspaces --if-present test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/personaelabs/nym"
+  },
+  "author": "personae labs",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/personaelabs/nym/issues"
+  },
+  "homepage": "https://github.com/personaelabs/nym#readme",
+  "lint-staged": {
+    "*.{ts,tsx,js}": [
+      "eslint --cache --fix"
+    ],
+    "*.{js,ts,tsx,json}": "prettier --write --ignore-unknown"
+  },
   "devDependencies": {
-    "lerna": "^6.4.1"
+    "@commitlint/cli": "^17.6.1",
+    "@commitlint/config-conventional": "^17.6.1",
+    "eslint": "^8.38.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.1",
+    "prettier": "2.8.7"
   }
 }
