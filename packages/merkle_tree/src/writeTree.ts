@@ -278,10 +278,17 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet1.map(account => ({
-        pubkey: account.pubKey.toString("hex"),
-        type: GroupType.OneNoun
-      }))
+      data: anonSet1.map(account =>  {
+        const index = anonSet1Tree.indexOf(poseidon.hashPubKey(account.pubKey));
+        const merkleProof = anonSet1Tree.createProof(index);
+        return {
+          pubkey: account.pubKey.toString("hex"),
+          path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
+          indices: merkleProof.pathIndices.map(i => i.toString()),
+          type: GroupType.OneNoun
+        }
+      }
+      )
     });
   }
 
@@ -302,10 +309,17 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet2.map(account => ({
-        pubkey: account.pubKey.toString("hex"),
-        type: GroupType.ManyNouns
-      }))
+      data: anonSet2.map(account =>  {
+        const index = anonSet2Tree.indexOf(poseidon.hashPubKey(account.pubKey));
+        const merkleProof = anonSet2Tree.createProof(index);
+        return {
+          pubkey: account.pubKey.toString("hex"),
+          path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
+          indices: merkleProof.pathIndices.map(i => i.toString()),
+          type: GroupType.ManyNouns
+        }
+      }
+      )
     });
   }
 

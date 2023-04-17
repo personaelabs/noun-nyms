@@ -12,6 +12,8 @@ datasource db {
 
 model TreeNode {
   pubkey    String
+  path      String[]
+  indices   String[]
   type      GroupType
   createdAt DateTime  @default(now())
 
