@@ -1,9 +1,9 @@
 import axiosBase from "axios";
 import {
   MembershipProver,
-  Tree,
   Poseidon,
-  defaultPubkeyMembershipPConfig
+  defaultPubkeyMembershipPConfig,
+  MerkleProof
 } from "@personaelabs/spartan-ecdsa";
 import {
   ecrecover,
@@ -17,6 +17,12 @@ const axios = axiosBase.create({
 });
 
 const privKey = Buffer.from("".padStart(16, "🧙"), "utf16le");
+
+type Member = {
+  pubkey: string,
+  path: string[],
+  indices: number[]
+}
 
 export default function Example() {
   const postDoxed = async () => {
@@ -73,25 +79,25 @@ export default function Example() {
     const poseidon = new Poseidon();
     await poseidon.initWasm();
 
-    const treeDepth = 20;
-    const pubKeyTree = new Tree(treeDepth, poseidon);
-
     const {
-      data: { members, root }
+      data
     } = await axios.get("/groups/latest?set=2");
+    const root: string = data.root;
+    const members: Member[] = data.members;
 
-    const proverPubKeyHash = poseidon.hashPubKey(pubKey);
+    const proverPubKey = pubKey.toString("hex");
+    
+    const proverInSet = members.find((member) => member.pubkey === proverPubKey);
 
-    for (let i = 0; i < members.length; i++) {
-      pubKeyTree.insert(poseidon.hashPubKey(Buffer.from(members[i], "hex")));
+    if (!proverInSet) {
+      throw new Error("Prover not found in set");
     }
 
-    if (root !== pubKeyTree.root().toString(16)) {
-      throw new Error("Roots don't match");
+    const merkleProof: MerkleProof = {
+      pathIndices: proverInSet?.indices,
+      siblings: proverInSet?.path.map((sibling) => BigInt("0x" + sibling)),
+      root: BigInt("0x" + root)
     }
-
-    const index = pubKeyTree.indexOf(proverPubKeyHash);
-    const merkleProof = pubKeyTree.createProof(index);
 
     const prover = new MembershipProver({
       ...defaultPubkeyMembershipPConfig,

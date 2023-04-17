@@ -19,7 +19,9 @@ const handleGetLatestGroup = async (
   const treeNodes = (
     await prisma.treeNode.findMany({
       select: {
-        pubkey: true
+        pubkey: true,
+        path: true,
+        indices: true
       },
       where: {
         type
@@ -28,12 +30,14 @@ const handleGetLatestGroup = async (
         pubkey: "asc"
       }
     })
-  ).map(node => node.pubkey.replace("0x", ""));
+  );
 
+  /*  
   if (treeNodes.length < 100) {
     res.status(503).send("Not enough members");
     return;
   }
+  */
 
   const root = await prisma.tree.findFirst({
     select: {
