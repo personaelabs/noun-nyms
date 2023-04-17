@@ -13,6 +13,7 @@
     "@personaelabs/spartan-ecdsa": "^2.1.0",
     "@prisma/client": "4.5.0",
     "axios": "^1.3.4",
+    "dayjs": "^1.11.7",
     "dotenv": "^16.0.3",
     "next": "13.2.4",
     "react": "18.2.0",
