@@ -82,15 +82,13 @@ export default function Example() {
 
     const proverPubKeyHash = poseidon.hashPubKey(pubKey);
 
-    // Insert other members into the tree
     for (let i = 0; i < members.length; i++) {
       pubKeyTree.insert(poseidon.hashPubKey(Buffer.from(members[i], "hex")));
     }
 
-    pubKeyTree.insert(proverPubKeyHash);
-
-    console.log("root", root);
-    console.log("pubKeyTree.root()", pubKeyTree.root().toString(16));
+    if (root !== pubKeyTree.root().toString(16)) {
+      throw new Error("Roots don't match");
+    }
 
     const index = pubKeyTree.indexOf(proverPubKeyHash);
     const merkleProof = pubKeyTree.createProof(index);
