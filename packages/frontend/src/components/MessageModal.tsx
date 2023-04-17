@@ -29,7 +29,14 @@ export const MessageModal = ({ isOpen, commentId, handleClose, title }: IMessage
 
                         <div>{title}</div>
 
-                        <CommentWriter commentId={commentId} />
+                        <div className="flex flex-col w-full bg-slate-200">
+                            <CommentWriter commentId={commentId} />
+                            <div className="py-8"></div>
+                            <p>32 comments</p>
+                            <div className="flex flex-col w-full justify-center iterms-center">
+                                {/* TODO: all comment threading */}
+                            </div>
+                        </div>
                     </Dialog.Panel>
                 </div>
             </div>
