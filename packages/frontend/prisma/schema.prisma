@@ -43,8 +43,6 @@ enum GroupType {
   ManyNouns
 }
 
-// Post, Reply, PostUpvote, ReplyUpvote are new models in Nym
-
 model Post {
   id         String        @id
   parentId   String?
