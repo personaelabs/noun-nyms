@@ -22,7 +22,7 @@ docker-compose up database
 
 ### Run database migrations
 ```
-yarn prisma migrate dev
+yarn prisma migrate deploy
 ```
 
 ### Build The Graph client
