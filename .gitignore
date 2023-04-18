@@ -16,6 +16,9 @@ build
 *.DS_Store
 *.pem
 *.env
+node_modules/
+.graphclient
+.env
 
 # debug
 npm-debug.log*
@@ -29,9 +32,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# zkp
+*.ptau
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# zkp
-*.ptau
