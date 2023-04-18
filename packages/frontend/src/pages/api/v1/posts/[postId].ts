@@ -10,7 +10,7 @@ const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
 		"parentId",
 		"address",
 		"title",
-		"content",
+		"body",
 		"createdAt"
 	FROM
 		"Post"
@@ -22,7 +22,7 @@ const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
 		d. "parentId",
 		d. "address",
 		d. "title",
-		d. "content",
+		d. "body",
 		d. "createdAt"
 	FROM
 		"Post" d

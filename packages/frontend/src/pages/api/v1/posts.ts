@@ -5,7 +5,7 @@ import { ecrecover, hashPersonalMessage, pubToAddress } from "@ethereumjs/util";
 import { MembershipVerifier, PublicInput } from "@personaelabs/spartan-ecdsa";
 
 type PostBase = {
-  content: string;
+  body: string;
   title: string;
   parentId?: string;
 };
@@ -38,7 +38,7 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     select: {
       id: true,
       title: true,
-      content: true,
+      body: true,
       parentId: true,
       createdAt: true,
       address: true,
@@ -66,7 +66,7 @@ const handleCreateDoxedPost = async (
 
   const msg = Buffer.from(
     JSON.stringify({
-      content: post.content,
+      body: post.body,
       title: post.title,
       parentId: post.parentId
     }),
@@ -87,7 +87,7 @@ const handleCreateDoxedPost = async (
   await prisma.post.create({
     data: {
       title: post.title,
-      content: post.content,
+      body: post.body,
       parentId: post.parentId,
       id: postId,
       proofOrSig: sig,
@@ -138,7 +138,7 @@ const handleCreatePseudoPost = async (
   const expectedMsgHash = hashPersonalMessage(
     Buffer.from(
       JSON.stringify({
-        content: post.content,
+        body: post.body,
         title: post.title,
         parentId: post.parentId
       })
@@ -161,7 +161,7 @@ const handleCreatePseudoPost = async (
   await prisma.post.create({
     data: {
       title: post.title,
-      content: post.content,
+      body: post.body,
       proofOrSig: post.proof,
       id: postId,
       parentId: post.parentId
