@@ -51,7 +51,7 @@ export default function Example() {
       parentId
     });
 
-    console.log("postId", result.data.postId);
+    console.log("Created a non-pseudonymous post! postId", result.data.postId);
   };
 
   const postPseudo = async () => {
@@ -127,7 +127,7 @@ export default function Example() {
         }
       }
     );
-    console.log("postId", result.data.postId);
+    console.log("Created a pseudonymous post! postId", result.data.postId);
   };
 
   const upvote = async () => {
@@ -140,13 +140,14 @@ export default function Example() {
     const sig = `${r.toString("hex")}${s.toString("hex")}${v.toString(16)}`;
 
     const result = await axios.post(`/posts/${postId}/upvote`, { sig });
-    console.log(result);
+    console.log("Upvoted post", postId);
   };
 
   const getThread = async () => {
     // @ts-ignore
     const postId = document.getElementById("postId")?.value;
     const { data: thread } = await axios.get(`/posts/${postId}`);
+    console.log("Thread starting from post:", postId);
     console.log(thread);
   };
 
