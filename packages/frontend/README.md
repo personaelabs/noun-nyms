@@ -19,7 +19,7 @@ docker-compose up database
 
 ### Run database migrations
 ```
-yarn prisma migrate dev
+yarn prisma migrate deploy
 ```
 
 ### Start the development server

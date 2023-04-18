@@ -5,6 +5,8 @@ CREATE TYPE "GroupType" AS ENUM ('OneNoun', 'ManyNouns');
 CREATE TABLE "TreeNode" (
     "pubkey" TEXT NOT NULL,
     "type" "GroupType" NOT NULL,
+    "path" TEXT[],
+    "indices" TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
