@@ -27,14 +27,14 @@ type Member = {
 export default function Example() {
   const postDoxed = async () => {
     const title = "doxed post title";
-    const content = `doxed post content ${Math.random()}`;
+    const body = `doxed post body ${Math.random()}`;
     // @ts-ignore
     const parentId = document.getElementById("doxedPostParentId")?.value;
 
     const msgHash = hashPersonalMessage(
       Buffer.from(
         JSON.stringify({
-          content,
+          body,
           title,
           parentId
         }),
@@ -45,7 +45,7 @@ export default function Example() {
     const { r, v, s } = ecsign(msgHash, privKey);
     const sig = `${r.toString("hex")}${s.toString("hex")}${v.toString(16)}`;
     const result = await axios.post(`/posts`, {
-      content,
+      body,
       sig,
       title,
       parentId
@@ -56,14 +56,14 @@ export default function Example() {
 
   const postPseudo = async () => {
     const title = "pseudo post title";
-    const content = `pseudo post content ${Math.random()}`;
+    const body = `pseudo post body ${Math.random()}`;
     // @ts-ignore
     const parentId = document.getElementById("pseudoPostParentId")?.value;
 
     const msgHash = hashPersonalMessage(
       Buffer.from(
         JSON.stringify({
-          content,
+          body,
           title,
           parentId
         }),
@@ -116,7 +116,7 @@ export default function Example() {
       `posts`,
       {
         title,
-        content,
+        body,
         parentId,
         proof: Buffer.from(proof).toString("hex"),
         publicInput: Buffer.from(publicInput.serialize()).toString("hex")
