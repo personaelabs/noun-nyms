@@ -38,7 +38,14 @@ paths:
               properties:
                 title:
                   type: string
-                content:
+                body:
+                  type: string
+                parentId:
+                  type: string
+                timestamp:
+                  type: number
+                  description: Unix timestamp
+                venue:
                   type: string
                 proof:
                   type: string
@@ -83,8 +90,15 @@ paths:
               properties:
                 sig:
                   type: string
+                timestamp:
+                  type: number
+                  description: Unix timestamp
+                address:
+                  type: string
               required:
                 - sig
+                - timestamp
+                - address
       responses:
         '200':
           description: OK

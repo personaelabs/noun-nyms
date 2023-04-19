@@ -24,6 +24,34 @@ type Member = {
   indices: number[]
 }
 
+// Content the user signs when creating a post
+type PostContentData = {
+  title: string,
+  body: string,
+  parentId?: string,
+  timestamp: number,
+  venue: string
+}
+
+const venue = "nouns";
+
+const hashPostContentData = (contentData: PostContentData) => {
+  const msgHash = hashPersonalMessage(
+    Buffer.from(
+      JSON.stringify({
+        title: contentData.title,
+        body: contentData.body,
+        parentId: contentData.parentId,
+        timestamp: contentData.timestamp,
+        venue: contentData.venue
+      }),
+      "utf8"
+    )
+  );
+
+  return msgHash;
+}
+
 export default function Example() {
   const postDoxed = async () => {
     const title = "doxed post title";
@@ -31,16 +59,15 @@ export default function Example() {
     // @ts-ignore
     const parentId = document.getElementById("doxedPostParentId")?.value;
 
-    const msgHash = hashPersonalMessage(
-      Buffer.from(
-        JSON.stringify({
-          body,
-          title,
-          parentId
-        }),
-        "utf8"
-      )
-    );
+    const timestamp = Math.round(Date.now() / 1000);
+
+    const msgHash = hashPostContentData({
+      title,
+      body,
+      timestamp,
+      parentId,
+      venue
+    });
 
     const { r, v, s } = ecsign(msgHash, privKey);
     const sig = `${r.toString("hex")}${s.toString("hex")}${v.toString(16)}`;
@@ -48,7 +75,9 @@ export default function Example() {
       body,
       sig,
       title,
-      parentId
+      parentId,
+      timestamp,
+      venue
     });
 
     console.log("Created a non-pseudonymous post! postId", result.data.postId);
@@ -60,20 +89,18 @@ export default function Example() {
     // @ts-ignore
     const parentId = document.getElementById("pseudoPostParentId")?.value;
 
-    const msgHash = hashPersonalMessage(
-      Buffer.from(
-        JSON.stringify({
-          body,
-          title,
-          parentId
-        }),
-        "utf8"
-      )
-    );
+    const timestamp = Math.round(Date.now() / 1000);
+
+    const msgHash = hashPostContentData({
+      title,
+      body,
+      timestamp,
+      parentId,
+      venue
+    });
 
     const { v, r, s } = ecsign(msgHash, privKey);
     const pubKey = ecrecover(msgHash, v, r, s);
-    console.log(pubToAddress(pubKey).toString("hex"));
     const sig = `0x${r.toString("hex")}${s.toString("hex")}${v.toString(16)}`;
 
     const poseidon = new Poseidon();
@@ -118,6 +145,8 @@ export default function Example() {
         title,
         body,
         parentId,
+        timestamp,
+        venue,
         proof: Buffer.from(proof).toString("hex"),
         publicInput: Buffer.from(publicInput.serialize()).toString("hex")
       },
@@ -133,13 +162,23 @@ export default function Example() {
   const upvote = async () => {
     // @ts-ignore
     const postId = document.getElementById("upvotePostId")?.value;
-    const msg = Buffer.from(postId.toString());
-    const msgHash = hashPersonalMessage(msg);
+    const timestamp = Math.round(Date.now() / 1000);
+    const msgHash = hashPersonalMessage(Buffer.from(JSON.stringify({
+      postId,
+      timestamp
+    }), "utf8"));
+
     const { r, v, s } = ecsign(msgHash, privKey);
+    const pubKey = ecrecover(msgHash, v, r, s);
+    const address = pubToAddress(pubKey).toString("hex");
 
     const sig = `${r.toString("hex")}${s.toString("hex")}${v.toString(16)}`;
 
-    const result = await axios.post(`/posts/${postId}/upvote`, { sig });
+    await axios.post(`/posts/${postId}/upvote`, { 
+      sig,
+      timestamp,
+      address
+     });
     console.log("Upvoted post", postId);
   };
 

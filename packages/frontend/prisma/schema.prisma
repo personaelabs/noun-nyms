@@ -51,6 +51,8 @@ model Post {
   title      String
   body       String
   upvotes    DoxedUpvote[]
+  venue      String
+  timestamp  DateTime
   proofOrSig String
   address    String?
 }
@@ -59,6 +61,7 @@ model DoxedUpvote {
   postId    String
   upvoteBy  String
   sig       String
+  timestamp DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   Post      Post     @relation(fields: [postId], references: [id])
