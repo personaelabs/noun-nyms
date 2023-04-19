@@ -45,7 +45,7 @@ export const MessageModal = ({
                                 </div>
                                 <button
                                     style={{ color: "gray" }}
-                                    className="w-fit font-bold"
+                                    className="w-fit font-bold focus:outline-0"
                                     onClick={handleClose as any}
                                 >
                                     X
