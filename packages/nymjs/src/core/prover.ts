@@ -3,24 +3,8 @@ const snarkjs = require("snarkjs");
 import { NymInput, Proof, ProverConfig } from "../types";
 
 import wasm, { init } from "../wasm";
-
-// A helper class to optionally run console.time/console.timeEnd
-// taken from https://github.com/personaelabs/spartan-ecdsa/blob/main/packages/lib/src/helpers/profiler.ts
-class Profiler {
-  private enabled: boolean;
-
-  constructor(options: { enabled?: boolean }) {
-    this.enabled = options.enabled || false;
-  }
-
-  time(label: string) {
-    this.enabled && console.time(label);
-  }
-
-  timeEnd(label: string) {
-    this.enabled && console.timeEnd(label);
-  }
-}
+import { Profiler } from "./profiler";
+import { bigIntToBytes } from "./utils";
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL = "";

@@ -5,7 +5,7 @@ import { computeEffEcdsaPubInput } from "@personaelabs/spartan-ecdsa";
 
 import { buildPoseidon } from "circomlibjs";
 
-import { MerkleProof, NymInput, EffECDSASig } from "./types";
+import { MerkleProof, NymInput, EffECDSASig } from "../types";
 
 function bufferToBigInt(buf: Buffer): bigint {
   return BigInt("0x" + buf.toString("hex"));
@@ -58,4 +58,54 @@ export async function computeNymInput(
     content,
     contentSig,
   };
+}
+
+/**
+ * Public inputs that are passed to `nym_ownership` circuit (circuits/instances/nym_ownership.circom)
+ *
+ * This class exists to provide serialization/deserialization utilities for passing these values to
+ * spartan wasm.
+ */
+export class CircuitPubInput {
+  constructor(
+    private root: bigint,
+    private nym: bigint,
+    private nymSigTx: bigint,
+    private nymSigTy: bigint,
+    private nymSigUx: bigint,
+    private nymSigUy: bigint,
+    private nymHash: bigint,
+    private content: bigint,
+    private contentSigTx: bigint,
+    private contentSigTy: bigint,
+    private contentSigUx: bigint,
+    private contentSigUy: bigint
+  ) {}
+
+  serialize(): Uint8Array {
+    const serialized = new Uint8Array(32 * 12);
+
+    // input ordered the way it must be passed to spartan-wasm
+    const inputOrdered = [
+      this.root,
+      this.nym,
+      this.nymSigTx,
+      this.nymSigTy,
+      this.nymSigUx,
+      this.nymSigUy,
+      this.nymHash,
+      this.content,
+      this.contentSigTx,
+      this.contentSigTy,
+      this.contentSigUx,
+      this.contentSigUy,
+    ];
+
+    for (let i = 0; i < inputOrdered.length; i++) {
+      const input: bigint = inputOrdered[i];
+      serialized.set(bigIntToBytes(input, 32), 32 * i);
+    }
+
+    return serialized;
+  }
 }
