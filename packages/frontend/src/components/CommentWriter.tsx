@@ -17,7 +17,7 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
     const canPost = React.useMemo(() => true, []);
 
     return (
-        <div className="max-w-xl mx-auto w-full">
+        <div className="w-full">
             {someDbQuery === undefined ? (
                 <div className="bg-gray-100 border border-gray-300 p-12 py-24 rounded-md flex justify-center text-gray-800">
                     <Spinner />
