@@ -28,7 +28,7 @@ export const MessageModal = ({
 
             <div className="fixed inset-0 overflow-y-auto">
                 <div className="flex min-h-full items-center justify-center">
-                    <Dialog.Panel className="w-full max-w-5xl bg-white mx-8">
+                    <Dialog.Panel className="w-full max-w-5xl bg-white mx-8 rounded-md">
                         <div className="flex justify-end sm:hidden">
                             <button
                                 className="w-fit border font-bold bg-black border-black text-white rounded-full px-1.5"
