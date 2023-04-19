@@ -6,6 +6,7 @@ dayjs.extend(relativeTime);
 
 interface ICommentViewProps {
     commentId: string;
+    title: string;
     message: string;
     createdAt: Date;
     tagName: string;
@@ -13,7 +14,15 @@ interface ICommentViewProps {
     proof: string;
 }
 
-export const CommentView = ({ message, proof, createdAt, tagName, profileImgURL, commentId }: ICommentViewProps) => {
+export const CommentView = ({
+    message,
+    proof,
+    createdAt,
+    tagName,
+    profileImgURL,
+    commentId,
+    title,
+}: ICommentViewProps) => {
     const [isOpen, setIsOpen] = React.useState(false);
     // TODO: after we add wagmi
     //  const { address } = useAccount();
@@ -33,7 +42,10 @@ export const CommentView = ({ message, proof, createdAt, tagName, profileImgURL,
     return (
         <>
             <MessageModal
-                title={message}
+                title={title}
+                tagName={tagName}
+                dateFromDescription={dateFromDescription}
+                message={message}
                 commentId={commentId}
                 isOpen={isOpen}
                 handleClose={(e) => {
@@ -52,12 +64,13 @@ export const CommentView = ({ message, proof, createdAt, tagName, profileImgURL,
                     <div className="flex justify-center items-center">
                         <p className="font-bold">{tagName}</p>
                         <div className="px-2"></div>
-                        <p>{dateFromDescription}</p>
+                        <p style={{ color: "gray" }}>{dateFromDescription}</p>
                     </div>
                     <div className="flex justify-between items-center">
-                        <p>43 replies</p>
+                        {/* // TODO fetch this info */}
+                        <p style={{ color: "gray" }}>43 replies</p>
                         <div className="px-2"></div>
-                        <p>2212 views</p>
+                        <p style={{ color: "gray" }}>2212 views</p>
                     </div>
                 </div>
             </div>
