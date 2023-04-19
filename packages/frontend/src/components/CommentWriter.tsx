@@ -17,27 +17,15 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
     const canPost = React.useMemo(() => true, []);
 
     return (
-        <div className="max-w-xl mx-auto">
-            <div>
-                <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip">
-                    <div className="py-2 px-0">
-                        <Textarea
-                            value={commentMsg}
-                            placeholder="Add your comment..."
-                            onChangeHandler={(newVal) => setCommentMsg(newVal)}
-                        />
-                    </div>
-                </div>
-            </div>
-
+        <div className="max-w-xl mx-auto w-full">
             {someDbQuery === undefined ? (
                 <div className="bg-gray-100 border border-gray-300 p-12 py-24 rounded-md flex justify-center text-gray-800">
                     <Spinner />
                 </div>
             ) : canPost ? (
-                <div>
-                    <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip">
-                        <div className="py-2 px-0">
+                <div className="w-full flex justify-center items-center">
+                    <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
+                        <div className="py-2 px-0 w-full">
                             <Textarea
                                 value={commentMsg}
                                 placeholder="Add your comment..."
@@ -45,7 +33,8 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
                             ></Textarea>
                         </div>
 
-                        <div className="flex justify-end">
+                        {/* //TODO with nym selection */}
+                        <div className="flex justify-end p-4">
                             <button
                                 // TODO
                                 onClick={() => console.log("TODO")}
