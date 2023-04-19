@@ -8,6 +8,8 @@ type PostBase = {
   body: string;
   title: string;
   parentId?: string;
+  timestamp: number;
+  venue: string;
 };
 
 type PseudoPost = {
@@ -18,6 +20,26 @@ type PseudoPost = {
 type DoxedPost = {
   sig: string;
 } & PostBase;
+
+// Include this hash function in nymjs?
+const hashPostContentData = (contentData: PostBase): Buffer => {
+  const contentDataHash = hashPersonalMessage(
+    Buffer.from(JSON.stringify({
+      title: contentData.title,
+      body: contentData.body,
+      parentId: contentData.parentId,
+      timestamp: contentData.timestamp,
+      venue: contentData.venue
+    }), "utf8")
+  );
+
+  return contentDataHash;
+}
+
+const isTimestampValid = (timestamp: number): boolean => {
+  const now = Math.floor(Date.now() / 1000);
+  return Math.abs(now - timestamp) < 100;
+}
 
 // Check if the given root exists in the database or not
 const verifyRoot = async (root: string): Promise<boolean> =>
@@ -61,21 +83,15 @@ const handleCreateDoxedPost = async (
   res: NextApiResponse
 ) => {
   const post: DoxedPost = req.body;
+  if (!isTimestampValid(post.timestamp)) {
+    res.status(400).send("Invalid timestamp!");
+    return;
+  }
 
   const postId = await hashBytes(Buffer.from(post.sig, "hex"));
-
-  const msg = Buffer.from(
-    JSON.stringify({
-      body: post.body,
-      title: post.title,
-      parentId: post.parentId
-    }),
-    "utf8"
-  );
-
   const sig = post.sig;
 
-  const msgHash = hashPersonalMessage(msg);
+  const msgHash = hashPostContentData(post);
 
   const r = Buffer.from(sig.slice(0, 64), "hex");
   const s = Buffer.from(sig.slice(64, 128), "hex");
@@ -89,6 +105,8 @@ const handleCreateDoxedPost = async (
       title: post.title,
       body: post.body,
       parentId: post.parentId,
+      timestamp: new Date(post.timestamp * 1000),
+      venue: post.venue,
       id: postId,
       proofOrSig: sig,
       address: address.toString("hex")
@@ -111,6 +129,10 @@ const handleCreatePseudoPost = async (
   res: NextApiResponse
 ) => {
   const post: PseudoPost = req.body;
+  if (!isTimestampValid(post.timestamp)) {
+    res.status(400).send("Invalid timestamp!");
+    return;
+  }
 
   const postId = await hashBytes(
     Buffer.from(post.proof + post.publicInput, "hex")
@@ -135,16 +157,7 @@ const handleCreatePseudoPost = async (
 
   // Verify that the msgHash in the public input matches the expected msgHash
 
-  const expectedMsgHash = hashPersonalMessage(
-    Buffer.from(
-      JSON.stringify({
-        body: post.body,
-        title: post.title,
-        parentId: post.parentId
-      })
-    )
-  ).toString("hex");
-
+  const expectedMsgHash = hashPostContentData(post).toString("hex");
   const pubInput = PublicInput.deserialize(publicInputSer);
 
   if (expectedMsgHash !== pubInput.msgHash.toString("hex")) {
@@ -162,6 +175,8 @@ const handleCreatePseudoPost = async (
     data: {
       title: post.title,
       body: post.body,
+      timestamp: new Date(post.timestamp * 1000),
+      venue: post.venue,
       proofOrSig: post.proof,
       id: postId,
       parentId: post.parentId
