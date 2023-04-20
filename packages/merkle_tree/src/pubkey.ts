@@ -1,5 +1,9 @@
 import { ecrecover, pubToAddress } from "@ethereumjs/util";
-import { Transaction, FeeMarketEIP1559Transaction } from "@ethereumjs/tx";
+import {
+  Transaction,
+  FeeMarketEIP1559Transaction,
+  AccessListEIP2930Transaction
+} from "@ethereumjs/tx";
 import alchemy from "./alchemy";
 import axiosBase from "axios";
 
@@ -30,66 +34,90 @@ export const getPubkey = async (
         tx.from.toLowerCase() === "0x" + address.toLowerCase()
     );
 
-    const tx = await alchemy.core.getTransaction(esTx.hash);
+    if (!esTx) {
+      console.log("No outgoing tx found for address", address);
+    } else {
+      const tx = await alchemy.core.getTransaction(esTx.hash);
+      if (tx) {
+        let msgHash;
+        if (tx.type === 0) {
+          // Legacy and EIP-155 Transaction
+          const txData = {
+            nonce: tx.nonce,
+            gasPrice: tx.gasPrice?.toBigInt(),
+            gasLimit: tx.gasLimit?.toBigInt(),
+            to: tx.to,
+            value: tx.value.toBigInt(),
+            data: tx.data,
 
-    if (tx) {
-      let msgHash;
+            // Need to pass these so Transaction.fromTxData can detect
+            // the correct transaction type
+            v: tx.v,
+            r: tx.r,
+            s: tx.s,
+            type: tx.type
+          };
 
-      if (tx.type === 0) {
-        const txData = {
-          from: tx.from,
-          nonce: tx.nonce,
-          gasPrice: tx.gasPrice?.toBigInt(),
-          gasLimit: tx.gasLimit?.toBigInt(),
-          to: tx.to,
-          value: tx.value.toBigInt(),
-          accessList: tx.accessList,
-          data: tx.data,
-          // We need to provide this to be compatible with non EIP-155 transactions
-          s: tx.s,
-          r: tx.r,
-          v: tx.v
-        };
+          msgHash = Transaction.fromTxData(txData).getMessageToSign(true);
+        } else if (tx.type === 1) {
+          // EIP-2930 Transaction (access lists)
+          const txData = {
+            nonce: tx.nonce,
+            gasPrice: tx.gasPrice?.toBigInt(),
+            gasLimit: tx.gasLimit?.toBigInt(),
+            to: tx.to,
+            value: tx.value.toBigInt(),
+            accessList: tx.accessList,
+            data: tx.data
+          };
 
-        msgHash = Transaction.fromTxData(txData).getMessageToSign(true);
-      } else {
-        const txData = {
-          from: tx.from,
-          nonce: tx.nonce,
-          maxFeePerGas: tx.maxFeePerGas?.toBigInt(),
-          maxPriorityFeePerGas: tx.maxPriorityFeePerGas?.toBigInt(),
-          gasLimit: tx.gasLimit?.toBigInt(),
-          to: tx.to,
-          value: tx.value.toBigInt(),
-          accessList: tx.accessList,
-          data: tx.data,
-          // We need to provide this to be compatible with non EIP-155 transactions
-          s: tx.s,
-          r: tx.r,
-          v: tx.v
-        };
+          msgHash =
+            AccessListEIP2930Transaction.fromTxData(txData).getMessageToSign(
+              true
+            );
+        } else if (tx.type === 2) {
+          // EIP-1559 Transaction
+          const txData = {
+            nonce: tx.nonce,
+            maxFeePerGas: tx.maxFeePerGas?.toBigInt(),
+            maxPriorityFeePerGas: tx.maxPriorityFeePerGas?.toBigInt(),
+            gasLimit: tx.gasLimit?.toBigInt(),
+            to: tx.to,
+            value: tx.value.toBigInt(),
+            accessList: tx.accessList,
+            data: tx.data
+          };
 
-        msgHash =
-          FeeMarketEIP1559Transaction.fromTxData(txData).getMessageToSign(true);
-      }
+          msgHash =
+            FeeMarketEIP1559Transaction.fromTxData(txData).getMessageToSign(
+              true
+            );
+        } else {
+          console.error("Unknown tx type", tx.type);
+          return null;
+        }
 
-      const s = Buffer.from(tx.s?.replace("0x", "") as string, "hex");
-      const r = Buffer.from(tx.r?.replace("0x", "") as string, "hex");
-      const v = BigInt(tx.v as number);
+        // Recover the public key
+        const s = Buffer.from(tx.s?.replace("0x", "") as string, "hex");
+        const r = Buffer.from(tx.r?.replace("0x", "") as string, "hex");
+        const v = BigInt(tx.v as number);
 
-      pubKey = ecrecover(msgHash, v, r, s, BigInt(tx.chainId));
-      const expectedAddress = address.replace("0x", "").toLowerCase();
-      const recoveredAddress = pubToAddress(pubKey)
-        .toString("hex")
-        .toLowerCase();
-      if (expectedAddress !== recoveredAddress) {
-        console.log(
-          "error",
-          "Failed to get the public key from the address",
-          tx.type,
-          expectedAddress,
-          recoveredAddress
-        );
+        const chainId = tx.chainId === 0 ? undefined : BigInt(tx.chainId);
+        pubKey = ecrecover(msgHash, v, r, s, chainId);
+
+        // Check that the recovered public key hashes the address
+        const expectedAddress = address.replace("0x", "").toLowerCase();
+        const recoveredAddress = pubToAddress(pubKey)
+          .toString("hex")
+          .toLowerCase();
+        if (expectedAddress !== recoveredAddress) {
+          console.error(
+            "Failed to get the public key from the address",
+            tx.type,
+            expectedAddress,
+            recoveredAddress
+          );
+        }
       }
     }
   } catch (err) {
