@@ -275,6 +275,7 @@ async function writeTree(blockHeight: number) {
     await prisma.tree.create({
       data: {
         type: GroupType.OneNoun,
+        blockHeight,
         root: anonSet1Root
       }
     });
@@ -305,6 +306,7 @@ async function writeTree(blockHeight: number) {
     await prisma.tree.create({
       data: {
         type: GroupType.ManyNouns,
+        blockHeight,
         root: anonSet2Root
       }
     });
