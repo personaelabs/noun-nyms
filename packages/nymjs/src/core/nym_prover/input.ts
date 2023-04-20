@@ -4,12 +4,13 @@ import { hashPersonalMessage, fromRpcSig } from "@ethereumjs/util";
 import { computeEffEcdsaPubInput } from "@personaelabs/spartan-ecdsa";
 
 import { buildPoseidon } from "circomlibjs";
+import {
+  EffECDSASig,
+  MerkleProof,
+  NymProofInput,
+} from "../../types/nym_prover";
 
-import { MerkleProof, NymInput, EffECDSASig } from "../types";
-
-function bufferToBigInt(buf: Buffer): bigint {
-  return BigInt("0x" + buf.toString("hex"));
-}
+import { bigIntToBytes, bufferToBigInt } from "../utils";
 
 async function computeEffECDSASig(
   sigStr: string,
@@ -33,7 +34,16 @@ async function computeNymHash(nymSigS: bigint) {
   return poseidon([nymSigS, nymSigS]);
 }
 
-export async function computeNymInput(
+/**
+ *
+ * @param membershipProof
+ * @param content
+ * @param contentSigStr
+ * @param nym
+ * @param nymSigStr
+ * @returns
+ */
+export async function prepareInput(
   membershipProof: MerkleProof,
 
   content: string,
@@ -41,11 +51,10 @@ export async function computeNymInput(
 
   nym: string,
   nymSigStr: string
-): Promise<NymInput> {
+): Promise<NymProofInput> {
   const nymSig = await computeEffECDSASig(nymSigStr, nym);
   const contentSig = await computeEffECDSASig(contentSigStr, content);
 
-  // TODO: type-check poseidon input properly once I'm testing proving
   const nymHash = await computeNymHash(nymSig.s);
 
   return {
@@ -66,7 +75,7 @@ export async function computeNymInput(
  * This class exists to provide serialization/deserialization utilities for passing these values to
  * spartan wasm.
  */
-export class CircuitPubInput {
+export class NymCircuitPublicInput {
   constructor(
     private root: bigint,
     private nym: bigint,

@@ -1,14 +1,17 @@
 const snarkjs = require("snarkjs");
 
-import { NymInput, Proof, ProverConfig } from "../types";
-
-import wasm, { init } from "../wasm";
+import { NymProof, NymProofInput } from "../../types/nym_prover";
+import wasm, { init } from "../../wasm";
 import { Profiler } from "./profiler";
-import { bigIntToBytes } from "./utils";
+import { bigIntToBytes } from "../utils";
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL = "";
 export const WITNESS_GEN_WASM_URL = "";
+
+export type ProverConfig = {
+  enableProfiler?: boolean;
+};
 
 export class NymProver extends Profiler {
   circuit: string;
@@ -28,9 +31,10 @@ export class NymProver extends Profiler {
     this.timeEnd("init wasm");
   }
 
-  async prove(input: NymInput): Promise<Proof> {
+  // NOTE: return information for verification
+  async prove(input: NymProofInput): Promise<NymProof> {
     this.time("generate witness");
-    const witnessInput = {}; // TODO: populate it from NymInput
+    const witnessInput = {}; // TODO: populate it from NymProofInput
     const witness: {
       type: string;
       data?: any;
@@ -53,8 +57,8 @@ export class NymProver extends Profiler {
     this.timeEnd("prove");
 
     return {
-      proof: Uint8Array.from([]),
-      publicInput: {},
+      proof,
+      serializedPublicInput: circuitPubInput,
     };
   }
 }
