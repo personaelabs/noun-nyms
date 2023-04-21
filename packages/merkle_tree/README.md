@@ -20,9 +20,10 @@ _In nym/_
 docker-compose up database
 ```
 
-### Run database migrations
+### Run database migrations & Generate Prisma client
 ```
-yarn prisma migrate dev
+yarn prisma migrate deploy &&
+yarn prisma generate
 ```
 
 ### Build The Graph client
