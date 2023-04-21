@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: Nym API
+  description: ""
+  contact:
+    email: dan@personaelabs.org
+  version: "1"
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local server
+paths:
+  /posts:
+    get:
+      description: Get posts
+      operationId: getPosts
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+    post:
+      description: Create a post
+      operationId: createPost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                body:
+                  type: string
+                parentId:
+                  type: string
+                timestamp:
+                  type: number
+                  description: Unix timestamp
+                venue:
+                  type: string
+                proof:
+                  type: string
+                publicInput:
+                  type: string
+                sig:
+                  type: string
+              required:
+                - title
+                - content
+      responses:  
+        '200':
+          description: OK
+  /posts/{postId}:
+    get:
+      description: Get a single post and all of its children
+      operationId: getPost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /posts/{postId}/upvote:
+    post:
+      description: Get a single post and all of its children
+      operationId: upvotePost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sig:
+                  type: string
+                timestamp:
+                  type: number
+                  description: Unix timestamp
+                address:
+                  type: string
+              required:
+                - sig
+                - timestamp
+                - address
+      responses:
+        '200':
+          description: OK
+  /groups/latest:
+    get:
+      description: Get all members and their Merkle proof of the latest group
+      operationId: getLatestGroup
+      parameters:
+        - in: query
+          required: true
+          name: set
+          schema:
+            type: number
+            enum:
+              - 1
+              - 2
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid set
