@@ -1,15 +1,12 @@
 {
   "name": "root",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "format": "npm run --workspaces --if-present format",
-    "format:check": "npm run --workspaces --if-present format:check",
-    "lint": "npm run --workspaces --if-present lint",
+    "format": "pnpm -r format",
+    "format:check": "pnpm -r format:check",
+    "lint": "pnpm -r lint",
     "prepare": "husky install",
-    "test": "npm run --workspaces --if-present test"
+    "test": "pnpm -r test"
   },
   "repository": {
     "type": "git",
