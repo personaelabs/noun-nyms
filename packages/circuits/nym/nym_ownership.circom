@@ -62,7 +62,6 @@ template NymOwnership(treeLevels) {
     contentSigVerify.s <== contentSigS;
 
     // nym hash check (double input poseidon, so uses signedNymCode as both inputs)
-    // TODO: change upstream poseidon to have variable input
     component nymHashCheck = Poseidon();
     nymHashCheck.inputs[0] <== nymSigS;
     nymHashCheck.inputs[1] <== nymSigS;

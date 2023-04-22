@@ -13,9 +13,10 @@
     "circomlibjs": "0.1.7"
   },
   "devDependencies": {
-    "@personaelabs/spartan-ecdsa": "*",
-    "@types/jest": "^29.5.0",
+    "@ethereumjs/util": "^8.0.5",
+    "@personaelabs/spartan-ecdsa": "^2.1.0",
     "@wagmi/core": "^0.10.8",
+    "circom_tester": "^0.0.19",
     "ethers": "5",
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",

@@ -1,6 +1,6 @@
 pragma circom 2.1.2;
 include "../poseidon/poseidon.circom";
-include "../../../node_modules/circomlib/circuits/mux1.circom";
+include "../node_modules/circomlib/circuits/mux1.circom";
 
 /**
  *  MerkleTreeInclusionProof
