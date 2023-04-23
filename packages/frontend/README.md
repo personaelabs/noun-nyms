@@ -9,10 +9,10 @@ Create file frontend/.env with the following content:
 DATABASE_URL=postgresql://nymdev:password@localhost:5432/nym
 ```
 
-### Install dependencies
+### Start the development server and database
 
 ```
-pnpm install
+pnpm dev:all
 ```
 
 ### Start the development database
@@ -29,10 +29,4 @@ _Note: `prisma migrate dev` includes the `generate command`._
 
 ```
 pnpm db:migrate
-```
-
-### Start the development server
-
-```
-pnpm dev
 ```

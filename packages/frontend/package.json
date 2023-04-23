@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "pnpm db:start && pnpm next dev",
+    "dev": "next dev",
+    "dev:all": "pnpm db:start && pnpm dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:start": "pnpm db:down && docker-compose up -d && pnpm db:migrate",
-    "db:down": "docker-compose down",
+    "db:start": "pnpm down && docker-compose up -d && pnpm db:migrate",
+    "down": "docker-compose down",
     "db:migrate": "pnpm exec prisma migrate dev"
   },
   "dependencies": {
