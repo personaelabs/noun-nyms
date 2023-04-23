@@ -3,6 +3,10 @@ lockfileVersion: '6.0'
 importers:
 
   .:
+    dependencies:
+      frontend:
+        specifier: workspace:*
+        version: link:packages/frontend
     devDependencies:
       '@commitlint/cli':
         specifier: ^17.6.1

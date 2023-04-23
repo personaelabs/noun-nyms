@@ -6,7 +6,8 @@
     "format:check": "pnpm -r format:check",
     "lint": "pnpm -r lint",
     "prepare": "husky install",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "frontend:dev": "pnpm -F frontend run dev"
   },
   "repository": {
     "type": "git",
@@ -31,5 +32,8 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
     "prettier": "2.8.7"
+  },
+  "dependencies": {
+    "frontend": "workspace:*"
   }
 }
