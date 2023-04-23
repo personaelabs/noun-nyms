@@ -1,10 +1,10 @@
-import styles from "@/styles/Home.module.css";
-import { MerkleProof } from "@personaelabs/spartan-ecdsa";
-import { useState } from "react";
-
-import { ethers } from "ethers";
-import { useSignMessage } from "wagmi";
-import { ProofInputs, Prover } from "@/utils/prover";
+import styles from '@/styles/Home.module.css';
+import { Poseidon } from '@personaelabs/spartan-ecdsa';
+import { fromRpcSig, ecrecover, hashPersonalMessage } from '@ethereumjs/util';
+import { useState } from 'react';
+import { useSignMessage } from 'wagmi';
+import { NymProver, NymProofInput, prepareInput } from '@personaelabs/nymjs';
+import { constructDummyTree } from '../utils';
 
 type Props = {
   nymCode: string;
@@ -12,20 +12,9 @@ type Props = {
   nymHash: string;
 };
 
-// TODO: make this a legitimate proof
-const dummyMerkleProof: MerkleProof = {
-  root: BigInt(1),
-  siblings: [],
-  pathIndices: [],
-};
-
 // NOTE: when replying to a parent, parent probably needs to be passed in
-export default function PostMessage({
-  nymCode,
-  signedNymCode,
-  nymHash,
-}: Props) {
-  const [message, setMessage] = useState("");
+export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) {
+  const [message, setMessage] = useState('');
   const { signMessageAsync } = useSignMessage({
     message,
   });
@@ -34,36 +23,48 @@ export default function PostMessage({
     setMessage(event.target.value);
   }
 
-  async function generateProofInputs(): Promise<ProofInputs> {
-    const nymCodeMsgHash = ethers.utils.hashMessage(nymCode);
-
-    const contentDataMsgHash = ethers.utils.hashMessage(message);
+  async function generateProofInputs(): Promise<NymProofInput> {
     const signedContentData = await signMessageAsync();
 
-    const merkleProof = dummyMerkleProof;
+    const poseidon = new Poseidon();
+    await poseidon.initWasm();
 
-    return {
-      nymCodeMsgHash,
-      signedNymCode,
-      nymHash,
+    const tree = await constructDummyTree(poseidon);
+    const sig = fromRpcSig(signedContentData);
+    const contentHash = hashPersonalMessage(Buffer.from(message, 'utf8'));
+    const proverPubKey = ecrecover(contentHash, sig.v, sig.r, sig.s);
+    const proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
+    tree.insert(proverPubKeyHash);
+    const membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
 
-      contentDataMsgHash,
+    const input = await prepareInput(
+      membershipProof,
+      message,
       signedContentData,
+      nymCode,
+      signedNymCode,
+    );
 
-      merkleProof,
-    };
+    return input;
   }
 
   const postMessage = async () => {
     const proofInputs = await generateProofInputs();
 
-    const prover = new Prover();
-    prover.initWasm();
+    const prover = new NymProver({
+      witness_gen_wasm_url: 'http://localhost:3000/nym_ownership.wasm',
+      circuit_url: 'http://localhost:3000/nym_ownership.circuit',
+      enableProfiler: true,
+    });
+
+    // TODO: Fix failing wasm init
+    // Commenting proving out until wasm init is fixed
+    /**
+    await prover.initWasm();
     const proof = await prover.prove(proofInputs);
-
-    // TODO: what do we want to do with proof here?
-
-    console.log(`Successfully constructed proof!`);
+    console.log(proof);
+    console.log(`Successfully generated proof!`);
+    */
   };
 
   return (
