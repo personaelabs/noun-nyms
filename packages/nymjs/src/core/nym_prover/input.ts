@@ -1,95 +1,93 @@
-// NOTE: this file should be a reference for frontend code
-import { hashPersonalMessage, fromRpcSig } from "@ethereumjs/util";
+import { hashPersonalMessage, fromRpcSig } from '@ethereumjs/util';
+import { computeEffEcdsaPubInput, Poseidon } from '@personaelabs/spartan-ecdsa';
+import { EffECDSASig, MerkleProof, NymProofInput } from '../../types/nym_prover';
+import { bigIntToBytes, bufferToBigInt } from '../utils';
 
-import { computeEffEcdsaPubInput } from "@personaelabs/spartan-ecdsa";
-
-import { buildPoseidon } from "circomlibjs";
-import {
-  EffECDSASig,
-  MerkleProof,
-  NymProofInput,
-} from "../../types/nym_prover";
-
-import { bigIntToBytes, bufferToBigInt } from "../utils";
-
-async function computeEffECDSASig(
-  sigStr: string,
-  msg: string
-): Promise<EffECDSASig> {
+async function computeEffECDSASig(sigStr: string, msg: string): Promise<EffECDSASig> {
+  console.log('sigStr', sigStr);
   const { v, r: _r, s: _s } = fromRpcSig(sigStr);
 
   const r = bufferToBigInt(_r);
   const s = bufferToBigInt(_s);
 
-  const msgHash = hashPersonalMessage(Buffer.from(msg));
+  const msgHash = hashPersonalMessage(Buffer.from(msg, 'utf8'));
 
   const { Tx, Ty, Ux, Uy } = computeEffEcdsaPubInput(r, v, msgHash);
 
   return { Tx, Ty, Ux, Uy, s };
 }
 
-async function computeNymHash(nymSigS: bigint) {
-  // TODO: re-use Poseidon instance
-  const poseidon = await buildPoseidon();
-  return poseidon([nymSigS, nymSigS]);
+let poseidon: Poseidon | null;
+// Compute nymHash = Poseidon([nymSig.s, nymSig.s])
+export async function computeNymHash(nymSig: string): Promise<string> {
+  const nymSigS = bufferToBigInt(fromRpcSig(nymSig).s);
+
+  if (!poseidon) {
+    poseidon = new Poseidon();
+    await poseidon.initWasm();
+  }
+
+  return poseidon.hash([nymSigS, nymSigS]).toString(16);
 }
 
-/**
- *
- * @param membershipProof
- * @param content
- * @param contentSigStr
- * @param nym
- * @param nymSigStr
- * @returns
- */
 export async function prepareInput(
   membershipProof: MerkleProof,
-
   content: string,
   contentSigStr: string,
-
   nym: string,
-  nymSigStr: string
+  nymSigStr: string,
 ): Promise<NymProofInput> {
   const nymSig = await computeEffECDSASig(nymSigStr, nym);
   const contentSig = await computeEffECDSASig(contentSigStr, content);
 
-  const nymHash = await computeNymHash(nymSig.s);
+  const nymHash = await computeNymHash(nymSigStr);
 
   return {
     membershipProof,
-
     nym,
     nymHash,
     nymSig,
-
     content,
     contentSig,
   };
 }
 
 /**
- * Public inputs that are passed to `nym_ownership` circuit (circuits/instances/nym_ownership.circom)
+ * Inputs that are passed to `nym_ownership` circuit (circuits/instances/nym_ownership.circom)
  *
  * This class exists to provide serialization/deserialization utilities for passing these values to
  * spartan wasm.
  */
-export class NymCircuitPublicInput {
-  constructor(
-    private root: bigint,
-    private nym: bigint,
-    private nymSigTx: bigint,
-    private nymSigTy: bigint,
-    private nymSigUx: bigint,
-    private nymSigUy: bigint,
-    private nymHash: bigint,
-    private content: bigint,
-    private contentSigTx: bigint,
-    private contentSigTy: bigint,
-    private contentSigUx: bigint,
-    private contentSigUy: bigint
-  ) {}
+export class NymCircuitInput {
+  root: bigint;
+  nym: bigint;
+  nymHash: bigint;
+  content: bigint;
+  nymSigTx: bigint;
+  nymSigTy: bigint;
+  nymSigUx: bigint;
+  nymSigUy: bigint;
+  contentSigTx: bigint;
+  contentSigTy: bigint;
+  contentSigUx: bigint;
+  contentSigUy: bigint;
+
+  constructor(input: NymProofInput) {
+    this.root = input.membershipProof.root;
+    this.nym = bufferToBigInt(Buffer.from(input.nym, 'utf8'));
+    this.nymHash = bufferToBigInt(Buffer.from(input.nymHash, 'hex'));
+    this.content = bufferToBigInt(Buffer.from(input.content, 'utf8'));
+
+    this.nymSigTx = input.nymSig.Tx;
+    this.nymSigTy = input.nymSig.Ty;
+    this.nymSigUx = input.nymSig.Ux;
+    this.nymSigUy = input.nymSig.Uy;
+
+    this.contentSigTx = input.contentSig.Tx;
+    this.contentSigTy = input.contentSig.Ty;
+    this.contentSigUx = input.contentSig.Ux;
+    this.contentSigUy = input.contentSig.Uy;
+  }
 
   serialize(): Uint8Array {
     const serialized = new Uint8Array(32 * 12);

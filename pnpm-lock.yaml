@@ -80,9 +80,6 @@ importers:
       next:
         specifier: 13.2.4
         version: 13.2.4(react-dom@18.2.0)(react@18.2.0)
-      nymjs:
-        specifier: ../nymjs
-        version: link:../nymjs
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -218,6 +215,12 @@ importers:
 
   packages/test_client:
     dependencies:
+      '@ethereumjs/util':
+        specifier: ^8.0.5
+        version: 8.0.5
+      '@personaelabs/nymjs':
+        specifier: '*'
+        version: link:../nymjs
       '@personaelabs/spartan-ecdsa':
         specifier: ^2.0.0
         version: 2.1.0

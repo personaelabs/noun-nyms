@@ -1,3 +1,5 @@
+import { MerkleProof, NymProof } from './nym_prover';
+
 /**
  * SelfAttestingContent is data alongside a proof or signature that validates it.
  *
@@ -15,25 +17,32 @@ export interface SelfAttestingContent {
 
 export class ContentWithNymProof implements SelfAttestingContent {
   id(): string {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   contentData: ContentData;
   proof: NymProof;
   merkleRoot: bigint;
+
+  constructor(contentData: ContentData, proof: NymProof, merkleRoot: bigint) {
+    this.contentData = contentData;
+    this.proof = proof;
+    this.merkleRoot = merkleRoot;
+  }
 }
 
 export class ContentWithSig implements SelfAttestingContent {
   id(): string {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   contentData: ContentData;
   sig: string;
   signerEthAddress: string;
-}
 
-export interface NymProof {
-  proof: Uint8Array;
-  publicInput: Uint8Array;
+  constructor(contentData: ContentData, sig: string, signerEthAddress: string) {
+    this.contentData = contentData;
+    this.sig = sig;
+    this.signerEthAddress = signerEthAddress;
+  }
 }
 
 export type ContentData = {
@@ -57,5 +66,19 @@ export class DoxedGroupUpvote implements ContentEmbellishment {
   signature: string;
   signerEthAddress: string;
   merkleRoot: bigint;
-  // TODO: merkle proof
+  merkleProof: MerkleProof;
+
+  constructor(
+    contentId: string,
+    signature: string,
+    signerEthAddress: string,
+    merkleRoot: bigint,
+    merkleProof: MerkleProof,
+  ) {
+    this.contentId = contentId;
+    this.signature = signature;
+    this.signerEthAddress = signerEthAddress;
+    this.merkleRoot = merkleRoot;
+    this.merkleProof = merkleProof;
+  }
 }
