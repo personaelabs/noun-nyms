@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
   title: Nym API
-  description: ""
+  description: ''
   contact:
     email: dan@personaelabs.org
-  version: "1"
+  version: '1'
 servers:
   - url: http://localhost:3000/api/v1
     description: Local server
@@ -56,7 +56,7 @@ paths:
               required:
                 - title
                 - content
-      responses:  
+      responses:
         '200':
           description: OK
   /posts/{postId}:

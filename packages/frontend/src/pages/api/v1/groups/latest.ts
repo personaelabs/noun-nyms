@@ -1,36 +1,31 @@
-import prisma from "../../../../lib/prisma";
-import { GroupType } from "@prisma/client";
-import type { NextApiRequest, NextApiResponse } from "next";
+import prisma from '../../../../lib/prisma';
+import { GroupType } from '@prisma/client';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Return all members of a group
-const handleGetLatestGroup = async (
-  req: NextApiRequest,
-  res: NextApiResponse
-) => {
+const handleGetLatestGroup = async (req: NextApiRequest, res: NextApiResponse) => {
   const set = req.query.set as string;
 
-  if (set !== "1" && set !== "2") {
-    res.status(400).send("Invalid set");
+  if (set !== '1' && set !== '2') {
+    res.status(400).send('Invalid set');
     return;
   }
 
-  const type = set === "1" ? GroupType.OneNoun : GroupType.ManyNouns;
+  const type = set === '1' ? GroupType.OneNoun : GroupType.ManyNouns;
 
-  const treeNodes = (
-    await prisma.treeNode.findMany({
-      select: {
-        pubkey: true,
-        path: true,
-        indices: true
-      },
-      where: {
-        type
-      },
-      orderBy: {
-        pubkey: "asc"
-      }
-    })
-  );
+  const treeNodes = await prisma.treeNode.findMany({
+    select: {
+      pubkey: true,
+      path: true,
+      indices: true,
+    },
+    where: {
+      type,
+    },
+    orderBy: {
+      pubkey: 'asc',
+    },
+  });
 
   /*  
   if (treeNodes.length < 100) {
@@ -41,29 +36,26 @@ const handleGetLatestGroup = async (
 
   const root = await prisma.tree.findFirst({
     select: {
-      root: true
+      root: true,
     },
     where: {
-      type
+      type,
     },
     orderBy: {
-      createdAt: "desc"
-    }
+      createdAt: 'desc',
+    },
   });
 
   res.send({
     root: root?.root,
-    members: treeNodes
+    members: treeNodes,
   });
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method == "GET") {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method == 'GET') {
     await handleGetLatestGroup(req, res);
   } else {
-    res.status(400).send("Unsupported method");
+    res.status(400).send('Unsupported method');
   }
 }
