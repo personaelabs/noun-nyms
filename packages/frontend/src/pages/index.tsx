@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { CommentView } from '../components/MessageRow';
 import { TEMP_DUMMY_DATA } from '../lib/constants';
-
+import * as React from 'react'
 export default function Home() {
   return (
     <main className="flex w-full flex-col justify-center items-center">
@@ -43,10 +43,10 @@ export default function Home() {
             <div className="flex space-x-2"></div>
             <div className="mt-6">
               {TEMP_DUMMY_DATA.map((el) => (
-                <>
+                <React.Fragment key={el.commentId}>
                   <CommentView key={el.commentId} {...el} />
                   <div className="py-8"></div>
-                </>
+                </React.Fragment>
               ))}
             </div>
           </div>
