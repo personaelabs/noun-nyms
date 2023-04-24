@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['react-syntax-highlighter', 'swagger-client', 'swagger-ui-react'],
-  webpack: config => {
+  webpack: (config) => {
     config.resolve.fallback = { fs: false };
     config.experiments = { asyncWebAssembly: true, layers: true };
 
@@ -11,20 +11,20 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
           {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "require-corp"
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
           },
           {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin"
-          }
-        ]
-      }
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+        ],
+      },
     ];
-  }
-}
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
