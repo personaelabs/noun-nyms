@@ -13,8 +13,6 @@ include "../poseidon/poseidon.circom";
  *  Pubkey membership in merkle root (not address) + nym ownership + content data commitment 
  */
 template NymOwnership(treeLevels) {
-    signal input nym;
-    
     // public nym signature efficient-ecdsa artifacts 
     // note that U encodes msghash (= r^(-1)m * G ), thus relationship b/w nymSigU{x,y} and nym is publicly verifiable
     // same holds for contentSig inputs below
@@ -29,8 +27,6 @@ template NymOwnership(treeLevels) {
     // nymHash = poseidon('s' part of ECDSASig(nym))
     signal input nymHash; 
         
-    signal input content;
-
     // same relationship with `content` as `nymSig` inputs have with `nym` above
     signal input contentSigTx;
     signal input contentSigTy;
@@ -71,6 +67,8 @@ template NymOwnership(treeLevels) {
     component pubKeyHash = Poseidon();
     pubKeyHash.inputs[0] <== nymSigVerify.pubKeyX;
     pubKeyHash.inputs[1] <== nymSigVerify.pubKeyY;
+
+    // TODO: Fix this
     pubKeyHash.inputs[0] === contentSigVerify.pubKeyX;
     pubKeyHash.inputs[1] === contentSigVerify.pubKeyY;
 
