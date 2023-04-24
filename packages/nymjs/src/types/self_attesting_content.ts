@@ -1,4 +1,5 @@
-import { MerkleProof, NymProof } from './nym_prover';
+import { NymProof } from './proof';
+import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 
 /**
  * SelfAttestingContent is data alongside a proof or signature that validates it.
@@ -46,10 +47,11 @@ export class ContentWithSig implements SelfAttestingContent {
 }
 
 export type ContentData = {
-  content: string;
+  title: string;
+  body: string;
   parentContentId: string;
+  timestamp: number;
   // NOTE: do we want a version of this that expresses the entire graph fully?
-  // TODO: metadata?
 };
 
 /**
