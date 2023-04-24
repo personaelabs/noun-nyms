@@ -1,12 +1,16 @@
 {
-  "name": "nym-api",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:all": "pnpm db:start && pnpm dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:start": "pnpm down && docker-compose up -d && pnpm db:migrate",
+    "down": "docker-compose down",
+    "db:migrate": "pnpm exec prisma migrate dev"
   },
   "dependencies": {
     "@ethereumjs/util": "^8.0.5",
