@@ -1,27 +1,23 @@
-import Head from "next/head";
-import styles from "@/styles/Home.module.css";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import NymSelector from "@/components/NymSelector";
-import PostMessage from "@/components/PostMessage";
+import NymSelector from '../components/NymSelector';
+import PostMessage from '../components/PostMessage';
 
 export default function Home() {
-  const [nymCode, setNymCode] = useState("");
-  const [nymHash, setNymHash] = useState("");
-  const [signedNymCode, setSignedNymCode] = useState("");
+  const [nymCode, setNymCode] = useState('');
+  const [nymHash, setNymHash] = useState('');
+  const [signedNymCode, setSignedNymCode] = useState('');
 
   function displayNym() {
     // NOTE: may want to shorten
     return `${nymCode}-${nymHash}`;
   }
 
-  const onNymSelected = (
-    nymCode: string,
-    nymHash: string,
-    signedNymCode: string
-  ) => {
+  const onNymSelected = (nymCode: string, signedNymCode: string, nymHash) => {
     setNymCode(nymCode);
     setNymHash(nymHash);
     setSignedNymCode(signedNymCode);
