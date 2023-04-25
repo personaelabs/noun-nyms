@@ -5,8 +5,8 @@ import { ecsign, hashPersonalMessage, privateToPublic } from '@ethereumjs/util';
 import { constructTree, bytesToBigInt } from './test_utils';
 
 describe('nym ownership', () => {
-  let circuitInput;
-  let circuit;
+  let circuitInput: any;
+  let circuit: any;
 
   beforeAll(async () => {
     circuit = await wasm_tester(path.join(__dirname, '../instances/nym_ownership.circom'), {
@@ -76,8 +76,6 @@ describe('nym ownership', () => {
     const contentSigUy = contentSigEffECDSAInput.Uy;
 
     circuitInput = {
-      content: bytesToBigInt(content),
-      nym: bytesToBigInt(nym),
       nymHash,
 
       // Efficient ECDSA signature of the nym

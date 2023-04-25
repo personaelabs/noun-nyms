@@ -57,6 +57,10 @@ template NymOwnership(treeLevels) {
     contentSigVerify.Uy <== contentSigUy;
     contentSigVerify.s <== contentSigS;
 
+    // check that nym sig and content data sig are signed by the same key
+    nymSigVerify.pubKeyX === contentSigVerify.pubKeyX;
+    nymSigVerify.pubKeyY === contentSigVerify.pubKeyY;
+
     // nym hash check (double input poseidon, so uses signedNymCode as both inputs)
     component nymHashCheck = Poseidon();
     nymHashCheck.inputs[0] <== nymSigS;
@@ -67,10 +71,6 @@ template NymOwnership(treeLevels) {
     component pubKeyHash = Poseidon();
     pubKeyHash.inputs[0] <== nymSigVerify.pubKeyX;
     pubKeyHash.inputs[1] <== nymSigVerify.pubKeyY;
-
-    // TODO: Fix this
-    pubKeyHash.inputs[0] === contentSigVerify.pubKeyX;
-    pubKeyHash.inputs[1] === contentSigVerify.pubKeyY;
 
     component merkleProof = MerkleTreeInclusionProof(treeLevels);
     merkleProof.leaf <== pubKeyHash.out;
