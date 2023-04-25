@@ -1,29 +1,32 @@
 ## Development
 
 ## Configure environment variables
+
 Create file frontend/.env with the following content:
+`cp .env.example .env`
+
 ```
 DATABASE_URL=postgresql://nymdev:password@localhost:5432/nym
 ```
 
-### Install dependencies
+### Start the development server and database
+
 ```
-yarn
+pnpm dev:all
 ```
 
 ### Start the development database
-_In nym/_
+
 ```
-docker-compose up database
+pnpm db:start
 ```
 
 ### Run database migrations & Generate Prisma client
-```
-yarn prisma migrate deploy &&
-yarn prisma generate
-```
 
-### Start the development server
+_This command is included in `db:start`_
+
+_Note: `prisma migrate dev` includes the `generate command`._
+
 ```
-yarn dev
+pnpm db:migrate
 ```

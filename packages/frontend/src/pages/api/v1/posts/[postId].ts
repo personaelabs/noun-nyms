@@ -1,5 +1,5 @@
-import prisma from "../../../../lib/prisma";
-import type { NextApiRequest, NextApiResponse } from "next";
+import prisma from '../../../../lib/prisma';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Return a single post and all of its children
 const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -37,13 +37,10 @@ const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
   res.send(posts);
 };
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  if (req.method == "GET") {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method == 'GET') {
     await handleGetPost(req, res);
   } else {
-    res.status(400).send("Unsupported method");
+    res.status(400).send('Unsupported method');
   }
 }

@@ -1,4 +1,4 @@
-import { Poseidon } from "@personaelabs/spartan-ecdsa";
+import { Poseidon } from '@personaelabs/spartan-ecdsa';
 
 const poseidonHasher = new Poseidon();
 
@@ -11,9 +11,7 @@ export const hashBytes = async (bytes: Uint8Array): Promise<string> => {
 
   const chunks = [];
   for (let i = 0; i < bytes.length; i += 32) {
-    chunks.push(
-      BigInt("0x" + Buffer.from(bytes.slice(i, i + 32)).toString("hex"))
-    );
+    chunks.push(BigInt('0x' + Buffer.from(bytes.slice(i, i + 32)).toString('hex')));
   }
 
   let hash;
