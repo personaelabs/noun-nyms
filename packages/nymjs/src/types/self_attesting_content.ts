@@ -47,17 +47,12 @@ export class ContentWithSig implements SelfAttestingContent {
 }
 
 export type ContentData = {
+  venue: string;
   title: string;
   body: string;
   parentContentId: string;
   timestamp: number;
   // NOTE: do we want a version of this that expresses the entire graph fully?
-};
-
-export type NymMessage = {
-  version: number;
-  domainTag: string;
-  nymCode: string;
 };
 
 /**

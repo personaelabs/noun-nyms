@@ -1,4 +1,4 @@
-import { hashPersonalMessage, fromRpcSig } from '@ethereumjs/util';
+import { fromRpcSig } from '@ethereumjs/util';
 import {
   CircuitPubInput,
   computeEffEcdsaPubInput,
@@ -8,15 +8,16 @@ import {
 import { EffECDSASig } from '../types/proof';
 import { bigIntToBytes, bufferToBigInt } from '../utils';
 import { verifyEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
-import { NymMessage } from '../lib';
+import { EIP712TypedValue } from '../lib';
+import { eip712MsgHash } from '../lib';
 
-export function computeEffECDSASig(sigStr: string, msg: string): EffECDSASig {
+export function computeEffECDSASig(sigStr: string, msg: EIP712TypedValue): EffECDSASig {
   const { v, r: _r, s: _s } = fromRpcSig(sigStr);
 
   const r = bufferToBigInt(_r);
   const s = bufferToBigInt(_s);
 
-  const msgHash = hashPersonalMessage(Buffer.from(msg, 'utf8'));
+  const msgHash = eip712MsgHash(msg.domain, msg.types, msg.value);
 
   const { Tx, Ty, Ux, Uy } = computeEffEcdsaPubInput(r, v, msgHash);
 
@@ -38,9 +39,9 @@ export async function computeNymHash(nymSig: string): Promise<string> {
 
 export class NymPublicInput {
   root: bigint;
-  nym: NymMessage;
+  nym: EIP712TypedValue;
   nymHash: bigint;
-  content: string;
+  content: EIP712TypedValue;
   nymSigTx: bigint;
   nymSigTy: bigint;
   nymSigUx: bigint;
@@ -57,9 +58,9 @@ export class NymPublicInput {
   contentSigV: bigint;
 
   constructor(
-    nymMessage: NymMessage,
+    nymMessage: EIP712TypedValue,
     nymHash: bigint,
-    content: string,
+    content: EIP712TypedValue,
     root: bigint,
     nymSig: EffECDSASig,
     contentSig: EffECDSASig,
@@ -130,11 +131,11 @@ export class NymPublicInput {
   }
 
   private nymCodeSignedHash(): Buffer {
-    return hashPersonalMessage(Buffer.from(JSON.stringify(this.nym), 'utf-8'));
+    return eip712MsgHash(this.nym.domain, this.nym.types, this.nym.value);
   }
 
   private contentDataSignedHash(): Buffer {
-    return hashPersonalMessage(Buffer.from(this.content, 'utf-8'));
+    return eip712MsgHash(this.content.domain, this.content.types, this.content.value);
   }
 
   private nymSigPubInput(): PublicInput {

@@ -1,48 +1,70 @@
 import styles from '../styles/Home.module.css';
 import { Poseidon } from '@personaelabs/spartan-ecdsa';
-import { fromRpcSig, ecrecover, hashPersonalMessage } from '@ethereumjs/util';
+import { fromRpcSig, ecrecover } from '@ethereumjs/util';
 import { useState } from 'react';
-import { useSignMessage } from 'wagmi';
-import { NymProver, NymVerifier, ContentData, NymMessage } from '@personaelabs/nymjs';
+import { useSignTypedData } from 'wagmi';
+import {
+  NymProver,
+  NymVerifier,
+  ContentData,
+  EIP712TypedValue,
+  DOMAIN,
+  CONTENT_DATA_TYPES,
+  eip712MsgHash,
+} from '@personaelabs/nymjs';
 import { constructDummyTree } from '../utils';
 
 type Props = {
-  nymCode: string;
+  typedNymCode: EIP712TypedValue;
   signedNymCode: string; // NOTE: private
   nymHash: string;
 };
 
 // NOTE: when replying to a parent, parent probably needs to be passed in
-export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) {
+export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Props) {
   const [parentContentId, setParentContentId] = useState('');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
-  const { signMessageAsync } = useSignMessage();
+  const { signTypedDataAsync } = useSignTypedData();
 
   function handleMessageChange(event: any) {
     setBody(event.target.value);
   }
 
   const postMessage = async () => {
+    // Prepare content data
     const contentData: ContentData = {
+      venue: 'nouns',
       title,
       parentContentId,
       body,
       timestamp: Math.round(Date.now() / 1000),
     };
-    const message = JSON.stringify(contentData);
 
-    const signedContentData = await signMessageAsync({
-      message,
-    });
+    const typedContentData: EIP712TypedValue = {
+      domain: DOMAIN,
+      types: CONTENT_DATA_TYPES,
+      value: contentData,
+    };
+
+    // Request signature from user
+    // @ts-ignore
+    const signedContentData = await signTypedDataAsync(typedContentData);
+
+    const contentSig = fromRpcSig(signedContentData);
+    const contentHash = eip712MsgHash(
+      typedContentData.domain,
+      typedContentData.types,
+      typedContentData.value,
+    );
+
+    // Construct a dummy Merkle tree and generate a Merkle proof
+    const proverPubKey = ecrecover(contentHash, contentSig.v, contentSig.r, contentSig.s);
 
     const poseidon = new Poseidon();
     await poseidon.initWasm();
 
-    const contentSig = fromRpcSig(signedContentData);
-    const contentHash = hashPersonalMessage(Buffer.from(message, 'utf8'));
-    const proverPubKey = ecrecover(contentHash, contentSig.v, contentSig.r, contentSig.s);
     const proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
 
     const tree = await constructDummyTree(poseidon);
@@ -54,21 +76,16 @@ export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) 
       circuitUrl: 'http://localhost:3000/nym_ownership.circuit',
       enableProfiler: true,
     };
-    const prover = new NymProver(config);
 
+    const prover = new NymProver(config);
     await prover.initWasm();
 
-    const nymMessage: NymMessage = {
-      nymCode,
-      domainTag: 'nym',
-      version: 1,
-    };
-
+    // Prove!
     const proof = await prover.prove(
       membershipProof,
-      message,
+      typedContentData,
       signedContentData,
-      nymMessage,
+      typedNymCode,
       signedNymCode,
     );
     console.log(`Successfully generated proof!`);

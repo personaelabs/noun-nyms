@@ -1,6 +1,16 @@
 import * as path from 'path';
-import { NymProver, ContentData, NymVerifier, NymPublicInput, NymMessage } from '../src/lib';
-import { ecsign, ecrecover, hashPersonalMessage, toRpcSig } from '@ethereumjs/util';
+import {
+  NymProver,
+  ContentData,
+  NymVerifier,
+  NymPublicInput,
+  NYM_CODE_TYPE,
+  DOMAIN,
+  eip712MsgHash,
+  EIP712TypedValue,
+  CONTENT_DATA_TYPES,
+} from '../src/lib';
+import { ecsign, ecrecover, toRpcSig } from '@ethereumjs/util';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
 
 describe('NymProver', () => {
@@ -8,23 +18,39 @@ describe('NymProver', () => {
     let proverPubKeyHash: bigint;
     const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
     const nymCode = 'satoshi';
+
     const contentData: ContentData = {
+      venue: 'nouns',
       title: 'title',
       body: 'body',
       parentContentId: '',
       timestamp: Math.floor(Date.now() / 1000),
     };
 
-    const nymMessage: NymMessage = {
-      version: 1,
-      domainTag: 'nym',
-      nymCode: nymCode,
+    // Hash nymCode and contentData for signing
+
+    const nymTypedData: EIP712TypedValue = {
+      domain: DOMAIN,
+      types: NYM_CODE_TYPE,
+      value: { nymCode },
     };
 
-    // Hash nymCode and contentData for signing
-    const nymCodeMsgHash = hashPersonalMessage(Buffer.from(JSON.stringify(nymMessage), 'utf8'));
-    const contentDataMsgHash = hashPersonalMessage(
-      Buffer.from(JSON.stringify(contentData), 'utf8'),
+    const nymCodeMsgHash = eip712MsgHash(
+      nymTypedData.domain,
+      nymTypedData.types,
+      nymTypedData.value,
+    );
+
+    const contentDataTypedData: EIP712TypedValue = {
+      domain: DOMAIN,
+      types: CONTENT_DATA_TYPES,
+      value: contentData,
+    };
+
+    const contentDataMsgHash = eip712MsgHash(
+      contentDataTypedData.domain,
+      contentDataTypedData.types,
+      contentDataTypedData.value,
     );
 
     // Sign nymCode and contentData
@@ -60,9 +86,9 @@ describe('NymProver', () => {
 
       const fullProof = await prover.prove(
         membershipProof,
-        JSON.stringify(contentData),
+        contentDataTypedData,
         toRpcSig(contentDataSig.v, contentDataSig.r, contentDataSig.s),
-        nymMessage,
+        nymTypedData,
         toRpcSig(nymSig.v, nymSig.r, nymSig.s),
       );
       proof = fullProof.proof;

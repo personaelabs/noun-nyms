@@ -2,9 +2,9 @@ import { NymProof } from '../types/proof';
 import wasm, { init } from '../wasm';
 import { Profiler } from './profiler';
 import { bufferToBigInt, loadCircuit, snarkJsWitnessGen } from '../utils';
+import { EIP712TypedValue } from '../eip712';
 import { NymPublicInput, computeEffECDSASig, computeNymHash } from './input';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
-import { NymMessage } from '../lib';
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL =
@@ -36,12 +36,12 @@ export class NymProver extends Profiler {
   // NOTE: return information for verification
   async prove(
     membershipProof: MerkleProof,
-    content: string,
+    content: EIP712TypedValue,
     contentSigStr: string,
-    nymMessage: NymMessage,
+    nymMessage: EIP712TypedValue,
     nymSigStr: string,
   ): Promise<NymProof> {
-    const nymSig = computeEffECDSASig(nymSigStr, JSON.stringify(nymMessage));
+    const nymSig = computeEffECDSASig(nymSigStr, nymMessage);
     const contentSig = computeEffECDSASig(contentSigStr, content);
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 

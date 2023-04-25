@@ -1,31 +1,38 @@
 import { useState } from 'react';
-import { useSignMessage } from 'wagmi';
-import { computeNymHash } from '@personaelabs/nymjs';
+import { useSignTypedData } from 'wagmi';
+import {
+  computeNymHash,
+  eip712MsgHash,
+  NYM_CODE_TYPE,
+  DOMAIN,
+  EIP712TypedValue,
+} from '@personaelabs/nymjs';
 
 type Props = {
-  onNymSelected: (nymCode: string, signedNymCode: string, nymHash: string) => void;
+  onNymSelected: (nymCode: EIP712TypedValue, signedNymCode: string, nymHash: string) => void;
 };
 
 export default function NymSelector({ onNymSelected }: Props) {
   const [nymCode, setNymCode] = useState('');
 
-  const { signMessageAsync } = useSignMessage({
-    message: JSON.stringify({
-      nymCode,
-      domainTag: 'nym',
-      version: 1,
-    }),
-  });
+  const { signTypedDataAsync } = useSignTypedData();
 
   const createNym = async () => {
-    const signedNymCode = await signMessageAsync();
+    const typedNymCode = {
+      domain: DOMAIN,
+      types: NYM_CODE_TYPE,
+      value: {
+        nymCode,
+      },
+    };
+    const signedNymCode = await signTypedDataAsync(typedNymCode);
     const nymHash = await computeNymHash(signedNymCode);
 
     // TODO: this should probably be handled with component state
     const nymCodeInput = document.getElementById('nymCodeInput') as HTMLInputElement;
     nymCodeInput.readOnly = true;
 
-    onNymSelected(nymCode, signedNymCode, nymHash);
+    onNymSelected(typedNymCode, signedNymCode, nymHash);
   };
 
   return (
