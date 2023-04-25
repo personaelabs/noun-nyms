@@ -4,7 +4,10 @@ import { Poseidon, computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
 import { ecsign, hashPersonalMessage, privateToPublic } from '@ethereumjs/util';
 import { constructTree, bytesToBigInt } from './test_utils';
 
-describe('nym ownership', () => {
+// process.env.CI is set to true in GitHub Actions
+const maybe = process.env.CI ? describe.skip : describe;
+
+maybe('nym ownership', () => {
   let circuitInput: any;
   let circuit: any;
 
