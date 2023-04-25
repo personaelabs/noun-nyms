@@ -72,8 +72,6 @@ export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Pr
     const membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
 
     const config = {
-      witnessGenWasm: 'http://localhost:3000/nym_ownership.wasm',
-      circuitUrl: 'http://localhost:3000/nym_ownership.circuit',
       enableProfiler: true,
     };
 
