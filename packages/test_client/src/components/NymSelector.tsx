@@ -10,7 +10,11 @@ export default function NymSelector({ onNymSelected }: Props) {
   const [nymCode, setNymCode] = useState('');
 
   const { signMessageAsync } = useSignMessage({
-    message: nymCode,
+    message: JSON.stringify({
+      nymCode,
+      domainTag: 'nym',
+      version: 1,
+    }),
   });
 
   const createNym = async () => {

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { NymProver, ContentData, NymVerifier, NymPublicInput } from '../src/lib';
+import { NymProver, ContentData, NymVerifier, NymPublicInput, NymMessage } from '../src/lib';
 import { ecsign, ecrecover, hashPersonalMessage, toRpcSig } from '@ethereumjs/util';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
 
@@ -15,8 +15,14 @@ describe('NymProver', () => {
       timestamp: Math.floor(Date.now() / 1000),
     };
 
+    const nymMessage: NymMessage = {
+      version: 1,
+      domainTag: 'nym',
+      nymCode: nymCode,
+    };
+
     // Hash nymCode and contentData for signing
-    const nymCodeMsgHash = hashPersonalMessage(Buffer.from(nymCode, 'utf8'));
+    const nymCodeMsgHash = hashPersonalMessage(Buffer.from(JSON.stringify(nymMessage), 'utf8'));
     const contentDataMsgHash = hashPersonalMessage(
       Buffer.from(JSON.stringify(contentData), 'utf8'),
     );
@@ -56,7 +62,7 @@ describe('NymProver', () => {
         membershipProof,
         JSON.stringify(contentData),
         toRpcSig(contentDataSig.v, contentDataSig.r, contentDataSig.s),
-        nymCode,
+        nymMessage,
         toRpcSig(nymSig.v, nymSig.r, nymSig.s),
       );
       proof = fullProof.proof;

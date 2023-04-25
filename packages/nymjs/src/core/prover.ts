@@ -4,6 +4,7 @@ import { Profiler } from './profiler';
 import { bufferToBigInt, loadCircuit, snarkJsWitnessGen } from '../utils';
 import { NymPublicInput, computeEffECDSASig, computeNymHash } from './input';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
+import { NymMessage } from '../lib';
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL =
@@ -37,10 +38,10 @@ export class NymProver extends Profiler {
     membershipProof: MerkleProof,
     content: string,
     contentSigStr: string,
-    nym: string,
+    nymMessage: NymMessage,
     nymSigStr: string,
   ): Promise<NymProof> {
-    const nymSig = computeEffECDSASig(nymSigStr, nym);
+    const nymSig = computeEffECDSASig(nymSigStr, JSON.stringify(nymMessage));
     const contentSig = computeEffECDSASig(contentSigStr, content);
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 
@@ -74,7 +75,7 @@ export class NymProver extends Profiler {
     this.timeEnd('load circuit');
 
     const publicInput = new NymPublicInput(
-      nym,
+      nymMessage,
       nymHash,
       content,
       membershipProof.root,

@@ -3,7 +3,7 @@ import { Poseidon } from '@personaelabs/spartan-ecdsa';
 import { fromRpcSig, ecrecover, hashPersonalMessage } from '@ethereumjs/util';
 import { useState } from 'react';
 import { useSignMessage } from 'wagmi';
-import { NymProver, NymVerifier, ContentData } from '@personaelabs/nymjs';
+import { NymProver, NymVerifier, ContentData, NymMessage } from '@personaelabs/nymjs';
 import { constructDummyTree } from '../utils';
 
 type Props = {
@@ -58,11 +58,17 @@ export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) 
 
     await prover.initWasm();
 
+    const nymMessage: NymMessage = {
+      nymCode,
+      domainTag: 'nym',
+      version: 1,
+    };
+
     const proof = await prover.prove(
       membershipProof,
       message,
       signedContentData,
-      nymCode,
+      nymMessage,
       signedNymCode,
     );
     console.log(`Successfully generated proof!`);

@@ -8,6 +8,7 @@ import {
 import { EffECDSASig } from '../types/proof';
 import { bigIntToBytes, bufferToBigInt } from '../utils';
 import { verifyEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
+import { NymMessage } from '../lib';
 
 export function computeEffECDSASig(sigStr: string, msg: string): EffECDSASig {
   const { v, r: _r, s: _s } = fromRpcSig(sigStr);
@@ -37,7 +38,7 @@ export async function computeNymHash(nymSig: string): Promise<string> {
 
 export class NymPublicInput {
   root: bigint;
-  nym: string;
+  nym: NymMessage;
   nymHash: bigint;
   content: string;
   nymSigTx: bigint;
@@ -56,7 +57,7 @@ export class NymPublicInput {
   contentSigV: bigint;
 
   constructor(
-    nym: string,
+    nymMessage: NymMessage,
     nymHash: bigint,
     content: string,
     root: bigint,
@@ -64,7 +65,7 @@ export class NymPublicInput {
     contentSig: EffECDSASig,
   ) {
     this.root = root;
-    this.nym = nym;
+    this.nym = nymMessage;
     this.nymHash = nymHash;
     this.content = content;
 
@@ -129,7 +130,7 @@ export class NymPublicInput {
   }
 
   private nymCodeSignedHash(): Buffer {
-    return hashPersonalMessage(Buffer.from(this.nym, 'utf-8'));
+    return hashPersonalMessage(Buffer.from(JSON.stringify(this.nym), 'utf-8'));
   }
 
   private contentDataSignedHash(): Buffer {

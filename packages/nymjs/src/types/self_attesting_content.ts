@@ -54,6 +54,12 @@ export type ContentData = {
   // NOTE: do we want a version of this that expresses the entire graph fully?
 };
 
+export type NymMessage = {
+  version: number;
+  domainTag: string;
+  nymCode: string;
+};
+
 /**
  * A ContentEmbellishment is additional data that can be added to a given piece of content that may influence its interpretation.
  *
