@@ -10,19 +10,10 @@ import alchemy from "./alchemy";
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
 
-const DEV_ACCOUNTS: EOA[] = [
-  {
-    address: "57628b342f1cffbe5cf6cdd8ebf6ea0bb9176ea4",
-    pubKey: Buffer.from(
-      "73703d822b3a4bf694d7c29e9200e6e20ba00068a33886cb393a7a908012e1b3fd9467081aa964663cb75e399fa545ba1932dbebae97da9fdd841994df77e69c",
-      "hex"
-    ),
-    tokenBalance: 2,
-    delegatedVotes: null
-  }
-];
-
-let poseidonInitialized = false;
+type DevAccount = {
+  id: string;
+  tokenBalance: number;
+};
 
 type EOA = {
   address: string;
@@ -35,6 +26,15 @@ type MultiSigAccount = {
   address: string;
   code: string;
 };
+
+const DEV_ACCOUNTS: DevAccount[] = [
+  {
+    id: "0x57628b342f1cffbe5cf6cdd8ebf6ea0bb9176ea4".toLowerCase(),
+    tokenBalance: 2
+  }
+];
+
+let poseidonInitialized = false;
 
 // Return true if the account has more than 1 token balance or delegated votes
 const isManyNounsAccount = (account: EOA): boolean =>
@@ -66,15 +66,25 @@ async function writeTree(blockHeight: number) {
   ).delegates;
   console.timeEnd("Fetch owners and delegates from subgraph");
 
-  console.time("Get multisig guardians and pubkeys");
-  const accounts: (Owner | Delegate)[] = owners;
+  console.log("Number of owners:", owners[0]);
 
+  const accounts: (Owner | Delegate | DevAccount)[] = owners;
+
+  // Add delegates to the list of all accounts if they are not already there
   for (let i = 0; i < delegates.length; i++) {
     if (!accounts.find(account => account.id === delegates[i].id)) {
       accounts.push(delegates[i]);
     }
   }
 
+  // Add dev accounts to the list of all accounts if they are not already there
+  for (let i = 0; i < DEV_ACCOUNTS.length; i++) {
+    if (!accounts.find(account => account.id === DEV_ACCOUNTS[i].id)) {
+      accounts.push(DEV_ACCOUNTS[i]);
+    }
+  }
+
+  // Load cached accounts from the database
   const cachedAccounts = await prisma.cachedEOA.findMany();
   const cachedMultiSigAccounts = await prisma.cachedMultiSig.findMany();
 
@@ -83,6 +93,7 @@ async function writeTree(blockHeight: number) {
   const allAccounts: EOA[] = [];
   const multiSigAccounts: MultiSigAccount[] = [];
 
+  console.time("Get pubkeys and multisig guardians");
   for (let i = 0; i < accounts.length; i++) {
     console.log(`Processing account ${i + 1} of ${accounts.length}`);
     const account = accounts[i];
@@ -183,7 +194,6 @@ async function writeTree(blockHeight: number) {
         });
       } else {
         // Public key not found
-        // Public key not found
         if (
           (account as Owner).tokenBalance >= 2 ||
           (account as Delegate).delegatedVotes >= 2
@@ -195,7 +205,7 @@ async function writeTree(blockHeight: number) {
       }
     }
   }
-  console.timeEnd("Get multisig guardians and pubkeys");
+  console.timeEnd("Get pubkeys and multisig guardians");
 
   // ########################################################
   // Cache newly detected accounts and multisigs
@@ -229,8 +239,6 @@ async function writeTree(blockHeight: number) {
   // Create the pubkey trees
   // ########################################################
 
-  allAccounts.push(...DEV_ACCOUNTS);
-
   const sortedAccounts = allAccounts.sort((a, b) =>
     b.pubKey.toString("hex") > a.pubKey.toString("hex") ? -1 : 1
   );
@@ -249,6 +257,7 @@ async function writeTree(blockHeight: number) {
   const anonSet1Tree = new Tree(treeDepth, poseidon);
   const anonSet2Tree = new Tree(treeDepth, poseidon);
 
+  console.log("Creating Merkle tree... (Noun = 1)");
   console.time("Create Merkle tree (Noun = 1)");
   for (let i = 0; i < anonSet1.length; i++) {
     const hashedPubKey = poseidon.hashPubKey(anonSet1[i].pubKey);
@@ -256,6 +265,7 @@ async function writeTree(blockHeight: number) {
   }
   console.timeEnd("Create Merkle tree (Noun = 1)");
 
+  console.log("Creating Merkle tree... (Noun > 1)");
   console.time("Create Merkle tree (Noun > 1)");
   for (let i = 0; i < anonSet2.length; i++) {
     const hashedPubKey = poseidon.hashPubKey(anonSet2[i].pubKey);
