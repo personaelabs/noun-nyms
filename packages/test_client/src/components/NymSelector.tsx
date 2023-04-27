@@ -1,15 +1,9 @@
 import { useState } from 'react';
 import { useSignTypedData } from 'wagmi';
-import {
-  computeNymHash,
-  eip712MsgHash,
-  NYM_CODE_TYPE,
-  DOMAIN,
-  EIP712TypedValue,
-} from '@personaelabs/nymjs';
+import { computeNymHash, NYM_CODE_TYPE, DOMAIN, EIP712TypedData } from '@personaelabs/nymjs';
 
 type Props = {
-  onNymSelected: (nymCode: EIP712TypedValue, signedNymCode: string, nymHash: string) => void;
+  onNymSelected: (nymCode: EIP712TypedData, signedNymCode: string, nymHash: string) => void;
 };
 
 export default function NymSelector({ onNymSelected }: Props) {

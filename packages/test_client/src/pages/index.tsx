@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 
 import NymSelector from '../components/NymSelector';
 import PostMessage from '../components/PostMessage';
-import { EIP712TypedValue } from '@personaelabs/nymjs';
+import { EIP712TypedData } from '@personaelabs/nymjs';
 
 export default function Home() {
-  const [typedNymCode, setTypedNymCode] = useState<EIP712TypedValue | null>();
+  const [typedNymCode, setTypedNymCode] = useState<EIP712TypedData | null>();
   const [nymHash, setNymHash] = useState('');
   const [signedNymCode, setSignedNymCode] = useState('');
 
@@ -18,7 +18,7 @@ export default function Home() {
     return `${typedNymCode.value.nymCode}-${nymHash}`;
   }
 
-  const onNymSelected = (typedNymCode: EIP712TypedValue, signedNymCode: string, nymHash) => {
+  const onNymSelected = (typedNymCode: EIP712TypedData, signedNymCode: string, nymHash) => {
     setTypedNymCode(typedNymCode);
     setNymHash(nymHash);
     setSignedNymCode(signedNymCode);

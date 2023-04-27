@@ -6,23 +6,26 @@ import { useSignTypedData } from 'wagmi';
 import {
   NymProver,
   NymVerifier,
-  ContentData,
-  EIP712TypedValue,
+  EIP712TypedData,
   DOMAIN,
   CONTENT_DATA_TYPES,
   eip712MsgHash,
+  AttestationScheme,
+  HashScheme,
+  serializeNymFullProof,
+  computeContentId,
 } from '@personaelabs/nymjs';
 import { constructDummyTree } from '../utils';
 
 type Props = {
-  typedNymCode: EIP712TypedValue;
+  typedNymCode: EIP712TypedData;
   signedNymCode: string; // NOTE: private
   nymHash: string;
 };
 
 // NOTE: when replying to a parent, parent probably needs to be passed in
 export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Props) {
-  const [parentContentId, setParentContentId] = useState('');
+  const [parentId, setParentId] = useState('');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
 
@@ -33,19 +36,21 @@ export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Pr
   }
 
   const postMessage = async () => {
-    // Prepare content data
-    const contentData: ContentData = {
-      venue: 'nouns',
-      title,
-      parentContentId,
-      body,
-      timestamp: Math.round(Date.now() / 1000),
-    };
+    const venue = 'nouns';
+    const title = 'test title';
+    const parentId = '';
+    const timestamp = Math.round(Date.now() / 1000);
 
-    const typedContentData: EIP712TypedValue = {
+    const typedContentData: EIP712TypedData = {
       domain: DOMAIN,
       types: CONTENT_DATA_TYPES,
-      value: contentData,
+      value: {
+        venue: 'nouns',
+        title,
+        parentId,
+        body,
+        timestamp,
+      },
     };
 
     // Request signature from user
@@ -79,24 +84,44 @@ export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Pr
     await prover.initWasm();
 
     // Prove!
-    const proof = await prover.prove(
-      membershipProof,
-      typedContentData,
-      signedContentData,
+    const fullProof = await prover.prove(
       typedNymCode,
+      typedContentData,
       signedNymCode,
+      signedContentData,
+      membershipProof,
     );
     console.log(`Successfully generated proof!`);
 
     const verifier = new NymVerifier(config);
     await verifier.initWasm();
 
-    const isProofValid = await verifier.verify(proof.publicInput, proof.proof);
+    const isProofValid = await verifier.verify(fullProof);
     if (isProofValid) {
       console.log(`Successfully verified proof!`);
     } else {
       console.log(`Failed to verify proof!`);
     }
+
+    const serializedFullProof = serializeNymFullProof(fullProof);
+
+    // We can send the `Content` object using FormData
+
+    const formData = new FormData();
+    formData.append(
+      'content',
+      JSON.stringify({
+        venue,
+        title,
+        parentId,
+        body,
+        timestamp,
+        attestationScheme: AttestationScheme.Nym,
+        hashScheme: HashScheme.Keccak256,
+      }),
+    );
+
+    formData.append('fullProof', new Blob([serializedFullProof]));
   };
 
   return (

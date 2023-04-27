@@ -1,9 +1,15 @@
-import { NymProof } from '../types/proof';
+import { NymFullProof } from '../types';
 import wasm, { init } from '../wasm';
 import { Profiler } from './profiler';
-import { bufferToBigInt, loadCircuit, snarkJsWitnessGen } from '../utils';
-import { EIP712TypedValue } from '../eip712';
-import { NymPublicInput, computeEffECDSASig, computeNymHash } from './input';
+import {
+  bufferToBigInt,
+  loadCircuit,
+  snarkJsWitnessGen,
+  computeEffECDSASig,
+  computeNymHash,
+} from '../utils';
+import { EIP712TypedData } from '../types';
+import { NymPublicInput } from './input';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 
 // NOTE: we'll subsidize storage of these files for now
@@ -18,6 +24,7 @@ export type ProverConfig = {
   enableProfiler?: boolean;
 };
 
+// Generates Content with attestationScheme = Spartan1
 export class NymProver extends Profiler {
   circuit: string;
   witnessGenWasm: string;
@@ -33,16 +40,15 @@ export class NymProver extends Profiler {
     await init();
   }
 
-  // NOTE: return information for verification
   async prove(
-    membershipProof: MerkleProof,
-    content: EIP712TypedValue,
-    contentSigStr: string,
-    nymMessage: EIP712TypedValue,
+    typedNymCode: EIP712TypedData,
+    typedContent: EIP712TypedData,
     nymSigStr: string,
-  ): Promise<NymProof> {
-    const nymSig = computeEffECDSASig(nymSigStr, nymMessage);
-    const contentSig = computeEffECDSASig(contentSigStr, content);
+    contentSigStr: string,
+    membershipProof: MerkleProof,
+  ): Promise<NymFullProof> {
+    const nymSig = computeEffECDSASig(nymSigStr, typedNymCode);
+    const contentSig = computeEffECDSASig(contentSigStr, typedContent);
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 
     this.time('generate witness');
@@ -75,23 +81,23 @@ export class NymProver extends Profiler {
     this.timeEnd('load circuit');
 
     const publicInput = new NymPublicInput(
-      nymMessage,
-      nymHash,
-      content,
-      membershipProof.root,
+      typedNymCode,
+      typedContent,
       nymSig,
       contentSig,
+      nymHash,
+      membershipProof.root,
     );
 
-    const publicInputSer = publicInput.serialize();
-
     this.time('prove');
-    const proof = wasm.prove(circuitBin, witness.data, publicInputSer);
+    const proof = wasm.prove(circuitBin, witness.data, publicInput.serialize());
     this.timeEnd('prove');
 
-    return {
+    const nymFullProof: NymFullProof = {
       proof,
       publicInput,
     };
+
+    return nymFullProof;
   }
 }

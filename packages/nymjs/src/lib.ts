@@ -1,6 +1,11 @@
-export * from './types/proof';
-export * from './types/self_attesting_content';
 export * from './core/prover';
 export * from './core/verifier';
 export * from './core/input';
-export * from './eip712';
+export * from './types';
+export {
+  computeContentId,
+  computeUpvoteId,
+  eip712MsgHash,
+  computeNymHash,
+  serializeNymFullProof,
+} from './utils';

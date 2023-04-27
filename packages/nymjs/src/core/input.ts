@@ -1,47 +1,15 @@
-import { fromRpcSig } from '@ethereumjs/util';
-import {
-  CircuitPubInput,
-  computeEffEcdsaPubInput,
-  Poseidon,
-  PublicInput,
-} from '@personaelabs/spartan-ecdsa';
-import { EffECDSASig } from '../types/proof';
-import { bigIntToBytes, bufferToBigInt } from '../utils';
+import { CircuitPubInput, PublicInput } from '@personaelabs/spartan-ecdsa';
+import { EffECDSASig } from '../types';
+import { bigIntToBytes } from '../utils';
 import { verifyEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
-import { EIP712TypedValue } from '../lib';
+import { EIP712TypedData } from '../lib';
 import { eip712MsgHash } from '../lib';
-
-export function computeEffECDSASig(sigStr: string, msg: EIP712TypedValue): EffECDSASig {
-  const { v, r: _r, s: _s } = fromRpcSig(sigStr);
-
-  const r = bufferToBigInt(_r);
-  const s = bufferToBigInt(_s);
-
-  const msgHash = eip712MsgHash(msg.domain, msg.types, msg.value);
-
-  const { Tx, Ty, Ux, Uy } = computeEffEcdsaPubInput(r, v, msgHash);
-
-  return { Tx, Ty, Ux, Uy, s, r, v };
-}
-
-let poseidon: Poseidon | null;
-// Compute nymHash = Poseidon([nymSig.s, nymSig.s])
-export async function computeNymHash(nymSig: string): Promise<string> {
-  const nymSigS = bufferToBigInt(fromRpcSig(nymSig).s);
-
-  if (!poseidon) {
-    poseidon = new Poseidon();
-    await poseidon.initWasm();
-  }
-
-  return poseidon.hash([nymSigS, nymSigS]).toString(16);
-}
 
 export class NymPublicInput {
   root: bigint;
-  nym: EIP712TypedValue;
+  typedNymCode: EIP712TypedData;
   nymHash: bigint;
-  content: EIP712TypedValue;
+  typedContent: EIP712TypedData;
   nymSigTx: bigint;
   nymSigTy: bigint;
   nymSigUx: bigint;
@@ -58,17 +26,17 @@ export class NymPublicInput {
   contentSigV: bigint;
 
   constructor(
-    nymMessage: EIP712TypedValue,
-    nymHash: bigint,
-    content: EIP712TypedValue,
-    root: bigint,
+    typedNymCode: EIP712TypedData,
+    typedContent: EIP712TypedData,
     nymSig: EffECDSASig,
     contentSig: EffECDSASig,
+    nymHash: bigint,
+    root: bigint,
   ) {
     this.root = root;
-    this.nym = nymMessage;
+    this.typedNymCode = typedNymCode;
+    this.typedContent = typedContent;
     this.nymHash = nymHash;
-    this.content = content;
 
     this.nymSigTx = nymSig.Tx;
     this.nymSigTy = nymSig.Ty;
@@ -131,11 +99,19 @@ export class NymPublicInput {
   }
 
   private nymCodeSignedHash(): Buffer {
-    return eip712MsgHash(this.nym.domain, this.nym.types, this.nym.value);
+    return eip712MsgHash(
+      this.typedNymCode.domain,
+      this.typedNymCode.types,
+      this.typedNymCode.value,
+    );
   }
 
   private contentDataSignedHash(): Buffer {
-    return eip712MsgHash(this.content.domain, this.content.types, this.content.value);
+    return eip712MsgHash(
+      this.typedContent.domain,
+      this.typedContent.types,
+      this.typedContent.value,
+    );
   }
 
   private nymSigPubInput(): PublicInput {
