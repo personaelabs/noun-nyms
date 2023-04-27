@@ -104,6 +104,17 @@ export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Pr
     }
 
     const serializedFullProof = serializeNymFullProof(fullProof);
+    const contentId = computeContentId(
+      venue,
+      title,
+      body,
+      parentId,
+      timestamp,
+      serializedFullProof,
+      HashScheme.Keccak256,
+    );
+
+    console.log(`Content ID: ${contentId}`);
 
     // We can send the `Content` object using FormData
 

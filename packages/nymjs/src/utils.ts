@@ -63,6 +63,52 @@ export function eip712MsgHash(
   return Buffer.from(hash.replace('0x', ''), 'hex');
 }
 
+// Compute the contentId as specified in `Nym data model specification (Dan)`
+export const computeContentId = (
+  venue: string,
+  title: string,
+  body: string,
+  parentId: string,
+  timestamp: number,
+  attestation: Buffer,
+  hashScheme: HashScheme,
+): string => {
+  if (hashScheme !== HashScheme.Keccak256) {
+    throw new Error('Unknown hash scheme');
+  }
+
+  const bytes = Buffer.concat([
+    Buffer.from(venue, 'utf-8'),
+    Buffer.from(title, 'utf-8'),
+    Buffer.from(body, 'utf-8'),
+    Buffer.from(parentId, 'utf-8'),
+    Buffer.from(timestamp.toString(16), 'hex'),
+    attestation,
+  ]);
+
+  return keccak256(bytes);
+};
+
+// Compute the id of an upvote as specified in `Nym data model specification (Dan)`
+export const computeUpvoteId = (
+  contentId: string,
+  timestamp: number,
+  attestation: Buffer,
+  hashScheme: HashScheme,
+): string => {
+  if (hashScheme !== HashScheme.Keccak256) {
+    throw new Error('Unknown hash scheme');
+  }
+
+  const bytes = Buffer.concat([
+    Buffer.from(contentId, 'utf-8'),
+    Buffer.from(timestamp.toString(16), 'hex'),
+    attestation,
+  ]);
+
+  return keccak256(bytes);
+};
+
 export function computeEffECDSASig(sigStr: string, msg: EIP712TypedData): EffECDSASig {
   const { v, r: _r, s: _s } = fromRpcSig(sigStr);
 
