@@ -1,75 +1,144 @@
-import styles from "@/styles/Home.module.css";
-import { MerkleProof } from "@personaelabs/spartan-ecdsa";
-import { useState } from "react";
-
-import { ethers } from "ethers";
-import { useSignMessage } from "wagmi";
-import { ProofInputs, Prover } from "@/utils/prover";
+import styles from '../styles/Home.module.css';
+import { Poseidon } from '@personaelabs/spartan-ecdsa';
+import { fromRpcSig, ecrecover } from '@ethereumjs/util';
+import { useState } from 'react';
+import { useSignTypedData } from 'wagmi';
+import {
+  NymProver,
+  NymVerifier,
+  EIP712TypedData,
+  DOMAIN,
+  CONTENT_DATA_TYPES,
+  eip712MsgHash,
+  AttestationScheme,
+  HashScheme,
+  serializeNymFullProof,
+  computeContentId,
+} from '@personaelabs/nymjs';
+import { constructDummyTree } from '../utils';
 
 type Props = {
-  nymCode: string;
+  typedNymCode: EIP712TypedData;
   signedNymCode: string; // NOTE: private
   nymHash: string;
 };
 
-// TODO: make this a legitimate proof
-const dummyMerkleProof: MerkleProof = {
-  root: BigInt(1),
-  siblings: [],
-  pathIndices: [],
-};
-
 // NOTE: when replying to a parent, parent probably needs to be passed in
-export default function PostMessage({
-  nymCode,
-  signedNymCode,
-  nymHash,
-}: Props) {
-  const [message, setMessage] = useState("");
-  const { signMessageAsync } = useSignMessage({
-    message,
-  });
+export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Props) {
+  const [parentId, setParentId] = useState('');
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+
+  const { signTypedDataAsync } = useSignTypedData();
 
   function handleMessageChange(event: any) {
-    setMessage(event.target.value);
-  }
-
-  async function generateProofInputs(): Promise<ProofInputs> {
-    const nymCodeMsgHash = ethers.utils.hashMessage(nymCode);
-
-    const contentDataMsgHash = ethers.utils.hashMessage(message);
-    const signedContentData = await signMessageAsync();
-
-    const merkleProof = dummyMerkleProof;
-
-    return {
-      nymCodeMsgHash,
-      signedNymCode,
-      nymHash,
-
-      contentDataMsgHash,
-      signedContentData,
-
-      merkleProof,
-    };
+    setBody(event.target.value);
   }
 
   const postMessage = async () => {
-    const proofInputs = await generateProofInputs();
+    const venue = 'nouns';
+    const title = 'test title';
+    const parentId = '';
+    const timestamp = Math.round(Date.now() / 1000);
 
-    const prover = new Prover();
-    prover.initWasm();
-    const proof = await prover.prove(proofInputs);
+    const typedContentData: EIP712TypedData = {
+      domain: DOMAIN,
+      types: CONTENT_DATA_TYPES,
+      value: {
+        venue: 'nouns',
+        title,
+        parentId,
+        body,
+        timestamp,
+      },
+    };
 
-    // TODO: what do we want to do with proof here?
+    // Request signature from user
+    // @ts-ignore
+    const signedContentData = await signTypedDataAsync(typedContentData);
 
-    console.log(`Successfully constructed proof!`);
+    const contentSig = fromRpcSig(signedContentData);
+    const contentHash = eip712MsgHash(
+      typedContentData.domain,
+      typedContentData.types,
+      typedContentData.value,
+    );
+
+    // Construct a dummy Merkle tree and generate a Merkle proof
+    const proverPubKey = ecrecover(contentHash, contentSig.v, contentSig.r, contentSig.s);
+
+    const poseidon = new Poseidon();
+    await poseidon.initWasm();
+
+    const proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
+
+    const tree = await constructDummyTree(poseidon);
+    tree.insert(proverPubKeyHash);
+    const membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
+
+    const config = {
+      enableProfiler: true,
+    };
+
+    const prover = new NymProver(config);
+    await prover.initWasm();
+
+    // Prove!
+    const fullProof = await prover.prove(
+      typedNymCode,
+      typedContentData,
+      signedNymCode,
+      signedContentData,
+      membershipProof,
+    );
+    console.log(`Successfully generated proof!`);
+
+    const verifier = new NymVerifier(config);
+    await verifier.initWasm();
+
+    const isProofValid = await verifier.verify(fullProof);
+    if (isProofValid) {
+      console.log(`Successfully verified proof!`);
+    } else {
+      console.log(`Failed to verify proof!`);
+    }
+
+    const serializedFullProof = serializeNymFullProof(fullProof);
+    const contentId = computeContentId(
+      venue,
+      title,
+      body,
+      parentId,
+      timestamp,
+      serializedFullProof,
+      HashScheme.Keccak256,
+    );
+
+    console.log(`Content ID: ${contentId}`);
+
+    // We can send the `Content` object using FormData
+
+    const formData = new FormData();
+    formData.append(
+      'content',
+      JSON.stringify({
+        venue,
+        title,
+        parentId,
+        body,
+        timestamp,
+        attestationScheme: AttestationScheme.Nym,
+        hashScheme: HashScheme.Keccak256,
+      }),
+    );
+
+    formData.append('fullProof', new Blob([serializedFullProof]));
   };
 
   return (
     <div>
       <div className={styles.description}>
-        <input type="text" value={message} onChange={handleMessageChange} />
+        <input type="text" value={body} onChange={handleMessageChange} />
 
         <button onClick={() => postMessage()}>post message</button>
       </div>

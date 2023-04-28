@@ -10,54 +10,67 @@ include "../poseidon/poseidon.circom";
  *  
  *  Implements the scheme defined here: https://ethresear.ch/t/a-simple-persistent-pseudonym-scheme/14930
  *  
- *  Pubkey membership in merkle root (not address) 
+ *  Pubkey membership in merkle root (not address) + nym ownership + content data commitment 
  */
 template NymOwnership(treeLevels) {
-    signal input Tx; 
-    signal input Ty; 
-    signal input Ux;
-    signal input Uy;
+    // public nym signature efficient-ecdsa artifacts 
+    // note that U encodes msghash (= r^(-1)m * G ), thus relationship b/w nymSigU{x,y} and nym is publicly verifiable
+    // same holds for contentSig inputs below
+    signal input nymSigTx;
+    signal input nymSigTy;
+    signal input nymSigUx;
+    signal input nymSigUy;
 
-    signal input nymCode;
-    signal input signedNymCode; // NOTE: 's' in efficient-ecdsa
+    // private nym signature efficient-ecdsa artifact
+    signal input nymSigS; 
+
+    // nymHash = poseidon('s' part of ECDSASig(nym))
     signal input nymHash; 
+        
+    // same relationship with `content` as `nymSig` inputs have with `nym` above
+    signal input contentSigTx;
+    signal input contentSigTy;
+    signal input contentSigUx;
+    signal input contentSigUy;
 
+    // private content signature efficient-ecdsa artifact
+    signal input contentSigS; 
+
+    // merkle proof for membership check 
     signal input root;
     signal input pathIndices[treeLevels];
     signal input siblings[treeLevels];
 
-    signal input contentData;
-    signal input signedContentData; // NOTE: 's' in efficient-ecdsa
-
     // nym sig check 
     component nymSigVerify = EfficientECDSA();
-    nymSigVerify.Tx <== Tx;
-    nymSigVerify.Ty <== Ty;
-    nymSigVerify.Ux <== Ux;
-    nymSigVerify.Uy <== Uy;
-    nymSigVerify.s <== signedNymCode;
-
-    // nym hash check (double input poseidon, so uses signedNymCode as both inputs)
-    // TODO: change upstream poseidon to have variable input
-    component nymHashCheck = Poseidon();
-    nymHashCheck.inputs[0] <== signedNymCode;
-    nymHashCheck.inputs[1] <== signedNymCode;
-    nymHashCheck.out === nymHash;
+    nymSigVerify.Tx <== nymSigTx;
+    nymSigVerify.Ty <== nymSigTy;
+    nymSigVerify.Ux <== nymSigUx;
+    nymSigVerify.Uy <== nymSigUy;
+    nymSigVerify.s <== nymSigS;
 
     // content data sig check
     component contentSigVerify = EfficientECDSA();
-    contentSigVerify.Tx <== Tx;
-    contentSigVerify.Ty <== Ty;
-    contentSigVerify.Ux <== Ux;
-    contentSigVerify.Uy <== Uy;
-    contentSigVerify.s <== signedContentData;
+    contentSigVerify.Tx <== contentSigTx;
+    contentSigVerify.Ty <== contentSigTy;
+    contentSigVerify.Ux <== contentSigUx;
+    contentSigVerify.Uy <== contentSigUy;
+    contentSigVerify.s <== contentSigS;
+
+    // check that nym sig and content data sig are signed by the same key
+    nymSigVerify.pubKeyX === contentSigVerify.pubKeyX;
+    nymSigVerify.pubKeyY === contentSigVerify.pubKeyY;
+
+    // nym hash check (double input poseidon, so uses signedNymCode as both inputs)
+    component nymHashCheck = Poseidon();
+    nymHashCheck.inputs[0] <== nymSigS;
+    nymHashCheck.inputs[1] <== nymSigS;
+    nymHashCheck.out === nymHash;
 
     // merkle root check
     component pubKeyHash = Poseidon();
     pubKeyHash.inputs[0] <== nymSigVerify.pubKeyX;
     pubKeyHash.inputs[1] <== nymSigVerify.pubKeyY;
-    pubKeyHash.inputs[0] === contentSigVerify.pubKeyX;
-    pubKeyHash.inputs[1] === contentSigVerify.pubKeyY;
 
     component merkleProof = MerkleTreeInclusionProof(treeLevels);
     merkleProof.leaf <== pubKeyHash.out;

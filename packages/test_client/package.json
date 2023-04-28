@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ethereumjs/util": "^8.0.5",
+    "@personaelabs/nymjs": "*",
     "@personaelabs/spartan-ecdsa": "^2.0.0",
     "@rainbow-me/rainbowkit": "^0.7.4",
     "@types/node": "18.14.6",
