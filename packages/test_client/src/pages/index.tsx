@@ -1,33 +1,34 @@
-import Head from "next/head";
-import styles from "@/styles/Home.module.css";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-import { useState } from "react";
+import { useEffect, useState } from 'react';
 
-import NymSelector from "@/components/NymSelector";
-import PostMessage from "@/components/PostMessage";
+import NymSelector from '../components/NymSelector';
+import PostMessage from '../components/PostMessage';
+import { EIP712TypedData } from '@personaelabs/nymjs';
 
 export default function Home() {
-  const [nymCode, setNymCode] = useState("");
-  const [nymHash, setNymHash] = useState("");
-  const [signedNymCode, setSignedNymCode] = useState("");
+  const [typedNymCode, setTypedNymCode] = useState<EIP712TypedData | null>();
+  const [nymHash, setNymHash] = useState('');
+  const [signedNymCode, setSignedNymCode] = useState('');
 
   function displayNym() {
     // NOTE: may want to shorten
-    return `${nymCode}-${nymHash}`;
+    return `${typedNymCode.value.nymCode}-${nymHash}`;
   }
 
-  const onNymSelected = (
-    nymCode: string,
-    nymHash: string,
-    signedNymCode: string
-  ) => {
-    setNymCode(nymCode);
+  const onNymSelected = (typedNymCode: EIP712TypedData, signedNymCode: string, nymHash) => {
+    setTypedNymCode(typedNymCode);
     setNymHash(nymHash);
     setSignedNymCode(signedNymCode);
-
-    console.log(displayNym());
   };
+
+  useEffect(() => {
+    if (typedNymCode) {
+      console.log(displayNym());
+    }
+  }, [typedNymCode]);
 
   return (
     <>
@@ -48,7 +49,7 @@ export default function Home() {
 
         {nymHash.length > 0 && (
           <PostMessage
-            nymCode={nymCode}
+            typedNymCode={typedNymCode}
             signedNymCode={signedNymCode}
             nymHash={nymHash}
           ></PostMessage>
