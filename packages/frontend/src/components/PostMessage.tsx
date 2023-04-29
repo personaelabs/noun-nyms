@@ -2,8 +2,6 @@ import styles from '@/styles/Home.module.css';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 import { useState } from 'react';
 
-import { useSignMessage } from 'wagmi';
-
 type Props = {
   nymCode: string;
   signedNymCode: string; // NOTE: private
@@ -20,9 +18,6 @@ const dummyMerkleProof: MerkleProof = {
 // NOTE: when replying to a parent, parent probably needs to be passed in
 export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) {
   const [message, setMessage] = useState('');
-  const { signMessageAsync } = useSignMessage({
-    message,
-  });
 
   function handleMessageChange(event: any) {
     setMessage(event.target.value);
