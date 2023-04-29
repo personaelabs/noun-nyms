@@ -21,9 +21,10 @@ model TreeNode {
 }
 
 model Tree {
-  root      String    @id
-  type      GroupType
-  createdAt DateTime  @default(now())
+  root        String    @id
+  type        GroupType
+  blockHeight Int
+  createdAt   DateTime  @default(now())
 }
 
 model CachedEOA {

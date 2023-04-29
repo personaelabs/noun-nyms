@@ -43,13 +43,13 @@ const isManyNounsAccount = (account: EOA): boolean =>
 
 // Return true if the root already exists in the database
 const treeExists = async (root: string): Promise<boolean> =>
-(await prisma.tree.findFirst({
-  where: {
-    root
-  }
-}))
-  ? true
-  : false;
+  (await prisma.tree.findFirst({
+    where: {
+      root
+    }
+  }))
+    ? true
+    : false;
 
 // Write the public key tree constructed at the given block height to the database
 async function writeTree(blockHeight: number) {
@@ -66,6 +66,7 @@ async function writeTree(blockHeight: number) {
   ).delegates;
   console.timeEnd("Fetch owners and delegates from subgraph");
 
+  console.time("Get multisig guardians and pubkeys");
   const accounts: (Owner | Delegate)[] = owners;
 
   for (let i = 0; i < delegates.length; i++) {
@@ -112,7 +113,6 @@ async function writeTree(blockHeight: number) {
       ); // Lowercase
 
       for (let j = 0; j < owners.length; j++) {
-
         // Get the public key of the owner
 
         // Check cache
@@ -141,7 +141,10 @@ async function writeTree(blockHeight: number) {
           });
         } else {
           // Public key not found
-          if ((account as Owner).tokenBalance >= 2 || (account as Delegate).delegatedVotes >= 2) {
+          if (
+            (account as Owner).tokenBalance >= 2 ||
+            (account as Delegate).delegatedVotes >= 2
+          ) {
             numNoPubKeySet2++;
           } else {
             numNoPubKeySet1++;
@@ -152,7 +155,6 @@ async function writeTree(blockHeight: number) {
       // The address might have been processed since there are cases
       // where a Noun owner is also a delegate/owner of a multisig wallet
     } else if (!allAccounts.find(a => a.address === address)) {
-
       // Get the public key of the address
 
       // Check cache
@@ -182,7 +184,10 @@ async function writeTree(blockHeight: number) {
       } else {
         // Public key not found
         // Public key not found
-        if ((account as Owner).tokenBalance >= 2 || (account as Delegate).delegatedVotes >= 2) {
+        if (
+          (account as Owner).tokenBalance >= 2 ||
+          (account as Delegate).delegatedVotes >= 2
+        ) {
           numNoPubKeySet2++;
         } else {
           numNoPubKeySet1++;
@@ -190,6 +195,7 @@ async function writeTree(blockHeight: number) {
       }
     }
   }
+  console.timeEnd("Get multisig guardians and pubkeys");
 
   // ########################################################
   // Cache newly detected accounts and multisigs
@@ -219,6 +225,10 @@ async function writeTree(blockHeight: number) {
     }))
   });
 
+  // ########################################################
+  // Create the pubkey trees
+  // ########################################################
+
   allAccounts.push(...DEV_ACCOUNTS);
 
   const sortedAccounts = allAccounts.sort((a, b) =>
@@ -230,12 +240,6 @@ async function writeTree(blockHeight: number) {
     isManyNounsAccount(account)
   );
 
-
-
-  // ########################################################
-  // Create the pubkey trees
-  // ########################################################
-
   if (!poseidonInitialized) {
     await poseidon.initWasm();
     poseidonInitialized = true;
@@ -245,15 +249,19 @@ async function writeTree(blockHeight: number) {
   const anonSet1Tree = new Tree(treeDepth, poseidon);
   const anonSet2Tree = new Tree(treeDepth, poseidon);
 
+  console.time("Create Merkle tree (Noun = 1)");
   for (let i = 0; i < anonSet1.length; i++) {
     const hashedPubKey = poseidon.hashPubKey(anonSet1[i].pubKey);
     anonSet1Tree.insert(hashedPubKey);
   }
+  console.timeEnd("Create Merkle tree (Noun = 1)");
 
+  console.time("Create Merkle tree (Noun > 1)");
   for (let i = 0; i < anonSet2.length; i++) {
     const hashedPubKey = poseidon.hashPubKey(anonSet2[i].pubKey);
     anonSet2Tree.insert(hashedPubKey);
   }
+  console.timeEnd("Create Merkle tree (Noun > 1)");
 
   // ########################################################
   // Write trees to the database
@@ -263,10 +271,11 @@ async function writeTree(blockHeight: number) {
 
   // Write only if the tree is new
   if (!(await treeExists(anonSet1Root))) {
-    console.log("Creating new tree for anon set 1");
+    console.log("Creating new tree for set Noun = 1");
     await prisma.tree.create({
       data: {
         type: GroupType.OneNoun,
+        blockHeight,
         root: anonSet1Root
       }
     });
@@ -278,7 +287,7 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet1.map(account =>  {
+      data: anonSet1.map(account => {
         const index = anonSet1Tree.indexOf(poseidon.hashPubKey(account.pubKey));
         const merkleProof = anonSet1Tree.createProof(index);
         return {
@@ -286,18 +295,18 @@ async function writeTree(blockHeight: number) {
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.OneNoun
-        }
-      }
-      )
+        };
+      })
     });
   }
 
   // Write only if the tree is new
   if (!(await treeExists(anonSet2Root))) {
-    console.log("Creating new tree for anon set 2");
+    console.log("Creating new tree for set Noun > 1");
     await prisma.tree.create({
       data: {
         type: GroupType.ManyNouns,
+        blockHeight,
         root: anonSet2Root
       }
     });
@@ -309,7 +318,7 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet2.map(account =>  {
+      data: anonSet2.map(account => {
         const index = anonSet2Tree.indexOf(poseidon.hashPubKey(account.pubKey));
         const merkleProof = anonSet2Tree.createProof(index);
         return {
@@ -317,14 +326,17 @@ async function writeTree(blockHeight: number) {
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.ManyNouns
-        }
-      }
-      )
+        };
+      })
     });
   }
 
-  console.log(`OneNoun set size ${anonSet1.length}, ${numNoPubKeySet1} missing public keys`);
-  console.log(`ManyNouns set size ${anonSet2.length}, ${numNoPubKeySet2} missing public keys`);
+  console.log(
+    `Noun = 1 set size ${anonSet1.length}, ${numNoPubKeySet1} missing public keys`
+  );
+  console.log(
+    `Noun > 1 set size ${anonSet2.length}, ${numNoPubKeySet2} missing public keys`
+  );
 }
 
 const run = async () => {
