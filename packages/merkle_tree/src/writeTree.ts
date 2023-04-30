@@ -69,8 +69,6 @@ async function writeTree(blockHeight: number) {
   ).delegates;
   console.timeEnd("Fetch owners and delegates from subgraph");
 
-  console.log("Number of owners:", owners[0]);
-
   const accounts: (Owner | Delegate | DevAccount)[] = owners;
 
   // Add delegates to the list of all accounts if they are not already there
