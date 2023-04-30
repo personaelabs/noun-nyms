@@ -1,43 +1,7 @@
 import prisma from '../../../lib/prisma';
-import { hashBytes } from '../../../lib/hasher';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { ecrecover, hashPersonalMessage, pubToAddress } from '@ethereumjs/util';
-import { MembershipVerifier, PublicInput } from '@personaelabs/spartan-ecdsa';
-
-type PostBase = {
-  body: string;
-  title: string;
-  parentId?: string;
-  timestamp: number;
-  venue: string;
-};
-
-type PseudoPost = {
-  proof: string;
-  publicInput: string;
-} & PostBase;
-
-type DoxedPost = {
-  sig: string;
-} & PostBase;
-
-// Include this hash function in nymjs?
-const hashPostContentData = (contentData: PostBase): Buffer => {
-  const contentDataHash = hashPersonalMessage(
-    Buffer.from(
-      JSON.stringify({
-        title: contentData.title,
-        body: contentData.body,
-        parentId: contentData.parentId,
-        timestamp: contentData.timestamp,
-        venue: contentData.venue,
-      }),
-      'utf8',
-    ),
-  );
-
-  return contentDataHash;
-};
+import { NymVerifier, AttestationScheme, toContent, ContentMessage } from '@personaelabs/nymjs';
+import { deserializeNymAttestation, recoverContentSigner } from '@personaelabs/nymjs/build/utils';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -82,113 +46,99 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
 // Handle non-pseudonymous post creation
 // Verify the ECDSA signature and save the post
 const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const post: DoxedPost = req.body;
-  if (!isTimestampValid(post.timestamp)) {
+  const contentMessage = req.body.contentMessage;
+  const sig: string = req.body.attestation;
+
+  if (!isTimestampValid(contentMessage.timestamp)) {
     res.status(400).send('Invalid timestamp!');
     return;
   }
 
-  const postId = await hashBytes(Buffer.from(post.sig, 'hex'));
-  const sig = post.sig;
-
-  const msgHash = hashPostContentData(post);
-
-  const r = Buffer.from(sig.slice(0, 64), 'hex');
-  const s = Buffer.from(sig.slice(64, 128), 'hex');
-  const v = BigInt('0x' + sig.slice(128, 130));
-
-  const pubkey = ecrecover(msgHash, v, r, s);
-  const address = pubToAddress(pubkey);
+  const content = toContent(contentMessage, sig, AttestationScheme.EIP712);
+  const address = recoverContentSigner(content);
 
   await prisma.post.create({
     data: {
-      title: post.title,
-      body: post.body,
-      parentId: post.parentId,
-      timestamp: new Date(post.timestamp * 1000),
-      venue: post.venue,
-      id: postId,
+      title: contentMessage.title,
+      body: contentMessage.body,
+      parentId: contentMessage.parentId,
+      timestamp: new Date(contentMessage.timestamp * 1000),
+      venue: contentMessage.venue,
+      id: content.id,
       proofOrSig: sig,
-      address: address.toString('hex'),
+      address,
     },
   });
 
-  res.status(200).send({ postId });
+  res.status(200).send({ contentId: content.id });
 };
 
 let verifierInitialized = false;
-const verifier = new MembershipVerifier({
-  circuit: './pubkey_membership.circuit',
+const verifier = new NymVerifier({
+  circuitUrl: './nym_ownership.circuit',
   enableProfiler: true,
 });
 
 // Handle pseudonymous post creation
 // Verify the proof and save the post
 const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const post: PseudoPost = req.body;
-  if (!isTimestampValid(post.timestamp)) {
-    res.status(400).send('Invalid timestamp!');
-    return;
-  }
+  const attestation: Buffer = Buffer.from(req.body.attestation.replace('0x', ''), 'hex');
+  const contentMessage: ContentMessage = req.body.contentMessage;
 
-  const postId = await hashBytes(Buffer.from(post.proof + post.publicInput, 'hex'));
+  const content = toContent(contentMessage, attestation, AttestationScheme.Nym);
 
   if (!verifierInitialized) {
     await verifier.initWasm();
     verifierInitialized = true;
   }
 
-  // Verify the NIZK proof
+  // Verify the Content
 
-  const proofSer = Buffer.from(post.proof, 'hex');
-  const publicInputSer = Buffer.from(post.publicInput, 'hex');
-
-  const proofVerified = await verifier.verify(proofSer, publicInputSer);
+  const proofVerified = await verifier.verify(content);
   if (!proofVerified) {
     console.log('Proof verification failed!');
     res.status(400).send('Invalid proof!');
     return;
   }
 
-  // Verify that the msgHash in the public input matches the expected msgHash
+  const { publicInput } = deserializeNymAttestation(attestation);
 
-  const expectedMsgHash = hashPostContentData(post).toString('hex');
-  const pubInput = PublicInput.deserialize(publicInputSer);
-
-  if (expectedMsgHash !== pubInput.msgHash.toString('hex')) {
-    res.status(400).send('Invalid public input!');
-    return;
-  }
-
-  if (!(await verifyRoot(pubInput.circuitPubInput.merkleRoot.toString(16)))) {
+  if (!(await verifyRoot(publicInput.root.toString(16)))) {
     res.status(400).send('Invalid Merkle root!');
     return;
   }
 
-  console.log('Proof verified');
+  // After this point, we can assume that the attestation is valid.
+
+  if (!isTimestampValid(contentMessage.timestamp)) {
+    res.status(400).send('Invalid timestamp!');
+    return;
+  }
+
   await prisma.post.create({
     data: {
-      title: post.title,
-      body: post.body,
-      timestamp: new Date(post.timestamp * 1000),
-      venue: post.venue,
-      proofOrSig: post.proof,
-      id: postId,
-      parentId: post.parentId,
+      title: contentMessage.title,
+      body: contentMessage.body,
+      timestamp: new Date(contentMessage.timestamp * 1000),
+      venue: contentMessage.venue,
+      proofOrSig: attestation.toString('hex'),
+      id: content.id,
+      parentId: contentMessage.parentId,
     },
   });
-  res.status(200).send({ postId });
+
+  res.status(200).send({ contentId: content.id });
 };
 
 // Entry point for the API below /api/v1/posts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method == 'POST') {
-    if (req.body.proof) {
+    if (req.body.attestationScheme === AttestationScheme.Nym) {
       await handleCreatePseudoPost(req, res);
-    } else if (req.body.sig) {
+    } else if (req.body.attestationScheme === AttestationScheme.EIP712) {
       await handleCreateDoxedPost(req, res);
     } else {
-      res.status(400).send('Either provide proof or sig in request body');
+      res.status(400).send('Unknown attestation scheme');
     }
   } else if (req.method == 'GET') {
     await handleGetPosts(req, res);
