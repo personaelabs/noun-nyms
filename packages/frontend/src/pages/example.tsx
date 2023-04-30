@@ -1,17 +1,23 @@
+import { useCallback, useEffect, useState } from 'react';
 import axiosBase from 'axios';
 import {
-  MembershipProver,
-  Poseidon,
-  defaultPubkeyMembershipPConfig,
-  MerkleProof,
-} from '@personaelabs/spartan-ecdsa';
-import { ecrecover, ecsign, hashPersonalMessage, pubToAddress } from '@ethereumjs/util';
+  NYM_CODE_TYPE,
+  NymProver,
+  eip712MsgHash,
+  DOMAIN,
+  ContentMessage,
+  AttestationScheme,
+  CONTENT_DATA_TYPES,
+  toTypedNymCode,
+} from '@personaelabs/nymjs';
+import { MerkleProof } from '@personaelabs/spartan-ecdsa';
+import { ecrecover, fromRpcSig } from '@ethereumjs/util';
+import { InjectedConnector } from 'wagmi/connectors/injected';
+import { useSignTypedData, useConnect, useAccount } from 'wagmi';
 
 const axios = axiosBase.create({
   baseURL: `http://localhost:3000/api/v1`,
 });
-
-const privKey = Buffer.from(''.padStart(16, '🧙'), 'utf16le');
 
 type Member = {
   pubkey: string;
@@ -19,150 +25,106 @@ type Member = {
   indices: number[];
 };
 
-// Content the user signs when creating a post
-type PostContentData = {
-  title: string;
-  body: string;
-  parentId?: string;
-  timestamp: number;
-  venue: string;
-};
-
 const venue = 'nouns';
 
-const hashPostContentData = (contentData: PostContentData) => {
-  const msgHash = hashPersonalMessage(
-    Buffer.from(
-      JSON.stringify({
-        title: contentData.title,
-        body: contentData.body,
-        parentId: contentData.parentId,
-        timestamp: contentData.timestamp,
-        venue: contentData.venue,
-      }),
-      'utf8',
-    ),
-  );
-
-  return msgHash;
-};
-
 export default function Example() {
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  });
+  const { address, isConnected } = useAccount();
+  const [nymCode, setNymCode] = useState<string>('satoshi');
+  const [contentMessage, setContentMessage] = useState({
+    title: 'title',
+    body: 'body',
+    parentId: '',
+    timestamp: Math.round(Date.now() / 1000),
+    venue,
+  });
+
+  const { signTypedDataAsync: signNymCode } = useSignTypedData({
+    domain: DOMAIN,
+    types: NYM_CODE_TYPE,
+    value: { nymCode },
+  });
+
+  const { signTypedDataAsync: signContentMessage } = useSignTypedData({
+    domain: DOMAIN,
+    types: CONTENT_DATA_TYPES,
+    value: contentMessage,
+  });
+
   const postDoxed = async () => {
-    const title = 'doxed post title';
-    const body = `doxed post body ${Math.random()}`;
-    // @ts-ignore
-    const parentId = document.getElementById('doxedPostParentId')?.value;
+    const attestation = await signContentMessage();
 
-    const timestamp = Math.round(Date.now() / 1000);
-
-    const msgHash = hashPostContentData({
-      title,
-      body,
-      timestamp,
-      parentId,
-      venue,
-    });
-
-    const { r, v, s } = ecsign(msgHash, privKey);
-    const sig = `${r.toString('hex')}${s.toString('hex')}${v.toString(16)}`;
     const result = await axios.post(`/posts`, {
-      body,
-      sig,
-      title,
-      parentId,
-      timestamp,
-      venue,
+      contentMessage,
+      attestation,
+      attestationScheme: AttestationScheme.EIP712,
     });
 
-    console.log('Created a non-pseudonymous post! postId', result.data.postId);
+    console.log('Created a non-pseudonymous post! contentId', result.data.contentId);
   };
 
-  const postPseudo = async () => {
-    const title = 'pseudo post title';
-    const body = `pseudo post body ${Math.random()}`;
-    // @ts-ignore
-    const parentId = document.getElementById('pseudoPostParentId')?.value;
+  const postPseudo = useCallback(async () => {
+    if (nymCode) {
+      const nymSig = await signNymCode();
+      const contentMessageSig = await signContentMessage();
 
-    const timestamp = Math.round(Date.now() / 1000);
+      const { data } = await axios.get('/groups/latest?set=2');
+      const root: string = data.root;
+      const members: Member[] = data.members;
 
-    const msgHash = hashPostContentData({
-      title,
-      body,
-      timestamp,
-      parentId,
-      venue,
-    });
+      const typedNymCode = toTypedNymCode(nymCode);
+      const { v, r, s } = fromRpcSig(nymSig as string);
+      const proverPubKey = ecrecover(
+        eip712MsgHash(typedNymCode.domain, typedNymCode.types, typedNymCode.value),
+        v,
+        r,
+        s,
+      ).toString('hex');
 
-    const { v, r, s } = ecsign(msgHash, privKey);
-    const pubKey = ecrecover(msgHash, v, r, s);
-    const sig = `0x${r.toString('hex')}${s.toString('hex')}${v.toString(16)}`;
+      const proverInSet = members.find((member) => member.pubkey === proverPubKey);
 
-    const poseidon = new Poseidon();
-    await poseidon.initWasm();
+      if (!proverInSet) {
+        throw new Error('Prover not found in set');
+      }
 
-    const { data } = await axios.get('/groups/latest?set=2');
-    const root: string = data.root;
-    const members: Member[] = data.members;
+      const merkleProof: MerkleProof = {
+        pathIndices: proverInSet?.indices,
+        siblings: proverInSet?.path.map((sibling) => BigInt('0x' + sibling)),
+        root: BigInt('0x' + root),
+      };
 
-    const proverPubKey = pubKey.toString('hex');
+      const nymProver = new NymProver({
+        enableProfiler: true,
+      });
 
-    const proverInSet = members.find((member) => member.pubkey === proverPubKey);
+      await nymProver.initWasm();
 
-    if (!proverInSet) {
-      throw new Error('Prover not found in set');
+      const attestation = await nymProver.prove(
+        nymCode,
+        contentMessage,
+        nymSig as string,
+        contentMessageSig as string,
+        merkleProof,
+      );
+
+      const attestationHex = Buffer.from(attestation).toString('hex');
+
+      const result = await axios.post(`posts`, {
+        contentMessage,
+        attestation: attestationHex,
+        attestationScheme: AttestationScheme.Nym,
+      });
+      console.log('Created a pseudonymous post! postId', result.data.contentId);
     }
+  }, [nymCode]);
 
-    const merkleProof: MerkleProof = {
-      pathIndices: proverInSet?.indices,
-      siblings: proverInSet?.path.map((sibling) => BigInt('0x' + sibling)),
-      root: BigInt('0x' + root),
-    };
-
-    const prover = new MembershipProver({
-      ...defaultPubkeyMembershipPConfig,
-      enableProfiler: true,
-    });
-
-    await prover.initWasm();
-
-    const { proof, publicInput } = await prover.prove(sig, msgHash, merkleProof);
-
-    const result = await axios.post(
-      `posts`,
-      {
-        title,
-        body,
-        parentId,
-        timestamp,
-        venue,
-        proof: Buffer.from(proof).toString('hex'),
-        publicInput: Buffer.from(publicInput.serialize()).toString('hex'),
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    console.log('Created a pseudonymous post! postId', result.data.postId);
-  };
-
+  /*
   const upvote = async () => {
     // @ts-ignore
     const postId = document.getElementById('upvotePostId')?.value;
-    const timestamp = Math.round(Date.now() / 1000);
-    const msgHash = hashPersonalMessage(
-      Buffer.from(
-        JSON.stringify({
-          postId,
-          timestamp,
-        }),
-        'utf8',
-      ),
-    );
 
-    const { r, v, s } = ecsign(msgHash, privKey);
     const pubKey = ecrecover(msgHash, v, r, s);
     const address = pubToAddress(pubKey).toString('hex');
 
@@ -175,6 +137,7 @@ export default function Example() {
     });
     console.log('Upvoted post', postId);
   };
+  */
 
   const getThread = async () => {
     // @ts-ignore
@@ -185,23 +148,31 @@ export default function Example() {
   };
 
   return (
-    <div>
+    <>
       <div>
-        <button onClick={postDoxed}>Doxed post</button>
-        <input type="text" id="doxedPostParentId" placeholder="parentId (optional)" />
+        <button
+          onClick={() => {
+            connect();
+          }}
+        >
+          Connect
+        </button>
+        <div>
+          <button onClick={postDoxed}>Doxed post</button>
+          <input type="text" id="doxedPostParentId" placeholder="parentId (optional)" />
+        </div>
+        <div>
+          <button onClick={postPseudo}>Pseudo post</button>
+          <input type="text" id="pseudoPostParentId" placeholder="parentId (optional)" />
+        </div>
+        <div>
+          <input type="text" id="upvotePostId" placeholder="postId" />
+        </div>
+        <div>
+          <button onClick={getThread}>getThread</button>
+          <input type="text" id="postId" placeholder="postId"></input>
+        </div>
       </div>
-      <div>
-        <button onClick={postPseudo}>Pseudo post</button>
-        <input type="text" id="pseudoPostParentId" placeholder="parentId (optional)" />
-      </div>
-      <div>
-        <button onClick={upvote}>upvote</button>
-        <input type="text" id="upvotePostId" placeholder="postId" />
-      </div>
-      <div>
-        <button onClick={getThread}>getThread</button>
-        <input type="text" id="postId" placeholder="postId"></input>
-      </div>
-    </div>
+    </>
   );
 }
