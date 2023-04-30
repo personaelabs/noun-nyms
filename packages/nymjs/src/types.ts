@@ -106,3 +106,10 @@ export const CONTENT_DATA_TYPES = {
     { name: 'timestamp', type: 'uint256' },
   ],
 };
+
+export const UPVOTE_TYPES = {
+  Upvote: [
+    { name: 'contentId', type: 'string' },
+    { name: 'timestamp', type: 'uint256' },
+  ],
+};

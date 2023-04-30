@@ -12,6 +12,8 @@ import {
   EIP712Value,
   HashScheme,
   NYM_CODE_TYPE,
+  UPVOTE_TYPES,
+  Upvote,
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
@@ -274,6 +276,14 @@ export const toTypedContentMessage = (contentMessage: ContentMessage): EIP712Typ
   value: contentMessage,
 });
 
+export const toTypedUpvote = (contentId: string, timestamp: number) => {
+  return {
+    domain: DOMAIN,
+    types: UPVOTE_TYPES,
+    value: { contentId, timestamp },
+  };
+};
+
 export const toContent = (
   contentMessage: ContentMessage,
   attestation: Buffer | string,
@@ -308,6 +318,19 @@ export const toContent = (
   };
 };
 
+export const toUpvote = (contentId: string, timestamp: number, sig: string): Upvote => {
+  const attestation = Buffer.from(sig.replace('0x', ''), 'hex');
+  const upvoteId = computeUpvoteId(contentId, timestamp, attestation, HashScheme.Keccak256);
+
+  return {
+    id: upvoteId,
+    contentId,
+    timestamp,
+    attestation,
+    attestationScheme: AttestationScheme.EIP712,
+  };
+};
+
 export const recoverContentSigner = (content: Content): string => {
   if (content.attestationScheme !== AttestationScheme.EIP712) {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
@@ -322,6 +345,21 @@ export const recoverContentSigner = (content: Content): string => {
 
   console.log("content.attestation.toString('hex')", '0x' + content.attestation.toString('hex'));
   const { v, r, s } = fromRpcSig('0x' + content.attestation.toString('hex'));
+  const pubKey = ecrecover(msgHash, v, r, s);
+  const address = pubToAddress(pubKey);
+
+  return address.toString('hex');
+};
+
+export const recoverUpvoteSigner = (upvote: Upvote): string => {
+  if (upvote.attestationScheme !== AttestationScheme.EIP712) {
+    throw new Error('Only the signer of an EIP712 attestation is recoverable.');
+  }
+
+  const typedUpvote = toTypedUpvote(upvote.contentId, upvote.timestamp);
+  const msgHash = eip712MsgHash(typedUpvote.domain, typedUpvote.types, typedUpvote.value);
+
+  const { v, r, s } = fromRpcSig('0x' + upvote.attestation.toString('hex'));
   const pubKey = ecrecover(msgHash, v, r, s);
   const address = pubToAddress(pubKey);
 
