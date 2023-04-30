@@ -1,9 +1,3 @@
-import { NymPublicInput } from './lib';
-
-// ################
-// Enums
-// ################
-
 export enum AttestationScheme {
   EIP712,
   Nym,
@@ -13,24 +7,14 @@ export enum HashScheme {
   Keccak256,
 }
 
-// ################
-// Core Types
-// ################
-
-// The `Content` object defined in `Nym data model specification (Dan)`
 export type Content = {
   id: string;
-  venue: string;
-  title: string;
-  body: string;
-  parentId: string;
-  timestamp: number;
+  contentMessage: ContentMessage;
   attestation: Buffer;
   attestationScheme: AttestationScheme;
   hashScheme: HashScheme;
 };
 
-// The `Upvote` object defined in `Nym data model specification (Dan)`
 export type Upvote = {
   id: string;
   contentId: string;
@@ -39,9 +23,32 @@ export type Upvote = {
   attestationScheme: AttestationScheme; // Only support EIP712 for now
 };
 
-export type NymFullProof = {
-  proof: Uint8Array;
-  publicInput: NymPublicInput;
+export type ContentMessage = {
+  venue: string;
+  title: string;
+  body: string;
+  parentId: string;
+  timestamp: number;
+};
+
+export type PublicInput = {
+  root: bigint;
+  nymSigTx: bigint;
+  nymSigTy: bigint;
+  nymSigUx: bigint;
+  nymSigUy: bigint;
+  nymHash: bigint;
+  contentSigTx: bigint;
+  contentSigTy: bigint;
+  contentSigUx: bigint;
+  contentSigUy: bigint;
+};
+
+export type NymProofAuxiliary = {
+  nymSigR: bigint;
+  nymSigV: bigint;
+  contentSigR: bigint;
+  contentSigV: bigint;
 };
 
 export type EffECDSASig = {
