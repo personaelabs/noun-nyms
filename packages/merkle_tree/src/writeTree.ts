@@ -27,12 +27,15 @@ type MultiSigAccount = {
   code: string;
 };
 
-const DEV_ACCOUNTS: DevAccount[] = [
-  {
-    id: "0x57628b342f1cffbe5cf6cdd8ebf6ea0bb9176ea4".toLowerCase(),
-    tokenBalance: 2
-  }
-];
+const DEV_ACCOUNT = {
+  address: "57628b342f1cffbe5cf6cdd8ebf6ea0bb9176ea4",
+  pubKey: Buffer.from(
+    "73703d822b3a4bf694d7c29e9200e6e20ba00068a33886cb393a7a908012e1b3fd9467081aa964663cb75e399fa545ba1932dbebae97da9fdd841994df77e69c",
+    "hex"
+  ),
+  tokenBalance: 2,
+  delegatedVotes: null
+};
 
 let poseidonInitialized = false;
 
@@ -74,13 +77,6 @@ async function writeTree(blockHeight: number) {
   for (let i = 0; i < delegates.length; i++) {
     if (!accounts.find(account => account.id === delegates[i].id)) {
       accounts.push(delegates[i]);
-    }
-  }
-
-  // Add dev accounts to the list of all accounts if they are not already there
-  for (let i = 0; i < DEV_ACCOUNTS.length; i++) {
-    if (!accounts.find(account => account.id === DEV_ACCOUNTS[i].id)) {
-      accounts.push(DEV_ACCOUNTS[i]);
     }
   }
 
@@ -205,6 +201,9 @@ async function writeTree(blockHeight: number) {
       }
     }
   }
+  // Add the dev account
+  allAccounts.push(DEV_ACCOUNT);
+
   console.timeEnd("Get pubkeys and multisig guardians");
 
   // ########################################################
