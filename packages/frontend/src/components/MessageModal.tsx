@@ -68,7 +68,7 @@ export const MessageModal = ({
                 </div>
                 <div className="flex justify-between items-center">
                   {/* // TODO fetch this info */}
-                  <p style={{ color: 'gray' }}>43 replies</p>
+                  <p style={{ color: 'gray' }}>33 replies</p>
                   <div className="px-2"></div>
                   <p style={{ color: 'gray' }}>2212 views</p>
                 </div>
@@ -80,6 +80,7 @@ export const MessageModal = ({
               <p className="font-bold" style={{ color: 'gray' }}>
                 32 comments
               </p>
+              <div className="py-3"></div>
               <div className="flex flex-col w-full justify-center iterms-center">
                 {nestedComponentThreads}
               </div>

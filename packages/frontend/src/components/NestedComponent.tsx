@@ -1,8 +1,11 @@
 import { IComment } from '../lib/constants';
 import * as React from 'react';
+import Image from 'next/image';
 import dayjs from 'dayjs';
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
+import styled from 'styled-components';
+import { ButtonIcon } from './ButtonIcon';
 
 interface INestedComponentProps {
   depth: number;
@@ -38,6 +41,8 @@ export const resolveNestedComponentThreads = (allComments: IComment[], depth: nu
   return commentNodes;
 };
 
+const Container = styled.div``;
+
 export const NestedComponent = ({
   depth,
   commentId,
@@ -58,24 +63,60 @@ export const NestedComponent = ({
   }, [createdAt]);
 
   return (
-    <div key={commentId} style={{ marginLeft: `${depth * 20}px` }}>
-      <div className="text-lg md:text-xl font-bold self-start line-clamp-2">
-        <span className="text-black tracking-tight font-bold">{message}</span>
-      </div>
-      <span>{message}</span>
+    <Container
+      key={commentId}
+      style={{
+        marginLeft: `${depth * 20}px`,
+        borderLeft: '0.5px dotted grey',
+        paddingLeft: '10px',
+      }}
+    >
+      <div className="py-2"></div>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center">
           <p className="font-bold">{tagName}</p>
           <div className="px-2"></div>
           <p style={{ color: 'gray' }}>{dateFromDescription}</p>
         </div>
-        <div className="flex justify-between items-center">
-          {/* // TODO fetch this info */}
+      </div>
+      <div className="py-2"></div>
+      <span>{message}</span>
+      <div className="py-2"></div>
+      <div className="w-full" style={{ height: '2px', background: '#EAECF0' }}></div>
+      <div className="py-1"></div>
+      <div className="flex justify-between items-center">
+        {/* // TODO fetch this info */}
+        <div className="flex justify-center items-center">
+          <ButtonIcon
+            onClick={() => console.log('clicked')}
+            iconPath="/upvote.svg"
+            iconWidth={20}
+            iconHeight={20}
+            iconText="50"
+          />
+          <div className="px-1"></div>
+          <ButtonIcon
+            onClick={() => console.log('clicked')}
+            iconPath="/downvote.svg"
+            iconWidth={20}
+            iconHeight={20}
+            iconText=""
+          />
+        </div>
+        <div className="flex justif-center items-center">
           <p style={{ color: 'gray' }}>{childrenLength} replies</p>
           <div className="px-2"></div>
+          <ButtonIcon
+            onClick={() => console.log('clicked')}
+            iconPath="/replyButton.png"
+            iconWidth={15}
+            iconHeight={12.5}
+            iconText={'Reply'}
+          />
         </div>
       </div>
+      <div className="py-2"></div>
       {innerComments}
-    </div>
+    </Container>
   );
 };
