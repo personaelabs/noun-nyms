@@ -6,11 +6,11 @@ import {
   Content,
   eip712MsgHash,
   AttestationScheme,
-  recoverContentSigner,
+  recoverUpvotePubkey,
   toContent,
   toTypedNymCode,
   toTypedContentMessage,
-  recoverUpvoteSigner,
+  recoverContentPubkey,
   toTypedUpvote,
   toUpvote,
   bigIntToPrefixedHex,
@@ -148,8 +148,8 @@ describe('nym', () => {
       });
 
       it('should verify a EIP712 attested content', () => {
-        const singer = recoverContentSigner(content);
-        expect(singer).toBe(proverAddress);
+        const singer = recoverContentPubkey(content);
+        expect(singer).toBe(`0x${proverPubKey.toString('hex')}`);
       });
     });
   });
@@ -175,8 +175,8 @@ describe('nym', () => {
     );
 
     it('should verify a valid upvote', async () => {
-      const upvoteSigner = await recoverUpvoteSigner(upvote);
-      expect(upvoteSigner).toBe(proverAddress);
+      const upvoteSigner = await recoverUpvotePubkey(upvote);
+      expect(upvoteSigner).toBe(`0x${proverPubKey.toString('hex')}`);
     });
   });
 });
