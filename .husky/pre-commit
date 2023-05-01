@@ -1,13 +1,17 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 . "$(dirname -- "$0")/_/husky.sh"
 
 # Define the filenames of the files to compare
 frontendSchema="packages/frontend/prisma/schema.prisma"
 backendSchema="packages/merkle_tree/prisma/schema.prisma"
 
-# check that backendSchema is strictly a subset of frontendSchema
-if ! diff --unchanged-line-format= --old-line-format='%L' "$backendSchema" "$frontendSchema" | grep -q "^"; then
-    echo "Error: $file2 is not a strict subset of $file1."
+# Read the contents of the files
+frontendContent=$(cat "$frontendSchema")
+backendContent=$(cat "$backendSchema")
+
+# Check if backendSchema is a prefix of frontendSchema
+if [[ ! "$frontendContent" =~ ^"$backendContent" ]]; then
+    echo "Error: $backendSchema is not a prefix of $frontendSchema."
     exit 1
 fi
 

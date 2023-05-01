@@ -40,7 +40,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "echo '[Husky] pre-commit'"
+      "pre-commit": "bash .husky/pre-commit"
     }
   }
 }
