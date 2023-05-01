@@ -1,7 +1,9 @@
-## Motivation
+# Nym data model specification
 
-- Content and upvotes must be verifiable.[^1]
-- Content and upvotes must have a unique and deterministic identifier.
+## Scope and motivation
+
+- Posts and upvotes must be verifiable.[^1]
+- Posts and upvotes must have a unique and deterministic identifier.
 
 ## Specification
 
