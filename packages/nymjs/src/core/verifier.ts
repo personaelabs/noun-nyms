@@ -14,7 +14,6 @@ import {
   PublicInput as EffEcdsaPubInput,
   CircuitPubInput,
 } from '@personaelabs/spartan-ecdsa';
-import { fromRpcSig } from '@ethereumjs/util';
 
 // NOTE: we'll subsidize storage of these files for now
 const CIRCUIT_URL =

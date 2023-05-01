@@ -15,15 +15,6 @@ export type Content = {
   hashScheme: HashScheme;
 };
 
-export type Upvote = {
-  id: string;
-  contentId: string;
-  groupRoot: string;
-  timestamp: number;
-  attestation: Buffer;
-  attestationScheme: AttestationScheme; // Only support EIP712 for now
-};
-
 export type ContentMessage = {
   venue: string;
   title: string;
@@ -33,6 +24,16 @@ export type ContentMessage = {
   timestamp: number;
 };
 
+export type Upvote = {
+  id: string;
+  contentId: string;
+  groupRoot: string;
+  timestamp: number;
+  attestation: Buffer;
+  attestationScheme: AttestationScheme; // Only support EIP712 for now
+};
+
+// Public input of the circuit `nym_ownership.circom`
 export type PublicInput = {
   root: bigint;
   nymSigTx: bigint;
@@ -99,7 +100,7 @@ export const NYM_CODE_TYPE = {
   Nym: [{ name: 'nymCode', type: 'string' }],
 };
 
-export const CONTENT_DATA_TYPES = {
+export const CONTENT_MESSAGE_TYPES = {
   Post: [
     { name: 'venue', type: 'string' },
     { name: 'title', type: 'string' },

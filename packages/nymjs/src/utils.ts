@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { keccak256 } from 'ethers/lib/utils';
 import {
   AttestationScheme,
-  CONTENT_DATA_TYPES,
+  CONTENT_MESSAGE_TYPES,
   ContentMessage,
   DOMAIN,
   EIP712Domain,
@@ -20,6 +20,7 @@ import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
 import { computeEffEcdsaPubInput, Poseidon } from '@personaelabs/spartan-ecdsa';
 import { EIP712TypedData, EffECDSASig, Content, PublicInput, NymProofAuxiliary } from './types';
 
+// Byte length of a spartan-ecdsa proof
 const PROOF_BYTE_LENGTH = 19391;
 
 export const snarkJsWitnessGen = async (input: any, wasmFile: string) => {
@@ -77,7 +78,7 @@ export function eip712MsgHash(
   return Buffer.from(hash.replace('0x', ''), 'hex');
 }
 
-// Compute the contentId as specified in `Nym data model specification (Dan)`
+// Compute the contentId as specified in `SPECIFICATION.md`
 export const computeContentId = (
   venue: string,
   title: string,
@@ -105,7 +106,7 @@ export const computeContentId = (
   return keccak256(bytes);
 };
 
-// Compute the id of an upvote as specified in `Nym data model specification (Dan)`
+// Compute the id of an upvote as as specified in `SPECIFICATION.md`
 export const computeUpvoteId = (
   contentId: string,
   groupRoot: string,
@@ -170,6 +171,7 @@ export const serializePublicInput = (publicInput: PublicInput): Buffer => {
   return Buffer.from(serialized);
 };
 
+// Serialize an attestation of the `Nym` attestation scheme
 export const serializeNymAttestation = (
   proof: Buffer,
   publicInput: PublicInput,
@@ -204,6 +206,7 @@ export const serializeNymAttestation = (
   return Buffer.from(serialized);
 };
 
+// Deserialize an attestation of the `Nym` attestation scheme
 export const deserializeNymAttestation = (
   attestation: Buffer,
 ): {
@@ -254,18 +257,12 @@ export const deserializeNymAttestation = (
     contentSigUy: bufferToBigInt(publicInputSer.slice(288, 320)),
   };
 
-  console.log('nymCode', Buffer.from(nymCode).toString('utf-8'));
-  console.log('publicInput', publicInput);
-  console.log('auxiliary', auxiliary);
-
   return {
     nymCode: Buffer.from(nymCode).toString('utf-8'),
     proof: Buffer.from(proof),
     publicInput,
     auxiliary,
   };
-
-  // TBD
 };
 
 export const toTypedNymCode = (nymCode: string): EIP712TypedData => ({
@@ -276,7 +273,7 @@ export const toTypedNymCode = (nymCode: string): EIP712TypedData => ({
 
 export const toTypedContentMessage = (contentMessage: ContentMessage): EIP712TypedData => ({
   domain: DOMAIN,
-  types: CONTENT_DATA_TYPES,
+  types: CONTENT_MESSAGE_TYPES,
   value: contentMessage,
 });
 
@@ -288,6 +285,7 @@ export const toTypedUpvote = (contentId: string, timestamp: number, groupRoot: s
   };
 };
 
+// Return an object that is equivalent to `Content` specified in `SPECIFICATION.md`
 export const toContent = (
   contentMessage: ContentMessage,
   attestation: Buffer | string,
@@ -323,6 +321,7 @@ export const toContent = (
   };
 };
 
+// Return an object that is equivalent to `Upvote` specified in `SPECIFICATION.md`
 export const toUpvote = (
   contentId: string,
   groupRoot: string,
@@ -348,6 +347,7 @@ export const toUpvote = (
   };
 };
 
+// Recover the signer of a Content with an EIP712 attestation
 export const recoverContentSigner = (content: Content): string => {
   if (content.attestationScheme !== AttestationScheme.EIP712) {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
@@ -360,7 +360,6 @@ export const recoverContentSigner = (content: Content): string => {
     typedContentMessage.value,
   );
 
-  console.log("content.attestation.toString('hex')", '0x' + content.attestation.toString('hex'));
   const { v, r, s } = fromRpcSig('0x' + content.attestation.toString('hex'));
   const pubKey = ecrecover(msgHash, v, r, s);
   const address = pubToAddress(pubKey);
@@ -368,6 +367,7 @@ export const recoverContentSigner = (content: Content): string => {
   return address.toString('hex');
 };
 
+// Recover the signer of an Upvote
 export const recoverUpvoteSigner = (upvote: Upvote): string => {
   if (upvote.attestationScheme !== AttestationScheme.EIP712) {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');

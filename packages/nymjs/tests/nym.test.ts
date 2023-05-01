@@ -10,10 +10,12 @@ import {
   toContent,
   toTypedNymCode,
   toTypedContentMessage,
+  recoverUpvoteSigner,
+  toTypedUpvote,
+  toUpvote,
 } from '../src/lib';
 import { ecsign, ecrecover, toRpcSig, toCompactSig, pubToAddress } from '@ethereumjs/util';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
-import { recoverUpvoteSigner, toTypedUpvote, toUpvote } from '../src/utils';
 
 describe('nym', () => {
   let proverPubKeyHash: bigint;
