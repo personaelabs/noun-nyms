@@ -11,6 +11,7 @@ interface INestedComponentProps {
   message: string;
   createdAt: Date;
   tagName: string;
+  innerComments: React.ReactNode;
   profileImgURL: string;
   proof: string;
   childrenLength: number;
@@ -19,7 +20,22 @@ interface INestedComponentProps {
 export const resolveNestedComponentThreads = (allComments: IComment[], depth: number) => {
   const commentNodes: React.ReactNode[] = [];
   for (const comment of allComments) {
+    commentNodes.push(
+      <NestedComponent
+        depth={depth}
+        commentId={comment.commentId}
+        title={comment.title}
+        message={comment.message}
+        createdAt={comment.createdAt}
+        tagName={comment.tagName}
+        innerComments={resolveNestedComponentThreads(comment.children, depth + 1)}
+        profileImgURL={comment.profileImgURL}
+        proof={comment.proof}
+        childrenLength={comment.children.length}
+      />,
+    );
   }
+  return commentNodes;
 };
 
 export const NestedComponent = ({
@@ -29,6 +45,7 @@ export const NestedComponent = ({
   message,
   createdAt,
   tagName,
+  innerComments,
   profileImgURL,
   proof,
   childrenLength,
@@ -41,7 +58,7 @@ export const NestedComponent = ({
   }, [createdAt]);
 
   return (
-    <div style={{ paddingLeft: `${depth * 10}px` }}>
+    <div key={commentId} style={{ marginLeft: `${depth * 20}px` }}>
       <div className="text-lg md:text-xl font-bold self-start line-clamp-2">
         <span className="text-black tracking-tight font-bold">{message}</span>
       </div>
@@ -58,6 +75,7 @@ export const NestedComponent = ({
           <div className="px-2"></div>
         </div>
       </div>
+      {innerComments}
     </div>
   );
 };

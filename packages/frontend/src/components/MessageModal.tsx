@@ -25,7 +25,7 @@ export const MessageModal = ({
 }: IMessageModalProps) => {
   //TODO: replace with call to actual data
   const nestedComponentThreads = React.useMemo(() => {
-    return resolveNestedComponentThreads(TEMP_NESTED_DUMMY_DATA);
+    return resolveNestedComponentThreads(TEMP_NESTED_DUMMY_DATA, 0);
   }, [TEMP_NESTED_DUMMY_DATA]);
   return (
     <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
