@@ -1,7 +1,7 @@
 import {
   DOMAIN,
   NYM_CODE_TYPE,
-  CONTENT_DATA_TYPES,
+  CONTENT_MESSAGE_TYPES,
   NymProofAuxiliary,
   PublicInput,
   ContentMessage,
@@ -66,7 +66,7 @@ export class NymProver extends Profiler {
 
     const typedContentMessage: EIP712TypedData = {
       domain: DOMAIN,
-      types: CONTENT_DATA_TYPES,
+      types: CONTENT_MESSAGE_TYPES,
       value: message,
     };
 
@@ -126,7 +126,6 @@ export class NymProver extends Profiler {
     this.time('prove');
     const proof = wasm.prove(circuitBin, witness.data, publicInputSer);
     this.timeEnd('prove');
-    console.log('prover proof[0]', proof[0]);
 
     const attestation = serializeNymAttestation(
       Buffer.from(proof),

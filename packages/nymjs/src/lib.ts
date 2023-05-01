@@ -8,6 +8,10 @@ export {
   computeNymHash,
   recoverContentSigner,
   toContent,
+  toUpvote,
   toTypedNymCode,
   toTypedContentMessage,
+  toTypedUpvote,
+  recoverUpvoteSigner,
+  bigIntToPrefixedHex,
 } from './utils';

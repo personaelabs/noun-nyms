@@ -1,3 +1,5 @@
+export type PrefixedHex = `0x${string}`;
+
 export enum AttestationScheme {
   EIP712,
   Nym,
@@ -8,29 +10,32 @@ export enum HashScheme {
 }
 
 export type Content = {
-  id: string;
+  id: PrefixedHex;
   contentMessage: ContentMessage;
   attestation: Buffer;
   attestationScheme: AttestationScheme;
   hashScheme: HashScheme;
 };
 
+export type ContentMessage = {
+  venue: string;
+  title: string;
+  body: string;
+  parentId: PrefixedHex;
+  groupRoot: PrefixedHex;
+  timestamp: number;
+};
+
 export type Upvote = {
-  id: string;
-  contentId: string;
+  id: PrefixedHex;
+  contentId: PrefixedHex;
+  groupRoot: PrefixedHex;
   timestamp: number;
   attestation: Buffer;
   attestationScheme: AttestationScheme; // Only support EIP712 for now
 };
 
-export type ContentMessage = {
-  venue: string;
-  title: string;
-  body: string;
-  parentId: string;
-  timestamp: number;
-};
-
+// Public input of the circuit `nym_ownership.circom`
 export type PublicInput = {
   root: bigint;
   nymSigTx: bigint;
@@ -69,7 +74,8 @@ export type EIP712Domain = {
   name: string;
   version: string;
   chainId: number;
-  verifyingContract: `0x${string}`;
+  verifyingContract: PrefixedHex;
+  salt: PrefixedHex;
 };
 
 export type EIP712Types = {
@@ -91,18 +97,28 @@ export const DOMAIN: EIP712Domain = {
   version: '1',
   chainId: 1,
   verifyingContract: '0x0000000000000000000000000000000000000000',
+  salt: '0x1f62937a3189e37c79aea1c4a1fcd5a56395069b1f973cc4d2218c3b65a6c9ff',
 };
 
 export const NYM_CODE_TYPE = {
   Nym: [{ name: 'nymCode', type: 'string' }],
 };
 
-export const CONTENT_DATA_TYPES = {
+export const CONTENT_MESSAGE_TYPES = {
   Post: [
     { name: 'venue', type: 'string' },
     { name: 'title', type: 'string' },
     { name: 'body', type: 'string' },
     { name: 'parentId', type: 'string' },
+    { name: 'groupRoot', type: 'string' },
+    { name: 'timestamp', type: 'uint256' },
+  ],
+};
+
+export const UPVOTE_TYPES = {
+  Upvote: [
+    { name: 'contentId', type: 'string' },
+    { name: 'groupRoot', type: 'string' },
     { name: 'timestamp', type: 'uint256' },
   ],
 };
