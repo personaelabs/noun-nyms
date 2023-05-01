@@ -83,6 +83,7 @@ export const computeContentId = (
   title: string,
   body: string,
   parentId: string,
+  groupRoot: string,
   timestamp: number,
   attestation: Buffer,
   hashScheme: HashScheme,
@@ -96,6 +97,7 @@ export const computeContentId = (
     Buffer.from(title, 'utf-8'),
     Buffer.from(body, 'utf-8'),
     Buffer.from(parentId, 'utf-8'),
+    Buffer.from(groupRoot, 'hex'),
     Buffer.from(timestamp.toString(16), 'hex'),
     attestation,
   ]);
@@ -106,6 +108,7 @@ export const computeContentId = (
 // Compute the id of an upvote as specified in `Nym data model specification (Dan)`
 export const computeUpvoteId = (
   contentId: string,
+  groupRoot: string,
   timestamp: number,
   attestation: Buffer,
   hashScheme: HashScheme,
@@ -116,6 +119,7 @@ export const computeUpvoteId = (
 
   const bytes = Buffer.concat([
     Buffer.from(contentId, 'utf-8'),
+    Buffer.from(groupRoot, 'hex'),
     Buffer.from(timestamp.toString(16), 'hex'),
     attestation,
   ]);
@@ -276,11 +280,11 @@ export const toTypedContentMessage = (contentMessage: ContentMessage): EIP712Typ
   value: contentMessage,
 });
 
-export const toTypedUpvote = (contentId: string, timestamp: number) => {
+export const toTypedUpvote = (contentId: string, timestamp: number, groupRoot: string) => {
   return {
     domain: DOMAIN,
     types: UPVOTE_TYPES,
-    value: { contentId, timestamp },
+    value: { contentId, timestamp, groupRoot },
   };
 };
 
@@ -304,6 +308,7 @@ export const toContent = (
     contentMessage.title,
     contentMessage.body,
     contentMessage.parentId,
+    contentMessage.groupRoot,
     contentMessage.timestamp,
     attestation as Buffer,
     hashScheme,
@@ -318,13 +323,25 @@ export const toContent = (
   };
 };
 
-export const toUpvote = (contentId: string, timestamp: number, sig: string): Upvote => {
+export const toUpvote = (
+  contentId: string,
+  groupRoot: string,
+  timestamp: number,
+  sig: string,
+): Upvote => {
   const attestation = Buffer.from(sig.replace('0x', ''), 'hex');
-  const upvoteId = computeUpvoteId(contentId, timestamp, attestation, HashScheme.Keccak256);
+  const upvoteId = computeUpvoteId(
+    contentId,
+    groupRoot,
+    timestamp,
+    attestation,
+    HashScheme.Keccak256,
+  );
 
   return {
     id: upvoteId,
     contentId,
+    groupRoot,
     timestamp,
     attestation,
     attestationScheme: AttestationScheme.EIP712,
@@ -356,7 +373,7 @@ export const recoverUpvoteSigner = (upvote: Upvote): string => {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
   }
 
-  const typedUpvote = toTypedUpvote(upvote.contentId, upvote.timestamp);
+  const typedUpvote = toTypedUpvote(upvote.contentId, upvote.timestamp, upvote.groupRoot);
   const msgHash = eip712MsgHash(typedUpvote.domain, typedUpvote.types, typedUpvote.value);
 
   const { v, r, s } = fromRpcSig('0x' + upvote.attestation.toString('hex'));

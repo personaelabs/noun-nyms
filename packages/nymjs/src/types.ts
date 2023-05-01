@@ -18,6 +18,7 @@ export type Content = {
 export type Upvote = {
   id: string;
   contentId: string;
+  groupRoot: string;
   timestamp: number;
   attestation: Buffer;
   attestationScheme: AttestationScheme; // Only support EIP712 for now
@@ -28,6 +29,7 @@ export type ContentMessage = {
   title: string;
   body: string;
   parentId: string;
+  groupRoot: string;
   timestamp: number;
 };
 
@@ -103,6 +105,7 @@ export const CONTENT_DATA_TYPES = {
     { name: 'title', type: 'string' },
     { name: 'body', type: 'string' },
     { name: 'parentId', type: 'string' },
+    { name: 'groupRoot', type: 'string' },
     { name: 'timestamp', type: 'uint256' },
   ],
 };
@@ -110,6 +113,7 @@ export const CONTENT_DATA_TYPES = {
 export const UPVOTE_TYPES = {
   Upvote: [
     { name: 'contentId', type: 'string' },
+    { name: 'groupRoot', type: 'string' },
     { name: 'timestamp', type: 'uint256' },
   ],
 };

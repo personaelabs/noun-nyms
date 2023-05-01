@@ -10,7 +10,6 @@ import {
   toContent,
   toTypedNymCode,
   toTypedContentMessage,
-  Upvote,
 } from '../src/lib';
 import { ecsign, ecrecover, toRpcSig, toCompactSig, pubToAddress } from '@ethereumjs/util';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
@@ -25,6 +24,7 @@ describe('nym', () => {
     title: 'title',
     body: 'body',
     parentId: '',
+    groupRoot: '0x1234',
     timestamp: Math.round(Date.now() / 1000),
   };
 
@@ -136,7 +136,8 @@ describe('nym', () => {
   describe('Upvote', () => {
     const contentId = '0x1234';
     const timestamp = Math.round(Date.now() / 1000);
-    const typedUpvote = toTypedUpvote(contentId, timestamp);
+    const groupRoot = '0x1234';
+    const typedUpvote = toTypedUpvote(contentId, timestamp, groupRoot);
 
     const typedUpvoteMsgHash = eip712MsgHash(
       typedUpvote.domain,
@@ -147,6 +148,7 @@ describe('nym', () => {
 
     const upvote = toUpvote(
       contentId,
+      groupRoot,
       timestamp,
       toCompactSig(upvoteSig.v, upvoteSig.r, upvoteSig.s),
     );
