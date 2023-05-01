@@ -26,7 +26,7 @@ export const MessageModal = ({
   //TODO: replace with call to actual data
   const nestedComponentThreads = React.useMemo(() => {
     return resolveNestedComponentThreads(TEMP_NESTED_DUMMY_DATA, 0);
-  }, [TEMP_NESTED_DUMMY_DATA]);
+  }, []);
   return (
     <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
       {/* The backdrop, rendered as a fixed sibling to the panel container */}

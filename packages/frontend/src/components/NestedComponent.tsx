@@ -2,7 +2,7 @@ import { IComment } from '../lib/constants';
 import * as React from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
-const relativeTime = require('dayjs/plugin/relativeTime');
+import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import styled from 'styled-components';
 import { ButtonIcon } from './ButtonIcon';
