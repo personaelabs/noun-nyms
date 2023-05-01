@@ -351,7 +351,7 @@ export const toUpvote = (
 };
 
 // Recover the signer of a Content with an EIP712 attestation
-export const recoverContentSigner = (content: Content): string => {
+export const recoverContentPubkey = (content: Content): PrefixedHex => {
   if (content.attestationScheme !== AttestationScheme.EIP712) {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
   }
@@ -365,13 +365,12 @@ export const recoverContentSigner = (content: Content): string => {
 
   const { v, r, s } = fromRpcSig('0x' + content.attestation.toString('hex'));
   const pubKey = ecrecover(msgHash, v, r, s);
-  const address = pubToAddress(pubKey);
 
-  return address.toString('hex');
+  return `0x${pubKey.toString('hex')}`;
 };
 
 // Recover the signer of an Upvote
-export const recoverUpvoteSigner = (upvote: Upvote): string => {
+export const recoverUpvotePubkey = (upvote: Upvote): string => {
   if (upvote.attestationScheme !== AttestationScheme.EIP712) {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
   }
@@ -381,7 +380,6 @@ export const recoverUpvoteSigner = (upvote: Upvote): string => {
 
   const { v, r, s } = fromRpcSig('0x' + upvote.attestation.toString('hex'));
   const pubKey = ecrecover(msgHash, v, r, s);
-  const address = pubToAddress(pubKey);
 
-  return address.toString('hex');
+  return `0x${pubKey.toString('hex')}`;
 };
