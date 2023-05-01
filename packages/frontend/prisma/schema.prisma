@@ -44,6 +44,9 @@ enum GroupType {
   ManyNouns
 }
 
+// The above code MUST match the schema in `packages/merkle_tree/prisma/schema.prisma
+// Anything below is specific to `frontend` package.
+
 model Post {
   id         String        @id
   parentId   String?
