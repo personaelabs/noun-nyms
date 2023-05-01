@@ -1,6 +1,8 @@
 import { Dialog } from '@headlessui/react';
 import * as React from 'react';
 import { CommentWriter } from './CommentWriter';
+import { TEMP_NESTED_DUMMY_DATA } from '../lib/constants';
+import { resolveNestedComponentThreads } from './NestedComponent';
 
 interface IMessageModalProps {
   commentId: string;
@@ -21,6 +23,10 @@ export const MessageModal = ({
   dateFromDescription,
   tagName,
 }: IMessageModalProps) => {
+  //TODO: replace with call to actual data
+  const nestedComponentThreads = React.useMemo(() => {
+    return resolveNestedComponentThreads(TEMP_NESTED_DUMMY_DATA);
+  }, [TEMP_NESTED_DUMMY_DATA]);
   return (
     <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
       {/* The backdrop, rendered as a fixed sibling to the panel container */}
@@ -75,7 +81,7 @@ export const MessageModal = ({
                 32 comments
               </p>
               <div className="flex flex-col w-full justify-center iterms-center">
-                {/* TODO: all comment threading */}
+                {nestedComponentThreads}
               </div>
             </div>
           </Dialog.Panel>
