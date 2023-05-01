@@ -14,6 +14,7 @@ import {
   PublicInput as EffEcdsaPubInput,
   CircuitPubInput,
 } from '@personaelabs/spartan-ecdsa';
+import { bigIntToHex } from '@ethereumjs/util';
 
 // NOTE: we'll subsidize storage of these files for now
 const CIRCUIT_URL =
@@ -109,7 +110,7 @@ export class NymVerifier extends Profiler {
     );
 
     // Verify that the contentMessage.groupRoot matches the `root` in the public input
-    if (content.contentMessage.groupRoot !== publicInput.root.toString(16)) {
+    if (content.contentMessage.groupRoot !== bigIntToHex(publicInput.root)) {
       return false;
     }
 

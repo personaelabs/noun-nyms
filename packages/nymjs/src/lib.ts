@@ -13,4 +13,5 @@ export {
   toTypedContentMessage,
   toTypedUpvote,
   recoverUpvoteSigner,
+  bigIntToPrefixedHex,
 } from './utils';

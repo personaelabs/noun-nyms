@@ -14,6 +14,7 @@ import {
   NYM_CODE_TYPE,
   UPVOTE_TYPES,
   Upvote,
+  PrefixedHex,
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
@@ -67,6 +68,8 @@ export const bigIntToBytes = (n: bigint, size: number): Uint8Array => {
   return Buffer.from(hexPadded, 'hex');
 };
 
+export const bigIntToPrefixedHex = (val: bigint): PrefixedHex => `0x${val.toString(16)}`;
+
 // Borrowing from: https://github.com/personaelabs/heyanoun/blob/main/frontend/utils/utils.ts#L83
 export function eip712MsgHash(
   domain: EIP712Domain,
@@ -83,12 +86,12 @@ export const computeContentId = (
   venue: string,
   title: string,
   body: string,
-  parentId: string,
-  groupRoot: string,
+  parentId: PrefixedHex,
+  groupRoot: PrefixedHex,
   timestamp: number,
   attestation: Buffer,
   hashScheme: HashScheme,
-): string => {
+): PrefixedHex => {
   if (hashScheme !== HashScheme.Keccak256) {
     throw new Error('Unknown hash scheme');
   }
@@ -103,7 +106,7 @@ export const computeContentId = (
     attestation,
   ]);
 
-  return keccak256(bytes);
+  return keccak256(bytes) as PrefixedHex;
 };
 
 // Compute the id of an upvote as as specified in `SPECIFICATION.md`
@@ -113,7 +116,7 @@ export const computeUpvoteId = (
   timestamp: number,
   attestation: Buffer,
   hashScheme: HashScheme,
-): string => {
+): PrefixedHex => {
   if (hashScheme !== HashScheme.Keccak256) {
     throw new Error('Unknown hash scheme');
   }
@@ -125,7 +128,7 @@ export const computeUpvoteId = (
     attestation,
   ]);
 
-  return keccak256(bytes);
+  return keccak256(bytes) as PrefixedHex;
 };
 
 export function computeEffECDSASig(sigStr: string, typedData: EIP712TypedData): EffECDSASig {
@@ -323,8 +326,8 @@ export const toContent = (
 
 // Return an object that is equivalent to `Upvote` specified in `SPECIFICATION.md`
 export const toUpvote = (
-  contentId: string,
-  groupRoot: string,
+  contentId: PrefixedHex,
+  groupRoot: PrefixedHex,
   timestamp: number,
   sig: string,
 ): Upvote => {

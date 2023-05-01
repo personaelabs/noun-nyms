@@ -13,6 +13,7 @@ import {
   recoverUpvoteSigner,
   toTypedUpvote,
   toUpvote,
+  bigIntToPrefixedHex,
 } from '../src/lib';
 import {
   ecsign,
@@ -49,8 +50,8 @@ describe('nym', () => {
       venue: 'nouns',
       title: 'title',
       body: 'body',
-      parentId: '',
-      groupRoot: tree.root().toString(16),
+      parentId: '0x',
+      groupRoot: bigIntToPrefixedHex(tree.root()),
       timestamp: Math.round(Date.now() / 1000),
     };
 
@@ -122,7 +123,7 @@ describe('nym', () => {
 
         it('should assert if contentMessage.groupRoot != publicInput.root', async () => {
           const groupRoot = contentMessage.groupRoot;
-          content.contentMessage.groupRoot = groupRoot + 1;
+          content.contentMessage.groupRoot = bigIntToPrefixedHex(BigInt(groupRoot) + BigInt(1));
           const proofValid = await verifier.verify(content);
           expect(proofValid).toBe(false);
 
