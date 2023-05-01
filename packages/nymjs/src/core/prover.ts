@@ -126,7 +126,6 @@ export class NymProver extends Profiler {
     this.time('prove');
     const proof = wasm.prove(circuitBin, witness.data, publicInputSer);
     this.timeEnd('prove');
-    console.log('prover proof[0]', proof[0]);
 
     const attestation = serializeNymAttestation(
       Buffer.from(proof),
