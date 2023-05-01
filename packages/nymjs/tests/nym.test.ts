@@ -14,39 +14,56 @@ import {
   toTypedUpvote,
   toUpvote,
 } from '../src/lib';
-import { ecsign, ecrecover, toRpcSig, toCompactSig, pubToAddress } from '@ethereumjs/util';
-import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import {
+  ecsign,
+  toRpcSig,
+  toCompactSig,
+  pubToAddress,
+  privateToPublic,
+  ECDSASignature,
+} from '@ethereumjs/util';
+import { MerkleProof, Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
 
 describe('nym', () => {
-  let proverPubKeyHash: bigint;
   const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
+  const proverPubKey = privateToPublic(proverPrivKey);
 
-  const contentMessage: ContentMessage = {
-    venue: 'nouns',
-    title: 'title',
-    body: 'body',
-    parentId: '',
-    groupRoot: '0x1234',
-    timestamp: Math.round(Date.now() / 1000),
-  };
+  let contentMessage: ContentMessage;
+  let contentMessageSig: ECDSASignature;
+  let proverPubKeyHash: bigint;
+  let membershipProof: MerkleProof;
+  const poseidon = new Poseidon();
 
-  const typedContentMessage = toTypedContentMessage(contentMessage);
+  beforeAll(async () => {
+    await poseidon.initWasm();
 
-  const contentMessageMsgHash = eip712MsgHash(
-    typedContentMessage.domain,
-    typedContentMessage.types,
-    typedContentMessage.value,
-  );
+    // Create a Merkle tree with a single leaf,
+    // and create a proof for that leaf
+    proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
+    const tree = new Tree(20, poseidon);
+    tree.insert(proverPubKeyHash);
 
-  const contentMessageSig = ecsign(contentMessageMsgHash, proverPrivKey);
+    membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
 
-  // Recover public key of the signer
-  const proverPubKey = ecrecover(
-    contentMessageMsgHash,
-    contentMessageSig.v,
-    contentMessageSig.r,
-    contentMessageSig.s,
-  );
+    contentMessage = {
+      venue: 'nouns',
+      title: 'title',
+      body: 'body',
+      parentId: '',
+      groupRoot: tree.root().toString(16),
+      timestamp: Math.round(Date.now() / 1000),
+    };
+
+    const typedContentMessage = toTypedContentMessage(contentMessage);
+
+    const contentMessageMsgHash = eip712MsgHash(
+      typedContentMessage.domain,
+      typedContentMessage.types,
+      typedContentMessage.value,
+    );
+
+    contentMessageSig = ecsign(contentMessageMsgHash, proverPrivKey);
+  });
 
   // Recover address of the signer
   const proverAddress = pubToAddress(proverPubKey).toString('hex');
@@ -55,14 +72,15 @@ describe('nym', () => {
     describe('AttestationScheme = Nym', () => {
       const nymCode = 'satoshi';
 
+      // Sign the nymCode
       const typedNymCode = toTypedNymCode(nymCode);
       const nymCodeMsgHash = eip712MsgHash(
         typedNymCode.domain,
         typedNymCode.types,
         typedNymCode.value,
       );
-
       const nymSig = ecsign(nymCodeMsgHash, proverPrivKey);
+
       describe('prove and verify', () => {
         // Initialize prover
         const config = {
@@ -72,20 +90,11 @@ describe('nym', () => {
         };
         const prover = new NymProver(config);
         const verifier = new NymVerifier(config);
-        const poseidon = new Poseidon();
 
         let content: Content;
 
         beforeAll(async () => {
           await prover.initWasm();
-          await poseidon.initWasm();
-
-          // Create a Merkle tree with a single leaf,
-          // and create a proof for that leaf
-          proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
-          const tree = new Tree(20, poseidon);
-          tree.insert(proverPubKeyHash);
-          const membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
 
           const attestation = await prover.prove(
             nymCode,
@@ -109,6 +118,15 @@ describe('nym', () => {
           expect(proofValid).toBe(false);
 
           content.attestation[0] = content.attestation[0] - 1;
+        });
+
+        it('should assert if contentMessage.groupRoot != publicInput.root', async () => {
+          const groupRoot = contentMessage.groupRoot;
+          content.contentMessage.groupRoot = groupRoot + 1;
+          const proofValid = await verifier.verify(content);
+          expect(proofValid).toBe(false);
+
+          content.contentMessage.groupRoot = groupRoot;
         });
 
         // TODO: test invalid public input

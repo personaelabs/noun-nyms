@@ -108,6 +108,11 @@ export class NymVerifier extends Profiler {
       content.attestation,
     );
 
+    // Verify that the contentMessage.groupRoot matches the `root` in the public input
+    if (content.contentMessage.groupRoot !== publicInput.root.toString(16)) {
+      return false;
+    }
+
     this.time('Verify public input');
     const isPublicInputValid = this.verifyPublicInput(
       content,
