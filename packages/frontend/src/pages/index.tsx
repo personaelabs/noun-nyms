@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { CommentView } from '../components/MessageRow';
 import { TEMP_DUMMY_DATA } from '../lib/constants';
-import * as React from 'react'
+import * as React from 'react';
 export default function Home() {
   return (
     <main className="flex w-full flex-col justify-center items-center">
