@@ -21,9 +21,10 @@ model TreeNode {
 }
 
 model Tree {
-  root      String    @id
-  type      GroupType
-  createdAt DateTime  @default(now())
+  root        String    @id
+  type        GroupType
+  blockHeight Int
+  createdAt   DateTime  @default(now())
 }
 
 model CachedEOA {
@@ -42,6 +43,9 @@ enum GroupType {
   OneNoun
   ManyNouns
 }
+
+// The above code MUST match the schema in `packages/merkle_tree/prisma/schema.prisma
+// Anything below is specific to `frontend` package.
 
 model Post {
   id         String        @id
