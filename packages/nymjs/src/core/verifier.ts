@@ -6,9 +6,9 @@ import {
   toTypedNymCode,
   eip712MsgHash,
   serializePublicInput,
-  toTypedContentMessage,
+  toTypedContent,
 } from '../utils';
-import { Content, NymProofAuxiliary, PublicInput } from '../lib';
+import { Post, NymProofAuxiliary, PublicInput } from '../lib';
 import {
   verifyEffEcdsaPubInput,
   PublicInput as EffEcdsaPubInput,
@@ -38,7 +38,7 @@ export class NymVerifier extends Profiler {
   }
 
   verifyPublicInput(
-    content: Content,
+    post: Post,
     nymCode: Buffer,
     publicInput: PublicInput,
     auxiliary: NymProofAuxiliary,
@@ -72,7 +72,7 @@ export class NymVerifier extends Profiler {
 
     let isContentSigPubInputValid;
     try {
-      const typedContentMessage = toTypedContentMessage(content.contentMessage);
+      const typedContentMessage = toTypedContent(post.content);
 
       const typedContentMessageHash = eip712MsgHash(
         typedContentMessage.domain,
@@ -100,23 +100,21 @@ export class NymVerifier extends Profiler {
     return isNymSigPubInputValid && isContentSigPubInputValid;
   }
 
-  async verify(content: Content): Promise<boolean> {
+  async verify(post: Post): Promise<boolean> {
     this.time('Load circuit');
     const circuitBin = await loadCircuit(this.circuit);
     this.timeEnd('Load circuit');
 
-    const { nymCode, proof, publicInput, auxiliary } = deserializeNymAttestation(
-      content.attestation,
-    );
+    const { nymCode, proof, publicInput, auxiliary } = deserializeNymAttestation(post.attestation);
 
-    // Verify that the contentMessage.groupRoot matches the `root` in the public input
-    if (content.contentMessage.groupRoot !== bigIntToHex(publicInput.root)) {
+    // Verify that the content.groupRoot matches the `root` in the public input
+    if (post.content.groupRoot !== bigIntToHex(publicInput.root)) {
       return false;
     }
 
     this.time('Verify public input');
     const isPublicInputValid = this.verifyPublicInput(
-      content,
+      post,
       Buffer.from(nymCode, 'utf-8'),
       publicInput,
       auxiliary,

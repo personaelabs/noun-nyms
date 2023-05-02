@@ -4,7 +4,7 @@ import {
   CONTENT_MESSAGE_TYPES,
   NymProofAuxiliary,
   PublicInput,
-  ContentMessage,
+  Content,
 } from '../types';
 import wasm, { init } from '../wasm';
 import { Profiler } from './profiler';
@@ -50,7 +50,7 @@ export class NymProver extends Profiler {
 
   async prove(
     nymCode: string,
-    message: ContentMessage,
+    message: Content,
     nymSigStr: string,
     contentSigStr: string,
     membershipProof: MerkleProof,
