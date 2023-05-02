@@ -5,7 +5,6 @@ import { keccak256 } from 'ethers/lib/utils';
 import {
   AttestationScheme,
   CONTENT_MESSAGE_TYPES,
-  ContentMessage,
   DOMAIN,
   EIP712Domain,
   EIP712Types,
@@ -15,11 +14,12 @@ import {
   UPVOTE_TYPES,
   Upvote,
   PrefixedHex,
+  Content,
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
 import { computeEffEcdsaPubInput, Poseidon } from '@personaelabs/spartan-ecdsa';
-import { EIP712TypedData, EffECDSASig, Content, PublicInput, NymProofAuxiliary } from './types';
+import { EIP712TypedData, EffECDSASig, Post, PublicInput, NymProofAuxiliary } from './types';
 
 // Byte length of a spartan-ecdsa proof
 const PROOF_BYTE_LENGTH = 19391;
@@ -81,8 +81,8 @@ export function eip712MsgHash(
   return Buffer.from(hash.replace('0x', ''), 'hex');
 }
 
-// Compute the contentId as specified in `SPECIFICATION.md`
-export const computeContentId = (
+// Compute the postId as specified in `SPECIFICATION.md`
+export const computePostId = (
   venue: string,
   title: string,
   body: string,
@@ -111,7 +111,7 @@ export const computeContentId = (
 
 // Compute the id of an upvote as as specified in `SPECIFICATION.md`
 export const computeUpvoteId = (
-  contentId: string,
+  postId: string,
   groupRoot: string,
   timestamp: number,
   attestation: Buffer,
@@ -122,7 +122,7 @@ export const computeUpvoteId = (
   }
 
   const bytes = Buffer.concat([
-    Buffer.from(contentId, 'utf-8'),
+    Buffer.from(postId, 'utf-8'),
     Buffer.from(groupRoot, 'hex'),
     Buffer.from(timestamp.toString(16), 'hex'),
     attestation,
@@ -274,26 +274,26 @@ export const toTypedNymCode = (nymCode: string): EIP712TypedData => ({
   value: { nymCode },
 });
 
-export const toTypedContentMessage = (contentMessage: ContentMessage): EIP712TypedData => ({
+export const toTypedContent = (content: Content): EIP712TypedData => ({
   domain: DOMAIN,
   types: CONTENT_MESSAGE_TYPES,
-  value: contentMessage,
+  value: content,
 });
 
-export const toTypedUpvote = (contentId: string, timestamp: number, groupRoot: string) => {
+export const toTypedUpvote = (postId: string, timestamp: number, groupRoot: string) => {
   return {
     domain: DOMAIN,
     types: UPVOTE_TYPES,
-    value: { contentId, timestamp, groupRoot },
+    value: { postId, timestamp, groupRoot },
   };
 };
 
-// Return an object that is equivalent to `Content` specified in `SPECIFICATION.md`
-export const toContent = (
-  contentMessage: ContentMessage,
+// Return an object that is equivalent to `Post` specified in `SPECIFICATION.md`
+export const toPost = (
+  content: Content,
   attestation: Buffer | string,
   attestationScheme: AttestationScheme,
-): Content => {
+): Post => {
   const hashScheme = HashScheme.Keccak256;
 
   if (attestationScheme === AttestationScheme.EIP712 && typeof attestation !== 'string') {
@@ -304,20 +304,20 @@ export const toContent = (
     attestation = Buffer.from((attestation as string).replace('0x', ''), 'hex');
   }
 
-  const id = computeContentId(
-    contentMessage.venue,
-    contentMessage.title,
-    contentMessage.body,
-    contentMessage.parentId,
-    contentMessage.groupRoot,
-    contentMessage.timestamp,
+  const id = computePostId(
+    content.venue,
+    content.title,
+    content.body,
+    content.parentId,
+    content.groupRoot,
+    content.timestamp,
     attestation as Buffer,
     hashScheme,
   );
 
   return {
     id,
-    contentMessage,
+    content,
     attestation: attestation as Buffer,
     attestationScheme,
     hashScheme,
@@ -326,23 +326,17 @@ export const toContent = (
 
 // Return an object that is equivalent to `Upvote` specified in `SPECIFICATION.md`
 export const toUpvote = (
-  contentId: PrefixedHex,
+  postId: PrefixedHex,
   groupRoot: PrefixedHex,
   timestamp: number,
   sig: string,
 ): Upvote => {
   const attestation = Buffer.from(sig.replace('0x', ''), 'hex');
-  const upvoteId = computeUpvoteId(
-    contentId,
-    groupRoot,
-    timestamp,
-    attestation,
-    HashScheme.Keccak256,
-  );
+  const upvoteId = computeUpvoteId(postId, groupRoot, timestamp, attestation, HashScheme.Keccak256);
 
   return {
     id: upvoteId,
-    contentId,
+    postId,
     groupRoot,
     timestamp,
     attestation,
@@ -350,20 +344,20 @@ export const toUpvote = (
   };
 };
 
-// Recover the signer of a Content with an EIP712 attestation
-export const recoverContentPubkey = (content: Content): PrefixedHex => {
-  if (content.attestationScheme !== AttestationScheme.EIP712) {
+// Recover the signer of a Post with an EIP712 attestation
+export const recoverPostPubkey = (post: Post): PrefixedHex => {
+  if (post.attestationScheme !== AttestationScheme.EIP712) {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
   }
 
-  const typedContentMessage = toTypedContentMessage(content.contentMessage);
+  const typedContentMessage = toTypedContent(post.content);
   const msgHash = eip712MsgHash(
     typedContentMessage.domain,
     typedContentMessage.types,
     typedContentMessage.value,
   );
 
-  const { v, r, s } = fromRpcSig('0x' + content.attestation.toString('hex'));
+  const { v, r, s } = fromRpcSig('0x' + post.attestation.toString('hex'));
   const pubKey = ecrecover(msgHash, v, r, s);
 
   return `0x${pubKey.toString('hex')}`;
@@ -375,7 +369,7 @@ export const recoverUpvotePubkey = (upvote: Upvote): string => {
     throw new Error('Only the signer of an EIP712 attestation is recoverable.');
   }
 
-  const typedUpvote = toTypedUpvote(upvote.contentId, upvote.timestamp, upvote.groupRoot);
+  const typedUpvote = toTypedUpvote(upvote.postId, upvote.timestamp, upvote.groupRoot);
   const msgHash = eip712MsgHash(typedUpvote.domain, typedUpvote.types, typedUpvote.value);
 
   const { v, r, s } = fromRpcSig('0x' + upvote.attestation.toString('hex'));

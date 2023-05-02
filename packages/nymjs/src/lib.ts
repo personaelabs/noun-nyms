@@ -2,16 +2,16 @@ export * from './core/prover';
 export * from './core/verifier';
 export * from './types';
 export {
-  computeContentId,
+  computePostId,
   computeUpvoteId,
   eip712MsgHash,
   computeNymHash,
   recoverUpvotePubkey,
-  toContent,
+  toPost,
   toUpvote,
   toTypedNymCode,
-  toTypedContentMessage,
+  toTypedContent,
   toTypedUpvote,
-  recoverContentPubkey,
+  recoverPostPubkey,
   bigIntToPrefixedHex,
 } from './utils';

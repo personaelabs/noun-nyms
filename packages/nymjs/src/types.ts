@@ -9,15 +9,15 @@ export enum HashScheme {
   Keccak256,
 }
 
-export type Content = {
+export type Post = {
   id: PrefixedHex;
-  contentMessage: ContentMessage;
+  content: Content;
   attestation: Buffer;
   attestationScheme: AttestationScheme;
   hashScheme: HashScheme;
 };
 
-export type ContentMessage = {
+export type Content = {
   venue: string;
   title: string;
   body: string;
@@ -28,7 +28,7 @@ export type ContentMessage = {
 
 export type Upvote = {
   id: PrefixedHex;
-  contentId: PrefixedHex;
+  postId: PrefixedHex;
   groupRoot: PrefixedHex;
   timestamp: number;
   attestation: Buffer;
@@ -117,7 +117,7 @@ export const CONTENT_MESSAGE_TYPES = {
 
 export const UPVOTE_TYPES = {
   Upvote: [
-    { name: 'contentId', type: 'string' },
+    { name: 'postId', type: 'string' },
     { name: 'groupRoot', type: 'string' },
     { name: 'timestamp', type: 'uint256' },
   ],

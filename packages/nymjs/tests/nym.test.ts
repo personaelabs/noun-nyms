@@ -2,15 +2,15 @@ import * as path from 'path';
 import {
   NymProver,
   NymVerifier,
-  ContentMessage,
+  Post,
   Content,
   eip712MsgHash,
   AttestationScheme,
   recoverUpvotePubkey,
-  toContent,
+  toPost,
   toTypedNymCode,
-  toTypedContentMessage,
-  recoverContentPubkey,
+  toTypedContent,
+  recoverPostPubkey,
   toTypedUpvote,
   toUpvote,
   bigIntToPrefixedHex,
@@ -29,7 +29,7 @@ describe('nym', () => {
   const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
   const proverPubKey = privateToPublic(proverPrivKey);
 
-  let contentMessage: ContentMessage;
+  let content: Content;
   let contentMessageSig: ECDSASignature;
   let proverPubKeyHash: bigint;
   let membershipProof: MerkleProof;
@@ -46,7 +46,7 @@ describe('nym', () => {
 
     membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
 
-    contentMessage = {
+    content = {
       venue: 'nouns',
       title: 'title',
       body: 'body',
@@ -55,12 +55,12 @@ describe('nym', () => {
       timestamp: Math.round(Date.now() / 1000),
     };
 
-    const typedContentMessage = toTypedContentMessage(contentMessage);
+    const typedContent = toTypedContent(content);
 
     const contentMessageMsgHash = eip712MsgHash(
-      typedContentMessage.domain,
-      typedContentMessage.types,
-      typedContentMessage.value,
+      typedContent.domain,
+      typedContent.types,
+      typedContent.value,
     );
 
     contentMessageSig = ecsign(contentMessageMsgHash, proverPrivKey);
@@ -92,42 +92,42 @@ describe('nym', () => {
         const prover = new NymProver(config);
         const verifier = new NymVerifier(config);
 
-        let content: Content;
+        let post: Post;
 
         beforeAll(async () => {
           await prover.initWasm();
 
           const attestation = await prover.prove(
             nymCode,
-            contentMessage,
+            content,
             toRpcSig(nymSig.v, nymSig.r, nymSig.s),
             toRpcSig(contentMessageSig.v, contentMessageSig.r, contentMessageSig.s),
             membershipProof,
           );
 
-          content = toContent(contentMessage, attestation, AttestationScheme.Nym);
+          post = toPost(content, attestation, AttestationScheme.Nym);
         });
 
         it('should  prove and verify a valid signature and Merkle proof', async () => {
-          const proofValid = await verifier.verify(content);
+          const proofValid = await verifier.verify(post);
           expect(proofValid).toBe(true);
         });
 
         it('should assert invalid attestation', async () => {
-          content.attestation[0] = content.attestation[0] + 1;
-          const proofValid = await verifier.verify(content);
+          post.attestation[0] = post.attestation[0] + 1;
+          const proofValid = await verifier.verify(post);
           expect(proofValid).toBe(false);
 
-          content.attestation[0] = content.attestation[0] - 1;
+          post.attestation[0] = post.attestation[0] - 1;
         });
 
-        it('should assert if contentMessage.groupRoot != publicInput.root', async () => {
-          const groupRoot = contentMessage.groupRoot;
-          content.contentMessage.groupRoot = bigIntToPrefixedHex(BigInt(groupRoot) + BigInt(1));
-          const proofValid = await verifier.verify(content);
+        it('should assert if content.groupRoot != publicInput.root', async () => {
+          const groupRoot = post.content.groupRoot;
+          post.content.groupRoot = bigIntToPrefixedHex(BigInt(groupRoot) + BigInt(1));
+          const proofValid = await verifier.verify(post);
           expect(proofValid).toBe(false);
 
-          content.contentMessage.groupRoot = groupRoot;
+          post.content.groupRoot = groupRoot;
         });
 
         // TODO: test invalid public input
@@ -136,7 +136,7 @@ describe('nym', () => {
     });
 
     describe('AttestationScheme = EIP712', () => {
-      let content: Content;
+      let post: Post;
       beforeAll(() => {
         const attestation = toCompactSig(
           contentMessageSig.v,
@@ -144,11 +144,11 @@ describe('nym', () => {
           contentMessageSig.s,
         );
 
-        content = toContent(contentMessage, attestation, AttestationScheme.EIP712);
+        post = toPost(content, attestation, AttestationScheme.EIP712);
       });
 
       it('should verify a EIP712 attested content', () => {
-        const singer = recoverContentPubkey(content);
+        const singer = recoverPostPubkey(post);
         expect(singer).toBe(`0x${proverPubKey.toString('hex')}`);
       });
     });
