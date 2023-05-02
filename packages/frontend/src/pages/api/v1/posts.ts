@@ -1,7 +1,15 @@
 import prisma from '../../../lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { NymVerifier, AttestationScheme, toContent, ContentMessage } from '@personaelabs/nymjs';
-import { deserializeNymAttestation, recoverContentSigner } from '@personaelabs/nymjs/build/utils';
+import {
+  NymVerifier,
+  AttestationScheme,
+  toPost,
+  Content,
+  recoverPostPubkey,
+} from '@personaelabs/nymjs';
+import { HashScheme } from '@prisma/client';
+import { pubToAddress } from '@ethereumjs/util';
+import { verifyInclusion } from '../v1/utils';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -23,22 +31,42 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
-  const posts = await prisma.post.findMany({
+  const skipNymPosts = Math.ceil(skip / 2);
+  const takeNymPosts = Math.ceil(take / 2);
+
+  const skipDoxedPosts = Math.floor(skip / 2);
+  const takeDoxedPosts = Math.floor(take / 2);
+
+  const nymPosts = await prisma.nymPost.findMany({
+    select: {
+      id: true,
+      title: true,
+      body: true,
+      parentId: true,
+      timestamp: true,
+      upvotes: true,
+    },
+    skip: skipNymPosts as number,
+    take: takeNymPosts as number,
+  });
+
+  const doxedPosts = await prisma.doxedPost.findMany({
     select: {
       id: true,
       title: true,
       body: true,
       parentId: true,
       createdAt: true,
-      address: true,
+      timestamp: true,
       upvotes: true,
     },
-    where: {
-      parentId: req.query.parentId as string,
-    },
-    skip: skip as number,
-    take: take as number,
+    skip: skipDoxedPosts as number,
+    take: takeDoxedPosts,
   });
+
+  const posts = [...nymPosts, ...doxedPosts].sort(
+    (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+  );
 
   res.send(posts);
 };
@@ -46,31 +74,46 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
 // Handle non-pseudonymous post creation
 // Verify the ECDSA signature and save the post
 const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const contentMessage = req.body.contentMessage;
+  const content: Content = req.body.content;
   const sig: string = req.body.attestation;
 
-  if (!isTimestampValid(contentMessage.timestamp)) {
+  if (!isTimestampValid(content.timestamp)) {
     res.status(400).send('Invalid timestamp!');
     return;
   }
 
-  const content = toContent(contentMessage, sig, AttestationScheme.EIP712);
-  const address = recoverContentSigner(content);
+  if (!verifyRoot(content.groupRoot)) {
+    res.status(400).send('Invalid group root!');
+    return;
+  }
 
-  await prisma.post.create({
+  const post = toPost(content, sig, AttestationScheme.EIP712);
+  const pubKey = recoverPostPubkey(post);
+  console.log({ pubKey });
+
+  if (!(await verifyInclusion(pubKey.replace('0x', '')))) {
+    res.status(400).send('Public key not in latest group');
+    return;
+  }
+
+  const address = pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex');
+
+  await prisma.doxedPost.create({
     data: {
-      title: contentMessage.title,
-      body: contentMessage.body,
-      parentId: contentMessage.parentId,
-      timestamp: new Date(contentMessage.timestamp * 1000),
-      venue: contentMessage.venue,
-      id: content.id,
-      proofOrSig: sig,
+      id: post.id,
+      venue: content.venue,
+      title: content.title,
+      groupRoot: content.groupRoot,
+      body: content.body,
+      parentId: content.parentId,
+      timestamp: new Date(content.timestamp * 1000),
+      sig: sig,
+      hashScheme: HashScheme.Keccak256,
       address,
     },
   });
 
-  res.status(200).send({ contentId: content.id });
+  res.status(200).send({ postId: post.id });
 };
 
 let verifierInitialized = false;
@@ -83,9 +126,9 @@ const verifier = new NymVerifier({
 // Verify the proof and save the post
 const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse) => {
   const attestation: Buffer = Buffer.from(req.body.attestation.replace('0x', ''), 'hex');
-  const contentMessage: ContentMessage = req.body.contentMessage;
+  const content: Content = req.body.content;
 
-  const content = toContent(contentMessage, attestation, AttestationScheme.Nym);
+  const post = toPost(content, attestation, AttestationScheme.Nym);
 
   if (!verifierInitialized) {
     await verifier.initWasm();
@@ -94,40 +137,40 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
 
   // Verify the Content
 
-  const proofVerified = await verifier.verify(content);
+  const proofVerified = await verifier.verify(post);
   if (!proofVerified) {
     console.log('Proof verification failed!');
     res.status(400).send('Invalid proof!');
     return;
   }
 
-  const { publicInput } = deserializeNymAttestation(attestation);
-
-  if (!(await verifyRoot(publicInput.root.toString(16)))) {
+  if (!(await verifyRoot(content.groupRoot.replace('0x', '')))) {
     res.status(400).send('Invalid Merkle root!');
     return;
   }
 
   // After this point, we can assume that the attestation is valid.
 
-  if (!isTimestampValid(contentMessage.timestamp)) {
+  if (!isTimestampValid(content.timestamp)) {
     res.status(400).send('Invalid timestamp!');
     return;
   }
 
-  await prisma.post.create({
+  await prisma.nymPost.create({
     data: {
-      title: contentMessage.title,
-      body: contentMessage.body,
-      timestamp: new Date(contentMessage.timestamp * 1000),
-      venue: contentMessage.venue,
-      proofOrSig: attestation.toString('hex'),
-      id: content.id,
-      parentId: contentMessage.parentId,
+      id: post.id,
+      parentId: content.parentId,
+      venue: content.venue,
+      title: content.title,
+      body: content.body,
+      groupRoot: content.groupRoot,
+      timestamp: new Date(content.timestamp * 1000),
+      fullProof: attestation.toString('hex'),
+      hashScheme: HashScheme.Keccak256,
     },
   });
 
-  res.status(200).send({ contentId: content.id });
+  res.status(200).send({ postId: post.id });
 };
 
 // Entry point for the API below /api/v1/posts
