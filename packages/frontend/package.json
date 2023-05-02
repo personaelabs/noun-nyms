@@ -11,7 +11,8 @@
     "format": "prettier . --write .",
     "db:start": "pnpm down && docker-compose up -d && pnpm db:migrate",
     "down": "docker-compose down",
-    "db:migrate": "pnpm exec prisma migrate dev"
+    "db:migrate": "pnpm exec prisma migrate dev",
+    "prepare": "rsync --ignore-existing .env.example .env"
   },
   "dependencies": {
     "@ethereumjs/util": "^8.0.5",
