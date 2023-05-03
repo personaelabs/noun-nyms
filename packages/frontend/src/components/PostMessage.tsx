@@ -21,6 +21,7 @@ export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) 
 
   function handleMessageChange(event: any) {
     setMessage(event.target.value);
+    console.log('hello');
   }
 
   async function generateProofInputs(): Promise<void> {
