@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:all": "pnpm db:start && pnpm dev",
-    "build": "next build",
+    "build": "pnpm exec prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier . --write .",
