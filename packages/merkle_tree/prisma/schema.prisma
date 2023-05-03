@@ -12,9 +12,9 @@ datasource db {
 
 model TreeNode {
   pubkey    String
+  type      GroupType
   path      String[]
   indices   String[]
-  type      GroupType
   createdAt DateTime  @default(now())
 
   @@unique([type, pubkey])
