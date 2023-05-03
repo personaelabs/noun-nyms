@@ -19,6 +19,7 @@ export const hashBytes = async (bytes: Uint8Array): Promise<string> => {
     if (i === 0) {
       hash = await poseidonHasher.hash([chunks[i]]);
     } else {
+      //h
       hash = await poseidonHasher.hash([chunks[i], hash as bigint]);
     }
   }
