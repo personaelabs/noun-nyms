@@ -65,6 +65,7 @@ const populateTestData = async () => {
 
   const doxedPosts: DoxedPost[] = [];
 
+  process.stdout.write('Preparing dummy doxed posts...');
   for (let i = 0; i < doxedPostsTestData.length; i++) {
     const data = doxedPostsTestData[i];
 
@@ -107,10 +108,13 @@ const populateTestData = async () => {
       updatedAt: new Date(),
     });
   }
+  process.stdout.write('...done\n');
 
   // ##############################
   // Create Nym posts
   // ##############################
+
+  process.stdout.write('Preparing dummy Nym posts (this takes a bit)...');
 
   const prover = new NymProver({
     circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
@@ -181,11 +185,13 @@ const populateTestData = async () => {
       updatedAt: new Date(),
     });
   }
+  process.stdout.write('...done\n');
 
   // ##############################
   // Create upvotes
   // ##############################
 
+  process.stdout.write('Creating dummy upvotes...');
   const upvotes = [...doxedPosts, ...nymPosts]
     // No upvotes for every 4 posts
     .filter((_, i) => i % 4 !== 0)
@@ -215,7 +221,9 @@ const populateTestData = async () => {
         updatedAt: new Date(),
       };
     });
+  process.stdout.write('...done\n');
 
+  process.stdout.write('Saving to database...');
   // ##############################
   // Save everything to the database
   // ##############################
@@ -274,6 +282,8 @@ const populateTestData = async () => {
       };
     }),
   });
+
+  process.stdout.write('...done!');
 };
 
 populateTestData();
