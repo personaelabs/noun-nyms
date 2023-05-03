@@ -1,3 +1,10 @@
+// Since proofs rely on an RNG,
+// test data populated by this script is NOT deterministic.
+
+// Following the non-deterministic nature of proofs,
+// data that aren’t related to proofs are
+// also internally made non-deterministic (by using `Date.now()` to sample the timestamp).
+
 import 'dotenv/config';
 import * as path from 'path';
 import { PrismaClient, NymPost, HashScheme, DoxedPost, GroupType } from '@prisma/client';
@@ -36,6 +43,12 @@ const NYMS = [
   'TechnoGypsy',
 ];
 
+const UPVOTE_RATE = 4;
+
+const log = (msg: string) => {
+  process.stdout.write(`${msg}`);
+};
+
 const populateTestData = async () => {
   // ##############################
   // Construct a dummy tree that only includes the dev accounts
@@ -59,13 +72,21 @@ const populateTestData = async () => {
   const nymPostsTestData = testData.slice(0, 10);
   const doxedPostsTestData = testData.slice(10, testData.length);
 
+  log(`Creating: \n`);
+  log(`- ${nymPostsTestData.length} Nym posts\n`);
+  log(`- ${doxedPostsTestData.length} doxed posts\n`);
+  log(`- ${Math.floor(testData.length - testData.length / UPVOTE_RATE)} total upvotes\n`);
+
+  log(`from ${PRIV_KEYS.length} accounts\n`);
+  log(`\n`);
+
   // ##############################
   // Create doxed posts
   // ##############################
 
   const doxedPosts: DoxedPost[] = [];
 
-  process.stdout.write('Preparing dummy doxed posts...');
+  log('Preparing dummy doxed posts...');
   for (let i = 0; i < doxedPostsTestData.length; i++) {
     const data = doxedPostsTestData[i];
 
@@ -77,7 +98,7 @@ const populateTestData = async () => {
     const content: Content = {
       title: data.title,
       body: data.body,
-      timestamp: data.timestamp as number,
+      timestamp: Math.round(Date.now() / 1000),
       parentId,
       venue: 'nouns',
       groupRoot: treeRootHex,
@@ -108,13 +129,13 @@ const populateTestData = async () => {
       updatedAt: new Date(),
     });
   }
-  process.stdout.write('...done\n');
+  log('...done\n');
 
   // ##############################
   // Create Nym posts
   // ##############################
 
-  process.stdout.write('Preparing dummy Nym posts (this takes a bit)...');
+  log('Preparing dummy Nym posts (this takes a bit)...');
 
   const prover = new NymProver({
     circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
@@ -147,7 +168,7 @@ const populateTestData = async () => {
     const content: Content = {
       title: data.title,
       body: data.body,
-      timestamp: data.timestamp as number,
+      timestamp: Math.round(Date.now() / 1000),
       parentId,
       venue: 'nouns',
       groupRoot: treeRootHex,
@@ -166,7 +187,6 @@ const populateTestData = async () => {
     const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[nymIndex]));
 
     const attestation = await prover.prove(nymCode, content, nymSig, contentSig, merkleProof);
-
     const attestationHex = attestation.toString('hex');
 
     const post = toPost(content, attestation, AttestationScheme.Nym);
@@ -185,16 +205,16 @@ const populateTestData = async () => {
       updatedAt: new Date(),
     });
   }
-  process.stdout.write('...done\n');
+  log('...done\n');
 
   // ##############################
   // Create upvotes
   // ##############################
 
-  process.stdout.write('Creating dummy upvotes...');
+  log('Creating dummy upvotes...');
   const upvotes = [...doxedPosts, ...nymPosts]
-    // No upvotes for every 4 posts
-    .filter((_, i) => i % 4 !== 0)
+    // No upvotes for every UPVOTE_RATE posts
+    .filter((_, i) => i % UPVOTE_RATE !== 0)
     .map((post, i) => {
       const timestamp = 1651683262;
       const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
@@ -221,34 +241,26 @@ const populateTestData = async () => {
         updatedAt: new Date(),
       };
     });
-  process.stdout.write('...done\n');
+  log('...done\n');
 
-  process.stdout.write('Saving to database...');
+  log('Saving to database...');
   // ##############################
   // Save everything to the database
   // ##############################
 
-  // Save the doxed posts to the database
-  const doxedPostIdsInDB = (await prisma.doxedPost.findMany({})).map((doxedPost) => doxedPost.id);
-
   await prisma.doxedPost.createMany({
     // We only store newly added posts
-    data: doxedPosts.filter((doxedPost) => !doxedPostIdsInDB.includes(doxedPost.id)),
+    data: doxedPosts,
   });
-
-  const nymPostIdsInDB = (await prisma.nymPost.findMany({})).map((nymPost) => nymPost.id);
 
   // Save the nym posts to the database
   await prisma.nymPost.createMany({
     // We only store newly added posts
-    data: nymPosts.filter((nymPost) => !nymPostIdsInDB.includes(nymPost.id)),
+    data: nymPosts,
   });
 
-  // Save the upvotes to the database
-  const upvoteIdsInDB = (await prisma.doxedUpvote.findMany({})).map((upvote) => upvote.id);
   await prisma.doxedUpvote.createMany({
-    // We only store newly added upvotes
-    data: upvotes.filter((upvote) => !upvoteIdsInDB.includes(upvote.id)),
+    data: upvotes,
   });
 
   // Save the dummy tree to the database
@@ -283,7 +295,7 @@ const populateTestData = async () => {
     }),
   });
 
-  process.stdout.write('...done!');
+  log('...done!');
 };
 
 populateTestData();
