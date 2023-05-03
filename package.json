@@ -8,7 +8,8 @@
     "prepare": "husky install",
     "test": "pnpm -r test",
     "frontend:dev": "pnpm -F frontend run dev:all",
-    "down": "pnpm -r down"
+    "down": "pnpm -r down",
+    "frontend:build": "pnpm -F frontend run build"
   },
   "repository": {
     "type": "git",
