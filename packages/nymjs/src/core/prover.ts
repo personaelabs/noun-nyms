@@ -1,4 +1,11 @@
-import { NymFullProof } from '../types';
+import {
+  DOMAIN,
+  NYM_CODE_TYPE,
+  CONTENT_MESSAGE_TYPES,
+  NymProofAuxiliary,
+  PublicInput,
+  Content,
+} from '../types';
 import wasm, { init } from '../wasm';
 import { Profiler } from './profiler';
 import {
@@ -7,9 +14,10 @@ import {
   snarkJsWitnessGen,
   computeEffECDSASig,
   computeNymHash,
+  serializePublicInput,
+  serializeNymAttestation,
 } from '../utils';
 import { EIP712TypedData } from '../types';
-import { NymPublicInput } from './input';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 
 // NOTE: we'll subsidize storage of these files for now
@@ -41,14 +49,28 @@ export class NymProver extends Profiler {
   }
 
   async prove(
-    typedNymCode: EIP712TypedData,
-    typedContent: EIP712TypedData,
+    nymCode: string,
+    message: Content,
     nymSigStr: string,
     contentSigStr: string,
     membershipProof: MerkleProof,
-  ): Promise<NymFullProof> {
+  ): Promise<Buffer> {
+    const typedNymCode: EIP712TypedData = {
+      domain: DOMAIN,
+      types: NYM_CODE_TYPE,
+      value: {
+        nymCode,
+      },
+    };
     const nymSig = computeEffECDSASig(nymSigStr, typedNymCode);
-    const contentSig = computeEffECDSASig(contentSigStr, typedContent);
+
+    const typedContentMessage: EIP712TypedData = {
+      domain: DOMAIN,
+      types: CONTENT_MESSAGE_TYPES,
+      value: message,
+    };
+
+    const contentSig = computeEffECDSASig(contentSigStr, typedContentMessage);
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 
     this.time('generate witness');
@@ -80,24 +102,38 @@ export class NymProver extends Profiler {
     const circuitBin = await loadCircuit(this.circuit);
     this.timeEnd('load circuit');
 
-    const publicInput = new NymPublicInput(
-      typedNymCode,
-      typedContent,
-      nymSig,
-      contentSig,
+    const publicInput: PublicInput = {
+      root: membershipProof.root,
+      nymSigTx: nymSig.Tx,
+      nymSigTy: nymSig.Ty,
+      nymSigUx: nymSig.Ux,
+      nymSigUy: nymSig.Uy,
       nymHash,
-      membershipProof.root,
-    );
+      contentSigTx: contentSig.Tx,
+      contentSigTy: contentSig.Ty,
+      contentSigUx: contentSig.Ux,
+      contentSigUy: contentSig.Uy,
+    };
+    const publicInputSer = serializePublicInput(publicInput);
 
-    this.time('prove');
-    const proof = wasm.prove(circuitBin, witness.data, publicInput.serialize());
-    this.timeEnd('prove');
-
-    const nymFullProof: NymFullProof = {
-      proof,
-      publicInput,
+    const auxiliaryProof: NymProofAuxiliary = {
+      nymSigR: nymSig.r,
+      nymSigV: nymSig.v,
+      contentSigR: contentSig.r,
+      contentSigV: contentSig.v,
     };
 
-    return nymFullProof;
+    this.time('prove');
+    const proof = wasm.prove(circuitBin, witness.data, publicInputSer);
+    this.timeEnd('prove');
+
+    const attestation = serializeNymAttestation(
+      Buffer.from(proof),
+      publicInput,
+      auxiliaryProof,
+      nymCode,
+    );
+
+    return attestation;
   }
 }

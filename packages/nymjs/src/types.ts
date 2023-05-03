@@ -1,8 +1,4 @@
-import { NymPublicInput } from './lib';
-
-// ################
-// Enums
-// ################
+export type PrefixedHex = `0x${string}`;
 
 export enum AttestationScheme {
   EIP712,
@@ -13,35 +9,51 @@ export enum HashScheme {
   Keccak256,
 }
 
-// ################
-// Core Types
-// ################
-
-// The `Content` object defined in `Nym data model specification (Dan)`
-export type Content = {
-  id: string;
-  venue: string;
-  title: string;
-  body: string;
-  parentId: string;
-  timestamp: number;
+export type Post = {
+  id: PrefixedHex;
+  content: Content;
   attestation: Buffer;
   attestationScheme: AttestationScheme;
   hashScheme: HashScheme;
 };
 
-// The `Upvote` object defined in `Nym data model specification (Dan)`
+export type Content = {
+  venue: string;
+  title: string;
+  body: string;
+  parentId: PrefixedHex;
+  groupRoot: PrefixedHex;
+  timestamp: number;
+};
+
 export type Upvote = {
-  id: string;
-  contentId: string;
+  id: PrefixedHex;
+  postId: PrefixedHex;
+  groupRoot: PrefixedHex;
   timestamp: number;
   attestation: Buffer;
   attestationScheme: AttestationScheme; // Only support EIP712 for now
 };
 
-export type NymFullProof = {
-  proof: Uint8Array;
-  publicInput: NymPublicInput;
+// Public input of the circuit `nym_ownership.circom`
+export type PublicInput = {
+  root: bigint;
+  nymSigTx: bigint;
+  nymSigTy: bigint;
+  nymSigUx: bigint;
+  nymSigUy: bigint;
+  nymHash: bigint;
+  contentSigTx: bigint;
+  contentSigTy: bigint;
+  contentSigUx: bigint;
+  contentSigUy: bigint;
+};
+
+export type NymProofAuxiliary = {
+  nymSigR: bigint;
+  nymSigV: bigint;
+  contentSigR: bigint;
+  contentSigV: bigint;
 };
 
 export type EffECDSASig = {
@@ -62,7 +74,8 @@ export type EIP712Domain = {
   name: string;
   version: string;
   chainId: number;
-  verifyingContract: `0x${string}`;
+  verifyingContract: PrefixedHex;
+  salt: PrefixedHex;
 };
 
 export type EIP712Types = {
@@ -84,18 +97,28 @@ export const DOMAIN: EIP712Domain = {
   version: '1',
   chainId: 1,
   verifyingContract: '0x0000000000000000000000000000000000000000',
+  salt: '0x1f62937a3189e37c79aea1c4a1fcd5a56395069b1f973cc4d2218c3b65a6c9ff',
 };
 
 export const NYM_CODE_TYPE = {
   Nym: [{ name: 'nymCode', type: 'string' }],
 };
 
-export const CONTENT_DATA_TYPES = {
+export const CONTENT_MESSAGE_TYPES = {
   Post: [
     { name: 'venue', type: 'string' },
     { name: 'title', type: 'string' },
     { name: 'body', type: 'string' },
     { name: 'parentId', type: 'string' },
+    { name: 'groupRoot', type: 'string' },
+    { name: 'timestamp', type: 'uint256' },
+  ],
+};
+
+export const UPVOTE_TYPES = {
+  Upvote: [
+    { name: 'postId', type: 'string' },
+    { name: 'groupRoot', type: 'string' },
     { name: 'timestamp', type: 'uint256' },
   ],
 };
