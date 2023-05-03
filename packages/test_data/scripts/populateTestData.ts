@@ -43,7 +43,7 @@ const NYMS = [
   'TechnoGypsy',
 ];
 
-const UPVOTE_RATE = 4;
+const NUM_TOTAL_UPVOTES = 100;
 
 const log = (msg: string) => {
   process.stdout.write(`${msg}`);
@@ -75,7 +75,7 @@ const populateTestData = async () => {
   log(`Creating: \n`);
   log(`- ${nymPostsTestData.length} Nym posts\n`);
   log(`- ${doxedPostsTestData.length} doxed posts\n`);
-  log(`- ${Math.floor(testData.length - testData.length / UPVOTE_RATE)} total upvotes\n`);
+  log(`- ${NUM_TOTAL_UPVOTES} total upvotes\n`);
 
   log(`from ${PRIV_KEYS.length} accounts\n`);
   log(`\n`);
@@ -212,35 +212,30 @@ const populateTestData = async () => {
   // ##############################
 
   log('Creating dummy upvotes...');
-  const upvotes = [...doxedPosts, ...nymPosts]
-    // No upvotes for every UPVOTE_RATE posts
-    .filter((_, i) => i % UPVOTE_RATE !== 0)
-    .map((post, i) => {
-      const timestamp = 1651683262;
-      const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
-      const signer = PRIV_KEYS[i % PRIV_KEYS.length];
+  const allPosts = [...doxedPosts, ...nymPosts];
+  const upvotes = new Array(NUM_TOTAL_UPVOTES).map((post, i) => {
+    const timestamp = Math.round(Date.now() / 1000);
+    const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
+    const signer = PRIV_KEYS[i % PRIV_KEYS.length];
+    const postId = allPosts[i % allPosts.length].id as PrefixedHex;
 
-      const typedUpvoteHash = eip712MsgHash(
-        typedUpvote.domain,
-        typedUpvote.types,
-        typedUpvote.value,
-      );
-      const { v, r, s } = ecsign(typedUpvoteHash, signer);
-      const sig = toCompactSig(v, r, s);
+    const typedUpvoteHash = eip712MsgHash(typedUpvote.domain, typedUpvote.types, typedUpvote.value);
+    const { v, r, s } = ecsign(typedUpvoteHash, signer);
+    const sig = toCompactSig(v, r, s);
 
-      const upvote = toUpvote(post.id as PrefixedHex, treeRootHex, timestamp, sig);
+    const upvote = toUpvote(postId as PrefixedHex, treeRootHex, timestamp, sig);
 
-      return {
-        id: upvote.id,
-        postId: upvote.postId,
-        groupRoot: treeRootHex,
-        sig,
-        address: privateToAddress(signer).toString('hex'),
-        timestamp: new Date(upvote.timestamp * 1000),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-    });
+    return {
+      id: upvote.id,
+      postId: upvote.postId,
+      groupRoot: treeRootHex,
+      sig,
+      address: privateToAddress(signer).toString('hex'),
+      timestamp: new Date(upvote.timestamp * 1000),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+  });
   log('...done\n');
 
   log('Saving to database...');
