@@ -5,53 +5,64 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
   const posts: any[] = await prisma.$queryRaw`
 	WITH RECURSIVE all_posts AS (
-		SELECT
-		"id",
-		"title",
-		"body",
-		"parentId",
-		"timestamp"
-		FROM
-			"NymPost"
+			SELECT
+				posts. "id",
+				"title",
+				"body",
+				"parentId",
+				count("postUpvotes". "id") AS "upvotes",
+				posts. "timestamp"
+			FROM
+				"NymPost" posts
+			LEFT JOIN "DoxedUpvote" "postUpvotes" ON posts.id = "postUpvotes". "postId"
+		GROUP BY
+			posts. "id"
 		UNION
 		SELECT
-			"id",
+			posts. "id",
 			"title",
 			"body",
 			"parentId",
-			"timestamp"
+			count("postUpvotes". "id") AS "upvotes",
+			posts. "timestamp"
 		FROM
-			"DoxedPost"
+			"DoxedPost" posts
+			LEFT JOIN "DoxedUpvote" "postUpvotes" ON posts.id = "postUpvotes". "postId"
+		GROUP BY
+			posts.id
 		),
 		thread AS (
-		SELECT
-			"id",
-			"title",
-			"body",
-			"parentId",
-			"timestamp"
-		FROM
-			all_posts
-		WHERE
-			"id" = ${req.query.postId}
-		UNION
-		SELECT
-			d. "id",
-			d. "title",
-			d. "body",
-			d. "parentId",
-			d. "timestamp"
-		FROM
-			all_posts d
-			INNER JOIN thread t ON d. "parentId" = t. "id"
+			SELECT
+				"id",
+				"title",
+				"body",
+				"parentId",
+				"upvotes",
+				"timestamp"
+			FROM
+				all_posts
+			WHERE
+				"id" = ${req.query.postId}
+			UNION
+			SELECT
+				d. "id",
+				d. "title",
+				d. "body",
+				d. "parentId",
+				d. "upvotes",
+				d. "timestamp"
+			FROM
+				all_posts d
+				INNER JOIN thread t ON d. "parentId" = t. "id"
 		)
-	SELECT
-		*
-	FROM
-		thread;
+		SELECT
+			*
+		FROM
+			thread;
   `;
 
-  res.send(posts);
+  // `upvotes` is in BigInt, so we need to convert it to a number
+  res.send(posts.map((post) => ({ ...post, upvotes: parseInt(post.upvotes) })));
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
