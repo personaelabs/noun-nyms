@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "populate": "ts-node ./scripts/populateTestData.ts"
+    "populate": "ts-node ./scripts/populateTestData.ts",
+    "prepare": "rsync --ignore-existing .env.example .env"
   },
   "keywords": [],
   "author": "",
