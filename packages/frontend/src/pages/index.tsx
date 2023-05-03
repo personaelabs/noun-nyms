@@ -1,8 +1,24 @@
 import { motion } from 'framer-motion';
 import { CommentView } from '../components/MessageRow';
 import { TEMP_DUMMY_DATA } from '../lib/constants';
-import * as React from 'react';
+import { Fragment, useEffect, useState } from 'react';
+import axios from 'axios';
+
+// TODO: Confirm data fetching patterns
+const getPosts = async () => {
+  const res = await axios.get('/api/v1/posts');
+  const posts = res.data;
+  console.log(posts);
+};
+
 export default function Home() {
+  const [data, setData] = useState(null);
+  const [isLoading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getPosts();
+  }, []);
   return (
     <main className="flex w-full flex-col justify-center items-center">
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -43,10 +59,10 @@ export default function Home() {
             <div className="flex space-x-2"></div>
             <div className="mt-6">
               {TEMP_DUMMY_DATA.map((el) => (
-                <React.Fragment key={el.commentId}>
+                <Fragment key={el.commentId}>
                   <CommentView key={el.commentId} {...el} />
                   <div className="py-8"></div>
-                </React.Fragment>
+                </Fragment>
               ))}
             </div>
           </div>

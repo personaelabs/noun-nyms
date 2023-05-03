@@ -63,6 +63,7 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     skip: skipDoxedPosts as number,
     take: takeDoxedPosts,
   });
+  console.log(`found ${nymPosts.length} nym posts and ${doxedPosts.length} doxxed post`);
 
   const posts = [...nymPosts, ...doxedPosts].sort(
     (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
