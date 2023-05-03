@@ -2,108 +2,181 @@ import * as path from 'path';
 import {
   NymProver,
   NymVerifier,
-  NYM_CODE_TYPE,
-  DOMAIN,
-  EIP712TypedData,
-  CONTENT_DATA_TYPES,
-  NymFullProof,
+  Post,
+  Content,
   eip712MsgHash,
+  AttestationScheme,
+  recoverUpvotePubkey,
+  toPost,
+  toTypedNymCode,
+  toTypedContent,
+  recoverPostPubkey,
+  toTypedUpvote,
+  toUpvote,
+  bigIntToPrefixedHex,
 } from '../src/lib';
-import { ecsign, ecrecover, toRpcSig } from '@ethereumjs/util';
-import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import {
+  ecsign,
+  toRpcSig,
+  toCompactSig,
+  pubToAddress,
+  privateToPublic,
+  ECDSASignature,
+} from '@ethereumjs/util';
+import { MerkleProof, Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
 
-describe('NymProver', () => {
-  describe('prove and verify', () => {
-    let proverPubKeyHash: bigint;
-    const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
-    const nymCode = 'satoshi';
+describe('nym', () => {
+  const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
+  const proverPubKey = privateToPublic(proverPrivKey);
 
-    // Hash nymCode and contentData for signing
+  let content: Content;
+  let contentMessageSig: ECDSASignature;
+  let proverPubKeyHash: bigint;
+  let membershipProof: MerkleProof;
+  const poseidon = new Poseidon();
 
-    const typedNymCode: EIP712TypedData = {
-      domain: DOMAIN,
-      types: NYM_CODE_TYPE,
-      value: { nymCode },
+  beforeAll(async () => {
+    await poseidon.initWasm();
+
+    // Create a Merkle tree with a single leaf,
+    // and create a proof for that leaf
+    proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
+    const tree = new Tree(20, poseidon);
+    tree.insert(proverPubKeyHash);
+
+    membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
+
+    content = {
+      venue: 'nouns',
+      title: 'title',
+      body: 'body',
+      parentId: '0x',
+      groupRoot: bigIntToPrefixedHex(tree.root()),
+      timestamp: Math.round(Date.now() / 1000),
     };
 
-    const nymCodeMsgHash = eip712MsgHash(
-      typedNymCode.domain,
-      typedNymCode.types,
-      typedNymCode.value,
+    const typedContent = toTypedContent(content);
+
+    const contentMessageMsgHash = eip712MsgHash(
+      typedContent.domain,
+      typedContent.types,
+      typedContent.value,
     );
 
-    const typedContentData: EIP712TypedData = {
-      domain: DOMAIN,
-      types: CONTENT_DATA_TYPES,
-      value: {
-        venue: 'nouns',
-        title: 'title',
-        body: 'body',
-        parentId: '',
-        timestamp: Math.round(Date.now() / 1000),
-      },
-    };
+    contentMessageSig = ecsign(contentMessageMsgHash, proverPrivKey);
+  });
 
-    const contentDataMsgHash = eip712MsgHash(
-      typedContentData.domain,
-      typedContentData.types,
-      typedContentData.value,
-    );
+  // Recover address of the signer
+  const proverAddress = pubToAddress(proverPubKey).toString('hex');
 
-    // Sign nymCode and contentData
-    const nymSig = ecsign(nymCodeMsgHash, proverPrivKey);
-    const contentDataSig = ecsign(contentDataMsgHash, proverPrivKey);
+  describe('Content', () => {
+    describe('AttestationScheme = Nym', () => {
+      const nymCode = 'satoshi';
 
-    // Recover public key of the signer
-    const proverPubKey = ecrecover(nymCodeMsgHash, nymSig.v, nymSig.r, nymSig.s);
-
-    // Initialize prover
-    const config = {
-      witnessGenWasm: path.join(__dirname, './circuit_artifacts/nym_ownership.wasm'),
-      circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
-      enableProfiler: true,
-    };
-    const prover = new NymProver(config);
-    const verifier = new NymVerifier(config);
-    const poseidon = new Poseidon();
-
-    let fullProof: NymFullProof;
-
-    beforeAll(async () => {
-      await prover.initWasm();
-      await poseidon.initWasm();
-
-      // Create a Merkle tree with a single leaf,
-      // and create a proof for that leaf
-      proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
-      const tree = new Tree(20, poseidon);
-      tree.insert(proverPubKeyHash);
-      const membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
-
-      fullProof = await prover.prove(
-        typedNymCode,
-        typedContentData,
-        toRpcSig(nymSig.v, nymSig.r, nymSig.s),
-        toRpcSig(contentDataSig.v, contentDataSig.r, contentDataSig.s),
-        membershipProof,
+      // Sign the nymCode
+      const typedNymCode = toTypedNymCode(nymCode);
+      const nymCodeMsgHash = eip712MsgHash(
+        typedNymCode.domain,
+        typedNymCode.types,
+        typedNymCode.value,
       );
+      const nymSig = ecsign(nymCodeMsgHash, proverPrivKey);
+
+      describe('prove and verify', () => {
+        // Initialize prover
+        const config = {
+          witnessGenWasm: path.join(__dirname, './circuit_artifacts/nym_ownership.wasm'),
+          circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
+          enableProfiler: true,
+        };
+        const prover = new NymProver(config);
+        const verifier = new NymVerifier(config);
+
+        let post: Post;
+
+        beforeAll(async () => {
+          await prover.initWasm();
+
+          const attestation = await prover.prove(
+            nymCode,
+            content,
+            toRpcSig(nymSig.v, nymSig.r, nymSig.s),
+            toRpcSig(contentMessageSig.v, contentMessageSig.r, contentMessageSig.s),
+            membershipProof,
+          );
+
+          post = toPost(content, attestation, AttestationScheme.Nym);
+        });
+
+        it('should  prove and verify a valid signature and Merkle proof', async () => {
+          const proofValid = await verifier.verify(post);
+          expect(proofValid).toBe(true);
+        });
+
+        it('should assert invalid attestation', async () => {
+          post.attestation[0] = post.attestation[0] + 1;
+          const proofValid = await verifier.verify(post);
+          expect(proofValid).toBe(false);
+
+          post.attestation[0] = post.attestation[0] - 1;
+        });
+
+        it('should assert if content.groupRoot != publicInput.root', async () => {
+          const groupRoot = post.content.groupRoot;
+          post.content.groupRoot = bigIntToPrefixedHex(BigInt(groupRoot) + BigInt(1));
+          const proofValid = await verifier.verify(post);
+          expect(proofValid).toBe(false);
+
+          post.content.groupRoot = groupRoot;
+        });
+
+        // TODO: test invalid public input
+        // TODO: test invalid auxiliary
+      });
     });
 
-    it('should  prove and verify a valid signature and Merkle proof', async () => {
-      const proofValid = await verifier.verify(fullProof);
-      expect(proofValid).toBe(true);
-    });
+    describe('AttestationScheme = EIP712', () => {
+      let post: Post;
+      beforeAll(() => {
+        const attestation = toCompactSig(
+          contentMessageSig.v,
+          contentMessageSig.r,
+          contentMessageSig.s,
+        );
 
-    it('should assert invalid proof', async () => {
-      fullProof.proof[0] = 1;
-      const proofValid = await verifier.verify(fullProof);
-      expect(proofValid).toBe(false);
-    });
+        post = toPost(content, attestation, AttestationScheme.EIP712);
+      });
 
-    it('should assert invalid public input', async () => {
-      fullProof.publicInput.contentSigR = fullProof.publicInput.contentSigR + BigInt(1);
-      const proofValid = await verifier.verify(fullProof);
-      expect(proofValid).toBe(false);
+      it('should verify a EIP712 attested content', () => {
+        const singer = recoverPostPubkey(post);
+        expect(singer).toBe(`0x${proverPubKey.toString('hex')}`);
+      });
+    });
+  });
+
+  describe('Upvote', () => {
+    const contentId = '0x1234';
+    const timestamp = Math.round(Date.now() / 1000);
+    const groupRoot = '0x1234';
+    const typedUpvote = toTypedUpvote(contentId, timestamp, groupRoot);
+
+    const typedUpvoteMsgHash = eip712MsgHash(
+      typedUpvote.domain,
+      typedUpvote.types,
+      typedUpvote.value,
+    );
+    const upvoteSig = ecsign(typedUpvoteMsgHash, proverPrivKey);
+
+    const upvote = toUpvote(
+      contentId,
+      groupRoot,
+      timestamp,
+      toCompactSig(upvoteSig.v, upvoteSig.r, upvoteSig.s),
+    );
+
+    it('should verify a valid upvote', async () => {
+      const upvoteSigner = await recoverUpvotePubkey(upvote);
+      expect(upvoteSigner).toBe(`0x${proverPubKey.toString('hex')}`);
     });
   });
 });

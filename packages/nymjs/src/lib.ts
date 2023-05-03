@@ -1,11 +1,17 @@
 export * from './core/prover';
 export * from './core/verifier';
-export * from './core/input';
 export * from './types';
 export {
-  computeContentId,
+  computePostId,
   computeUpvoteId,
   eip712MsgHash,
   computeNymHash,
-  serializeNymFullProof,
+  recoverUpvotePubkey,
+  toPost,
+  toUpvote,
+  toTypedNymCode,
+  toTypedContent,
+  toTypedUpvote,
+  recoverPostPubkey,
+  bigIntToPrefixedHex,
 } from './utils';
