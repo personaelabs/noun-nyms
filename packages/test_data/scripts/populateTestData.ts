@@ -213,12 +213,12 @@ const populateTestData = async () => {
 
   log('Creating dummy upvotes...');
   const allPosts = [...doxedPosts, ...nymPosts];
-  const upvotes = new Array(NUM_TOTAL_UPVOTES).map((post, i) => {
+  const upvotes = new Array(NUM_TOTAL_UPVOTES).fill(0).map((_, i) => {
     const timestamp = Math.round(Date.now() / 1000);
-    const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
     const signer = PRIV_KEYS[i % PRIV_KEYS.length];
     const postId = allPosts[i % allPosts.length].id as PrefixedHex;
 
+    const typedUpvote = toTypedUpvote(postId, timestamp, treeRootHex);
     const typedUpvoteHash = eip712MsgHash(typedUpvote.domain, typedUpvote.types, typedUpvote.value);
     const { v, r, s } = ecsign(typedUpvoteHash, signer);
     const sig = toCompactSig(v, r, s);
