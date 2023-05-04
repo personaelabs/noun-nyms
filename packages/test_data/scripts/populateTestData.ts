@@ -21,8 +21,17 @@ import {
   toTypedUpvote,
   toUpvote,
   PrefixedHex,
+  Post,
 } from '@personaelabs/nymjs';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+
+type DoxedPostExt = {
+  upvotes: number;
+} & DoxedPost;
+
+type NymPostExt = {
+  upvotes: number;
+} & NymPost;
 
 const PRIV_KEYS = new Array(10).fill(0).map((_, i) => {
   return Buffer.from((i + 1).toString(16).padStart(64, '0'), 'hex');
@@ -68,20 +77,30 @@ const populateTestData = async () => {
 
   const treeRootHex: `0x${string}` = `0x${tree.root().toString(16)}`;
 
-  log(`Creating: \n`);
-  log(`- ${NUM_TOTAL_UPVOTES} total upvotes\n`);
-
-  log(`from ${PRIV_KEYS.length} accounts\n`);
-  log(`\n`);
-
   // ##############################
-  // Create doxed posts
+  // Create posts
   // ##############################
 
-  const doxedPosts: DoxedPost[] = [];
+  const prover = new NymProver({
+    circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
+    witnessGenWasm: path.join(__dirname, './circuit_artifacts/nym_ownership.wasm'),
+  });
 
-  // Format test data into Primsa type `DoxedPost`
-  const createDoxedPost = (title: string, body: string, privKey: Buffer, parentId: PrefixedHex) => {
+  await prover.initWasm();
+
+  const allPosts: (DoxedPostExt | NymPostExt)[] = [];
+
+  // Format test data into Prisma type `DoxedPost`
+  const createPost = async (
+    title: string,
+    body: string,
+    upvotes: number,
+    accountIndex: number,
+    parentId: PrefixedHex,
+    attestationScheme: AttestationScheme,
+  ): Promise<DoxedPostExt | NymPostExt> => {
+    const privKey = PRIV_KEYS[accountIndex];
+
     const content: Content = {
       title: title,
       body: body,
@@ -98,167 +117,152 @@ const populateTestData = async () => {
       typedContent.value,
     );
 
-    const { v, r, s } = ecsign(typedContentHash, privKey);
-    const sig = toCompactSig(v, r, s);
-    const post = toPost(content, sig, AttestationScheme.EIP712);
+    const contentSig = ecsign(typedContentHash, privKey);
+    const contentSigStr = toCompactSig(contentSig.v, contentSig.r, contentSig.s);
 
-    return {
-      id: post.id,
-      title: post.content.title,
-      body: post.content.body,
-      timestamp: new Date(post.content.timestamp * 1000),
-      parentId: post.content.parentId,
-      venue: post.content.venue,
-      groupRoot: post.content.groupRoot,
-      sig,
-      address: privateToAddress(privKey).toString('hex'),
-      hashScheme: HashScheme.Keccak256,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    if (attestationScheme === AttestationScheme.Nym) {
+      const nymCode = NYMS[accountIndex];
+      const typedNymCode = toTypedNymCode(nymCode);
+      const typedNymCodeHash = eip712MsgHash(
+        typedNymCode.domain,
+        typedNymCode.types,
+        typedNymCode.value,
+      );
+      const nymSig = ecsign(typedNymCodeHash, privKey);
+      const nymSigStr = toCompactSig(nymSig.v, nymSig.r, nymSig.s);
+      const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[accountIndex]));
+
+      const attestation = await prover.prove(
+        nymCode,
+        content,
+        nymSigStr,
+        contentSigStr,
+        merkleProof,
+      );
+      const attestationHex = attestation.toString('hex');
+
+      const post = toPost(content, attestation, AttestationScheme.Nym);
+
+      return {
+        id: post.id,
+        venue: post.content.venue,
+        title: post.content.title,
+        body: post.content.body,
+        parentId: post.content.parentId,
+        groupRoot: post.content.groupRoot,
+        timestamp: new Date(post.content.timestamp * 1000),
+        fullProof: attestationHex,
+        hashScheme: HashScheme.Keccak256,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        upvotes,
+      };
+    } else {
+      const post = toPost(content, contentSigStr, AttestationScheme.EIP712);
+
+      return {
+        id: post.id as string,
+        title: post.content.title,
+        body: post.content.body,
+        timestamp: new Date(post.content.timestamp * 1000),
+        parentId: post.content.parentId,
+        venue: post.content.venue,
+        groupRoot: post.content.groupRoot,
+        sig: contentSigStr,
+        address: privateToAddress(privKey).toString('hex'),
+        hashScheme: HashScheme.Keccak256,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        upvotes,
+      };
+    }
   };
 
   // Recursively create Primsa type `DoxedPost` from post and its replies
-  const createDoxedPostWithReplies = (parentId: PrefixedHex, data: TestData): DoxedPost[] => {
-    const privKey = PRIV_KEYS[Math.floor(Math.random() * PRIV_KEYS.length)];
-    const doxedPost = createDoxedPost(data.title, data.body, privKey, parentId);
+  const createPostWithReplies = async (
+    parentId: PrefixedHex,
+    data: TestData,
+  ): Promise<(DoxedPostExt | NymPostExt)[]> => {
+    const accountIndex = Math.floor(Math.random() * PRIV_KEYS.length);
+    const post = await createPost(
+      data.title,
+      data.body,
+      data.upvotes,
+      accountIndex,
+      parentId,
+      data.attestationScheme,
+    );
 
-    const replies = data.replies.map((reply) => {
-      return createDoxedPostWithReplies(doxedPost.id as PrefixedHex, reply);
-    });
+    const replies = await Promise.all(
+      data.replies.map((reply) => createPostWithReplies(post.id as PrefixedHex, reply)),
+    );
 
-    return [doxedPost, ...replies.flat()];
+    return [post, ...replies.flat()];
   };
 
-  log('Preparing dummy doxed posts...');
+  log('Preparing posts...');
   for (let i = 0; i < testData.length; i++) {
     const data = testData[i];
 
-    doxedPosts.push(...createDoxedPostWithReplies('0x0', data));
+    allPosts.push(...(await createPostWithReplies('0x0', data)));
   }
   log('...done\n');
 
-  /*
-  // ##############################
-  // Create Nym posts
-  // ##############################
+  log('Creating  upvotes...');
+  const upvotes = [];
+  for (let i = 0; i < allPosts.length; i++) {
+    const post = allPosts[i];
+    for (let j = 0; j < post.upvotes; j++) {
+      const timestamp = Math.round(Date.now() / 1000);
+      const signer = PRIV_KEYS[j % PRIV_KEYS.length];
 
-  log('Preparing dummy Nym posts (this takes a bit)...');
+      const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
+      const typedUpvoteHash = eip712MsgHash(
+        typedUpvote.domain,
+        typedUpvote.types,
+        typedUpvote.value,
+      );
+      const { v, r, s } = ecsign(typedUpvoteHash, signer);
+      const sig = toCompactSig(v, r, s);
 
-  const prover = new NymProver({
-    circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
-    witnessGenWasm: path.join(__dirname, './circuit_artifacts/nym_ownership.wasm'),
-  });
+      const upvote = toUpvote(post.id as PrefixedHex, treeRootHex, timestamp, sig);
 
-  await prover.initWasm();
-
-  const nymSigs: string[] = NYMS.map((nymCode, i) => {
-    const typedNymCode = toTypedNymCode(nymCode);
-    const nymCodeHash = eip712MsgHash(typedNymCode.domain, typedNymCode.types, typedNymCode.value);
-    const { v, r, s } = ecsign(nymCodeHash, PRIV_KEYS[i]);
-    const sig = toCompactSig(v, r, s);
-
-    return sig;
-  });
-
-  const nymPosts: NymPost[] = [];
-
-  for (let i = 0; i < nymPostsTestData.length; i++) {
-    const data = nymPostsTestData[i];
-
-    const nymIndex = i % NYMS.length;
-    const privKey = PRIV_KEYS[nymIndex];
-    const nymCode = NYMS[nymIndex];
-    const nymSig = nymSigs[nymIndex];
-
-    const parentId = i % 3 === 1 ? (nymPosts[i - 1].id as PrefixedHex) : '0x0';
-
-    const content: Content = {
-      title: data.title,
-      body: data.body,
-      timestamp: Math.round(Date.now() / 1000),
-      parentId,
-      venue: 'nouns',
-      groupRoot: treeRootHex,
-    };
-
-    const typedContent = toTypedContent(content);
-    const typedContentHash = eip712MsgHash(
-      typedContent.domain,
-      typedContent.types,
-      typedContent.value,
-    );
-
-    const { v, r, s } = ecsign(typedContentHash, privKey);
-    const contentSig = toCompactSig(v, r, s);
-
-    const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[nymIndex]));
-
-    const attestation = await prover.prove(nymCode, content, nymSig, contentSig, merkleProof);
-    const attestationHex = attestation.toString('hex');
-
-    const post = toPost(content, attestation, AttestationScheme.Nym);
-
-    nymPosts.push({
-      id: post.id,
-      venue: post.content.venue,
-      title: post.content.title,
-      body: post.content.body,
-      parentId: post.content.parentId,
-      groupRoot: post.content.groupRoot,
-      timestamp: new Date(post.content.timestamp * 1000),
-      fullProof: attestationHex,
-      hashScheme: HashScheme.Keccak256,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+      upvotes.push({
+        id: upvote.id,
+        postId: upvote.postId,
+        groupRoot: treeRootHex,
+        sig,
+        address: privateToAddress(signer).toString('hex'),
+        timestamp: new Date(upvote.timestamp * 1000),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
   }
+
   log('...done\n');
 
-  // ##############################
-  // Create upvotes
-  // ##############################
-
-  log('Creating dummy upvotes...');
-  const allPosts = [...doxedPosts, ...nymPosts];
-  const upvotes = new Array(NUM_TOTAL_UPVOTES).fill(0).map((_, i) => {
-    const timestamp = Math.round(Date.now() / 1000);
-    const signer = PRIV_KEYS[i % PRIV_KEYS.length];
-    const postId = allPosts[i % allPosts.length].id as PrefixedHex;
-
-    const typedUpvote = toTypedUpvote(postId, timestamp, treeRootHex);
-    const typedUpvoteHash = eip712MsgHash(typedUpvote.domain, typedUpvote.types, typedUpvote.value);
-    const { v, r, s } = ecsign(typedUpvoteHash, signer);
-    const sig = toCompactSig(v, r, s);
-
-    const upvote = toUpvote(postId as PrefixedHex, treeRootHex, timestamp, sig);
-
-    return {
-      id: upvote.id,
-      postId: upvote.postId,
-      groupRoot: treeRootHex,
-      sig,
-      address: privateToAddress(signer).toString('hex'),
-      timestamp: new Date(upvote.timestamp * 1000),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-  });
-  log('...done\n');
-  */
-
-  log('Saving to database...');
   // ##############################
   // Save everything to the database
   // ##############################
+  log('Saving to database...');
+
+  // Save doxed posts to the database
+
+  const doxedPosts = allPosts
+    .filter((post) => (post as DoxedPost).sig)
+    .map(({ upvotes, ...post }) => post) as DoxedPost[];
 
   await prisma.doxedPost.createMany({
     // We only store newly added posts
     data: doxedPosts,
   });
 
-  /*
-  // Save the nym posts to the database
+  // Save nym posts to the database
+  const nymPosts = allPosts
+    .filter((post) => (post as NymPost).fullProof)
+    .map(({ upvotes, ...post }) => post) as NymPost[];
+
   await prisma.nymPost.createMany({
     // We only store newly added posts
     data: nymPosts,
@@ -299,9 +303,15 @@ const populateTestData = async () => {
       };
     }),
   });
-  */
 
-  log('...done!');
+  log('...done!\n\n');
+
+  log(`Created: \n`);
+  log(`- ${doxedPosts.length} Doxed posts\n`);
+  log(`- ${nymPosts.length} Nym posts\n`);
+  log(`- ${upvotes.length} total upvotes\n`);
+  log(`from ${PRIV_KEYS.length} accounts\n`);
+  log(`\n`);
 };
 
 populateTestData();
