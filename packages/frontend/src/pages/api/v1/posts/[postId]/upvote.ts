@@ -1,47 +1,36 @@
 import prisma from '../../../../../lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { ecrecover, hashPersonalMessage, pubToAddress } from '@ethereumjs/util';
+import { pubToAddress } from '@ethereumjs/util';
+import { recoverUpvotePubkey, toUpvote } from '@personaelabs/nymjs';
+import { verifyInclusion } from '../../utils';
 
 // Handle non-pseudonymous upvotes
 // Verify the ECDSA signature and save the upvote
 const handleUpvote = async (req: NextApiRequest, res: NextApiResponse) => {
-  const {
-    sig,
-    timestamp,
-  }: {
-    sig: string;
-    timestamp: number;
-    address: string;
-  } = req.body;
+  const postId = req.body.postId;
+  const timestamp = req.body.timestamp;
+  const sig = req.body.sig;
+  const groupRoot = req.body.groupRoot;
 
-  const msgHash = hashPersonalMessage(
-    Buffer.from(
-      JSON.stringify({
-        postId: req.query.postId as string,
-        timestamp,
-      }),
-      'utf8',
-    ),
-  );
+  const upvote = toUpvote(postId, groupRoot, timestamp, sig);
 
-  const r = Buffer.from(sig.slice(0, 64), 'hex');
-  const s = Buffer.from(sig.slice(64, 128), 'hex');
-  const v = BigInt('0x' + sig.slice(128, 130));
+  const pubKey = recoverUpvotePubkey(upvote);
 
-  const pubkey = ecrecover(msgHash, v, r, s);
-  const address = pubToAddress(pubkey);
-
-  if (address.toString('hex') != req.body.address) {
-    res.status(400).send('Recovered address does not match the provided address');
+  if (!(await verifyInclusion(pubKey.replace('0x', '')))) {
+    res.status(400).send('Public key not in latest group');
     return;
   }
 
+  const address = pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex');
+
   await prisma.doxedUpvote.create({
     data: {
+      id: upvote.id,
       sig,
       timestamp: new Date(timestamp * 1000),
-      postId: req.query.postId as string,
-      upvoteBy: address.toString('hex'),
+      postId: upvote.postId,
+      address,
+      groupRoot: upvote.groupRoot as string,
     },
   });
 
