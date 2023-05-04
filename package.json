@@ -5,7 +5,7 @@
     "format": "pnpm -r format",
     "format:check": "pnpm -r format:check",
     "lint": "pnpm -r lint",
-    "prepare": "husky install",
+    "prepare": "husky install && pnpm -F nymjs run build",
     "test": "pnpm -r test",
     "frontend:dev": "pnpm -F frontend run dev:all",
     "down": "pnpm -r down"
@@ -34,9 +34,6 @@
     "husky": "^8.0.3",
     "lint-staged": "^13.2.1",
     "prettier": "2.8.7"
-  },
-  "dependencies": {
-    "frontend": "workspace:*"
   },
   "husky": {
     "hooks": {
