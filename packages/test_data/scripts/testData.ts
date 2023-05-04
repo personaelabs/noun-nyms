@@ -23,8 +23,9 @@ const testData: TestData[] = [
             body: "That's a great point! I've also heard of blockchain projects using energy-efficient consensus algorithms to reduce energy consumption.",
             replies: [],
             attestationScheme: AttestationScheme.EIP712,
-            upvotes: 1,
+            upvotes: 10,
           },
+
           {
             title: '',
             body: 'Interesting! Do you have any examples of blockchain projects using renewable energy sources?',
@@ -112,7 +113,7 @@ const testData: TestData[] = [
       },
     ],
     attestationScheme: AttestationScheme.EIP712,
-    upvotes: 1,
+    upvotes: 42,
   },
   {
     title: 'Community and Collaboration: Best Practices for Working Together',

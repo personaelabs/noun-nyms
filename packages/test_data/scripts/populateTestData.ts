@@ -33,10 +33,6 @@ type NymPostExt = {
   upvotes: number;
 } & NymPost;
 
-const PRIV_KEYS = new Array(10).fill(0).map((_, i) => {
-  return Buffer.from((i + 1).toString(16).padStart(64, '0'), 'hex');
-});
-
 const prisma = new PrismaClient();
 
 const NYMS = [
@@ -52,15 +48,30 @@ const NYMS = [
   'TechnoGypsy',
 ];
 
-const NUM_TOTAL_UPVOTES = 100;
-
 const log = (msg: string) => {
   process.stdout.write(`${msg}`);
 };
 
 const populateTestData = async () => {
   // ##############################
-  // Construct a dummy tree that only includes the dev accounts
+  // Create accounts.
+  // We use the highest upvote count
+  // to determine the number of accounts to create.
+  // ##############################
+
+  const flattenTestData = (data: TestData): TestData[] => {
+    return [data, ...data.replies.map((reply) => flattenTestData(reply)).flat()];
+  };
+
+  const testDataFlat: TestData[] = testData.map(flattenTestData).flat();
+  const maxUpvote = Math.max(...testDataFlat.map((data) => data.upvotes));
+
+  const PRIV_KEYS = new Array(Math.max(maxUpvote, NYMS.length)).fill(0).map((_, i) => {
+    return Buffer.from((i + 1).toString(16).padStart(64, '0'), 'hex');
+  });
+
+  // ##############################
+  // Construct a tree that includes all accounts created above
   // ##############################
 
   const poseidon = new Poseidon();
@@ -183,7 +194,7 @@ const populateTestData = async () => {
     parentId: PrefixedHex,
     data: TestData,
   ): Promise<(DoxedPostExt | NymPostExt)[]> => {
-    const accountIndex = Math.floor(Math.random() * PRIV_KEYS.length);
+    const accountIndex = Math.floor(Math.random() * NYMS.length);
     const post = await createPost(
       data.title,
       data.body,
@@ -214,7 +225,7 @@ const populateTestData = async () => {
     const post = allPosts[i];
     for (let j = 0; j < post.upvotes; j++) {
       const timestamp = Math.round(Date.now() / 1000);
-      const signer = PRIV_KEYS[j % PRIV_KEYS.length];
+      const signer = PRIV_KEYS[j];
 
       const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
       const typedUpvoteHash = eip712MsgHash(
@@ -310,7 +321,6 @@ const populateTestData = async () => {
   log(`- ${doxedPosts.length} Doxed posts\n`);
   log(`- ${nymPosts.length} Nym posts\n`);
   log(`- ${upvotes.length} total upvotes\n`);
-  log(`from ${PRIV_KEYS.length} accounts\n`);
   log(`\n`);
 };
 
