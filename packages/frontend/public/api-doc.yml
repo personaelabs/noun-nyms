@@ -36,26 +36,34 @@ paths:
             schema:
               type: object
               properties:
-                title:
+                content:
+                  type: object
+                  properties:
+                    venue:
+                      type: string
+                    title:
+                      type: string
+                    body:
+                      type: string
+                    parentId:
+                      type: string
+                    groupRoot:
+                      type: string
+                    timestamp:
+                      type: number
+                      description: Unix timestamp
+                attestation:
                   type: string
-                body:
-                  type: string
-                parentId:
-                  type: string
-                timestamp:
-                  type: number
                   description: Unix timestamp
-                venue:
+                attestationScheme:
                   type: string
-                proof:
-                  type: string
-                publicInput:
-                  type: string
-                sig:
-                  type: string
+                  enum: 
+                    - Nym
+                    - EIP712
               required:
-                - title
                 - content
+                - attestation
+                - attestationScheme
       responses:
         '200':
           description: OK
@@ -90,15 +98,17 @@ paths:
               properties:
                 sig:
                   type: string
+                groupRoot:
+                  type: string
                 timestamp:
                   type: number
                   description: Unix timestamp
-                address:
-                  type: string
+        
               required:
                 - sig
+                - postId
+                - groupRoot
                 - timestamp
-                - address
       responses:
         '200':
           description: OK
