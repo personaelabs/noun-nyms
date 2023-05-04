@@ -8,7 +8,7 @@
 import 'dotenv/config';
 import * as path from 'path';
 import { PrismaClient, NymPost, HashScheme, DoxedPost, GroupType } from '@prisma/client';
-import testData from './testData';
+import testData, { TestData } from './testData';
 import { ecsign, privateToAddress, privateToPublic, toCompactSig } from '@ethereumjs/util';
 import {
   AttestationScheme,
@@ -68,13 +68,7 @@ const populateTestData = async () => {
 
   const treeRootHex: `0x${string}` = `0x${tree.root().toString(16)}`;
 
-  // We only create 10 Nym posts since generating proofs for them takes time
-  const nymPostsTestData = testData.slice(0, 10);
-  const doxedPostsTestData = testData.slice(10, testData.length);
-
   log(`Creating: \n`);
-  log(`- ${nymPostsTestData.length} Nym posts\n`);
-  log(`- ${doxedPostsTestData.length} doxed posts\n`);
   log(`- ${NUM_TOTAL_UPVOTES} total upvotes\n`);
 
   log(`from ${PRIV_KEYS.length} accounts\n`);
@@ -86,18 +80,11 @@ const populateTestData = async () => {
 
   const doxedPosts: DoxedPost[] = [];
 
-  log('Preparing dummy doxed posts...');
-  for (let i = 0; i < doxedPostsTestData.length; i++) {
-    const data = doxedPostsTestData[i];
-
-    const nymIndex = i % PRIV_KEYS.length;
-    const privKey = PRIV_KEYS[nymIndex];
-
-    const parentId = i % 3 === 1 ? (doxedPosts[i - 1].id as PrefixedHex) : '0x0';
-
+  // Format test data into Primsa type `DoxedPost`
+  const createDoxedPost = (title: string, body: string, privKey: Buffer, parentId: PrefixedHex) => {
     const content: Content = {
-      title: data.title,
-      body: data.body,
+      title: title,
+      body: body,
       timestamp: Math.round(Date.now() / 1000),
       parentId,
       venue: 'nouns',
@@ -110,11 +97,12 @@ const populateTestData = async () => {
       typedContent.types,
       typedContent.value,
     );
+
     const { v, r, s } = ecsign(typedContentHash, privKey);
     const sig = toCompactSig(v, r, s);
     const post = toPost(content, sig, AttestationScheme.EIP712);
 
-    doxedPosts.push({
+    return {
       id: post.id,
       title: post.content.title,
       body: post.content.body,
@@ -127,10 +115,30 @@ const populateTestData = async () => {
       hashScheme: HashScheme.Keccak256,
       createdAt: new Date(),
       updatedAt: new Date(),
+    };
+  };
+
+  // Recursively create Primsa type `DoxedPost` from post and its replies
+  const createDoxedPostWithReplies = (parentId: PrefixedHex, data: TestData): DoxedPost[] => {
+    const privKey = PRIV_KEYS[Math.floor(Math.random() * PRIV_KEYS.length)];
+    const doxedPost = createDoxedPost(data.title, data.body, privKey, parentId);
+
+    const replies = data.replies.map((reply) => {
+      return createDoxedPostWithReplies(doxedPost.id as PrefixedHex, reply);
     });
+
+    return [doxedPost, ...replies.flat()];
+  };
+
+  log('Preparing dummy doxed posts...');
+  for (let i = 0; i < testData.length; i++) {
+    const data = testData[i];
+
+    doxedPosts.push(...createDoxedPostWithReplies('0x0', data));
   }
   log('...done\n');
 
+  /*
   // ##############################
   // Create Nym posts
   // ##############################
@@ -237,6 +245,7 @@ const populateTestData = async () => {
     };
   });
   log('...done\n');
+  */
 
   log('Saving to database...');
   // ##############################
@@ -248,6 +257,7 @@ const populateTestData = async () => {
     data: doxedPosts,
   });
 
+  /*
   // Save the nym posts to the database
   await prisma.nymPost.createMany({
     // We only store newly added posts
@@ -289,6 +299,7 @@ const populateTestData = async () => {
       };
     }),
   });
+  */
 
   log('...done!');
 };
