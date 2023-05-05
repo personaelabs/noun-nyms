@@ -12,7 +12,7 @@
     "db:start": "pnpm down && docker-compose up -d && pnpm db:migrate",
     "down": "docker-compose down",
     "db:migrate": "pnpm exec prisma migrate dev",
-    "prepare": "pnpm generate && rsync --ignore-existing .env.example .env",
+    "prepare": "pnpm generate && cp -n .env.example .env",
     "start": "next start"
   },
   "dependencies": {
