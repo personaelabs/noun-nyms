@@ -7,6 +7,7 @@ import { getPubkey } from "./pubkey";
 
 import { PrismaClient, GroupType } from "@prisma/client";
 import alchemy from "./alchemy";
+import { privateToPublic, privateToAddress } from "@ethereumjs/util";
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
 
@@ -22,7 +23,7 @@ type EOA = {
   pubKey: Buffer;
 };
 
-type MultiSigAccount = {
+type AccountCode = {
   address: string;
   code: string;
 };
@@ -80,12 +81,12 @@ async function writeTree(blockHeight: number) {
 
   // Load cached accounts from the database
   const cachedAccounts = await prisma.cachedEOA.findMany();
-  const cachedMultiSigAccounts = await prisma.cachedMultiSig.findMany();
+  const cachedCode = await prisma.cachedCode.findMany();
 
   let numNoPubKeySet1 = 0;
   let numNoPubKeySet2 = 0;
   const allAccounts: EOA[] = [];
-  const multiSigAccounts: MultiSigAccount[] = [];
+  const accountCodes: AccountCode[] = [];
 
   console.time("Get pubkeys and multisig guardians");
   for (let i = 0; i < accounts.length; i++) {
@@ -94,22 +95,21 @@ async function writeTree(blockHeight: number) {
     const address = account.id.replace("0x", ""); // Lowercase
 
     // Search address code from the database
-    let code = cachedMultiSigAccounts.find(
-      cached => cached.address === address
-    )?.code;
+    let code = cachedCode.find(cached => cached.address === address)?.code;
 
     // Fetch the code from Alchemy if not yet cached in the database
     if (!code) {
       code = await alchemy.core.getCode(address);
     }
 
+    // Add the code to the list of all codes to cache it later
+    accountCodes.push({
+      address,
+      code
+    });
+
     // If the address is a multisig wallet, fetch the owners
     if (code !== "0x") {
-      multiSigAccounts.push({
-        address,
-        code
-      });
-
       // Get owners that are not yet in the allAccounts array.
       // We do this because some addresses might have been already processed
       // since there are cases where a Noun owner/delegate is also a owner of a multisig wallet.
@@ -220,15 +220,16 @@ async function writeTree(blockHeight: number) {
     }))
   });
 
-  const newMultiSigAccounts = multiSigAccounts.filter(
-    account =>
-      !cachedMultiSigAccounts.find(cached => cached.address === account.address)
+  const newAccountCodes = accountCodes.filter(
+    account => !cachedCode.find(cached => cached.address === account.address)
   );
 
-  await prisma.cachedMultiSig.createMany({
-    data: newMultiSigAccounts.map(account => ({
-      address: account.address,
-      code: account.code
+  console.log(`Caching ${newAccountCodes.length} new account codes`);
+
+  await prisma.cachedCode.createMany({
+    data: newAccountCodes.map(accountCode => ({
+      address: accountCode.address,
+      code: accountCode.code
     }))
   });
 
