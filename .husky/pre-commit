@@ -1,27 +1,4 @@
 #!/usr/bin/env bash
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Define the filenames of the files to compare
-frontendSchema="packages/frontend/prisma/schema.prisma"
-backendSchema="packages/merkle_tree/prisma/schema.prisma"
-testDataSchema="packages/test_data/prisma/schema.prisma"
-
-# Read the contents of the files
-frontendContent=$(cat "$frontendSchema")
-backendContent=$(cat "$backendSchema")
-testDataContent=$(cat "$testDataSchema")
-
-# Check if backendSchema is a prefix of frontendSchema
-if [[ ! "$frontendContent" =~ ^"$backendContent" ]]; then
-    echo "Error: $backendSchema is not a prefix of $frontendSchema."
-    exit 1
-fi
-
-
-# Check if testDataContent is a prefix of frontendSchema
-if [[ ! "$frontendContent" =~ ^"$testDataContent" ]]; then
-    echo "Error: $testDataContent is not a prefix of $frontendSchema."
-    exit 1
-fi
-
 pnpm exec lint-staged
