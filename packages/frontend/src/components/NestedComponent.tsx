@@ -1,4 +1,4 @@
-import { IComment } from '../lib/constants';
+import { IComment } from '@/lib/constants';
 import * as React from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';

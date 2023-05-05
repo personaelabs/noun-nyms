@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react';
 import * as React from 'react';
 import { CommentWriter } from './CommentWriter';
-import { TEMP_NESTED_DUMMY_DATA } from '../lib/constants';
+import { TEMP_NESTED_DUMMY_DATA } from '@/lib/constants';
 import { resolveNestedComponentThreads } from './NestedComponent';
 
 interface IMessageModalProps {

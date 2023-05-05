@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { CommentView } from '../components/MessageRow';
-import { TEMP_DUMMY_DATA } from '../lib/constants';
+import { CommentView } from '@/components/MessageRow';
+import { TEMP_DUMMY_DATA } from '@/lib/constants';
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

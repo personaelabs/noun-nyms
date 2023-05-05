@@ -1,4 +1,4 @@
-import prisma from '../../../../lib/prisma';
+import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Type of individual post that is returned in this GET request
