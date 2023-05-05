@@ -1,9 +1,19 @@
 import prisma from '../../../../lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// Return a single post and all of its children
+// Type of individual post that is returned in this GET request
+type GETPost = {
+  id: string;
+  title: string;
+  body: string;
+  parentId: string;
+  timestamp: number;
+  upvotes: number;
+};
+
+// Return a single post and all of its replies
 const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const posts: any[] = await prisma.$queryRaw`
+  let posts: any[] = await prisma.$queryRaw`
 	WITH RECURSIVE all_posts AS (
 			SELECT
 				posts. "id",
@@ -62,7 +72,25 @@ const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
   `;
 
   // `upvotes` is in BigInt, so we need to convert it to a number
-  res.send(posts.map((post) => ({ ...post, upvotes: parseInt(post.upvotes) })));
+  posts = posts.map((post) => ({ ...post, upvotes: parseInt(post.upvotes) }));
+
+  // Transform the flat array of posts into a nested array of posts
+  const rootPost: GETPost = posts.find((post) => post.id === req.query.postId);
+
+  const withReplies = (parentId: string): GETPost[] => {
+    const replies = posts.filter((post) => post.parentId === parentId);
+    return replies.map((reply) => ({
+      ...reply,
+      replies: withReplies(reply.id),
+    }));
+  };
+
+  const postWithNestedReplies = {
+    ...rootPost,
+    replies: withReplies(rootPost.id),
+  };
+
+  res.send(postWithNestedReplies);
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
