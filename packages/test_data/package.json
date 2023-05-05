@@ -14,7 +14,7 @@
   "dependencies": {
     "@ethereumjs/util": "^8.0.5",
     "@personaelabs/nymjs": "*",
-    "@personaelabs/spartan-ecdsa": "^2.1.0",
+    "@personaelabs/spartan-ecdsa": "^2.1.2",
     "@prisma/client": "4.5.0",
     "prisma": "4.5.0",
     "dotenv": "^16.0.3",
