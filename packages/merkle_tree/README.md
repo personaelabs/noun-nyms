@@ -10,10 +10,10 @@ ETHERSCAN_API_KEY={your etherscan api key}
 DATABASE_URL=postgresql://nymdev:password@localhost:5432/nym
 ```
 
-### Install dependencies
+### Install dependencies and build The Graph client
 
 ```
-yarn
+pnpm i
 ```
 
 ### Start the development database
@@ -29,12 +29,6 @@ docker-compose up database
 ```
 pnpm prisma migrate deploy &&
 pnpm prisma generate
-```
-
-### Build The Graph client
-
-```
-pnpm build
 ```
 
 ### Populate the database with the cache
