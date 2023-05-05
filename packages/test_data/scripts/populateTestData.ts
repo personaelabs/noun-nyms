@@ -23,7 +23,10 @@ import {
   PrefixedHex,
   Post,
 } from '@personaelabs/nymjs';
+import * as fs from 'fs';
+import csvParser from 'csv-parser';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import { treeExists } from './utils';
 
 type DoxedPostExt = {
   upvotes: number;
@@ -52,9 +55,35 @@ const log = (msg: string) => {
   process.stdout.write(`${msg}`);
 };
 
+type TreeNodeSnapshot = {
+  type: GroupType;
+  pubkey: string;
+};
+
+const readTreeNodesSnapshot = (filePath: string): Promise<TreeNodeSnapshot[]> =>
+  new Promise((resolve, reject) => {
+    const result: TreeNodeSnapshot[] = [];
+    fs.createReadStream(filePath)
+      .pipe(csvParser())
+      .on('data', (row: any) => {
+        result.push({
+          type: row.type,
+          pubkey: row.pubkey,
+        });
+      })
+      .on('end', () => {
+        resolve(result);
+      })
+      .on('error', () => {
+        reject();
+      });
+  });
+
 const populateTestData = async () => {
+  const timerStart = Date.now();
+
   // ##############################
-  // Create accounts.
+  // Create dummy accounts.
   // We use the highest upvote count
   // to determine the number of accounts to create.
   // ##############################
@@ -66,27 +95,63 @@ const populateTestData = async () => {
   const testDataFlat: TestData[] = testData.map(flattenTestData).flat();
   const maxUpvote = Math.max(...testDataFlat.map((data) => data.upvotes));
 
-  const PRIV_KEYS = new Array(Math.max(maxUpvote, NYMS.length)).fill(0).map((_, i) => {
+  const NUM_PRIV_KEYS = Math.max(maxUpvote, NYMS.length);
+
+  // The private keys are just numbers incremented from 1.
+  const PRIV_KEYS = new Array(NUM_PRIV_KEYS).fill(0).map((_, i) => {
     return Buffer.from((i + 1).toString(16).padStart(64, '0'), 'hex');
   });
 
   // ##############################
-  // Construct a tree that includes all accounts created above
+  // Construct a tree that includes a snapshot of the Noun owners set,
+  // and the dummy accounts created above.
   // ##############################
 
   const poseidon = new Poseidon();
   await poseidon.initWasm();
-  const tree = new Tree(20, poseidon);
+  const treeOneNoun = new Tree(20, poseidon);
+  const treeManyNouns = new Tree(20, poseidon);
 
-  const pubKeyHashes = PRIV_KEYS.map((privKey) => {
-    return poseidon.hashPubKey(privateToPublic(privKey));
-  });
+  const pubKeysOneNoun: Buffer[] = [];
+  const pubKeysManyNouns: Buffer[] = [];
 
+  // Just add all the dummy accounts in the OneNoun group for now
   for (let i = 0; i < PRIV_KEYS.length; i++) {
-    tree.insert(pubKeyHashes[i]);
+    pubKeysOneNoun.push(privateToPublic(PRIV_KEYS[i]));
   }
 
-  const treeRootHex: `0x${string}` = `0x${tree.root().toString(16)}`;
+  const treeNodesSnapshot = await readTreeNodesSnapshot(
+    path.join(__dirname, './tree-snapshot-230505.csv'),
+  );
+
+  for (let i = 0; i < treeNodesSnapshot.length; i++) {
+    const treeNode = treeNodesSnapshot[i];
+    if (treeNode.type === GroupType.OneNoun) {
+      pubKeysOneNoun.push(Buffer.from(treeNode.pubkey, 'hex'));
+    } else if (treeNode.type === GroupType.ManyNouns) {
+      pubKeysManyNouns.push(Buffer.from(treeNode.pubkey, 'hex'));
+    } else {
+      throw new Error(`Invalid group type ${treeNode.type}`);
+    }
+  }
+
+  const pubKeyHashesOneNoun: bigint[] = pubKeysOneNoun.map((pubKey) => poseidon.hashPubKey(pubKey));
+  const pubKeyHashesManyNouns: bigint[] = pubKeysManyNouns.map((pubKey) =>
+    poseidon.hashPubKey(pubKey),
+  );
+
+  // Insert leaves to the tree of single noun owners
+  for (let i = 0; i < pubKeyHashesOneNoun.length; i++) {
+    treeOneNoun.insert(pubKeyHashesOneNoun[i]);
+  }
+
+  // Insert leaves to the tree of multiple noun owners
+  for (let i = 0; i < pubKeyHashesManyNouns.length; i++) {
+    treeManyNouns.insert(pubKeyHashesManyNouns[i]);
+  }
+
+  const treeRootOneNoun: PrefixedHex = `0x${treeOneNoun.root().toString(16)}`;
+  const treeRootManyNouns: PrefixedHex = `0x${treeManyNouns.root().toString(16)}`;
 
   // ##############################
   // Create posts
@@ -118,7 +183,7 @@ const populateTestData = async () => {
       timestamp: Math.round(Date.now() / 1000),
       parentId,
       venue: 'nouns',
-      groupRoot: treeRootHex,
+      groupRoot: treeRootOneNoun,
     };
 
     const typedContent = toTypedContent(content);
@@ -141,7 +206,9 @@ const populateTestData = async () => {
       );
       const nymSig = ecsign(typedNymCodeHash, privKey);
       const nymSigStr = toCompactSig(nymSig.v, nymSig.r, nymSig.s);
-      const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[accountIndex]));
+
+      const pubKeyHash = poseidon.hashPubKey(privateToPublic(privKey));
+      const merkleProof = treeOneNoun.createProof(treeOneNoun.indexOf(pubKeyHash));
 
       const attestation = await prover.prove(
         nymCode,
@@ -227,7 +294,7 @@ const populateTestData = async () => {
       const timestamp = Math.round(Date.now() / 1000);
       const signer = PRIV_KEYS[j];
 
-      const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootHex);
+      const typedUpvote = toTypedUpvote(post.id, timestamp, treeRootOneNoun);
       const typedUpvoteHash = eip712MsgHash(
         typedUpvote.domain,
         typedUpvote.types,
@@ -236,12 +303,12 @@ const populateTestData = async () => {
       const { v, r, s } = ecsign(typedUpvoteHash, signer);
       const sig = toCompactSig(v, r, s);
 
-      const upvote = toUpvote(post.id as PrefixedHex, treeRootHex, timestamp, sig);
+      const upvote = toUpvote(post.id as PrefixedHex, treeRootOneNoun, timestamp, sig);
 
       upvotes.push({
         id: upvote.id,
         postId: upvote.postId,
-        groupRoot: treeRootHex,
+        groupRoot: treeRootOneNoun,
         sig,
         address: privateToAddress(signer).toString('hex'),
         timestamp: new Date(upvote.timestamp * 1000),
@@ -283,17 +350,22 @@ const populateTestData = async () => {
     data: upvotes,
   });
 
-  // Save the dummy tree to the database
-  const treeExists = await prisma.tree.findFirst({
-    where: {
-      root: treeRootHex,
-    },
-  });
+  // Save the trees to the database
 
-  if (!treeExists) {
+  if (!(await treeExists(treeRootOneNoun))) {
     await prisma.tree.create({
       data: {
-        root: treeRootHex,
+        root: treeRootOneNoun,
+        blockHeight: 0,
+        type: GroupType.OneNoun,
+      },
+    });
+  }
+
+  if (!(await treeExists(treeRootManyNouns))) {
+    await prisma.tree.create({
+      data: {
+        root: treeRootManyNouns,
         blockHeight: 0,
         type: GroupType.ManyNouns,
       },
@@ -302,12 +374,30 @@ const populateTestData = async () => {
 
   // Only the tree nodes of a single tree can exist in our database,
   // so we delete all existing trees nodes to store a new set of tree nodes.
+
   await prisma.treeNode.deleteMany({});
+
+  // Save the tree nodes of the one-noun tree to the database
   await prisma.treeNode.createMany({
-    data: PRIV_KEYS.map((privKey, i) => {
-      const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[i]));
+    data: pubKeysOneNoun.map((pubKey, i) => {
+      const merkleProof = treeOneNoun.createProof(treeOneNoun.indexOf(pubKeyHashesOneNoun[i]));
       return {
-        pubkey: `0x${privateToPublic(privKey).toString('hex')}`,
+        pubkey: `0x${pubKey.toString('hex')}`,
+        path: merkleProof.siblings.map((sibling) => `${sibling.toString(16)}`),
+        indices: merkleProof.pathIndices.map((index) => index.toString()),
+        type: GroupType.OneNoun,
+      };
+    }),
+  });
+
+  // Save the tree nodes of the many-nouns tree to the database
+  await prisma.treeNode.createMany({
+    data: pubKeysManyNouns.map((pubKey, i) => {
+      const merkleProof = treeManyNouns.createProof(
+        treeManyNouns.indexOf(pubKeyHashesManyNouns[i]),
+      );
+      return {
+        pubkey: `0x${pubKey.toString('hex')}`,
         path: merkleProof.siblings.map((sibling) => `${sibling.toString(16)}`),
         indices: merkleProof.pathIndices.map((index) => index.toString()),
         type: GroupType.ManyNouns,
@@ -315,13 +405,22 @@ const populateTestData = async () => {
     }),
   });
 
+  // ##############################
+  // Log some info about the test data created
+  // ##############################
+
   log('...done!\n\n');
 
   log(`Created: \n`);
   log(`- ${doxedPosts.length} Doxed posts\n`);
   log(`- ${nymPosts.length} Nym posts\n`);
   log(`- ${upvotes.length} total upvotes\n`);
+  log(`- OneNoun tree with ${pubKeysOneNoun.length} leaves\n`);
+  log(`- ManyNouns tree with ${pubKeysManyNouns.length} leaves\n`);
   log(`\n`);
+
+  const took = (Date.now() - timerStart) / 1000;
+  log(`Done in ${took}s\n`);
 };
 
 populateTestData();
