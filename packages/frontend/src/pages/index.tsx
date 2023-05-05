@@ -2,7 +2,35 @@ import { motion } from 'framer-motion';
 import { CommentView } from '../components/MessageRow';
 import { TEMP_DUMMY_DATA } from '../lib/constants';
 import * as React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+
+const getPosts = async () => (await axios.get('/api/v1/posts')).data;
+const getPostById = async () =>
+  await axios.get(
+    `/api/v1/posts/0x0a2628013a565e6f5c14acd5c4119cf2b7a57234656e59e328fd88a57c51c8a7`,
+  );
+
 export default function Home() {
+  // TODO: Add types
+  const { isLoading: propIdsLoading, data } = useQuery({
+    queryKey: ['posts'],
+    queryFn: getPosts,
+    retry: 1,
+    enabled: true,
+    staleTime: 1000,
+  });
+
+  const { isLoading, data: singlePost } = useQuery({
+    queryKey: ['post'],
+    queryFn: getPostById,
+    retry: 1,
+    enabled: true,
+    staleTime: 1000,
+  });
+
+  console.log(`posts`, data);
+  console.log(`single post`, singlePost);
   return (
     <main className="flex w-full flex-col justify-center items-center">
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
