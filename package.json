@@ -5,12 +5,6 @@
     "docker:down": "pnpm -r down",
     "format": "pnpm -r format",
     "format:check": "pnpm -r format:check",
-<<<<<<< HEAD
-=======
-    "lint": "pnpm -r lint",
-    "prepare": "husky install && pnpm -F nymjs run build",
-    "test": "pnpm -r test",
->>>>>>> ce08bbb ([READY FOR REVIEW] Integrate backend w/ nymjs & Add script to populate posts/upvotes table with test data (#39))
     "frontend:dev": "pnpm -F frontend run dev:all",
     "lint": "pnpm -r lint",
     "prepare": "husky install && pnpm -F nymjs run build",
