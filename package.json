@@ -2,13 +2,15 @@
   "name": "root",
   "private": true,
   "scripts": {
+    "docker:down": "pnpm -r down",
     "format": "pnpm -r format",
     "format:check": "pnpm -r format:check",
+    "frontend:dev": "pnpm -F frontend run dev:all",
     "lint": "pnpm -r lint",
     "prepare": "husky install && pnpm -F nymjs run build",
     "test": "pnpm -r test",
-    "frontend:dev": "pnpm -F frontend run dev:all",
-    "down": "pnpm -r down"
+    "test_data:populate": "pnpm -F test_data run populate",
+    "studio": "pnpm -F test_data run studio"
   },
   "repository": {
     "type": "git",

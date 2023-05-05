@@ -3,16 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "pnpm generate && next build",
     "dev": "next dev",
     "dev:all": "pnpm db:start && pnpm dev",
-    "build": "pnpm exec prisma generate && next build",
-    "start": "next start",
+    "generate": "prisma generate",
     "lint": "next lint",
     "format": "prettier . --write .",
     "db:start": "pnpm down && docker-compose up -d && pnpm db:migrate",
     "down": "docker-compose down",
     "db:migrate": "pnpm exec prisma migrate dev",
-    "prepare": "rsync --ignore-existing .env.example .env"
+    "prepare": "pnpm generate && rsync --ignore-existing .env.example .env",
+    "start": "next start"
   },
   "dependencies": {
     "@ethereumjs/util": "^8.0.5",

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "populate": "ts-node ./scripts/populateTestData.ts",
-    "prepare": "prisma generate && rsync --ignore-existing .env.example .env"
+    "prepare": "prisma generate && rsync --ignore-existing .env.example .env",
+    "studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
