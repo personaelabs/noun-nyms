@@ -1,0 +1,20 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "prisma generate",
+    "down": "docker-compose down",
+    "migrate": "pnpm exec prisma migrate dev",
+    "prepare": "prisma generate && cp -n .env.example .env || true",
+    "start": "pnpm down && docker-compose up -d && pnpm migrate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "4.5.0",
+    "prisma": "4.5.0"
+  }
+}
