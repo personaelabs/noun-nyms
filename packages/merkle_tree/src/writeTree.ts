@@ -7,7 +7,6 @@ import { getPubkey } from "./pubkey";
 
 import { PrismaClient, GroupType } from "@prisma/client";
 import alchemy from "./alchemy";
-import { privateToPublic, privateToAddress } from "@ethereumjs/util";
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
 
@@ -56,7 +55,12 @@ const treeExists = async (root: string): Promise<boolean> =>
     : false;
 
 // Write the public key tree constructed at the given block height to the database
-async function writeTree(blockHeight: number) {
+export async function createTree(blockHeight: number): Promise<{
+  set1Tree: Tree;
+  set2Tree: Tree;
+  set1PubKeys: Buffer[];
+  set2PubKeys: Buffer[];
+}> {
   console.log("Writing tree to database at block", blockHeight);
   // ########################################################
   // Fetch owners and delegates from the The Graph
@@ -246,6 +250,9 @@ async function writeTree(blockHeight: number) {
     isManyNounsAccount(account)
   );
 
+  const anonSet1PubKeys = anonSet1.map(account => account.pubKey);
+  const anonSet2PubKeys = anonSet2.map(account => account.pubKey);
+
   if (!poseidonInitialized) {
     await poseidon.initWasm();
     poseidonInitialized = true;
@@ -258,7 +265,7 @@ async function writeTree(blockHeight: number) {
   console.log("Creating Merkle tree... (Noun = 1)");
   console.time("Create Merkle tree (Noun = 1)");
   for (let i = 0; i < anonSet1.length; i++) {
-    const hashedPubKey = poseidon.hashPubKey(anonSet1[i].pubKey);
+    const hashedPubKey = poseidon.hashPubKey(anonSet1PubKeys[i]);
     anonSet1Tree.insert(hashedPubKey);
   }
   console.timeEnd("Create Merkle tree (Noun = 1)");
@@ -266,14 +273,33 @@ async function writeTree(blockHeight: number) {
   console.log("Creating Merkle tree... (Noun > 1)");
   console.time("Create Merkle tree (Noun > 1)");
   for (let i = 0; i < anonSet2.length; i++) {
-    const hashedPubKey = poseidon.hashPubKey(anonSet2[i].pubKey);
+    const hashedPubKey = poseidon.hashPubKey(anonSet2PubKeys[i]);
     anonSet2Tree.insert(hashedPubKey);
   }
   console.timeEnd("Create Merkle tree (Noun > 1)");
 
-  // ########################################################
-  // Write trees to the database
-  // ########################################################
+  console.log(
+    `Noun = 1 set size ${anonSet1.length}, ${numNoPubKeySet1} missing public keys`
+  );
+  console.log(
+    `Noun > 1 set size ${anonSet2.length}, ${numNoPubKeySet2} missing public keys`
+  );
+
+  return {
+    set1Tree: anonSet1Tree,
+    set2Tree: anonSet2Tree,
+    set1PubKeys: anonSet1PubKeys,
+    set2PubKeys: anonSet2PubKeys
+  };
+}
+
+const writeTree = async (
+  anonSet1Tree: Tree,
+  anonSet2Tree: Tree,
+  anonSet1PubKeys: Buffer[],
+  anonSet2PubKeys: Buffer[],
+  blockHeight: number
+) => {
   const anonSet1Root = anonSet1Tree.root().toString(16);
   const anonSet2Root = anonSet2Tree.root().toString(16);
 
@@ -295,11 +321,11 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet1.map(account => {
-        const index = anonSet1Tree.indexOf(poseidon.hashPubKey(account.pubKey));
+      data: anonSet1PubKeys.map(pubKey => {
+        const index = anonSet1Tree.indexOf(poseidon.hashPubKey(pubKey));
         const merkleProof = anonSet1Tree.createProof(index);
         return {
-          pubkey: account.pubKey.toString("hex"),
+          pubkey: pubKey.toString("hex"),
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.OneNoun
@@ -326,11 +352,11 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet2.map(account => {
-        const index = anonSet2Tree.indexOf(poseidon.hashPubKey(account.pubKey));
+      data: anonSet2PubKeys.map(pubKey => {
+        const index = anonSet2Tree.indexOf(poseidon.hashPubKey(pubKey));
         const merkleProof = anonSet2Tree.createProof(index);
         return {
-          pubkey: account.pubKey.toString("hex"),
+          pubkey: pubKey.toString("hex"),
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.ManyNouns
@@ -338,18 +364,19 @@ async function writeTree(blockHeight: number) {
       })
     });
   }
-
-  console.log(
-    `Noun = 1 set size ${anonSet1.length}, ${numNoPubKeySet1} missing public keys`
-  );
-  console.log(
-    `Noun > 1 set size ${anonSet2.length}, ${numNoPubKeySet2} missing public keys`
-  );
-}
+};
 
 const run = async () => {
+  const timerStart = Date.now();
   const blockHeight = await alchemy.core.getBlockNumber();
-  await writeTree(blockHeight);
+  const { set1Tree, set2Tree, set1PubKeys, set2PubKeys } = await createTree(
+    blockHeight
+  );
+  await writeTree(set1Tree, set2Tree, set1PubKeys, set2PubKeys, blockHeight);
+  const timerEnd = Date.now();
+
+  const took = (timerEnd - timerStart) / 1000;
+  console.log(`Done in ${took} seconds`);
 };
 
 run();
