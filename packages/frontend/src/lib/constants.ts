@@ -10,6 +10,16 @@ export interface IComment {
   children: IComment[];
 }
 
+export interface IPost {
+  id: string;
+  title: string;
+  body: string;
+  parentId: string;
+  createdAt: string;
+  timestamp: string;
+  upvotes: [];
+}
+
 export const TEMP_DUMMY_DATA: IComment[] = [
   {
     commentId: '1',
