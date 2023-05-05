@@ -1,10 +1,11 @@
 {
-  "name": "nym-merkle-tree",
+  "name": "@personaelabs/nym-merkle-tree",
   "version": "1.0.0",
   "main": "build/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "pnpm graphclient build",
+    "prepare": "pnpm graphclient build",
+    "build": "tsc",
     "writeTree": "pnpm ts-node ./src/writeTree.ts",
     "populateCache": "pnpm ts-node ./scripts/populateCache.ts"
   },
