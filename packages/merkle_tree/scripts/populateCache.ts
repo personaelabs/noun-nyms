@@ -10,14 +10,14 @@ type CachedEOA = {
   pubkey: string;
 };
 
-type CachedMultiSig = {
+type CachedCode = {
   address: string;
   code: string;
 };
 
-const readFile = (filePath: string): Promise<CachedEOA[] | CachedMultiSig[]> =>
+const readFile = (filePath: string): Promise<CachedEOA[] | CachedCode[]> =>
   new Promise((resolve, reject) => {
-    const result: CachedEOA[] | CachedMultiSig[] = [];
+    const result: CachedEOA[] | CachedCode[] = [];
     fs.createReadStream(filePath)
       .pipe(csvParser())
       .on("data", (row: any) => {
@@ -44,15 +44,15 @@ const populateCache = async () => {
     }))
   });
 
-  const cachedMultiSigs = await readFile(
+  const cachedCode = await readFile(
     path.join(__dirname, "cached-multisigs.csv")
   );
 
-  await prisma.cachedMultiSig.deleteMany();
-  await prisma.cachedMultiSig.createMany({
-    data: cachedMultiSigs.map(row => ({
+  await prisma.cachedCode.deleteMany();
+  await prisma.cachedCode.createMany({
+    data: cachedCode.map(row => ({
       address: row.address,
-      code: (row as CachedMultiSig).code
+      code: (row as CachedCode).code
     }))
   });
 };
