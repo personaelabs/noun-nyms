@@ -25,6 +25,7 @@ export const resolveNestedComponentThreads = (allComments: IComment[], depth: nu
   for (const comment of allComments) {
     commentNodes.push(
       <NestedComponent
+        key={comment.commentId}
         depth={depth}
         commentId={comment.commentId}
         title={comment.title}
