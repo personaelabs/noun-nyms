@@ -5,13 +5,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "dev:all": "pnpm db:start && pnpm dev",
-    "generate": "prisma generate",
     "lint": "next lint",
     "format": "prettier . --write .",
-    "db:start": "pnpm down && docker-compose up -d && pnpm db:migrate",
-    "down": "docker-compose down",
-    "db:migrate": "pnpm exec prisma migrate dev",
     "prepare": "cp -n .env.example .env || true",
     "start": "next start"
   },

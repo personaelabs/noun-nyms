@@ -8,7 +8,8 @@
     "down": "docker-compose down",
     "migrate": "pnpm exec prisma migrate dev",
     "prepare": "prisma generate && cp -n .env.example .env || true",
-    "start": "pnpm down && docker-compose up -d && pnpm migrate"
+    "start": "pnpm down && docker-compose up -d && pnpm migrate",
+    "studio": "prisma studio"
   },
   "keywords": [],
   "author": "",
