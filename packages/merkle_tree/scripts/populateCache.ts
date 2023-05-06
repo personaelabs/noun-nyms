@@ -44,9 +44,7 @@ const populateCache = async () => {
     }))
   });
 
-  const cachedCode = await readFile(
-    path.join(__dirname, "cached-multisigs.csv")
-  );
+  const cachedCode = await readFile(path.join(__dirname, "cached-codes.csv"));
 
   await prisma.cachedCode.deleteMany();
   await prisma.cachedCode.createMany({
