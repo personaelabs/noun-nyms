@@ -12,7 +12,7 @@
   "dependencies": {
     "@ethereumjs/tx": "^4.1.1",
     "@ethereumjs/util": "^8.0.5",
-    "@personaelabs/spartan-ecdsa": "^2.1.0",
+    "@personaelabs/spartan-ecdsa": "^2.1.2",
     "@prisma/client": "4.5.0",
     "alchemy-sdk": "^2.6.1",
     "async-lock": "1.4.0",

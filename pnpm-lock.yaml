@@ -42,8 +42,8 @@ importers:
         specifier: ^8.0.5
         version: 8.0.5
       '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.1.2
+        version: 2.1.2
       '@wagmi/core':
         specifier: ^0.10.8
         version: 0.10.8(@types/node@18.15.3)(ethers@5.7.2)(react@18.2.0)(typescript@5.0.4)
@@ -75,8 +75,8 @@ importers:
         specifier: '*'
         version: link:../nymjs
       '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.1.2
+        version: 2.1.2
       '@prisma/client':
         specifier: 4.5.0
         version: 4.5.0(prisma@4.5.0)
@@ -169,8 +169,8 @@ importers:
         specifier: ^8.0.5
         version: 8.0.5
       '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.1.2
+        version: 2.1.2
       '@prisma/client':
         specifier: 4.5.0
         version: 4.5.0(prisma@4.5.0)
@@ -248,8 +248,8 @@ importers:
         specifier: ^8.0.5
         version: 8.0.5
       '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.1.2
+        version: 2.1.2
       circomlibjs:
         specifier: ^0.1.7
         version: 0.1.7
@@ -333,8 +333,8 @@ importers:
         specifier: '*'
         version: link:../nymjs
       '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^2.1.2
+        version: 2.1.2
       '@prisma/client':
         specifier: 4.5.0
         version: 4.5.0(prisma@4.5.0)
@@ -4316,6 +4316,15 @@ packages:
 
   /@personaelabs/spartan-ecdsa@2.1.0:
     resolution: {integrity: sha512-VOHv9wlFZbtapXikfjtXXwwGWTaULqdzgMbi1jCVwD7peAUlo9qMtcLZrS8fGmWC8EwiiNH/IpPZxQ533OYLlA==}
+    dependencies:
+      '@ethereumjs/util': 8.0.5
+      '@zk-kit/incremental-merkle-tree': 1.0.0
+      elliptic: 6.5.4
+      snarkjs: 0.5.0
+    dev: false
+
+  /@personaelabs/spartan-ecdsa@2.1.2:
+    resolution: {integrity: sha512-HAJIytU8n74u+sZlls4zymeQACMCgRBd6xXFnKdiCxQ1P+E+BL3/RSdi4+B8rVMvPMRb46QOK4SM1g08WE8GRw==}
     dependencies:
       '@ethereumjs/util': 8.0.5
       '@zk-kit/incremental-merkle-tree': 1.0.0
