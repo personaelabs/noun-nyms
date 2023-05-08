@@ -278,7 +278,7 @@ const populateTestData = async () => {
     return [post, ...replies.flat()];
   };
 
-  log('Preparing posts...');
+  log('Preparing posts (this takes a bit)...');
   for (let i = 0; i < testData.length; i++) {
     const data = testData[i];
 
