@@ -1,0 +1,21 @@
+{
+  "name": "@personaelabs/db",
+  "version": "0.1.0",
+  "description": "schema + tools for interacting with nym db",
+  "main": "index.js",
+  "scripts": {
+    "build": "prisma generate",
+    "down": "docker-compose down",
+    "migrate": "pnpm exec prisma migrate dev",
+    "prepare": "prisma generate && cp -n .env.example .env || true",
+    "start": "pnpm down && docker-compose up -d && pnpm migrate",
+    "studio": "prisma studio"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "4.5.0",
+    "prisma": "4.5.0"
+  }
+}
