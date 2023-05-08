@@ -18,7 +18,7 @@ services:
 
 databases:
   - name: nouns250
-  - databaseName: nym
-  - region: oregon
-  - plan: starter
-  - postgresMajorVersion: 15
+    databaseName: nym
+    region: oregon
+    plan: starter
+    postgresMajorVersion: 15
