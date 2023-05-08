@@ -11,10 +11,10 @@ services:
     buildCommand: pnpm i && pnpm build
     startCommand: pnpm run writeTree
     envVars:
-      - key: DB_URL
-      - fromDatabase:
-        - name: nouns250
-        - property: connectionString
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nouns250
+          property: connectionString
 
 databases:
   - name: nouns250
