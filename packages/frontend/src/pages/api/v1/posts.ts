@@ -10,6 +10,7 @@ import {
 import { HashScheme } from '@prisma/client';
 import { pubToAddress } from '@ethereumjs/util';
 import { verifyInclusion } from '../v1/utils';
+import { IPost, doxedPostSelect, nymPostSelect } from '@/types/api';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -27,7 +28,7 @@ const verifyRoot = async (root: string): Promise<boolean> =>
     : false;
 
 // Return posts as specified by the query parameters
-const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPost[]>) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
@@ -38,28 +39,13 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
   const takeDoxedPosts = Math.floor(take / 2);
 
   const nymPosts = await prisma.nymPost.findMany({
-    select: {
-      id: true,
-      title: true,
-      body: true,
-      parentId: true,
-      timestamp: true,
-      upvotes: true,
-    },
+    select: nymPostSelect,
     skip: skipNymPosts as number,
     take: takeNymPosts as number,
   });
 
   const doxedPosts = await prisma.doxedPost.findMany({
-    select: {
-      id: true,
-      title: true,
-      body: true,
-      parentId: true,
-      createdAt: true,
-      timestamp: true,
-      upvotes: true,
-    },
+    select: doxedPostSelect,
     skip: skipDoxedPosts as number,
     take: takeDoxedPosts,
   });

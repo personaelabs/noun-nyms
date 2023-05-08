@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 import { CommentView } from '@/components/MessageRow';
-import { IPost, TEMP_DUMMY_DATA } from '@/lib/constants';
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { IPost } from '@/types/api';
 
 const getPosts = async () => (await axios.get<IPost[]>('/api/v1/posts')).data;
 
