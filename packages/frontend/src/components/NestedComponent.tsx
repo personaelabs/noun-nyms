@@ -93,6 +93,8 @@ export const NestedComponent = ({
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/upvote.svg"
+            bgColor="#D0D5DD"
+            hoverBgColor="#0E76FD"
             iconWidth={20}
             iconHeight={20}
             iconText="50"
@@ -101,6 +103,8 @@ export const NestedComponent = ({
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/downvote.svg"
+            hoverBgColor="#0E76FD"
+            bgColor="#D0D5DD"
             iconWidth={20}
             iconHeight={20}
             iconText=""
@@ -110,10 +114,11 @@ export const NestedComponent = ({
           <strong style={{ color: '#47546' }}>{childrenLength}</strong>
           <div className="px-0.5"></div>
           <p style={{ color: 'gray' }}>{'  '}replies</p>
-          <div className="px-2"></div>
+          <div className="px-4"></div>
           <ButtonIcon
             onClick={() => console.log('clicked')}
-            iconPath="/replyButton.png"
+            iconPath="/reply.svg"
+            bgColor="#0E76FD"
             iconWidth={15}
             iconHeight={12.5}
             iconText={'Reply'}
