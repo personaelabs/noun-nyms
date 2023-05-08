@@ -75,6 +75,13 @@ export const NestedComponent = ({
       <div className="py-2"></div>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center">
+          <Image
+            alt={'profile'}
+            src={profileImgURL ? profileImgURL : '/anon-noun.png'}
+            width={30}
+            height={30}
+          />
+          <div className="px-0.5"></div>
           <p className="font-bold">{tagName}</p>
           <div className="px-2"></div>
           <p style={{ color: 'gray' }}>{dateFromDescription}</p>
@@ -91,6 +98,8 @@ export const NestedComponent = ({
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/upvote.svg"
+            bgColor="#D0D5DD"
+            hoverBgColor="#0E76FD"
             iconWidth={20}
             iconHeight={20}
             iconText="50"
@@ -99,17 +108,22 @@ export const NestedComponent = ({
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/downvote.svg"
+            hoverBgColor="#0E76FD"
+            bgColor="#D0D5DD"
             iconWidth={20}
             iconHeight={20}
             iconText=""
           />
         </div>
         <div className="flex justif-center items-center">
-          <p style={{ color: 'gray' }}>{childrenLength} replies</p>
-          <div className="px-2"></div>
+          <strong style={{ color: '#47546' }}>{childrenLength}</strong>
+          <div className="px-0.5"></div>
+          <p style={{ color: 'gray' }}>{'  '}replies</p>
+          <div className="px-4"></div>
           <ButtonIcon
             onClick={() => console.log('clicked')}
-            iconPath="/replyButton.png"
+            iconPath="/reply.svg"
+            bgColor="#0E76FD"
             iconWidth={15}
             iconHeight={12.5}
             iconText={'Reply'}
