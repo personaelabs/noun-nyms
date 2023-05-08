@@ -9,7 +9,7 @@ interface IPostViewProps extends IPost {
   tagName: string;
 }
 
-export const CommentView = ({ title, body, createdAt, tagName, id }: IPostViewProps) => {
+export const CommentView = ({ title, body, timestamp, tagName, id }: IPostViewProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   // TODO: after we add wagmi
   //  const { address } = useAccount();
@@ -20,11 +20,11 @@ export const CommentView = ({ title, body, createdAt, tagName, id }: IPostViewPr
 
   // TODO figure out how to pass in the comments
   const dateFromDescription = React.useMemo(() => {
-    const date = dayjs(createdAt);
+    const date = dayjs(timestamp);
     // Dayjs doesn't have typings on relative packages so we have to do this
     // @ts-ignore
     return date.fromNow();
-  }, [createdAt]);
+  }, [timestamp]);
 
   return (
     <>

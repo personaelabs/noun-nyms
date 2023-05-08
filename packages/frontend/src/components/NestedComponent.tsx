@@ -1,4 +1,4 @@
-import { IComment } from '@/lib/constants';
+import { IComment, IPost } from '@/lib/constants';
 import * as React from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
@@ -20,22 +20,22 @@ interface INestedComponentProps {
   childrenLength: number;
 }
 
-export const resolveNestedComponentThreads = (allComments: IComment[], depth: number) => {
+export const resolveNestedComponentThreads = (allComments: IPost[], depth: number) => {
   const commentNodes: React.ReactNode[] = [];
   for (const comment of allComments) {
     commentNodes.push(
       <NestedComponent
-        key={comment.commentId}
+        key={comment.id}
         depth={depth}
-        commentId={comment.commentId}
+        commentId={comment.id}
         title={comment.title}
-        message={comment.message}
-        createdAt={comment.createdAt}
+        message={comment.body}
+        createdAt={new Date(comment.timestamp)}
         tagName={comment.tagName}
-        innerComments={resolveNestedComponentThreads(comment.children, depth + 1)}
+        innerComments={resolveNestedComponentThreads(comment.replies, depth + 1)}
         profileImgURL={comment.profileImgURL}
         proof={comment.proof}
-        childrenLength={comment.children.length}
+        childrenLength={comment.replies.length}
       />,
     );
   }

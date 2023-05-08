@@ -5,11 +5,7 @@ import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-const getPosts = async () => (await axios.get('/api/v1/posts')).data;
-const getPostById = async () =>
-  await axios.get(
-    `/api/v1/posts/0x0a2628013a565e6f5c14acd5c4119cf2b7a57234656e59e328fd88a57c51c8a7`,
-  );
+const getPosts = async () => (await axios.get<IPost[]>('/api/v1/posts')).data;
 
 export default function Home() {
   // TODO: Add types
@@ -21,16 +17,6 @@ export default function Home() {
     staleTime: 1000,
   });
 
-  const { isLoading, data: singlePost } = useQuery({
-    queryKey: ['post'],
-    queryFn: getPostById,
-    retry: 1,
-    enabled: true,
-    staleTime: 1000,
-  });
-
-  console.log(`posts`, data);
-  console.log(`single post`, singlePost);
   return (
     <main className="flex w-full flex-col justify-center items-center">
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">

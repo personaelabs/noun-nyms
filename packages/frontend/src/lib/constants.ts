@@ -15,9 +15,12 @@ export interface IPost {
   title: string;
   body: string;
   parentId: string;
-  createdAt: string;
   timestamp: string;
-  upvotes: [];
+  upvotes: number;
+  replies: IPost[];
+  tagName: string;
+  profileImgURL: string;
+  proof: string;
 }
 
 export const TEMP_DUMMY_DATA: IComment[] = [
