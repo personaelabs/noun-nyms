@@ -75,7 +75,12 @@ export const NestedComponent = ({
       <div className="py-2"></div>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center">
-          <Image src={profileImgURL ? profileImgURL : '/anon-noun.png'} width={30} height={30} />
+          <Image
+            alt={'profile'}
+            src={profileImgURL ? profileImgURL : '/anon-noun.png'}
+            width={30}
+            height={30}
+          />
           <div className="px-0.5"></div>
           <p className="font-bold">{tagName}</p>
           <div className="px-2"></div>
