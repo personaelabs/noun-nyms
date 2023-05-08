@@ -123,7 +123,8 @@ export const NestedComponent = ({
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/reply.svg"
-            bgColor="#0E76FD"
+            bgColor="#D0D5DD"
+            hoverBgColor="#0E76FD"
             iconWidth={15}
             iconHeight={12.5}
             iconText={'Reply'}
