@@ -1,7 +1,7 @@
 {
-  "name": "db",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@personaelabs/db",
+  "version": "0.1.0",
+  "description": "schema + tools for interacting with nym db",
   "main": "index.js",
   "scripts": {
     "build": "prisma generate",
@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@prisma/client": "4.5.0",
     "prisma": "4.5.0"
