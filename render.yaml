@@ -1,0 +1,24 @@
+previewsEnabled: true
+services:
+  - type: cron
+    name: nouns250-merkle-cron
+    plan: standard
+    previewPlan: standard
+    env: node
+    region: oregon
+    rootDir: packages/merkle_tree
+    schedule: "0 * * * *"
+    buildCommand: pnpm i && pnpm build
+    startCommand: pnpm run writeTree
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nouns250
+          property: connectionString
+
+databases:
+  - name: nouns250
+    databaseName: nym
+    region: oregon
+    plan: starter
+    postgresMajorVersion: 15
