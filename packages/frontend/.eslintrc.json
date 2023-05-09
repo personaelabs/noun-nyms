@@ -1,3 +1,15 @@
 {
-  "extends": "next/core-web-vitals"
+  // You might want to additionally set this in monorepos where Next.js app is in a subdir
+  "extends": ["next/core-web-vitals"],
+  "overrides": [
+    {
+      // Adapt to your needs (e.g. some might want to only override "next.config.js")
+      "files": ["next.config.js"],
+      // This is the default parser of ESLint
+      "parser": "espree",
+      "parserOptions": {
+        "ecmaVersion": 2020
+      }
+    }
+  ]
 }
