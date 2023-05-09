@@ -16,6 +16,7 @@ services:
           name: nouns250
           property: connectionString
       - fromGroup: nouns250
+    initialDeployHook: cd ../../ && pnpm -F test_data run populate
 
 databases:
   - name: nouns250
