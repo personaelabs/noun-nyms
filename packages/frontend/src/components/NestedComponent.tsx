@@ -1,4 +1,3 @@
-import { IComment, IPost } from '@/lib/constants';
 import * as React from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
@@ -6,6 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import styled from 'styled-components';
 import { ButtonIcon } from './ButtonIcon';
+import { IPostWithReplies } from '@/types/api';
 
 interface INestedComponentProps {
   depth: number;
@@ -20,8 +20,11 @@ interface INestedComponentProps {
   childrenLength: number;
 }
 
-export const resolveNestedComponentThreads = (allComments: IPost[], depth: number) => {
+export const resolveNestedComponentThreads = (allComments: IPostWithReplies[], depth: number) => {
   const commentNodes: React.ReactNode[] = [];
+  const tagName = 'JohnDoe';
+  const profileImgURL = '';
+  const proof = '';
   for (const comment of allComments) {
     commentNodes.push(
       <NestedComponent
@@ -31,10 +34,10 @@ export const resolveNestedComponentThreads = (allComments: IPost[], depth: numbe
         title={comment.title}
         message={comment.body}
         createdAt={new Date(comment.timestamp)}
-        tagName={comment.tagName}
+        tagName={tagName}
         innerComments={resolveNestedComponentThreads(comment.replies, depth + 1)}
-        profileImgURL={comment.profileImgURL}
-        proof={comment.proof}
+        profileImgURL={profileImgURL}
+        proof={proof}
         childrenLength={comment.replies.length}
       />,
     );
