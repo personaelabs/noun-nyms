@@ -1,13 +1,16 @@
 import type { AppProps } from 'next/app';
 import '@/styles/globals.css';
 
-import { WagmiConfig, createClient } from 'wagmi';
-import { getDefaultProvider } from 'ethers';
+import { WagmiConfig, createConfig, mainnet } from 'wagmi';
+import { createPublicClient, http } from 'viem';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-const client = createClient({
+const config = createConfig({
   autoConnect: true,
-  provider: getDefaultProvider(),
+  publicClient: createPublicClient({
+    chain: mainnet,
+    transport: http(),
+  }),
 });
 
 // React query client
@@ -16,7 +19,7 @@ const queryClient = new QueryClient();
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <WagmiConfig client={client}>
+      <WagmiConfig config={config}>
         <Component {...pageProps} />
       </WagmiConfig>
     </QueryClientProvider>
