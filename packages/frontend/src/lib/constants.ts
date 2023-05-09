@@ -1,5 +1,16 @@
 // generate an array of dummy data of ICommentViewProps
-export const TEMP_DUMMY_DATA = [
+export interface IComment {
+  commentId: string;
+  message: string;
+  title: string;
+  createdAt: Date;
+  tagName: string;
+  profileImgURL: string;
+  proof: string;
+  children: IComment[];
+}
+
+export const TEMP_DUMMY_DATA: IComment[] = [
   {
     commentId: '1',
     message: 'This is a comment',
@@ -8,6 +19,7 @@ export const TEMP_DUMMY_DATA = [
     tagName: 'John Doe',
     profileImgURL: '',
     proof: '',
+    children: [],
   },
   {
     commentId: '2',
@@ -17,6 +29,7 @@ export const TEMP_DUMMY_DATA = [
     tagName: 'John Doe',
     profileImgURL: '',
     proof: '',
+    children: [],
   },
   {
     commentId: '3',
@@ -26,6 +39,7 @@ export const TEMP_DUMMY_DATA = [
     tagName: 'John Doe',
     profileImgURL: '',
     proof: '',
+    children: [],
   },
   {
     commentId: '4',
@@ -35,5 +49,112 @@ export const TEMP_DUMMY_DATA = [
     tagName: 'John Doe',
     profileImgURL: '',
     proof: '',
+    children: [],
+  },
+];
+
+export const TEMP_NESTED_DUMMY_DATA: IComment[] = [
+  {
+    commentId: '1',
+    message: 'This is a comment',
+    title: 'What is this?',
+    createdAt: new Date(),
+    tagName: 'John Doe',
+    profileImgURL: '',
+    proof: '',
+    children: [
+      {
+        commentId: '1.1a',
+        message: 'This is a comment too',
+        title: 'What is this?',
+        createdAt: new Date(),
+        tagName: 'John Doe',
+        profileImgURL: '',
+        proof: '',
+        children: [],
+      },
+      {
+        commentId: '1.1b',
+        message: 'This is a different comment',
+        title: 'What is this?',
+        createdAt: new Date(),
+        tagName: 'John Doe',
+        profileImgURL: '',
+        proof: '',
+        children: [],
+      },
+    ],
+  },
+  {
+    commentId: '2',
+    message: 'This is a comment too',
+    title: 'What is this?',
+    createdAt: new Date(),
+    tagName: 'John Doe',
+    profileImgURL: '',
+    proof: '',
+    children: [
+      {
+        commentId: '2.1a',
+        message: 'This is a comment too',
+        title: 'What is this?',
+        createdAt: new Date(),
+        tagName: 'John Doe',
+        profileImgURL: '',
+        proof: '',
+        children: [],
+      },
+      {
+        commentId: '2.1b',
+        message: 'This is a different comment',
+        title: 'What is this?',
+        createdAt: new Date(),
+        tagName: 'John Doe',
+        profileImgURL: '',
+        proof: '',
+        children: [
+          {
+            commentId: '2.1b.1',
+            message: 'This is a different comment',
+            title: 'What is this?',
+            createdAt: new Date(),
+            tagName: 'John Doe',
+            profileImgURL: '',
+            proof: '',
+            children: [],
+          },
+          {
+            commentId: '2.1b.2',
+            message: 'This is not a comment',
+            title: 'What is this?',
+            createdAt: new Date(),
+            tagName: 'John Doe',
+            profileImgURL: '',
+            proof: '',
+            children: [],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    commentId: '3',
+    message: 'This is a different comment',
+    title: 'What is this?',
+    createdAt: new Date(),
+    tagName: 'John Doe',
+    profileImgURL: '',
+    proof: '',
+    children: [],
+  },
+  {
+    commentId: '4',
+    message: 'This is not a comment',
+    title: 'What is this?',
+    createdAt: new Date(),
+    tagName: 'John Doe',
+    profileImgURL: '',
+    proof: '',
+    children: [],
   },
 ];
