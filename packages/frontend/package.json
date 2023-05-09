@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "cp -n .env.example .env && next dev",
     "lint": "next lint",
     "format": "prettier . --write .",
-    "prepare": "cp -n .env.example .env || true",
     "start": "next start"
   },
   "dependencies": {
