@@ -9,7 +9,7 @@ const nextConfig = {
     config.experiments = { asyncWebAssembly: true, layers: true };
     config.plugins.push(
       new FilterWarningsPlugin({
-        exclude: [/Critical dependency/],
+        exclude: [/Critical dependency: the request of a dependency is an expression/],
       }),
     );
     return config;
