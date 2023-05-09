@@ -8,13 +8,14 @@ services:
     region: oregon
     rootDir: packages/merkle_tree
     schedule: "0 * * * *"
-    buildCommand: pnpm i && pnpm build
+    buildCommand: pnpm i && pnpm build && cd ../../ && pnpm -F db run build && pnpm -F db run migrate deploy && pnpm -F nym-merkle-tree populateCache
     startCommand: pnpm run writeTree
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: nouns250
           property: connectionString
+      - fromGroup: nouns250
 
 databases:
   - name: nouns250
