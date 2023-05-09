@@ -1,15 +1,15 @@
 import dayjs from 'dayjs';
 import * as React from 'react';
 import { MessageModal } from './MessageModal';
-import { IPost } from '@/lib/constants';
+import { IPost } from '@/types/api';
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
 
-interface IPostViewProps extends IPost {
+type ICommentViewProps = IPost & {
   tagName: string;
-}
+};
 
-export const CommentView = ({ title, body, timestamp, tagName, id }: IPostViewProps) => {
+export const CommentView = ({ title, body, timestamp, tagName, id }: ICommentViewProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   // TODO: after we add wagmi
   //  const { address } = useAccount();

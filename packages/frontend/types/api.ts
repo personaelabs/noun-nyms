@@ -22,3 +22,4 @@ export type DoxedPostPayload = Prisma.DoxedPostGetPayload<{ select: typeof doxed
 export type NymPostPayload = Prisma.NymPostGetPayload<{ select: typeof nymPostSelect }>;
 
 export type IPost = DoxedPostPayload | NymPostPayload;
+export type IPostWithReplies = IPost & { replies: IPost[] };

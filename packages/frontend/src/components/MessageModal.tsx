@@ -1,10 +1,10 @@
 import { Dialog } from '@headlessui/react';
 import * as React from 'react';
 import { CommentWriter } from './CommentWriter';
-import { IPost, TEMP_NESTED_DUMMY_DATA } from '@/lib/constants';
 import { resolveNestedComponentThreads } from './NestedComponent';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { IPostWithReplies } from '@/types/api';
 
 interface IMessageModalProps {
   commentId: string;
@@ -17,7 +17,7 @@ interface IMessageModalProps {
 }
 
 const getPostById = async (postId: string) =>
-  (await axios.get<IPost>(`/api/v1/posts/${postId}`)).data;
+  (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const MessageModal = ({
   isOpen,
@@ -31,13 +31,14 @@ export const MessageModal = ({
   //TODO: replace with call to actual data
 
   //TODO: Note that this call happens regardless of if isOpen is true or not
-  const { isLoading, data: singlePost } = useQuery<IPost>({
+  const { isLoading, data: singlePost } = useQuery<IPostWithReplies>({
     queryKey: ['post', commentId],
     queryFn: () => getPostById(commentId),
     retry: 1,
     enabled: true,
     staleTime: 1000,
   });
+  console.log(singlePost);
 
   const nestedComponentThreads = React.useMemo(() => {
     if (singlePost) {
