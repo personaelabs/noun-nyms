@@ -1,10 +1,17 @@
 /** @type {import('next').NextConfig} */
+const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
+
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['react-syntax-highlighter', 'swagger-client', 'swagger-ui-react'],
   webpack: (config) => {
     config.resolve.fallback = { fs: false };
     config.experiments = { asyncWebAssembly: true, layers: true };
+    config.plugins.push(
+      new FilterWarningsPlugin({
+        exclude: [/Critical dependency/],
+      }),
+    );
     return config;
   },
 
