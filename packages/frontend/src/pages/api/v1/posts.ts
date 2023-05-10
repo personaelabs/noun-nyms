@@ -9,7 +9,7 @@ import {
 } from '@personaelabs/nymjs';
 import { HashScheme } from '@prisma/client';
 import { pubToAddress } from '@ethereumjs/util';
-import { verifyInclusion } from '../v1/utils';
+import { verifyInclusion, getNymFromAttestation } from '../v1/utils';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -91,7 +91,7 @@ const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) 
   const pubKey = recoverPostPubkey(post);
   console.log({ pubKey });
 
-  if (!(await verifyInclusion(pubKey.replace('0x', '')))) {
+  if (!(await verifyInclusion(pubKey))) {
     res.status(400).send('Public key not in latest group');
     return;
   }
@@ -156,6 +156,8 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
+  const nym = getNymFromAttestation(attestation);
+
   await prisma.nymPost.create({
     data: {
       id: post.id,
@@ -167,6 +169,7 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
       timestamp: new Date(content.timestamp * 1000),
       fullProof: attestation.toString('hex'),
       hashScheme: HashScheme.Keccak256,
+      nym,
     },
   });
 

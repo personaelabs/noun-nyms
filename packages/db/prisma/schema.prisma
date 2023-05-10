@@ -61,6 +61,7 @@ model NymPost {
   groupRoot  String
   timestamp  DateTime
   fullProof  String // Serialized proof and publicinput
+  nym        String
   hashScheme HashScheme
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
