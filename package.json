@@ -6,10 +6,10 @@
     "db:down": "pnpm -F db run down",
     "format": "pnpm -r format",
     "format:check": "pnpm -r format:check",
-    "frontend:dev": "pnpm db:start && pnpm -F frontend run dev",
+    "frontend:dev": "pnpm db:start && sleep 1 && pnpm -F frontend run dev",
     "lint": "pnpm -r lint",
     "prepare": "husky install && pnpm -F db run build && pnpm -F nymjs run build",
-    "studio": "pnpm -F test_data run studio",
+    "studio": "pnpm -F db run studio",
     "test": "pnpm -r test",
     "test_data:populate": "pnpm db:start && pnpm -F test_data run populate"
   },
