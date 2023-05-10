@@ -43,6 +43,11 @@ enum HashScheme {
   Keccak256
 }
 
+enum AttestationScheme {
+  EIP712
+  Nym
+}
+
 enum GroupType {
   OneNoun
   ManyNouns
@@ -51,51 +56,38 @@ enum GroupType {
 // The above code MUST match the schema in `packages/merkle_tree/prisma/schema.prisma
 // Anything below is specific to `frontend` package.
 
-model NymPost {
-  id         String        @id
-  parentId   String?
-  title      String
-  body       String
-  upvotes    DoxedUpvote[]
-  venue      String
-  groupRoot  String
-  timestamp  DateTime
-  fullProof  String // Serialized proof and publicinput
-  nym        String
-  hashScheme HashScheme
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-}
-
-model DoxedPost {
-  id         String        @id
-  parentId   String?
-  title      String
-  body       String
-  upvotes    DoxedUpvote[]
-  venue      String
-  groupRoot  String
-  timestamp  DateTime
-  sig        String
-  address    String
-  hashScheme HashScheme
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+model Post {
+  id                String            @id
+  root              Post?             @relation("RootChild", fields: [rootId], references: [id])
+  parent            Post?             @relation("ParentChild", fields: [parentId], references: [id])
+  children          Post[]            @relation("ParentChild")
+  descendants       Post[]            @relation("RootChild")
+  parentId          String?
+  rootId            String?
+  title             String
+  body              String
+  upvotes           DoxedUpvote[]
+  venue             String
+  groupRoot         String
+  timestamp         DateTime
+  attestation       String
+  user              String // Nym or ETH address
+  hashScheme        HashScheme
+  attestationScheme AttestationScheme
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model DoxedUpvote {
-  id          String     @id
-  postId      String
-  address     String
-  groupRoot   String
-  sig         String
-  timestamp   DateTime
-  NymPost     NymPost?   @relation(fields: [nymPostId], references: [id])
-  nymPostId   String?
-  DoxedPost   DoxedPost? @relation(fields: [doxedPostId], references: [id])
-  doxedPostId String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id        String   @id
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  address   String
+  groupRoot String
+  sig       String
+  timestamp DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([address, postId])
 }

@@ -7,9 +7,9 @@ import {
   Content,
   recoverPostPubkey,
 } from '@personaelabs/nymjs';
-import { HashScheme } from '@prisma/client';
+import { HashScheme, AttestationScheme as PrismaAttestationScheme } from '@prisma/client';
 import { pubToAddress } from '@ethereumjs/util';
-import { verifyInclusion, getNymFromAttestation } from '../v1/utils';
+import { verifyInclusion, getNymFromAttestation, getRootFromParent } from '../v1/utils';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -31,42 +31,41 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
-  const skipNymPosts = Math.ceil(skip / 2);
-  const takeNymPosts = Math.ceil(take / 2);
-
-  const skipDoxedPosts = Math.floor(skip / 2);
-  const takeDoxedPosts = Math.floor(take / 2);
-
-  const nymPosts = await prisma.nymPost.findMany({
+  const postsRaw = await prisma.post.findMany({
     select: {
       id: true,
       title: true,
       body: true,
-      parentId: true,
       timestamp: true,
-      upvotes: true,
+      user: true,
+      _count: {
+        select: {
+          descendants: true,
+          upvotes: true,
+        },
+      },
     },
-    skip: skipNymPosts as number,
-    take: takeNymPosts as number,
+    where: {
+      // Only return root posts
+      rootId: null,
+    },
+    skip,
+    take,
+    orderBy: {
+      timestamp: 'desc',
+    },
   });
 
-  const doxedPosts = await prisma.doxedPost.findMany({
-    select: {
-      id: true,
-      title: true,
-      body: true,
-      parentId: true,
-      createdAt: true,
-      timestamp: true,
-      upvotes: true,
-    },
-    skip: skipDoxedPosts as number,
-    take: takeDoxedPosts,
-  });
-
-  const posts = [...nymPosts, ...doxedPosts].sort(
-    (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
-  );
+  // Format the data returned from the database
+  const posts = postsRaw.map((post) => ({
+    id: post.id,
+    title: post.title,
+    body: post.body,
+    timestamp: post.timestamp,
+    user: post.user,
+    replyCount: post._count.descendants,
+    upvoteCount: post._count.upvotes,
+  }));
 
   res.send(posts);
 };
@@ -97,19 +96,22 @@ const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) 
   }
 
   const address = pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex');
+  const rootId = await getRootFromParent(content.parentId);
 
-  await prisma.doxedPost.create({
+  await prisma.post.create({
     data: {
       id: post.id,
+      rootId,
       venue: content.venue,
       title: content.title,
       groupRoot: content.groupRoot,
       body: content.body,
-      parentId: content.parentId,
+      parentId: content.parentId === '0x0' ? null : content.parentId,
       timestamp: new Date(content.timestamp * 1000),
-      sig: sig,
+      attestation: sig,
+      attestationScheme: PrismaAttestationScheme.EIP712,
       hashScheme: HashScheme.Keccak256,
-      address,
+      user: address,
     },
   });
 
@@ -157,19 +159,22 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
   }
 
   const nym = getNymFromAttestation(attestation);
+  const rootId = await getRootFromParent(content.parentId);
 
-  await prisma.nymPost.create({
+  await prisma.post.create({
     data: {
       id: post.id,
       parentId: content.parentId,
+      rootId,
       venue: content.venue,
       title: content.title,
       body: content.body,
       groupRoot: content.groupRoot,
       timestamp: new Date(content.timestamp * 1000),
-      fullProof: attestation.toString('hex'),
+      attestation: attestation.toString('hex'),
+      attestationScheme: PrismaAttestationScheme.Nym,
       hashScheme: HashScheme.Keccak256,
-      nym,
+      user: nym,
     },
   });
 

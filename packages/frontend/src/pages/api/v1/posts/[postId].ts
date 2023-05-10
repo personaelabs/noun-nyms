@@ -1,96 +1,57 @@
 import prisma from '../../../../lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// Type of individual post that is returned in this GET request
-type GETPost = {
-  id: string;
-  title: string;
-  body: string;
-  parentId: string;
-  timestamp: number;
-  upvotes: number;
+// Build a recursive query to fetch a post and all of its replies
+const buildRecursiveQuery = (depth: number): any => {
+  if (depth == 5) {
+    return false;
+  }
+
+  return {
+    select: {
+      id: true,
+      title: true,
+      body: true,
+      timestamp: true,
+      user: true,
+      _count: {
+        select: {
+          upvotes: true,
+        },
+      },
+      children: buildRecursiveQuery(depth + 1),
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
+  };
 };
 
-// Return a single post and all of its replies
+const recursiveQuery = buildRecursiveQuery(0);
+
+// Format the nested data returned from the database
+const formatPostWithReplies = (postWithRepliesRaw: any): any =>
+  postWithRepliesRaw.map((postWithReplies: any) => ({
+    id: postWithReplies.id,
+    title: postWithReplies.title,
+    body: postWithReplies.body,
+    timestamp: postWithReplies.timestamp,
+    user: postWithReplies.user,
+    upvoteCount: postWithReplies._count.upvotes,
+    children: formatPostWithReplies(postWithReplies.children),
+  }));
+
+// Return a single post and all of its replies till depth = 5
 const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  let posts: any[] = await prisma.$queryRaw`
-	WITH RECURSIVE all_posts AS (
-			SELECT
-				posts. "id",
-				"title",
-				"body",
-				"parentId",
-				count("postUpvotes". "id") AS "upvotes",
-				posts. "timestamp"
-			FROM
-				"NymPost" posts
-			LEFT JOIN "DoxedUpvote" "postUpvotes" ON posts.id = "postUpvotes". "postId"
-		GROUP BY
-			posts. "id"
-		UNION
-		SELECT
-			posts. "id",
-			"title",
-			"body",
-			"parentId",
-			count("postUpvotes". "id") AS "upvotes",
-			posts. "timestamp"
-		FROM
-			"DoxedPost" posts
-			LEFT JOIN "DoxedUpvote" "postUpvotes" ON posts.id = "postUpvotes". "postId"
-		GROUP BY
-			posts.id
-		),
-		thread AS (
-			SELECT
-				"id",
-				"title",
-				"body",
-				"parentId",
-				"upvotes",
-				"timestamp"
-			FROM
-				all_posts
-			WHERE
-				"id" = ${req.query.postId}
-			UNION
-			SELECT
-				d. "id",
-				d. "title",
-				d. "body",
-				d. "parentId",
-				d. "upvotes",
-				d. "timestamp"
-			FROM
-				all_posts d
-				INNER JOIN thread t ON d. "parentId" = t. "id"
-		)
-		SELECT
-			*
-		FROM
-			thread;
-  `;
+  const postWithRepliesRaw = await prisma.post.findMany({
+    ...recursiveQuery,
+    where: {
+      id: req.query.postId as string,
+    },
+  });
 
-  // `upvotes` is in BigInt, so we need to convert it to a number
-  posts = posts.map((post) => ({ ...post, upvotes: parseInt(post.upvotes) }));
-
-  // Transform the flat array of posts into a nested array of posts
-  const rootPost: GETPost = posts.find((post) => post.id === req.query.postId);
-
-  const withReplies = (parentId: string): GETPost[] => {
-    const replies = posts.filter((post) => post.parentId === parentId);
-    return replies.map((reply) => ({
-      ...reply,
-      replies: withReplies(reply.id),
-    }));
-  };
-
-  const postWithNestedReplies = {
-    ...rootPost,
-    replies: withReplies(rootPost.id),
-  };
-
-  res.send(postWithNestedReplies);
+  const postWithReplies = formatPostWithReplies(postWithRepliesRaw);
+  res.send(postWithReplies);
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
