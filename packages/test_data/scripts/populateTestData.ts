@@ -24,6 +24,7 @@ import {
   Post,
 } from '@personaelabs/nymjs';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import { deserializeNymAttestation } from '@personaelabs/nymjs/build/utils';
 
 type DoxedPostExt = {
   upvotes: number;
@@ -153,6 +154,8 @@ const populateTestData = async () => {
       const attestationHex = attestation.toString('hex');
 
       const post = toPost(content, attestation, AttestationScheme.Nym);
+      const { publicInput } = deserializeNymAttestation(attestation);
+      const nym = `${nymCode}-${publicInput.nymHash.toString(16)}`;
 
       return {
         id: post.id,
@@ -166,6 +169,7 @@ const populateTestData = async () => {
         hashScheme: HashScheme.Keccak256,
         createdAt: new Date(),
         updatedAt: new Date(),
+        nym,
         upvotes,
       };
     } else {
