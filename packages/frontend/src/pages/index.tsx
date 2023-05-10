@@ -1,8 +1,22 @@
 import { motion } from 'framer-motion';
-import { CommentView } from '../components/MessageRow';
-import { TEMP_DUMMY_DATA } from '../lib/constants';
+import { CommentView } from '@/components/MessageRow';
 import * as React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { IPost } from '@/types/api';
+
+const getPosts = async () => (await axios.get<IPost[]>('/api/v1/posts')).data;
+
 export default function Home() {
+  // TODO: Add types
+  const { isLoading: propIdsLoading, data } = useQuery<IPost[]>({
+    queryKey: ['posts'],
+    queryFn: getPosts,
+    retry: 1,
+    enabled: true,
+    staleTime: 1000,
+  });
+
   return (
     <main className="flex w-full flex-col justify-center items-center">
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -42,12 +56,13 @@ export default function Home() {
           <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
             <div className="flex space-x-2"></div>
             <div className="mt-6">
-              {TEMP_DUMMY_DATA.map((el) => (
-                <React.Fragment key={el.commentId}>
-                  <CommentView key={el.commentId} {...el} />
-                  <div className="py-8"></div>
-                </React.Fragment>
-              ))}
+              {data &&
+                data.map((el) => (
+                  <React.Fragment key={el.id}>
+                    <CommentView key={el.id} {...el} tagName="John Doe" />
+                    <div className="py-8"></div>
+                  </React.Fragment>
+                ))}
             </div>
           </div>
         </div>

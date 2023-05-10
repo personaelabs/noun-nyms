@@ -29,9 +29,10 @@ export const ButtonIcon = ({
   bgColor,
   iconHeight,
   iconText,
+  onClick,
 }: IButtonProps) => {
   return (
-    <ButtonContainer hoverBgColor={hoverBgColor} bgColor={bgColor}>
+    <ButtonContainer hoverBgColor={hoverBgColor} bgColor={bgColor} onClick={onClick}>
       <div className="flex justify-center items-center">
         <SVG src={iconPath} height={iconHeight} width={iconWidth} fill={bgColor} />
         <div className="px-1"></div>

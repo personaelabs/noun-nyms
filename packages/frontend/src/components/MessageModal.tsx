@@ -1,8 +1,10 @@
 import { Dialog } from '@headlessui/react';
 import * as React from 'react';
 import { CommentWriter } from './CommentWriter';
-import { TEMP_NESTED_DUMMY_DATA } from '../lib/constants';
 import { resolveNestedComponentThreads } from './NestedComponent';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import { IPostWithReplies } from '@/types/api';
 
 interface IMessageModalProps {
   commentId: string;
@@ -14,6 +16,9 @@ interface IMessageModalProps {
   dateFromDescription: string;
 }
 
+const getPostById = async (postId: string) =>
+  (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
+
 export const MessageModal = ({
   isOpen,
   commentId,
@@ -24,9 +29,25 @@ export const MessageModal = ({
   tagName,
 }: IMessageModalProps) => {
   //TODO: replace with call to actual data
+
+  //TODO: Note that this call happens regardless of if isOpen is true or not
+  const { isLoading, data: singlePost } = useQuery<IPostWithReplies>({
+    queryKey: ['post', commentId],
+    queryFn: () => getPostById(commentId),
+    retry: 1,
+    enabled: true,
+    staleTime: 1000,
+  });
+  console.log(singlePost);
+
   const nestedComponentThreads = React.useMemo(() => {
-    return resolveNestedComponentThreads(TEMP_NESTED_DUMMY_DATA, 0);
-  }, [TEMP_NESTED_DUMMY_DATA]);
+    if (singlePost) {
+      return resolveNestedComponentThreads(singlePost.replies, 0);
+    } else {
+      return <div></div>;
+    }
+  }, [singlePost]);
+
   return (
     <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
       {/* The backdrop, rendered as a fixed sibling to the panel container */}

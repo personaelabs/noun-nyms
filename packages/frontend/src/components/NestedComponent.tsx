@@ -1,11 +1,11 @@
-import { IComment } from '../lib/constants';
 import * as React from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
-const relativeTime = require('dayjs/plugin/relativeTime');
+import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import styled from 'styled-components';
 import { ButtonIcon } from './ButtonIcon';
+import { IPostWithReplies } from '@/types/api';
 
 interface INestedComponentProps {
   depth: number;
@@ -20,22 +20,25 @@ interface INestedComponentProps {
   childrenLength: number;
 }
 
-export const resolveNestedComponentThreads = (allComments: IComment[], depth: number) => {
+export const resolveNestedComponentThreads = (allComments: IPostWithReplies[], depth: number) => {
   const commentNodes: React.ReactNode[] = [];
+  const tagName = 'JohnDoe';
+  const profileImgURL = '';
+  const proof = '';
   for (const comment of allComments) {
     commentNodes.push(
       <NestedComponent
-        key={comment.commentId}
+        key={comment.id}
         depth={depth}
-        commentId={comment.commentId}
+        commentId={comment.id}
         title={comment.title}
-        message={comment.message}
-        createdAt={comment.createdAt}
-        tagName={comment.tagName}
-        innerComments={resolveNestedComponentThreads(comment.children, depth + 1)}
-        profileImgURL={comment.profileImgURL}
-        proof={comment.proof}
-        childrenLength={comment.children.length}
+        message={comment.body}
+        createdAt={new Date(comment.timestamp)}
+        tagName={tagName}
+        innerComments={resolveNestedComponentThreads(comment.replies, depth + 1)}
+        profileImgURL={profileImgURL}
+        proof={proof}
+        childrenLength={comment.replies.length}
       />,
     );
   }
@@ -123,7 +126,8 @@ export const NestedComponent = ({
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/reply.svg"
-            bgColor="#0E76FD"
+            bgColor="#D0D5DD"
+            hoverBgColor="#0E76FD"
             iconWidth={15}
             iconHeight={12.5}
             iconText={'Reply'}

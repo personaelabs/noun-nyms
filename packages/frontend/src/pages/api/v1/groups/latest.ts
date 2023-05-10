@@ -1,4 +1,4 @@
-import prisma from '../../../../lib/prisma';
+import prisma from '@/lib/prisma';
 import { GroupType } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 

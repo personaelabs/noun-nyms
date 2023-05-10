@@ -5,6 +5,7 @@
   "scripts": {
     "build": "next build",
     "dev": "cp -n .env.example .env || true && next dev",
+    "check": "tsc --noEmit --incremental",
     "lint": "next lint",
     "format": "prettier . --write .",
     "start": "next start"
