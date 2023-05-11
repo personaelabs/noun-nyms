@@ -2,7 +2,7 @@ import { useQuery, QueryClientProvider, QueryClient } from '@tanstack/react-quer
 
 const queryClient = new QueryClient();
 
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
@@ -13,12 +13,17 @@ import { InjectedConnector } from 'wagmi/connectors/injected';
 
 const { chains, publicClient } = configureChains(
   [mainnet, polygon, optimism],
-  [alchemyProvider({ apiKey: 'yourAlchemyApiKey' }), publicProvider()],
+  [alchemyProvider({ apiKey: 'utNxwqiuLePqDOPaK-eQQonz5eXVT35C' }), publicProvider()],
 );
+
+const { connectors } = getDefaultWallets({
+  appName: 'My RainbowKit App',
+  chains,
+});
 
 const config = createConfig({
   autoConnect: true,
-  connectors: [new InjectedConnector({ chains })],
+  connectors,
   publicClient,
 });
 
