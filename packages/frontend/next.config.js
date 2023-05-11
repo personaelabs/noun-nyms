@@ -3,9 +3,14 @@ const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 const nextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['react-syntax-highlighter', 'swagger-client', 'swagger-ui-react'],
+  transpilePackages: [
+    'react-syntax-highlighter',
+    'swagger-client',
+    'swagger-ui-react',
+    'react-native',
+  ],
   webpack: (config) => {
-    config.resolve.fallback = { fs: false };
+    config.resolve.fallback = { fs: false, net: false, tls: false };
     config.experiments = { asyncWebAssembly: true, layers: true };
     config.plugins.push(
       new FilterWarningsPlugin({
