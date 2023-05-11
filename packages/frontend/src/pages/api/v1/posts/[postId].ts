@@ -1,4 +1,5 @@
-import prisma from '../../../../lib/prisma';
+import prisma from '@/lib/prisma';
+import { IPost, IPostWithReplies } from '@/types/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Build a recursive query to fetch a post and all of its replies

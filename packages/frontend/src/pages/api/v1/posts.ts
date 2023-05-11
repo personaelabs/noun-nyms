@@ -1,4 +1,4 @@
-import prisma from '../../../lib/prisma';
+import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {
   NymVerifier,
@@ -10,6 +10,7 @@ import {
 import { HashScheme, AttestationScheme as PrismaAttestationScheme } from '@prisma/client';
 import { pubToAddress } from '@ethereumjs/util';
 import { verifyInclusion, getNymFromAttestation, getRootFromParent } from '../v1/utils';
+import { IPost, postSelect } from '@/types/api';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);

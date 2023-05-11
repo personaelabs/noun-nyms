@@ -12,55 +12,31 @@ const handleGetUserPosts = async (req: NextApiRequest, res: NextApiResponse) => 
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
-  let posts;
-  if (isNym) {
-    const nym = userId;
-    if (!isNymValid(nym)) {
-      res.status(400).send({ error: 'Invalid nym format' });
-      return;
-    }
-
-    posts = await prisma.nymPost.findMany({
-      select: {
-        id: true,
-        title: true,
-        nym: true,
-        body: true,
-        parentId: true,
-        timestamp: true,
-        upvotes: true,
-      },
-      orderBy: {
-        timestamp: 'desc',
-      },
-      where: {
-        nym,
-      },
-      skip,
-      take,
-    });
-  } else {
-    posts = await prisma.doxedPost.findMany({
-      select: {
-        id: true,
-        title: true,
-        body: true,
-        parentId: true,
-        address: true,
-        createdAt: true,
-        timestamp: true,
-        upvotes: true,
-      },
-      orderBy: {
-        timestamp: 'desc',
-      },
-      where: {
-        address: userId,
-      },
-      skip,
-      take,
-    });
+  const nym = userId;
+  if (!isNymValid(nym)) {
+    res.status(400).send({ error: 'Invalid nym format' });
+    return;
   }
+
+  const posts = await prisma.post.findMany({
+    select: {
+      id: true,
+      title: true,
+      user: true,
+      body: true,
+      parentId: true,
+      timestamp: true,
+      upvotes: true,
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
+    where: {
+      user: nym,
+    },
+    skip,
+    take,
+  });
 
   res.send(posts);
 };
