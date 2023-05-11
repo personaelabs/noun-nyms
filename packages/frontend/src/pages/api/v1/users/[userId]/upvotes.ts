@@ -1,7 +1,11 @@
 import prisma from '../../../../../lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { IUserUpvote, userUpvotesSelect } from '@/types/api/userUpvotesSelect';
 
-const handleGetUserUpvotes = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleGetUserUpvotes = async (
+  req: NextApiRequest,
+  res: NextApiResponse<IUserUpvote[] | { error: string }>,
+) => {
   const userId = req.query.userId as string;
   const isETHAddress = /^0x[0-9a-fA-F]{40}$/.test(userId);
 
@@ -14,17 +18,12 @@ const handleGetUserUpvotes = async (req: NextApiRequest, res: NextApiResponse) =
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
   const posts = await prisma.doxedUpvote.findMany({
-    select: {
-      id: true,
-      postId: true,
-      address: true,
-      timestamp: true,
-    },
+    select: userUpvotesSelect,
     orderBy: {
       timestamp: 'desc',
     },
     where: {
-      address: userId,
+      address: userId.replace('0x', ''),
     },
     skip,
     take,

@@ -1,57 +1,25 @@
 import prisma from '@/lib/prisma';
-import { IPost, IPostWithReplies } from '@/types/api';
+import { postSelect, IPostWithReplies } from '@/types/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// Build a recursive query to fetch a post and all of its replies
-const buildRecursiveQuery = (depth: number): any => {
-  if (depth == 5) {
-    return false;
-  }
-
-  return {
-    select: {
-      id: true,
-      title: true,
-      body: true,
-      timestamp: true,
-      user: true,
-      _count: {
-        select: {
-          upvotes: true,
-        },
-      },
-      children: buildRecursiveQuery(depth + 1),
-    },
-    orderBy: {
-      timestamp: 'desc',
-    },
-  };
-};
-
-const recursiveQuery = buildRecursiveQuery(0);
-
-// Format the nested data returned from the database
-const formatPostWithReplies = (postWithRepliesRaw: any): any =>
-  postWithRepliesRaw.map((postWithReplies: any) => ({
-    id: postWithReplies.id,
-    title: postWithReplies.title,
-    body: postWithReplies.body,
-    timestamp: postWithReplies.timestamp,
-    user: postWithReplies.user,
-    upvoteCount: postWithReplies._count.upvotes,
-    children: formatPostWithReplies(postWithReplies.children),
-  }));
-
 // Return a single post and all of its replies till depth = 5
-const handleGetPost = async (req: NextApiRequest, res: NextApiResponse) => {
-  const postWithRepliesRaw = await prisma.post.findMany({
-    ...recursiveQuery,
+// TODO: Return all replies with a much higher depth limit
+const handleGetPost = async (
+  req: NextApiRequest,
+  res: NextApiResponse<IPostWithReplies | { error: string }>,
+) => {
+  const postWithReplies = await prisma.post.findFirst({
+    select: postSelect,
     where: {
       id: req.query.postId as string,
     },
   });
 
-  const postWithReplies = formatPostWithReplies(postWithRepliesRaw);
+  if (!postWithReplies) {
+    res.status(404).send({ error: 'Post not found' });
+    return;
+  }
+
   res.send(postWithReplies);
 };
 

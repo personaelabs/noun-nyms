@@ -10,7 +10,7 @@ import {
 import { HashScheme, AttestationScheme as PrismaAttestationScheme } from '@prisma/client';
 import { pubToAddress } from '@ethereumjs/util';
 import { verifyInclusion, getNymFromAttestation, getRootFromParent } from '../v1/utils';
-import { IPost, postSelect } from '@/types/api';
+import { IRootPost, rootPostsSelect } from '@/types/api';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -28,24 +28,12 @@ const verifyRoot = async (root: string): Promise<boolean> =>
     : false;
 
 // Return posts as specified by the query parameters
-const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IRootPost[]>) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
   const postsRaw = await prisma.post.findMany({
-    select: {
-      id: true,
-      title: true,
-      body: true,
-      timestamp: true,
-      user: true,
-      _count: {
-        select: {
-          descendants: true,
-          upvotes: true,
-        },
-      },
-    },
+    select: rootPostsSelect,
     where: {
       // Only return root posts
       rootId: null,
@@ -65,7 +53,7 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse) => {
     timestamp: post.timestamp,
     user: post.user,
     replyCount: post._count.descendants,
-    upvoteCount: post._count.upvotes,
+    upvotes: post.upvotes,
   }));
 
   res.send(posts);

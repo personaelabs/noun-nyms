@@ -58,10 +58,10 @@ enum GroupType {
 
 model Post {
   id                String            @id
-  root              Post?             @relation("RootChild", fields: [rootId], references: [id])
-  parent            Post?             @relation("ParentChild", fields: [parentId], references: [id])
-  children          Post[]            @relation("ParentChild")
-  descendants       Post[]            @relation("RootChild")
+  root              Post?             @relation("RootDecendants", fields: [rootId], references: [id])
+  parent            Post?             @relation("PostReplies", fields: [parentId], references: [id])
+  replies           Post[]            @relation("PostReplies")
+  descendants       Post[]            @relation("RootDecendants")
   parentId          String?
   rootId            String?
   title             String
