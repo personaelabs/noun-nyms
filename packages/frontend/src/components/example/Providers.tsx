@@ -1,37 +1,33 @@
-// import { useQuery, QueryClientProvider, QueryClient } from '@tanstack/react-query';
+import { useQuery, QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
-// const queryClient = new QueryClient();
+const queryClient = new QueryClient();
 
-// import { configureChains, createClient, defaultChains, WagmiConfig } from 'wagmi';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 
-// // import { alchemyProvider } from "wagmi/providers/alchemy";
-// import { publicProvider } from 'wagmi/providers/public';
+import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { mainnet, polygon, optimism } from 'wagmi/chains';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
+import { InjectedConnector } from 'wagmi/connectors/injected';
 
-// import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-// import '@rainbow-me/rainbowkit/styles.css';
+const { chains, publicClient } = configureChains(
+  [mainnet, polygon, optimism],
+  [alchemyProvider({ apiKey: 'yourAlchemyApiKey' }), publicProvider()],
+);
 
-// const { chains, provider } = configureChains(
-//   defaultChains,
-//   [publicProvider()], // TODO: add alchemyProvider
-// );
+const config = createConfig({
+  autoConnect: true,
+  connectors: [new InjectedConnector({ chains })],
+  publicClient,
+});
 
-// const { connectors } = getDefaultWallets({
-//   appName: 'My RainbowKit App',
-//   chains,
-// });
-
-// const client = createClient({
-//   autoConnect: true,
-//   connectors,
-//   provider,
-// });
-
-// export default function ExampleProviders({ children }: { children: any }) {
-//   return (
-//     <QueryClientProvider client={queryClient}>
-//       <WagmiConfig client={client}>
-//         <RainbowKitProvider chains={chains}>{children}</RainbowKitProvider>
-//       </WagmiConfig>
-//     </QueryClientProvider>
-//   );
-// }
+export default function ExampleProviders({ children }: { children: any }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <WagmiConfig config={config}>
+        <RainbowKitProvider chains={chains}>{children}</RainbowKitProvider>
+      </WagmiConfig>
+    </QueryClientProvider>
+  );
+}
