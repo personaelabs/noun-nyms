@@ -21,3 +21,7 @@ export const getLatestGroup = async () => {
 
   return group;
 };
+
+interface NestedObject {
+  [key: string]: any;
+}
