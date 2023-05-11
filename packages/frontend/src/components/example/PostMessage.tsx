@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axiosBase from 'axios';
 import {
+  NYM_CODE_TYPE,
   NymProver,
   eip712MsgHash,
   DOMAIN,
@@ -10,13 +11,10 @@ import {
   CONTENT_MESSAGE_TYPES,
   PrefixedHex,
   EIP712TypedData,
-  NYM_CODE_TYPE,
 } from '@personaelabs/nymjs';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 import { ecrecover, fromRpcSig } from '@ethereumjs/util';
-
 import { useSignTypedData, useAccount } from 'wagmi';
-import { time } from 'console';
 
 const axios = axiosBase.create({
   baseURL: `http://localhost:3000/api/v1`,
@@ -61,12 +59,12 @@ const getLatestGroup = async () => {
 
 const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string): string => {
   const { v, r, s } = fromRpcSig(sig);
-  return ecrecover(
+  return `0x${ecrecover(
     eip712MsgHash(typedData.domain, typedData.types, typedData.value),
     v,
     r,
     s,
-  ).toString('hex');
+  ).toString('hex')}`;
 };
 
 const ExamplePost = () => {
@@ -77,9 +75,15 @@ const ExamplePost = () => {
   }, []);
 
   const [nymCode, setNymCode] = useState<string>('');
-  const [contentInput, setContentInput] = useState<ContentUserInput>({
-    title: "I'm Satoshi Nakamoto",
-    body: "I'm the creator of Bitcoin.",
+  const [doxedContentInput, setDoxedContentInput] = useState<ContentUserInput>({
+    title: 'This is the title of a doxed post',
+    body: 'This is the body of a doxed post',
+    parentId: '0x0',
+  });
+
+  const [nymContentInput, setNymContentInput] = useState<ContentUserInput>({
+    title: 'This is the title of a Nym post',
+    body: 'This is the body of a Nym post',
     parentId: '0x0',
   });
 
@@ -110,25 +114,18 @@ const ExamplePost = () => {
 
       const merkleProof: MerkleProof = {
         pathIndices: userMerkleProof?.indices,
-        siblings: userMerkleProof?.path.map((sibling) => BigInt('0x' + sibling)), // TODO: Use PrefixedHex in the backend as well
-        root: BigInt('0x' + group.root),
+        siblings: userMerkleProof?.path.map((sibling) => BigInt(sibling)),
+        root: BigInt(group.root),
       };
 
       // Construct the content to sign
       const content: Content = {
         venue: 'nouns',
-        title: contentInput.title,
-        body: contentInput.body,
-        parentId: contentInput.parentId,
-        groupRoot: ('0x' + group.root) as PrefixedHex,
+        title: nymContentInput.title,
+        body: nymContentInput.body,
+        parentId: nymContentInput.parentId ? nymContentInput.parentId : '0x0',
+        groupRoot: group.root,
         timestamp: Math.round(Date.now() / 1000),
-      };
-
-      const signDataContent = {
-        ...content,
-        parentId: content.parentId.toString(),
-        groupRoot: content.groupRoot.toString(),
-        timestamp: BigInt(content.timestamp),
       };
 
       // Request the user to sign the content
@@ -136,7 +133,7 @@ const ExamplePost = () => {
         primaryType: 'Post',
         domain: DOMAIN,
         types: CONTENT_MESSAGE_TYPES,
-        message: signDataContent,
+        message: content,
       });
 
       // Setup the prover
@@ -168,18 +165,11 @@ const ExamplePost = () => {
     // Construct the content to sign
     const content: Content = {
       venue: 'nouns',
-      title: contentInput.title,
-      body: contentInput.body,
-      parentId: contentInput.parentId,
-      groupRoot: ('0x' + group.root) as PrefixedHex,
+      title: doxedContentInput.title,
+      body: doxedContentInput.body,
+      parentId: doxedContentInput.parentId ? doxedContentInput.parentId : '0x0',
+      groupRoot: group.root,
       timestamp: Math.round(Date.now() / 1000),
-    };
-
-    const signDataContent = {
-      ...content,
-      parentId: content.parentId.toString(),
-      groupRoot: content.groupRoot.toString(),
-      timestamp: BigInt(content.timestamp),
     };
 
     // Request the user to sign the content
@@ -187,7 +177,7 @@ const ExamplePost = () => {
       primaryType: 'Post',
       domain: DOMAIN,
       types: CONTENT_MESSAGE_TYPES,
-      message: signDataContent,
+      message: content,
     });
 
     const result = await submitPost(content, attestation, AttestationScheme.EIP712);
@@ -207,6 +197,21 @@ const ExamplePost = () => {
         >
           Submit a doxed post
         </button>
+        <div className="py-2 mt-4">
+          <input
+            id="input"
+            type="text"
+            placeholder="Parent ID (optional)"
+            className="border border-gray-400 p-3 rounded-lg focus:outline-none focus:border-blue-500"
+            value={doxedContentInput.parentId === '0x0' ? '' : doxedContentInput.parentId}
+            onChange={(e) =>
+              setDoxedContentInput({
+                ...doxedContentInput,
+                parentId: e.target.value as PrefixedHex,
+              })
+            }
+          />
+        </div>
       </div>
 
       <div>
@@ -229,12 +234,25 @@ const ExamplePost = () => {
         <div className="flex flex-col">
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-            // @ts-expect-error nymCode type
+            // @ts-expect-error signNymCode is the function from signTypedData and has a type error.
             onClick={signNymCode}
             disabled={nymCode !== '' && !nymSig ? false : true}
           >
             Sign Nym code
           </button>
+          <input
+            id="input"
+            type="text"
+            className="mt-4 border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:border-blue-500"
+            value={nymContentInput.parentId === '0x0' ? '' : nymContentInput.parentId}
+            placeholder="Parent ID (optional)"
+            onChange={(e) =>
+              setNymContentInput({
+                ...nymContentInput,
+                parentId: e.target.value as PrefixedHex,
+              })
+            }
+          />
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
             onClick={postPseudo}

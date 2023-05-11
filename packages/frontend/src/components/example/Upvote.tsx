@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import axiosBase from 'axios';
-import { DOMAIN, PrefixedHex, UPVOTE_TYPES } from '@personaelabs/nymjs';
+import { DOMAIN, UPVOTE_TYPES } from '@personaelabs/nymjs';
 import { useSignTypedData } from 'wagmi';
-import { getLatestGroup } from '../../lib/example-utils';
+import { getLatestGroup } from '@/lib/example-utils';
 
 const axios = axiosBase.create({
   baseURL: `http://localhost:3000/api/v1`,
@@ -21,17 +21,11 @@ const UpvoteExample = () => {
       timestamp: Math.round(Date.now() / 1000),
     };
 
-    const signedUpvote = {
-      postId: upvote.postId.toString(),
-      groupRoot: upvote.groupRoot.toString(),
-      timestamp: BigInt(upvote.timestamp),
-    };
-
     const sig = await signTypedDataAsync({
       primaryType: 'Upvote',
       domain: DOMAIN,
       types: UPVOTE_TYPES,
-      message: signedUpvote,
+      message: upvote,
     });
 
     await axios.post(`/posts/${postId}/upvote`, {
