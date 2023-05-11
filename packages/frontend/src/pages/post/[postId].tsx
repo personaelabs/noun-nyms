@@ -64,7 +64,7 @@ export default function Comment() {
                     <CommentView
                       key={el.id}
                       shouldOpenModal={el.id === router.query.postId}
-                      replyCount={el.replies.length}
+                      replyCount={el.replies ? el.replies.length : 0}
                       {...el}
                       tagName="John Doe"
                     />
