@@ -1,23 +1,20 @@
 import { motion } from 'framer-motion';
 import { CommentView } from '@/components/MessageRow';
-import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { Fragment } from 'react';
 import { IRootPost } from '@/types/api';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
 export default function Home() {
-  // TODO: Add types
-  const { isLoading: propIdsLoading, data } = useQuery<IRootPost[]>({
+  const { isLoading, data: posts } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
     retry: 1,
     enabled: true,
     staleTime: 1000,
   });
-
-  console.log(`posts`, data);
 
   return (
     <main className="flex w-full flex-col justify-center items-center">
@@ -58,12 +55,12 @@ export default function Home() {
           <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
             <div className="flex space-x-2"></div>
             <div className="mt-6">
-              {data &&
-                data.map((el) => (
-                  <React.Fragment key={el.id}>
-                    <CommentView key={el.id} {...el} tagName="John Doe" />
+              {posts &&
+                posts.map((post) => (
+                  <Fragment key={post.id}>
+                    <CommentView key={post.id} {...post} tagName="John Doe" />
                     <div className="py-8"></div>
-                  </React.Fragment>
+                  </Fragment>
                 ))}
             </div>
           </div>
