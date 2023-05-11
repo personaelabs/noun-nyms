@@ -25,6 +25,7 @@ model Tree {
   type        GroupType
   blockHeight Int
   createdAt   DateTime  @default(now())
+  Post        Post[]
 }
 
 model CachedEOA {
@@ -69,6 +70,7 @@ model Post {
   upvotes           DoxedUpvote[]
   venue             String
   groupRoot         String
+  group             Tree              @relation(fields: [groupRoot], references: [root])
   timestamp         DateTime
   attestation       String
   user              String // Nym or ETH address
