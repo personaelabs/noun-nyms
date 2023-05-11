@@ -5,7 +5,6 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function Example() {
   return (
-    <div>temp</div>
     <ExampleProviders>
       <div className="ml-4 mt-4">
         <ConnectButton />
