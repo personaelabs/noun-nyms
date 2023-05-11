@@ -21,11 +21,12 @@ model TreeNode {
 }
 
 model Tree {
-  root        String    @id
+  root        String        @id
   type        GroupType
   blockHeight Int
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime      @default(now())
   Post        Post[]
+  DoxedUpvote DoxedUpvote[]
 }
 
 model CachedEOA {
@@ -86,6 +87,7 @@ model DoxedUpvote {
   post      Post     @relation(fields: [postId], references: [id])
   address   String
   groupRoot String
+  group     Tree     @relation(fields: [groupRoot], references: [root])
   sig       String
   timestamp DateTime
   createdAt DateTime @default(now())
