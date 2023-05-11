@@ -13,6 +13,7 @@ interface IMessageModalProps {
   title: string;
   message: string;
   tagName: string;
+  replyCount: number;
   dateFromDescription: string;
 }
 
@@ -26,6 +27,7 @@ export const MessageModal = ({
   title,
   message,
   dateFromDescription,
+  replyCount,
   tagName,
 }: IMessageModalProps) => {
   //TODO: replace with call to actual data
@@ -89,7 +91,7 @@ export const MessageModal = ({
                 </div>
                 <div className="flex justify-between items-center">
                   {/* // TODO fetch this info */}
-                  <p style={{ color: 'gray' }}>33 replies</p>
+                  <p style={{ color: 'gray' }}>{replyCount} replies</p>
                   <div className="px-2"></div>
                   <p style={{ color: 'gray' }}>2212 views</p>
                 </div>
@@ -99,7 +101,7 @@ export const MessageModal = ({
               <CommentWriter commentId={commentId} />
               <div className="py-8"></div>
               <p className="font-bold" style={{ color: 'gray' }}>
-                32 comments
+                {singlePost?.replies.length} replies
               </p>
               <div className="py-3"></div>
               <div className="flex flex-col w-full justify-center iterms-center">

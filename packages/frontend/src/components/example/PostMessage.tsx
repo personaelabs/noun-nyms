@@ -117,7 +117,7 @@ const ExamplePost = () => {
         title: contentInput.title,
         body: contentInput.body,
         parentId: contentInput.parentId,
-        groupRoot: ('0x' + group.root) as PrefixedHex,
+        groupRoot: group.root,
         timestamp: Math.round(Date.now() / 1000),
       };
 
@@ -160,7 +160,7 @@ const ExamplePost = () => {
       title: contentInput.title,
       body: contentInput.body,
       parentId: contentInput.parentId,
-      groupRoot: ('0x' + group.root) as PrefixedHex,
+      groupRoot: group.root,
       timestamp: Math.round(Date.now() / 1000),
     };
 

@@ -1,13 +1,13 @@
 import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { pubToAddress } from '@ethereumjs/util';
-import { recoverUpvotePubkey, toUpvote } from '@personaelabs/nymjs';
+import { PrefixedHex, recoverUpvotePubkey, toUpvote } from '@personaelabs/nymjs';
 import { verifyInclusion } from '../../utils';
 
 // Handle non-pseudonymous upvotes
 // Verify the ECDSA signature and save the upvote
 const handleUpvote = async (req: NextApiRequest, res: NextApiResponse) => {
-  const postId = req.body.postId;
+  const postId = req.query.postId as PrefixedHex;
   const timestamp = req.body.timestamp;
   const sig = req.body.sig;
   const groupRoot = req.body.groupRoot;
@@ -16,12 +16,12 @@ const handleUpvote = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const pubKey = recoverUpvotePubkey(upvote);
 
-  if (!(await verifyInclusion(pubKey.replace('0x', '')))) {
+  if (!(await verifyInclusion(pubKey))) {
     res.status(400).send('Public key not in latest group');
     return;
   }
 
-  const address = pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex');
+  const address = `0x${pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex')}`;
 
   await prisma.doxedUpvote.create({
     data: {

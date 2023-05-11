@@ -21,10 +21,12 @@ model TreeNode {
 }
 
 model Tree {
-  root        String    @id
+  root        String        @id
   type        GroupType
   blockHeight Int
-  createdAt   DateTime  @default(now())
+  createdAt   DateTime      @default(now())
+  Post        Post[]
+  DoxedUpvote DoxedUpvote[]
 }
 
 model CachedEOA {
@@ -43,6 +45,11 @@ enum HashScheme {
   Keccak256
 }
 
+enum AttestationScheme {
+  EIP712
+  Nym
+}
+
 enum GroupType {
   OneNoun
   ManyNouns
@@ -51,50 +58,40 @@ enum GroupType {
 // The above code MUST match the schema in `packages/merkle_tree/prisma/schema.prisma
 // Anything below is specific to `frontend` package.
 
-model NymPost {
-  id         String        @id
-  parentId   String?
-  title      String
-  body       String
-  upvotes    DoxedUpvote[]
-  venue      String
-  groupRoot  String
-  timestamp  DateTime
-  fullProof  String // Serialized proof and publicinput
-  hashScheme HashScheme
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
-}
-
-model DoxedPost {
-  id         String        @id
-  parentId   String?
-  title      String
-  body       String
-  upvotes    DoxedUpvote[]
-  venue      String
-  groupRoot  String
-  timestamp  DateTime
-  sig        String
-  address    String
-  hashScheme HashScheme
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+model Post {
+  id                String            @id
+  root              Post?             @relation("RootDecendants", fields: [rootId], references: [id])
+  parent            Post?             @relation("PostReplies", fields: [parentId], references: [id])
+  replies           Post[]            @relation("PostReplies")
+  descendants       Post[]            @relation("RootDecendants")
+  parentId          String?
+  rootId            String?
+  title             String
+  body              String
+  upvotes           DoxedUpvote[]
+  venue             String
+  groupRoot         String
+  group             Tree              @relation(fields: [groupRoot], references: [root])
+  timestamp         DateTime
+  attestation       String
+  userId            String // Nym or ETH address
+  hashScheme        HashScheme
+  attestationScheme AttestationScheme
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 model DoxedUpvote {
-  id          String     @id
-  postId      String
-  address     String
-  groupRoot   String
-  sig         String
-  timestamp   DateTime
-  NymPost     NymPost?   @relation(fields: [nymPostId], references: [id])
-  nymPostId   String?
-  DoxedPost   DoxedPost? @relation(fields: [doxedPostId], references: [id])
-  doxedPostId String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id        String   @id
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  address   String
+  groupRoot String
+  group     Tree     @relation(fields: [groupRoot], references: [root])
+  sig       String
+  timestamp DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([address, postId])
 }
