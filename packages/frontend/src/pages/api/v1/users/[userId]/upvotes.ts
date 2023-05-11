@@ -1,4 +1,4 @@
-import prisma from '../../../../../lib/prisma';
+import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { IUserUpvote, userUpvotesSelect } from '@/types/api/userUpvotesSelect';
 

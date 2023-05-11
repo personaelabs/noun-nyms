@@ -27,9 +27,9 @@ import {
   toTypedUpvote,
   toUpvote,
   PrefixedHex,
+  deserializeNymAttestation,
 } from '@personaelabs/nymjs';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
-import { deserializeNymAttestation } from '@personaelabs/nymjs/build/utils';
 
 type PostExt = {
   upvotes: number;
@@ -88,7 +88,7 @@ const populateTestData = async () => {
     tree.insert(pubKeyHashes[i]);
   }
 
-  const treeRootHex: `0x${string}` = `0x${tree.root().toString(16)}`;
+  const treeRootHex: PrefixedHex = `0x${tree.root().toString(16)}`;
 
   // ##############################
   // Create posts
