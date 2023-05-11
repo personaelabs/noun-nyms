@@ -7,6 +7,7 @@ dayjs.extend(relativeTime);
 
 type ICommentViewProps = IRootPost & {
   tagName: string;
+  shouldOpenModal?: boolean;
 };
 
 export const CommentView = ({
@@ -16,8 +17,9 @@ export const CommentView = ({
   tagName,
   id,
   replyCount,
+  shouldOpenModal,
 }: ICommentViewProps) => {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(shouldOpenModal || false);
   // TODO: after we add wagmi
   //  const { address } = useAccount();
 
@@ -62,7 +64,6 @@ export const CommentView = ({
             <p style={{ color: 'gray' }}>{dateFromDescription}</p>
           </div>
           <div className="flex justify-between items-center">
-            {/* // TODO fetch this info */}
             <p style={{ color: 'gray' }}>{replyCount} replies</p>
             <div className="px-2"></div>
           </div>
