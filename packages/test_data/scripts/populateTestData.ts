@@ -173,7 +173,7 @@ const populateTestData = async () => {
         hashScheme: HashScheme.Keccak256,
         createdAt: new Date(),
         updatedAt: new Date(),
-        user: nym,
+        userId: nym,
         upvotes,
       };
     } else {
@@ -189,7 +189,7 @@ const populateTestData = async () => {
         venue: post.content.venue,
         groupRoot: post.content.groupRoot,
         attestation: contentSigStr,
-        user: privateToAddress(privKey).toString('hex'),
+        userId: privateToAddress(privKey).toString('hex'),
         attestationScheme: PrismaAttestationScheme.EIP712,
         hashScheme: HashScheme.Keccak256,
         createdAt: new Date(),

@@ -10,7 +10,7 @@ export const userUpvotesSelect = {
       title: true,
       body: true,
       timestamp: true,
-      user: true,
+      userId: true,
       upvotes: {
         select: {
           id: true,

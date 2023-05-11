@@ -73,7 +73,7 @@ model Post {
   group             Tree              @relation(fields: [groupRoot], references: [root])
   timestamp         DateTime
   attestation       String
-  user              String // Nym or ETH address
+  userId            String // Nym or ETH address
   hashScheme        HashScheme
   attestationScheme AttestationScheme
   createdAt         DateTime          @default(now())

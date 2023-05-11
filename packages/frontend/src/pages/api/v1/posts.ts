@@ -51,7 +51,7 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IRootPos
     title: post.title,
     body: post.body,
     timestamp: post.timestamp,
-    user: post.user,
+    userId: post.userId,
     replyCount: post._count.descendants,
     upvotes: post.upvotes,
   }));
@@ -100,7 +100,7 @@ const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) 
       attestation: sig,
       attestationScheme: PrismaAttestationScheme.EIP712,
       hashScheme: HashScheme.Keccak256,
-      user: address,
+      userId: address,
     },
   });
 
@@ -163,7 +163,7 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
       attestation: attestation.toString('hex'),
       attestationScheme: PrismaAttestationScheme.Nym,
       hashScheme: HashScheme.Keccak256,
-      user: nym,
+      userId: nym,
     },
   });
 
