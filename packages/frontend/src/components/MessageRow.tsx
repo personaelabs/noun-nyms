@@ -64,7 +64,6 @@ export const CommentView = ({
             <p style={{ color: 'gray' }}>{dateFromDescription}</p>
           </div>
           <div className="flex justify-between items-center">
-            {/* // TODO fetch this info */}
             <p style={{ color: 'gray' }}>{replyCount} replies</p>
             <div className="px-2"></div>
           </div>
