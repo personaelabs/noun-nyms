@@ -77,14 +77,13 @@ const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) 
 
   const post = toPost(content, sig, AttestationScheme.EIP712);
   const pubKey = recoverPostPubkey(post);
-  console.log({ pubKey });
 
   if (!(await verifyInclusion(pubKey))) {
     res.status(400).send('Public key not in latest group');
     return;
   }
 
-  const address = pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex');
+  const address = `0x${pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex')}`;
   const rootId = await getRootFromParent(content.parentId);
 
   await prisma.post.create({
@@ -135,7 +134,7 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  if (!(await verifyRoot(content.groupRoot.replace('0x', '')))) {
+  if (!(await verifyRoot(content.groupRoot))) {
     res.status(400).send('Invalid Merkle root!');
     return;
   }

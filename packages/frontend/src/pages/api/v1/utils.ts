@@ -13,7 +13,6 @@ export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
 
 export const isNymValid = (nym: string): boolean => {
   const [_nymCode, nymHash] = nym.split('-');
-  console.log('nymHash.length', nymHash.length);
   return nymHash.length === 64;
 };
 

@@ -27,7 +27,7 @@ const handleGetUserPosts = async (
       timestamp: 'desc',
     },
     where: {
-      userId: userId.replace('0x', ''),
+      userId,
     },
     skip,
     take,

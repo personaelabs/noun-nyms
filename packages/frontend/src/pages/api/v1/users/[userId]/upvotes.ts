@@ -23,7 +23,7 @@ const handleGetUserUpvotes = async (
       timestamp: 'desc',
     },
     where: {
-      address: userId.replace('0x', ''),
+      address: userId,
     },
     skip,
     take,
