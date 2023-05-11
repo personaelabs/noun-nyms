@@ -3,19 +3,21 @@ import { CommentView } from '@/components/MessageRow';
 import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { IPost } from '@/types/api';
+import { IRootPost } from '@/types/api';
 
-const getPosts = async () => (await axios.get<IPost[]>('/api/v1/posts')).data;
+const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
 export default function Home() {
   // TODO: Add types
-  const { isLoading: propIdsLoading, data } = useQuery<IPost[]>({
+  const { isLoading: propIdsLoading, data } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
     retry: 1,
     enabled: true,
     staleTime: 1000,
   });
+
+  console.log(`posts`, data);
 
   return (
     <main className="flex w-full flex-col justify-center items-center">
