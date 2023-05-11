@@ -1,5 +1,5 @@
 {
-  "name": "nym-merkle-tree",
+  "name": "merkle_tree",
   "version": "1.0.0",
   "main": "build/index.js",
   "license": "MIT",
