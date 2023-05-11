@@ -130,3 +130,50 @@ paths:
           description: OK
         '400':
           description: Invalid set
+  /users/{userId}/posts:
+    get:
+      description: Get posts of a user
+      operationId: getUserPosts
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: Nym or Ethereum address
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK
+  /users/{userId}/upvotes:
+    get:
+      description: Get upvotes of a user
+      operationId: getUserUpvotes
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: OK

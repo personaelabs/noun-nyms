@@ -1,15 +1,22 @@
 import dayjs from 'dayjs';
 import * as React from 'react';
 import { MessageModal } from './MessageModal';
-import { IPost } from '@/types/api';
+import { IRootPost } from '@/types/api';
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
 
-type ICommentViewProps = IPost & {
+type ICommentViewProps = IRootPost & {
   tagName: string;
 };
 
-export const CommentView = ({ title, body, timestamp, tagName, id }: ICommentViewProps) => {
+export const CommentView = ({
+  title,
+  body,
+  timestamp,
+  tagName,
+  id,
+  replyCount,
+}: ICommentViewProps) => {
   const [isOpen, setIsOpen] = React.useState(false);
   // TODO: after we add wagmi
   //  const { address } = useAccount();
@@ -35,6 +42,7 @@ export const CommentView = ({ title, body, timestamp, tagName, id }: ICommentVie
         message={body}
         commentId={id}
         isOpen={isOpen}
+        replyCount={replyCount}
         handleClose={(e) => {
           setIsOpen(false);
         }}
@@ -55,9 +63,8 @@ export const CommentView = ({ title, body, timestamp, tagName, id }: ICommentVie
           </div>
           <div className="flex justify-between items-center">
             {/* // TODO fetch this info */}
-            <p style={{ color: 'gray' }}>43 replies</p>
+            <p style={{ color: 'gray' }}>{replyCount} replies</p>
             <div className="px-2"></div>
-            <p style={{ color: 'gray' }}>2212 views</p>
           </div>
         </div>
       </div>

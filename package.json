@@ -11,7 +11,7 @@
     "prepare": "husky install && pnpm -F db run build && pnpm -F nymjs run build",
     "studio": "pnpm -F db run studio",
     "test": "pnpm -r test",
-    "test_data:populate": "pnpm db:start && pnpm -F test_data run populate"
+    "test_data:populate": "pnpm db:start && sleep 1 && pnpm -F test_data run populate"
   },
   "repository": {
     "type": "git",

@@ -14,4 +14,5 @@ export {
   toTypedUpvote,
   recoverPostPubkey,
   bigIntToPrefixedHex,
+  deserializeNymAttestation,
 } from './utils';

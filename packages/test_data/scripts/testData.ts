@@ -56,7 +56,7 @@ const testData: TestData[] = [
             upvotes: 1,
           },
         ],
-        attestationScheme: AttestationScheme.EIP712,
+        attestationScheme: AttestationScheme.Nym,
         upvotes: 1,
       },
     ],
@@ -86,7 +86,7 @@ const testData: TestData[] = [
             upvotes: 1,
           },
         ],
-        attestationScheme: AttestationScheme.Nym,
+        attestationScheme: AttestationScheme.EIP712,
         upvotes: 1,
       },
       {
@@ -127,7 +127,7 @@ const testData: TestData[] = [
             title: '',
             body: 'Yes, setting clear expectations from the outset can help avoid misunderstandings and ensure that everyone is on the same page.',
             replies: [],
-            attestationScheme: AttestationScheme.Nym,
+            attestationScheme: AttestationScheme.EIP712,
             upvotes: 2,
           },
           {
@@ -160,7 +160,7 @@ const testData: TestData[] = [
         title: '',
         body: 'I love "To Kill a Mockingbird"! It\'s such a powerful story with great characters. Have you read "The Great Gatsby"? It\'s another one of my favorites.',
         replies: [],
-        attestationScheme: AttestationScheme.Nym,
+        attestationScheme: AttestationScheme.EIP712,
         upvotes: 1,
       },
       {
@@ -252,7 +252,7 @@ const testData: TestData[] = [
         upvotes: 1,
       },
     ],
-    attestationScheme: AttestationScheme.Nym,
+    attestationScheme: AttestationScheme.EIP712,
     upvotes: 1,
   },
 
@@ -316,7 +316,7 @@ const testData: TestData[] = [
     title: "What's the best way to learn a new language?",
     body: "I'm interested in learning a new language, but I'm not sure where to start. What methods have worked best for you? Any tips or advice would be greatly appreciated!",
     replies: [],
-    attestationScheme: AttestationScheme.Nym,
+    attestationScheme: AttestationScheme.EIP712,
     upvotes: 1,
   },
   {

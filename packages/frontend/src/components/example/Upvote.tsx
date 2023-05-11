@@ -16,8 +16,8 @@ const UpvoteExample = () => {
     const group = await getLatestGroup();
 
     const upvote = {
-      postId: ('0x' + postId?.replace('0x', '')) as PrefixedHex,
-      groupRoot: ('0x' + group.root) as PrefixedHex,
+      postId: postId,
+      groupRoot: group.root,
       timestamp: Math.round(Date.now() / 1000),
     };
 

@@ -7,7 +7,13 @@
 
 import 'dotenv/config';
 import * as path from 'path';
-import { PrismaClient, NymPost, HashScheme, DoxedPost, GroupType } from '@prisma/client';
+import {
+  PrismaClient,
+  Post as PrismaPost,
+  HashScheme,
+  AttestationScheme as PrismaAttestationScheme,
+  GroupType,
+} from '@prisma/client';
 import testData, { TestData } from './testData';
 import { ecsign, privateToAddress, privateToPublic, toCompactSig } from '@ethereumjs/util';
 import {
@@ -21,17 +27,13 @@ import {
   toTypedUpvote,
   toUpvote,
   PrefixedHex,
-  Post,
+  deserializeNymAttestation,
 } from '@personaelabs/nymjs';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
 
-type DoxedPostExt = {
+type PostExt = {
   upvotes: number;
-} & DoxedPost;
-
-type NymPostExt = {
-  upvotes: number;
-} & NymPost;
+} & PrismaPost;
 
 const prisma = new PrismaClient();
 
@@ -86,7 +88,7 @@ const populateTestData = async () => {
     tree.insert(pubKeyHashes[i]);
   }
 
-  const treeRootHex: `0x${string}` = `0x${tree.root().toString(16)}`;
+  const treeRootHex: PrefixedHex = `0x${tree.root().toString(16)}`;
 
   // ##############################
   // Create posts
@@ -99,24 +101,25 @@ const populateTestData = async () => {
 
   await prover.initWasm();
 
-  const allPosts: (DoxedPostExt | NymPostExt)[] = [];
+  const allPosts: PostExt[] = [];
 
-  // Format test data into Prisma type `DoxedPost`
+  // Format test data into Prisma type `Post`
   const createPost = async (
     title: string,
     body: string,
     upvotes: number,
     accountIndex: number,
-    parentId: PrefixedHex,
+    parentId: string | null,
+    rootId: string | null,
     attestationScheme: AttestationScheme,
-  ): Promise<DoxedPostExt | NymPostExt> => {
+  ): Promise<PostExt> => {
     const privKey = PRIV_KEYS[accountIndex];
 
     const content: Content = {
       title: title,
       body: body,
       timestamp: Math.round(Date.now() / 1000),
-      parentId,
+      parentId: (parentId ? parentId : '0x0') as PrefixedHex,
       venue: 'nouns',
       groupRoot: treeRootHex,
     };
@@ -150,22 +153,27 @@ const populateTestData = async () => {
         contentSigStr,
         merkleProof,
       );
-      const attestationHex = attestation.toString('hex');
+      const attestationHex = `0x${attestation.toString('hex')}`;
 
       const post = toPost(content, attestation, AttestationScheme.Nym);
+      const { publicInput } = deserializeNymAttestation(attestation);
+      const nym = `${nymCode}-${publicInput.nymHash.toString(16)}`;
 
       return {
         id: post.id,
+        rootId,
         venue: post.content.venue,
         title: post.content.title,
         body: post.content.body,
-        parentId: post.content.parentId,
+        parentId,
         groupRoot: post.content.groupRoot,
         timestamp: new Date(post.content.timestamp * 1000),
-        fullProof: attestationHex,
+        attestation: attestationHex,
+        attestationScheme: PrismaAttestationScheme.Nym,
         hashScheme: HashScheme.Keccak256,
         createdAt: new Date(),
         updatedAt: new Date(),
+        userId: nym,
         upvotes,
       };
     } else {
@@ -173,14 +181,16 @@ const populateTestData = async () => {
 
       return {
         id: post.id as string,
+        rootId,
         title: post.content.title,
         body: post.content.body,
         timestamp: new Date(post.content.timestamp * 1000),
-        parentId: post.content.parentId,
+        parentId,
         venue: post.content.venue,
         groupRoot: post.content.groupRoot,
-        sig: contentSigStr,
-        address: privateToAddress(privKey).toString('hex'),
+        attestation: contentSigStr,
+        userId: `0x${privateToAddress(privKey).toString('hex')}`,
+        attestationScheme: PrismaAttestationScheme.EIP712,
         hashScheme: HashScheme.Keccak256,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -189,23 +199,34 @@ const populateTestData = async () => {
     }
   };
 
-  // Recursively create Primsa type `DoxedPost` from post and its replies
+  // Recursively create Primsa type `Post` from post and its replies
   const createPostWithReplies = async (
-    parentId: PrefixedHex,
+    rootId: string | null,
+    parentId: string | null,
     data: TestData,
-  ): Promise<(DoxedPostExt | NymPostExt)[]> => {
+    isRoot: boolean,
+  ): Promise<PostExt[]> => {
     const accountIndex = Math.floor(Math.random() * NYMS.length);
+
     const post = await createPost(
       data.title,
       data.body,
       data.upvotes,
       accountIndex,
       parentId,
+      rootId,
       data.attestationScheme,
     );
 
     const replies = await Promise.all(
-      data.replies.map((reply) => createPostWithReplies(post.id as PrefixedHex, reply)),
+      data.replies.map((reply) =>
+        createPostWithReplies(
+          isRoot ? (post.id as PrefixedHex) : rootId,
+          post.id as PrefixedHex,
+          reply,
+          false,
+        ),
+      ),
     );
 
     return [post, ...replies.flat()];
@@ -215,7 +236,7 @@ const populateTestData = async () => {
   for (let i = 0; i < testData.length; i++) {
     const data = testData[i];
 
-    allPosts.push(...(await createPostWithReplies('0x0', data)));
+    allPosts.push(...(await createPostWithReplies(null, null, data, true)));
   }
   log('...done\n');
 
@@ -243,7 +264,7 @@ const populateTestData = async () => {
         postId: upvote.postId,
         groupRoot: treeRootHex,
         sig,
-        address: privateToAddress(signer).toString('hex'),
+        address: `0x${privateToAddress(signer).toString('hex')}`,
         timestamp: new Date(upvote.timestamp * 1000),
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -258,31 +279,6 @@ const populateTestData = async () => {
   // ##############################
   log('Saving to database...');
 
-  // Save doxed posts to the database
-
-  const doxedPosts = allPosts
-    .filter((post) => (post as DoxedPost).sig)
-    .map(({ upvotes, ...post }) => post) as DoxedPost[];
-
-  await prisma.doxedPost.createMany({
-    // We only store newly added posts
-    data: doxedPosts,
-  });
-
-  // Save nym posts to the database
-  const nymPosts = allPosts
-    .filter((post) => (post as NymPost).fullProof)
-    .map(({ upvotes, ...post }) => post) as NymPost[];
-
-  await prisma.nymPost.createMany({
-    // We only store newly added posts
-    data: nymPosts,
-  });
-
-  await prisma.doxedUpvote.createMany({
-    data: upvotes,
-  });
-
   // Save the dummy tree to the database
   const treeExists = await prisma.tree.findFirst({
     where: {
@@ -295,10 +291,22 @@ const populateTestData = async () => {
       data: {
         root: treeRootHex,
         blockHeight: 0,
-        type: GroupType.ManyNouns,
+        type: GroupType.OneNoun,
       },
     });
   }
+
+  // Save all posts to the database
+  const posts = allPosts.map(({ upvotes, ...post }) => post) as PrismaPost[];
+  console.log(posts[0]);
+  await prisma.post.createMany({
+    // We only store newly added posts
+    data: posts,
+  });
+
+  await prisma.doxedUpvote.createMany({
+    data: upvotes,
+  });
 
   // Only the tree nodes of a single tree can exist in our database,
   // so we delete all existing trees nodes to store a new set of tree nodes.
@@ -308,9 +316,9 @@ const populateTestData = async () => {
       const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[i]));
       return {
         pubkey: `0x${privateToPublic(privKey).toString('hex')}`,
-        path: merkleProof.siblings.map((sibling) => `${sibling.toString(16)}`),
+        path: merkleProof.siblings.map((sibling) => `${sibling.toString()}`),
         indices: merkleProof.pathIndices.map((index) => index.toString()),
-        type: GroupType.ManyNouns,
+        type: GroupType.OneNoun,
       };
     }),
   });
@@ -318,8 +326,7 @@ const populateTestData = async () => {
   log('...done!\n\n');
 
   log(`Created: \n`);
-  log(`- ${doxedPosts.length} Doxed posts\n`);
-  log(`- ${nymPosts.length} Nym posts\n`);
+  log(`- ${allPosts.length} posts\n`);
   log(`- ${upvotes.length} total upvotes\n`);
   log(`\n`);
 };
