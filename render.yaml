@@ -9,7 +9,7 @@ services:
     rootDir: ./
     schedule: "0 * * * *"
     buildCommand: ./scripts/setup_merkle_cron.sh
-    startCommand: pnpm -F nym-merkle-tree run writeTree
+    startCommand: pnpm -F merkle_tree run writeTree
     buildFilter:
       paths:
       - packages/merkle_tree/**
