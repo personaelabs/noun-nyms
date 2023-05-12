@@ -59,12 +59,12 @@ const getLatestGroup = async () => {
 
 const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string): string => {
   const { v, r, s } = fromRpcSig(sig);
-  return ecrecover(
+  return `0x${ecrecover(
     eip712MsgHash(typedData.domain, typedData.types, typedData.value),
     v,
     r,
     s,
-  ).toString('hex');
+  ).toString('hex')}`;
 };
 
 const ExamplePost = () => {
@@ -75,9 +75,15 @@ const ExamplePost = () => {
   }, []);
 
   const [nymCode, setNymCode] = useState<string>('');
-  const [contentInput, setContentInput] = useState<ContentUserInput>({
-    title: "I'm Satoshi Nakamoto",
-    body: "I'm the creator of Bitcoin.",
+  const [doxedContentInput, setDoxedContentInput] = useState<ContentUserInput>({
+    title: 'This is the title of a doxed post',
+    body: 'This is the body of a doxed post',
+    parentId: '0x0',
+  });
+
+  const [nymContentInput, setNymContentInput] = useState<ContentUserInput>({
+    title: 'This is the title of a Nym post',
+    body: 'This is the body of a Nym post',
     parentId: '0x0',
   });
 
@@ -107,16 +113,16 @@ const ExamplePost = () => {
 
       const merkleProof: MerkleProof = {
         pathIndices: userMerkleProof?.indices,
-        siblings: userMerkleProof?.path.map((sibling) => BigInt('0x' + sibling)), // TODO: Use PrefixedHex in the backend as well
-        root: BigInt('0x' + group.root),
+        siblings: userMerkleProof?.path.map((sibling) => BigInt(sibling)),
+        root: BigInt(group.root),
       };
 
       // Construct the content to sign
       const content: Content = {
         venue: 'nouns',
-        title: contentInput.title,
-        body: contentInput.body,
-        parentId: contentInput.parentId,
+        title: nymContentInput.title,
+        body: nymContentInput.body,
+        parentId: nymContentInput.parentId ? nymContentInput.parentId : '0x0',
         groupRoot: group.root,
         timestamp: Math.round(Date.now() / 1000),
       };
@@ -157,9 +163,9 @@ const ExamplePost = () => {
     // Construct the content to sign
     const content: Content = {
       venue: 'nouns',
-      title: contentInput.title,
-      body: contentInput.body,
-      parentId: contentInput.parentId,
+      title: doxedContentInput.title,
+      body: doxedContentInput.body,
+      parentId: doxedContentInput.parentId ? doxedContentInput.parentId : '0x0',
       groupRoot: group.root,
       timestamp: Math.round(Date.now() / 1000),
     };
@@ -188,6 +194,21 @@ const ExamplePost = () => {
         >
           Submit a doxed post
         </button>
+        <div className="py-2 mt-4">
+          <input
+            id="input"
+            type="text"
+            placeholder="Parent ID (optional)"
+            className="border border-gray-400 p-3 rounded-lg focus:outline-none focus:border-blue-500"
+            value={doxedContentInput.parentId === '0x0' ? '' : doxedContentInput.parentId}
+            onChange={(e) =>
+              setDoxedContentInput({
+                ...doxedContentInput,
+                parentId: e.target.value as PrefixedHex,
+              })
+            }
+          />
+        </div>
       </div>
 
       <div>
@@ -215,6 +236,19 @@ const ExamplePost = () => {
           >
             Sign Nym code
           </button>
+          <input
+            id="input"
+            type="text"
+            className="mt-4 border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:border-blue-500"
+            value={nymContentInput.parentId === '0x0' ? '' : nymContentInput.parentId}
+            placeholder="Parent ID (optional)"
+            onChange={(e) =>
+              setNymContentInput({
+                ...nymContentInput,
+                parentId: e.target.value as PrefixedHex,
+              })
+            }
+          />
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
             onClick={postPseudo}

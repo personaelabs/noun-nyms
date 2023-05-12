@@ -23,7 +23,7 @@ const handleGetUserUpvotes = async (
       timestamp: 'desc',
     },
     where: {
-      address: userId,
+      address: userId.toLowerCase(),
     },
     skip,
     take,
