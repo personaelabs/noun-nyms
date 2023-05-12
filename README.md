@@ -1,6 +1,6 @@
 # Nym
 
-![Tests](https://github.com/personaelabs/nym/actions/workflows/test.yml/badge.svg)
+![Tests](https://github.com/personaelabs/nym/actions/workflows/ci.yml/badge.svg)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
