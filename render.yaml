@@ -2,14 +2,18 @@ previewsEnabled: true
 services:
   - type: cron
     name: nouns250-merkle-cron
-    plan: standard
-    previewPlan: standard
+    plan: starter
+    previewPlan: starter
     env: node
     region: oregon
-    rootDir: packages/merkle_tree
+    rootDir: ./
     schedule: "0 * * * *"
-    buildCommand: pnpm i && pnpm build && cd ../../ && pnpm -F db run build && pnpm -F db run migrate deploy && pnpm -F nym-merkle-tree populateCache
-    startCommand: pnpm run writeTree
+    buildCommand: ./scripts/setup_merkle_cron.sh
+    startCommand: pnpm -F nym-merkle-tree run writeTree
+    buildFilter:
+      paths:
+      - packages/merkle_tree/**
+      - packages/db/**
     envVars:
       - key: DATABASE_URL
         fromDatabase:
