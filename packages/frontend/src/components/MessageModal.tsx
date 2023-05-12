@@ -4,7 +4,7 @@ import { CommentWriter } from './CommentWriter';
 import { resolveNestedComponentThreads } from './NestedComponent';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { IPostWithReplies } from '@/types/api';
+import { IPostWithReplies, IRootPost } from '@/types/api';
 
 interface IMessageModalProps {
   commentId: string;
@@ -15,6 +15,7 @@ interface IMessageModalProps {
   tagName: string;
   replyCount: number;
   dateFromDescription: string;
+  upvotes: IRootPost['upvotes'];
 }
 
 const getPostById = async (postId: string) =>
@@ -29,6 +30,7 @@ export const MessageModal = ({
   dateFromDescription,
   replyCount,
   tagName,
+  upvotes,
 }: IMessageModalProps) => {
   //TODO: replace with call to actual data
 
@@ -90,10 +92,8 @@ export const MessageModal = ({
                   <p style={{ color: 'gray' }}>{dateFromDescription}</p>
                 </div>
                 <div className="flex justify-between items-center">
-                  {/* // TODO fetch this info */}
                   <p style={{ color: 'gray' }}>{replyCount} replies</p>
                   <div className="px-2"></div>
-                  <p style={{ color: 'gray' }}>2212 views</p>
                 </div>
               </div>
             </div>
