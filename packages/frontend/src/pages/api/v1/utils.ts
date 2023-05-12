@@ -22,7 +22,7 @@ export const getNymFromAttestation = (attestation: Buffer): string => {
     nymCode,
     publicInput: { nymHash },
   } = deserializeNymAttestation(attestation);
-  const nym = `${nymCode}-${nymHash}`;
+  const nym = `${nymCode}-${nymHash.toString(16)}`;
   return nym;
 };
 
