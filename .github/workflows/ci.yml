@@ -4,7 +4,7 @@ name: Nym CI
 on:
   push:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened, synchronize]
   workflow_dispatch:
 
 jobs:
@@ -38,6 +38,6 @@ jobs:
         run: pnpm -F db run migrate:prod
         env:
           # If the event is a push to the main branch, we run migration on the production database
-          # If the event is a pull request, we run migration on the staging database
-          DATABASE_URL: ${{ secrets[github.event_name == 'push' && 'DATABASE_URL_PROD' || 'DATABASE_URL_STAGING'] }}
+          # If the event is for a pull request, we run migration on the staging database
+          DATABASE_URL: ${{ secrets[github.ref == 'refs/heads/main' && 'DATABASE_URL_PROD' || 'DATABASE_URL_STAGING'] }}
       
