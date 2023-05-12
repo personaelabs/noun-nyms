@@ -149,17 +149,19 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
   const nym = getNymFromAttestation(attestation);
   const rootId = await getRootFromParent(content.parentId);
 
+  const attestationHex = `0x${attestation.toString('hex')}`;
+
   await prisma.post.create({
     data: {
       id: post.id,
-      parentId: content.parentId,
+      parentId: content.parentId === '0x0' ? null : content.parentId,
       rootId,
       venue: content.venue,
       title: content.title,
       body: content.body,
       groupRoot: content.groupRoot,
       timestamp: new Date(content.timestamp * 1000),
-      attestation: attestation.toString('hex'),
+      attestation: attestationHex,
       attestationScheme: PrismaAttestationScheme.Nym,
       hashScheme: HashScheme.Keccak256,
       userId: nym,

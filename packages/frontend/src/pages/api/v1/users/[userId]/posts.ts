@@ -12,7 +12,6 @@ const handleGetUserPosts = async (
 
   // Determine if `user` is a nym or an ETH address by using a regex to identify ETH addresses.
   const isNym = /^0x[0-9a-fA-F]{40}$/.test(userId) ? false : true;
-
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
@@ -27,7 +26,7 @@ const handleGetUserPosts = async (
       timestamp: 'desc',
     },
     where: {
-      userId,
+      userId: isNym ? userId : userId.toLowerCase(),
     },
     skip,
     take,
