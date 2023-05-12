@@ -5,4 +5,5 @@ export type UserPostCounts = {
   lastActive: Date | null;
   doxed: boolean;
   name?: string;
+  upvotes: number;
 };

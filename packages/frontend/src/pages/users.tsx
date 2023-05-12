@@ -24,6 +24,7 @@ export default function Users() {
             <p> Name: {u.name} </p>
             <p> Posts: {u.numPosts} </p>
             <p> Replies: {u.numReplies} </p>
+            {u.upvotes && <p> Upvotes: {u.upvotes}</p>}
             {u.lastActive && <p>Last active: {new Date(u.lastActive).toLocaleString()}</p>}
             <br></br>
           </div>
