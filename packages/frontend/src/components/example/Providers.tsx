@@ -7,14 +7,9 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import { configureChains, createConfig, WagmiConfig } from 'wagmi';
 import { mainnet, polygon, optimism } from 'wagmi/chains';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
-import { InjectedConnector } from 'wagmi/connectors/injected';
 
-const { chains, publicClient } = configureChains(
-  [mainnet, polygon, optimism],
-  [alchemyProvider({ apiKey: 'utNxwqiuLePqDOPaK-eQQonz5eXVT35C' }), publicProvider()],
-);
+const { chains, publicClient } = configureChains([mainnet, polygon, optimism], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
   appName: 'My RainbowKit App',
