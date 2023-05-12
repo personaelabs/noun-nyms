@@ -88,9 +88,10 @@ const ExamplePost = () => {
   });
 
   const { data: nymSig, signTypedData: signNymCode } = useSignTypedData({
+    primaryType: 'Nym',
     domain: DOMAIN,
     types: NYM_CODE_TYPE,
-    value: {
+    message: {
       nymCode,
     },
   });
@@ -129,9 +130,10 @@ const ExamplePost = () => {
 
       // Request the user to sign the content
       const contentSig = await signTypedDataAsync({
+        primaryType: 'Post',
         domain: DOMAIN,
         types: CONTENT_MESSAGE_TYPES,
-        value: content,
+        message: content,
       });
 
       // Setup the prover
@@ -172,9 +174,10 @@ const ExamplePost = () => {
 
     // Request the user to sign the content
     const attestation = await signTypedDataAsync({
+      primaryType: 'Post',
       domain: DOMAIN,
       types: CONTENT_MESSAGE_TYPES,
-      value: content,
+      message: content,
     });
 
     const result = await submitPost(content, attestation, AttestationScheme.EIP712);
@@ -231,6 +234,7 @@ const ExamplePost = () => {
         <div className="flex flex-col">
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+            // @ts-expect-error signNymCode is the function from signTypedData and has a type error.
             onClick={signNymCode}
             disabled={nymCode !== '' && !nymSig ? false : true}
           >

@@ -2,34 +2,30 @@ import { useQuery, QueryClientProvider, QueryClient } from '@tanstack/react-quer
 
 const queryClient = new QueryClient();
 
-import { configureChains, createClient, defaultChains, WagmiConfig } from 'wagmi';
-
-// import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from 'wagmi/providers/public';
-
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import '@rainbow-me/rainbowkit/styles.css';
 
-const { chains, provider } = configureChains(
-  defaultChains,
-  [publicProvider()], // TODO: add alchemyProvider
-);
+import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { mainnet, polygon, optimism } from 'wagmi/chains';
+import { publicProvider } from 'wagmi/providers/public';
+
+const { chains, publicClient } = configureChains([mainnet, polygon, optimism], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
   appName: 'My RainbowKit App',
   chains,
 });
 
-const client = createClient({
+const config = createConfig({
   autoConnect: true,
   connectors,
-  provider,
+  publicClient,
 });
 
 export default function ExampleProviders({ children }: { children: any }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <WagmiConfig client={client}>
+      <WagmiConfig config={config}>
         <RainbowKitProvider chains={chains}>{children}</RainbowKitProvider>
       </WagmiConfig>
     </QueryClientProvider>

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import axiosBase from 'axios';
-import { DOMAIN, PrefixedHex, UPVOTE_TYPES } from '@personaelabs/nymjs';
+import { DOMAIN, UPVOTE_TYPES } from '@personaelabs/nymjs';
 import { useSignTypedData } from 'wagmi';
-import { getLatestGroup } from '../../lib/example-utils';
+import { getLatestGroup } from '@/lib/example-utils';
 
 const axios = axiosBase.create({
   baseURL: `http://localhost:3000/api/v1`,
@@ -22,9 +22,10 @@ const UpvoteExample = () => {
     };
 
     const sig = await signTypedDataAsync({
+      primaryType: 'Upvote',
       domain: DOMAIN,
       types: UPVOTE_TYPES,
-      value: upvote,
+      message: upvote,
     });
 
     await axios.post(`/posts/${postId}/upvote`, {
@@ -62,23 +63,5 @@ const UpvoteExample = () => {
     </div>
   );
 };
-
-/*
-const getPubKey = async () => {
-  const sig = await signMessageAsync();
-  const { v, r, s } = fromRpcSig(sig as string);
-  const msgHash = hashPersonalMessage(Buffer.from(pubKeyMessage, 'utf-8'));
-  const pubKey = ecrecover(msgHash, v, r, s).toString('hex');
-  console.log('pubKey', pubKey);
-};
-
-const getThread = async () => {
-  // @ts-ignore
-  const postId = document.getElementById('postId')?.value;
-  const { data: thread } = await axios.get(`/posts/${postId}`);
-  console.log('Thread starting from post:', postId);
-  console.log(thread);
-};
-*/
 
 export default UpvoteExample;
