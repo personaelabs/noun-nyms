@@ -6,9 +6,10 @@
   "scripts": {
     "build": "prisma generate",
     "down": "docker-compose down",
-    "migrate": "pnpm exec prisma migrate dev",
+    "migrate:dev": "pnpm exec prisma migrate dev",
+    "migrate:prod": "prisma migrate deploy",
     "prepare": "prisma generate && cp -n .env.example .env || true",
-    "start": "pnpm down && docker-compose up -d && pnpm migrate",
+    "start": "pnpm down && docker-compose up -d && pnpm migrate:dev",
     "studio": "prisma studio"
   },
   "keywords": [],
