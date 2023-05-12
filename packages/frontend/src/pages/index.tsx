@@ -1,3 +1,3 @@
-import Home from '@/components/Posts';
+import Posts from '@/components/Posts';
 
-export default Home;
+export default Posts;
