@@ -14,5 +14,20 @@ export default function Users() {
   });
 
   console.log(users);
-  return <div>Users</div>;
+  return (
+    <main>
+      <h1>Users</h1>
+      <br></br>
+      {users &&
+        users.map((u) => (
+          <div key={u.userId}>
+            <p> Name: {u.name} </p>
+            <p> Posts: {u.numPosts} </p>
+            <p> Replies: {u.numReplies} </p>
+            {u.lastActive && <p>Last active: {new Date(u.lastActive).toLocaleString()}</p>}
+            <br></br>
+          </div>
+        ))}
+    </main>
+  );
 }

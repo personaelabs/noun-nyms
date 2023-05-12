@@ -14,6 +14,9 @@ import prisma from '@/lib/prisma';
 import { UserPostCounts } from '@/types/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+const isEthAddress = (userId: string) => {
+  return /^0x[0-9a-fA-F]{40}$/.test(userId);
+};
 const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPostCounts[]>) => {
   const postCounts = await prisma.post.groupBy({
     by: ['userId'],
@@ -31,8 +34,9 @@ const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPost
     numPosts: _count._all - _count.parentId,
     numReplies: _count.parentId,
     totalPosts: _count._all,
-    doxed: /^0x[0-9a-fA-F]{40}$/.test(userId),
+    doxed: isEthAddress(userId),
     lastActive: _max.timestamp,
+    name: isEthAddress(userId) ? userId : userId.split('-')[0],
   }));
 
   res.send(finalCounts);

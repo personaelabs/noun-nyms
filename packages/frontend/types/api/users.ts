@@ -4,4 +4,5 @@ export type UserPostCounts = {
   numReplies: number;
   lastActive: Date | null;
   doxed: boolean;
+  name?: string;
 };
