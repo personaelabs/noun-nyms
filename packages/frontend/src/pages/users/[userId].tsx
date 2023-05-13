@@ -1,3 +1,4 @@
+import { CommentView } from '@/components/CommentView';
 import { IUserPost, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -30,11 +31,27 @@ export default function User() {
   });
 
   return (
-    <main>
-      <h1>User Page Test</h1>
-      <div>
-        {userPosts && <p>Number of posts: {userPosts.length}</p>}
-        {userUpvotes && <p>Number of upvotes: {userUpvotes.length}</p>}
+    <main className="flex w-full flex-col justify-center items-center">
+      <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
+        <div className="bg-black dots w-full">
+          <div className="pt-8">
+            <nav className="pr-6 flex justify-end">
+              <p className="text-white">Connect Wallet</p>
+            </nav>
+          </div>
+        </div>
+        <div className="py-8"></div>
+        <div className="bg-gray-50 min-h-screen w-full">
+          <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+            <h2>{userId}</h2>
+            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+              <h4>Posts</h4>
+              {userPosts &&
+                userPosts.map((post) => <CommentView key={post.id} {...post} tagName="John Doe" />)}
+              <h4>Upvotes</h4>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );
