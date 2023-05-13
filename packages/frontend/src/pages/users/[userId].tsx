@@ -12,30 +12,26 @@ const getUpvotesByUserId = async (userId: string) =>
 export default function User() {
   const router = useRouter();
   const userId = router.query.userId as string;
-  const lowerCaseId = userId?.toLowerCase();
 
   const { isLoading: postsLoading, data: userPosts } = useQuery<IUserPost[]>({
-    queryKey: ['userId', lowerCaseId],
-    queryFn: () => getPostsByUserId(lowerCaseId),
-    retry: 1,
-    enabled: !!lowerCaseId,
-    staleTime: 1000,
-  });
-
-  const { isLoading: upvotesLoading, data: userUpvotes } = useQuery<IUserUpvote[]>({
-    queryKey: ['userId', lowerCaseId],
-    queryFn: () => getUpvotesByUserId(lowerCaseId),
+    queryKey: ['userPosts', userId],
+    queryFn: () => getPostsByUserId(userId),
     retry: 1,
     enabled: !!userId,
     staleTime: 1000,
   });
 
-  console.log(`posts`, userPosts);
-  console.log(`upvotes`, userUpvotes);
+  const { isLoading: upvotesLoading, data: userUpvotes } = useQuery<IUserUpvote[]>({
+    queryKey: ['userUpvotes', userId],
+    queryFn: () => getUpvotesByUserId(userId),
+    retry: 1,
+    enabled: !!userId,
+    staleTime: 1000,
+  });
 
   return (
     <main>
-      <h1>User Page</h1>
+      <h1>User Page Test</h1>
       <div>
         {userPosts && <p>Number of posts: {userPosts.length}</p>}
         {userUpvotes && <p>Number of upvotes: {userUpvotes.length}</p>}
