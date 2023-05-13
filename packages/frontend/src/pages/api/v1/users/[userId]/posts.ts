@@ -33,15 +33,13 @@ const handleGetUserPosts = async (
   });
 
   // Format the data returned from the database
-  const posts = postsRaw.map((post) => ({
-    id: post.id,
-    title: post.title,
-    body: post.body,
-    timestamp: post.timestamp,
-    userId: post.userId,
-    replyCount: post._count.descendants,
-    upvotes: post.upvotes,
-  }));
+  const posts = postsRaw.map((post) => {
+    const { _count, ...restPost } = post;
+    return {
+      ...restPost,
+      replyCount: post._count.descendants,
+    };
+  });
 
   res.send(posts);
 };

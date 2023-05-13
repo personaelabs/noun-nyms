@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { CommentView } from '@/components/MessageRow';
-import * as React from 'react';
+import { Post } from '@/components/Post';
+import { Fragment } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPost } from '@/types/api';
@@ -60,16 +60,15 @@ export default function Comment() {
             <div className="mt-6">
               {data &&
                 data.map((el) => (
-                  <React.Fragment key={el.id}>
-                    <CommentView
+                  <Fragment key={el.id}>
+                    <Post
                       key={el.id}
                       shouldOpenModal={el.id === router.query.postId}
                       replyCount={el.replies ? el.replies.length : 0}
                       {...el}
-                      tagName="John Doe"
                     />
                     <div className="py-8"></div>
-                  </React.Fragment>
+                  </Fragment>
                 ))}
             </div>
           </div>

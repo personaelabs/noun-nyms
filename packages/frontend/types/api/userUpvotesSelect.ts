@@ -18,6 +18,11 @@ export const userUpvotesSelect = {
           timestamp: true,
         },
       },
+      _count: {
+        select: {
+          descendants: true,
+        },
+      },
     },
   },
   timestamp: true,
@@ -25,4 +30,6 @@ export const userUpvotesSelect = {
 
 type UserUpvotePayload = Prisma.DoxedUpvoteGetPayload<{ select: typeof userUpvotesSelect }>;
 
-export type IUserUpvote = UserUpvotePayload;
+export type IUserUpvote = UserUpvotePayload & {
+  post: Omit<UserUpvotePayload['post'], '_count'> & { replyCount: number };
+};
