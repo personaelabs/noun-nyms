@@ -18,6 +18,7 @@ export const CommentView = ({
   id,
   replyCount,
   shouldOpenModal,
+  upvotes,
 }: ICommentViewProps) => {
   const [isOpen, setIsOpen] = React.useState(shouldOpenModal || false);
   // TODO: after we add wagmi
@@ -45,6 +46,7 @@ export const CommentView = ({
         commentId={id}
         isOpen={isOpen}
         replyCount={replyCount}
+        upvotes={upvotes}
         handleClose={(e) => {
           setIsOpen(false);
         }}

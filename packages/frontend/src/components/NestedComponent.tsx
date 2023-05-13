@@ -5,7 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
 import styled from 'styled-components';
 import { ButtonIcon } from './ButtonIcon';
-import { IPostWithReplies } from '@/types/api';
+import { IPostWithReplies, IRootPost } from '@/types/api';
 
 interface INestedComponentProps {
   depth: number;
@@ -18,6 +18,7 @@ interface INestedComponentProps {
   profileImgURL: string;
   proof: string;
   childrenLength: number;
+  upvotes: IRootPost['upvotes'];
 }
 
 export const resolveNestedComponentThreads = (allComments: IPostWithReplies[], depth: number) => {
@@ -39,6 +40,7 @@ export const resolveNestedComponentThreads = (allComments: IPostWithReplies[], d
         profileImgURL={profileImgURL}
         proof={proof}
         childrenLength={comment.replies.length}
+        upvotes={comment.upvotes}
       />,
     );
   }
@@ -58,6 +60,7 @@ export const NestedComponent = ({
   profileImgURL,
   proof,
   childrenLength,
+  upvotes,
 }: INestedComponentProps) => {
   const dateFromDescription = React.useMemo(() => {
     const date = dayjs(createdAt);
@@ -105,7 +108,7 @@ export const NestedComponent = ({
             hoverBgColor="#0E76FD"
             iconWidth={20}
             iconHeight={20}
-            iconText="50"
+            iconText={upvotes.length.toString()}
           />
           <div className="px-1"></div>
           <ButtonIcon

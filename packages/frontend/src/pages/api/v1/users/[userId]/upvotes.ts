@@ -14,10 +14,10 @@ const handleGetUserUpvotes = async (
     return;
   }
 
-  const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
-  const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
+  const skip = req.query.offset ? parseInt(req.query.offset as string) : undefined;
+  const take = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 
-  const posts = await prisma.doxedUpvote.findMany({
+  const upvotes = await prisma.doxedUpvote.findMany({
     select: userUpvotesSelect,
     orderBy: {
       timestamp: 'desc',
@@ -29,7 +29,7 @@ const handleGetUserUpvotes = async (
     take,
   });
 
-  res.send(posts);
+  res.send(upvotes);
 };
 
 // Entry point for the API below /api/v1/users/{user}/upvotes
