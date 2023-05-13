@@ -17,7 +17,7 @@ const handleGetUserUpvotes = async (
   const skip = req.query.offset ? parseInt(req.query.offset as string) : undefined;
   const take = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 
-  const upvotes = await prisma.doxedUpvote.findMany({
+  const upvotesRaw = await prisma.doxedUpvote.findMany({
     select: userUpvotesSelect,
     orderBy: {
       timestamp: 'desc',
@@ -29,6 +29,18 @@ const handleGetUserUpvotes = async (
     take,
   });
 
+  const upvotes = upvotesRaw.map((upvote) => {
+    const { post, ...restUpvote } = upvote;
+    const { _count, ...restPost } = post;
+    return {
+      ...restUpvote,
+      post: {
+        ...restPost,
+        replyCount: _count.descendants,
+      },
+    };
+  });
+  // @ts-expect-error problem with omitting the upvote.post._count property in the type
   res.send(upvotes);
 };
 
