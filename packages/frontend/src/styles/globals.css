@@ -2,6 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1 {
+    @apply text-5xl;
+    @apply font-bold;
+    @apply text-white;
+  }
+
+  h2 {
+    @apply text-4xl;
+    @apply font-bold;
+    @apply text-gray-700;
+  }
+
+  h3 {
+    @apply text-2xl;
+    @apply font-semibold;
+    @apply text-gray-700;
+  }
+
+  h4 {
+    @apply text-lg;
+    @apply font-semibold;
+    @apply text-gray-700;
+  }
+
+  body {
+    @apply text-sm;
+    @apply font-normal;
+  }
+}
+
 html,
 body {
   padding: 0;
