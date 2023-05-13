@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -7,62 +7,50 @@ import styled from 'styled-components';
 import { ButtonIcon } from './ButtonIcon';
 import { IPostWithReplies, IRootPost } from '@/types/api';
 
-interface INestedComponentProps {
+interface IReplyProps extends IPostWithReplies {
   depth: number;
-  commentId: string;
-  title: string;
-  message: string;
-  createdAt: Date;
-  tagName: string;
-  innerComments: React.ReactNode;
+  innerReplies: React.ReactNode;
   profileImgURL: string;
   proof: string;
   childrenLength: number;
-  upvotes: IRootPost['upvotes'];
+  createdAt: Date;
 }
-
-export const resolveNestedComponentThreads = (allComments: IPostWithReplies[], depth: number) => {
-  const commentNodes: React.ReactNode[] = [];
-  const tagName = 'JohnDoe';
+export const resolveNestedReplyThreads = (allPosts: IPostWithReplies[], depth: number) => {
+  const replyNodes: React.ReactNode[] = [];
   const profileImgURL = '';
   const proof = '';
-  for (const comment of allComments) {
-    commentNodes.push(
-      <NestedComponent
-        key={comment.id}
+  for (const post of allPosts) {
+    replyNodes.push(
+      <NestedReply
+        {...post}
+        key={post.id}
         depth={depth}
-        commentId={comment.id}
-        title={comment.title}
-        message={comment.body}
-        createdAt={new Date(comment.timestamp)}
-        tagName={tagName}
-        innerComments={resolveNestedComponentThreads(comment.replies, depth + 1)}
+        createdAt={new Date(post.timestamp)}
+        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1)}
         profileImgURL={profileImgURL}
         proof={proof}
-        childrenLength={comment.replies.length}
-        upvotes={comment.upvotes}
+        childrenLength={post.replies.length}
       />,
     );
   }
-  return commentNodes;
+  return replyNodes;
 };
 
 const Container = styled.div``;
 
-export const NestedComponent = ({
-  depth,
-  commentId,
-  title,
-  message,
-  createdAt,
-  tagName,
-  innerComments,
-  profileImgURL,
-  proof,
-  childrenLength,
-  upvotes,
-}: INestedComponentProps) => {
-  const dateFromDescription = React.useMemo(() => {
+export const NestedReply = (replyProps: IReplyProps) => {
+  const {
+    depth,
+    id,
+    body,
+    createdAt,
+    userId,
+    innerReplies,
+    profileImgURL,
+    childrenLength,
+    upvotes,
+  } = replyProps;
+  const dateFromDescription = useMemo(() => {
     const date = dayjs(createdAt);
     // Dayjs doesn't have typings on relative packages so we have to do this
     // @ts-ignore
@@ -71,7 +59,7 @@ export const NestedComponent = ({
 
   return (
     <Container
-      key={commentId}
+      key={id}
       style={{
         marginLeft: `${depth * 20}px`,
         borderLeft: '0.5px dotted grey',
@@ -88,18 +76,17 @@ export const NestedComponent = ({
             height={30}
           />
           <div className="px-0.5"></div>
-          <p className="font-bold">{tagName}</p>
+          <p className="font-bold">{userId}</p>
           <div className="px-2"></div>
           <p style={{ color: 'gray' }}>{dateFromDescription}</p>
         </div>
       </div>
       <div className="py-2"></div>
-      <span>{message}</span>
+      <span>{body}</span>
       <div className="py-2"></div>
       <div className="w-full" style={{ height: '2px', background: '#EAECF0' }}></div>
       <div className="py-1"></div>
       <div className="flex justify-between items-center">
-        {/* // TODO fetch this info */}
         <div className="flex justify-center items-center">
           <ButtonIcon
             onClick={() => console.log('clicked')}
@@ -111,15 +98,6 @@ export const NestedComponent = ({
             iconText={upvotes.length.toString()}
           />
           <div className="px-1"></div>
-          <ButtonIcon
-            onClick={() => console.log('clicked')}
-            iconPath="/downvote.svg"
-            hoverBgColor="#0E76FD"
-            bgColor="#D0D5DD"
-            iconWidth={20}
-            iconHeight={20}
-            iconText=""
-          />
         </div>
         <div className="flex justif-center items-center">
           <strong style={{ color: '#47546' }}>{childrenLength}</strong>
@@ -138,7 +116,7 @@ export const NestedComponent = ({
         </div>
       </div>
       <div className="py-2"></div>
-      {innerComments}
+      {innerReplies}
     </Container>
   );
 };

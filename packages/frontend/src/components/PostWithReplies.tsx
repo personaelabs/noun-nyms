@@ -1,7 +1,7 @@
 import { Dialog } from '@headlessui/react';
 import { useMemo } from 'react';
 import { CommentWriter } from './CommentWriter';
-import { resolveNestedComponentThreads } from './NestedComponent';
+import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPostWithReplies } from '@/types/api';
@@ -26,7 +26,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedComponentThreads(singlePost.replies, 0);
+      return resolveNestedReplyThreads(singlePost.replies, 0);
     } else {
       return <div></div>;
     }
