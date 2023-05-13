@@ -1,26 +1,16 @@
 import dayjs from 'dayjs';
-import * as React from 'react';
-import { MessageModal } from './MessageModal';
-import { IRootPost } from '@/types/api';
+import { useMemo, useState } from 'react';
+import { PostWithReplies } from './PostWithReplies';
+import { PostProps } from '@/types/components';
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
 
-type ICommentViewProps = IRootPost & {
-  tagName: string;
-  shouldOpenModal?: boolean;
-};
+/** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
-export const CommentView = ({
-  title,
-  body,
-  timestamp,
-  tagName,
-  id,
-  replyCount,
-  shouldOpenModal,
-  upvotes,
-}: ICommentViewProps) => {
-  const [isOpen, setIsOpen] = React.useState(shouldOpenModal || false);
+export const Post = (postProps: PostProps) => {
+  const { body, timestamp, replyCount, shouldOpenModal, userId } = postProps;
+
+  const [isOpen, setIsOpen] = useState(shouldOpenModal || false);
   // TODO: after we add wagmi
   //  const { address } = useAccount();
 
@@ -29,7 +19,7 @@ export const CommentView = ({
   };
 
   // TODO figure out how to pass in the comments
-  const dateFromDescription = React.useMemo(() => {
+  const dateFromDescription = useMemo(() => {
     const date = dayjs(timestamp);
     // Dayjs doesn't have typings on relative packages so we have to do this
     // @ts-ignore
@@ -38,16 +28,11 @@ export const CommentView = ({
 
   return (
     <>
-      <MessageModal
-        title={title}
-        tagName={tagName}
+      <PostWithReplies
+        {...postProps}
         dateFromDescription={dateFromDescription}
-        message={body}
-        commentId={id}
         isOpen={isOpen}
-        replyCount={replyCount}
-        upvotes={upvotes}
-        handleClose={(e) => {
+        handleClose={(e: any) => {
           setIsOpen(false);
         }}
       />
@@ -61,7 +46,7 @@ export const CommentView = ({
         <span>{body}</span>
         <div className="flex justify-between items-center">
           <div className="flex justify-center items-center">
-            <p className="font-bold">{tagName}</p>
+            <p className="font-bold">{userId}</p>
             <div className="px-2"></div>
             <p style={{ color: 'gray' }}>{dateFromDescription}</p>
           </div>

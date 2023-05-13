@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CommentView } from '@/components/MessageRow';
+import { Post } from '@/components/Post';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Fragment } from 'react';
@@ -7,7 +7,7 @@ import { IRootPost } from '@/types/api';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
-export default function Home() {
+export default function Posts() {
   const { isLoading, data: posts } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
@@ -58,7 +58,7 @@ export default function Home() {
               {posts &&
                 posts.map((post) => (
                   <Fragment key={post.id}>
-                    <CommentView key={post.id} {...post} tagName="John Doe" />
+                    <Post key={post.id} {...post} />
                     <div className="py-8"></div>
                   </Fragment>
                 ))}

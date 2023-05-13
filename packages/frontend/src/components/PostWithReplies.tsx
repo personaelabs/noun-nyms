@@ -1,50 +1,30 @@
 import { Dialog } from '@headlessui/react';
-import * as React from 'react';
+import { useMemo } from 'react';
 import { CommentWriter } from './CommentWriter';
 import { resolveNestedComponentThreads } from './NestedComponent';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { IPostWithReplies, IRootPost } from '@/types/api';
-
-interface IMessageModalProps {
-  commentId: string;
-  isOpen: boolean;
-  handleClose: (isOpen: boolean) => void;
-  title: string;
-  message: string;
-  tagName: string;
-  replyCount: number;
-  dateFromDescription: string;
-  upvotes: IRootPost['upvotes'];
-}
+import { IPostWithReplies } from '@/types/api';
+import { PostWithRepliesProps } from '@/types/components';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
-export const MessageModal = ({
-  isOpen,
-  commentId,
-  handleClose,
-  title,
-  message,
-  dateFromDescription,
-  replyCount,
-  tagName,
-  upvotes,
-}: IMessageModalProps) => {
-  //TODO: replace with call to actual data
+export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
+  const { id, isOpen, handleClose, dateFromDescription, title, body, replyCount, userId } =
+    postWithRepliesProps;
 
   //TODO: Note that this call happens regardless of if isOpen is true or not
   const { isLoading, data: singlePost } = useQuery<IPostWithReplies>({
-    queryKey: ['post', commentId],
-    queryFn: () => getPostById(commentId),
+    queryKey: ['post', id],
+    queryFn: () => getPostById(id),
     retry: 1,
     enabled: true,
     staleTime: 1000,
   });
   console.log(singlePost);
 
-  const nestedComponentThreads = React.useMemo(() => {
+  const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
       return resolveNestedComponentThreads(singlePost.replies, 0);
     } else {
@@ -83,11 +63,11 @@ export const MessageModal = ({
                 </button>
               </div>
               <div className="py-1"></div>
-              <span>{message}</span>
+              <span>{body}</span>
               <div className="py-3"></div>
               <div className="flex justify-between items-center">
                 <div className="flex justify-center items-center">
-                  <p className="font-bold">{tagName}</p>
+                  <p className="font-bold">{userId}</p>
                   <div className="px-2"></div>
                   <p style={{ color: 'gray' }}>{dateFromDescription}</p>
                 </div>
@@ -98,7 +78,7 @@ export const MessageModal = ({
               </div>
             </div>
             <div className="flex flex-col w-full bg-slate-100 px-12 py-8">
-              <CommentWriter commentId={commentId} />
+              <CommentWriter commentId={id} />
               <div className="py-8"></div>
               <p className="font-bold" style={{ color: 'gray' }}>
                 {singlePost?.replies.length} replies
