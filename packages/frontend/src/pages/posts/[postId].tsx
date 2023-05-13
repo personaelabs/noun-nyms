@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Post } from '@/components/Post';
 import { Fragment } from 'react';
+import * as React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPost } from '@/types/api';
@@ -31,7 +32,7 @@ export default function Comment() {
                   initial={{ y: -12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="text-3xl md:text-5xl text-white font-bold leading-[40px] md:leading-14"
+                  className="leading-[40px] md:leading-14"
                 >
                   Give Feedback On Proposals Anonymously
                 </motion.h1>
@@ -39,7 +40,7 @@ export default function Comment() {
                   initial={{ y: -12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="mt-4 text-lg md:text-xl font-normal md:leading-8 text-white"
+                  className="mt-4 md:leading-8 text-white"
                 >
                   Anoun allows noun-holders to give feedback on proposals while maintaining their
                   privacy using zero-knowledge proofs.{' '}
@@ -52,8 +53,6 @@ export default function Comment() {
             <img className="w-40" src="/nouns.png" alt="nouns" />
           </div>
         </div>
-        <div className="py-8"></div>
-
         <div className="bg-gray-50 min-h-screen w-full">
           <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
             <div className="flex space-x-2"></div>

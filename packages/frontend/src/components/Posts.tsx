@@ -2,8 +2,8 @@ import { motion } from 'framer-motion';
 import { Post } from '@/components/Post';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { Fragment } from 'react';
 import { IRootPost } from '@/types/api';
+import Spinner from './Spinner';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
@@ -28,19 +28,19 @@ export default function Posts() {
                   initial={{ y: -12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className="text-3xl md:text-5xl text-white font-bold leading-[40px] md:leading-14"
+                  className="leading-[40px] md:leading-14"
                 >
                   Give Feedback On Proposals Anonymously
                 </motion.h1>
-                <motion.p
+                <motion.h4
                   initial={{ y: -12, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ duration: 0.3, delay: 0.1 }}
-                  className="mt-4 text-lg md:text-xl font-normal md:leading-8 text-white"
+                  className="mt-4 md:leading-8 font-normal text-white"
                 >
                   Anoun allows noun-holders to give feedback on proposals while maintaining their
                   privacy using zero-knowledge proofs.{' '}
-                </motion.p>
+                </motion.h4>
               </div>
             </div>
           </div>
@@ -49,22 +49,19 @@ export default function Posts() {
             <img className="w-40" src="nouns.png" alt="nouns" />
           </div>
         </div>
-        <div className="py-8"></div>
-
-        <div className="bg-gray-50 min-h-screen w-full">
-          <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-            <div className="flex space-x-2"></div>
-            <div className="mt-6">
-              {posts &&
-                posts.map((post) => (
-                  <Fragment key={post.id}>
-                    <Post key={post.id} {...post} />
-                    <div className="py-8"></div>
-                  </Fragment>
-                ))}
+        {isLoading ? (
+          <div className="my-auto">
+            <Spinner />
+          </div>
+        ) : posts ? (
+          <div className="bg-gray-50 min-h-screen w-full">
+            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+              {posts.map((post) => (
+                <Post key={post.id} {...post} tagName={post.userId} />
+              ))}
             </div>
           </div>
-        </div>
+        ) : null}
       </div>
     </main>
   );

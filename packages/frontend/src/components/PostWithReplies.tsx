@@ -51,8 +51,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
             <div className="py-8 px-12 md:px-12 md:py-10">
               <div className="flex justify-between item-center">
-                <div className="text-lg md:text-xl font-bold self-start line-clamp-2">
-                  <span className="text-black tracking-tight font-bold">{title}</span>
+                <div className="font-bold self-start line-clamp-2">
+                  <h3 className="tracking-tight">{title}</h3>
                 </div>
                 <button
                   style={{ color: 'gray' }}
