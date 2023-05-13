@@ -1,4 +1,4 @@
-import { CommentView } from '@/components/CommentView';
+import { Post } from '@/components/Post';
 import { IUserPost, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -14,6 +14,7 @@ export default function User() {
   const router = useRouter();
   const userId = router.query.userId as string;
 
+  // determine if post creator or replied to post (does post have a parent ID)
   const { isLoading: postsLoading, data: userPosts } = useQuery<IUserPost[]>({
     queryKey: ['userPosts', userId],
     queryFn: () => getPostsByUserId(userId),
@@ -47,8 +48,12 @@ export default function User() {
             <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
               <h4>Posts</h4>
               {userPosts &&
-                userPosts.map((post) => <CommentView key={post.id} {...post} tagName="John Doe" />)}
+                userPosts.map((post) => <Post key={post.id} {...post} userId="John Doe" />)}
               <h4>Upvotes</h4>
+              {userUpvotes &&
+                userUpvotes.map((vote) => (
+                  <Post key={vote.post.id} {...vote.post} userId="John Doe" />
+                ))}
             </div>
           </div>
         </div>

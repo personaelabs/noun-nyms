@@ -1,6 +1,8 @@
 import { Textarea } from './Textarea';
 import * as React from 'react';
 import Spinner from './Spinner';
+import { MainButton } from './MainButton';
+import Image from 'next/image';
 
 interface IWriterProps {
   commentId: string;
@@ -28,26 +30,24 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
             <div className="py-2 px-0 w-full">
               <Textarea
                 value={commentMsg}
-                placeholder="Add your comment..."
+                placeholder="Type your comment here"
                 onChangeHandler={(newVal) => setCommentMsg(newVal)}
               ></Textarea>
             </div>
 
             {/* //TODO with nym selection */}
-            <div className="flex justify-end p-4">
-              <button
-                // TODO
-                onClick={() => console.log('TODO')}
-                className="bg-black transition-all hover:bg-slate-900 hover:scale-105 active:scale-100 text-white font-semibold rounded-md px-4 py-2 mt-4"
-              >
-                {loadingText ? (
-                  <div className="mx-16 py-1">
-                    <Spinner />
-                  </div>
-                ) : (
-                  `Post Anonymously`
-                )}
-              </button>
+            <div className="flex gap-2 items-center justify-end p-4 text-gray-500">
+              <p>Posting as</p>
+              <div className="flex gap-1.5 border items-center border-gray-200 rounded-xl px-2 py-2.5">
+                <Image alt={'profile'} src={'/anon-noun.png'} width={30} height={30} />
+                <p>Mr. Noun</p>
+              </div>
+              <MainButton
+                color="black"
+                handler={() => console.log('post anonymously')}
+                loading={false}
+                message={'Send'}
+              />
             </div>
           </div>
         </div>
