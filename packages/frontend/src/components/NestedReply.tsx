@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import Image from 'next/image';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
-import styled from 'styled-components';
 import { ButtonIcon } from './ButtonIcon';
 import { IPostWithReplies, IRootPost } from '@/types/api';
+import { ReplyCount } from './ReplyCount';
+import { UserTag } from './UserTag';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -36,8 +36,6 @@ export const resolveNestedReplyThreads = (allPosts: IPostWithReplies[], depth: n
   return replyNodes;
 };
 
-const Container = styled.div``;
-
 export const NestedReply = (replyProps: IReplyProps) => {
   const {
     depth,
@@ -58,35 +56,15 @@ export const NestedReply = (replyProps: IReplyProps) => {
   }, [createdAt]);
 
   return (
-    <Container
+    // TODO: fix border here
+    <div
+      className="flex flex-col gap-2 pl-2 border-l border-dotted border-gray-300"
       key={id}
-      style={{
-        marginLeft: `${depth * 20}px`,
-        borderLeft: '0.5px dotted grey',
-        paddingLeft: '10px',
-      }}
+      style={{ marginLeft: `${depth * 20}px` }}
     >
-      <div className="py-2"></div>
-      <div className="flex justify-between items-center">
-        <div className="flex justify-center items-center">
-          <Image
-            alt={'profile'}
-            src={profileImgURL ? profileImgURL : '/anon-noun.png'}
-            width={30}
-            height={30}
-          />
-          <div className="px-0.5"></div>
-          <p className="font-bold">{userId}</p>
-          <div className="px-2"></div>
-          <p style={{ color: 'gray' }}>{dateFromDescription}</p>
-        </div>
-      </div>
-      <div className="py-2"></div>
+      <UserTag imgURL={profileImgURL} userId={userId} date={dateFromDescription} />
       <span>{body}</span>
-      <div className="py-2"></div>
-      <div className="w-full" style={{ height: '2px', background: '#EAECF0' }}></div>
-      <div className="py-1"></div>
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center py-2 border-t border-gray-300">
         <div className="flex justify-center items-center">
           <ButtonIcon
             onClick={() => console.log('clicked')}
@@ -99,11 +77,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
           />
           <div className="px-1"></div>
         </div>
-        <div className="flex justif-center items-center">
-          <strong style={{ color: '#47546' }}>{childrenLength}</strong>
-          <div className="px-0.5"></div>
-          <p style={{ color: 'gray' }}>{'  '}replies</p>
-          <div className="px-4"></div>
+        <div className="flex gap-4 justif-center items-center">
+          <ReplyCount count={childrenLength} />
           <ButtonIcon
             onClick={() => console.log('clicked')}
             iconPath="/reply.svg"
@@ -117,6 +92,6 @@ export const NestedReply = (replyProps: IReplyProps) => {
       </div>
       <div className="py-2"></div>
       {innerReplies}
-    </Container>
+    </div>
   );
 };

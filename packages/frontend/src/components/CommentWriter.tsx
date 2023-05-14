@@ -50,10 +50,10 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
 
           {/* //TODO with nym selection */}
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            <p>Posting as</p>
+            <p className="secondary">Posting as</p>
             <div className="bg-white flex gap-1.5 border items-center border-gray-200 rounded-xl px-2 py-2.5">
               <Image alt={'profile'} src={'/anon-noun.png'} width={30} height={30} />
-              <p>Mr. Noun</p>
+              <p className="secondary">Mr. Noun</p>
             </div>
             <MainButton
               color="black"

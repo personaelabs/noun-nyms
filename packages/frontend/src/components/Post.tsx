@@ -4,7 +4,8 @@ import { PostWithReplies } from './PostWithReplies';
 import { PostProps } from '@/types/components';
 import * as React from 'react';
 import { IRootPost } from '@/types/api';
-import Image from 'next/image';
+import { ReplyCount } from './ReplyCount';
+import { UserTag } from './UserTag';
 const relativeTime = require('dayjs/plugin/relativeTime');
 dayjs.extend(relativeTime);
 
@@ -48,15 +49,8 @@ export const Post = (postProps: PostProps) => {
         </div>
         <span>{body}</span>
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 justify-center items-center">
-            <p className="font-semibold text-gray-700">{userId}</p>
-            <p className="text-gray-500">-</p>
-            <p className="text-xs text-gray-500">{dateFromDescription}</p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <p className="font-semibold text-gray-700">{replyCount}</p>
-            <p className="text-xs text-gray-500">{replyCount === 1 ? 'reply' : 'replies'}</p>
-          </div>
+          <UserTag userId={userId} date={dateFromDescription} />
+          <ReplyCount count={replyCount} />
         </div>
       </div>
     </>

@@ -31,6 +31,11 @@
     @apply text-sm;
     @apply font-normal;
   }
+
+  .secondary {
+    @apply text-xs;
+    @apply text-gray-500;
+  }
 }
 
 html,
