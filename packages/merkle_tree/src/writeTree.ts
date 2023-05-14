@@ -4,38 +4,40 @@ import { Account as Owner, Delegate } from "../.graphclient";
 import { getOwners } from "./multisig";
 import { Poseidon, Tree } from "@personaelabs/spartan-ecdsa";
 import { getPubkey } from "./pubkey";
-
 import { PrismaClient, GroupType } from "@prisma/client";
 import alchemy from "./alchemy";
+import { FormattedHex } from "./types";
+import { formatHex } from "./utils";
+import { privateToAddress, privateToPublic } from "@ethereumjs/util";
+
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
 
-type DevAccount = {
-  id: string;
-  tokenBalance: number;
-};
-
 type EOA = {
-  address: string;
+  address: FormattedHex;
   tokenBalance: number | null;
   delegatedVotes: number | null;
-  pubKey: Buffer;
+  pubKey: FormattedHex;
 };
 
 type AccountCode = {
-  address: string;
-  code: string;
+  address: FormattedHex;
+  code: FormattedHex;
 };
 
-const DEV_ACCOUNT = {
-  address: "57628b342f1cffbe5cf6cdd8ebf6ea0bb9176ea4",
-  pubKey: Buffer.from(
-    "73703d822b3a4bf694d7c29e9200e6e20ba00068a33886cb393a7a908012e1b3fd9467081aa964663cb75e399fa545ba1932dbebae97da9fdd841994df77e69c",
-    "hex"
-  ),
+const DEV_ACCOUNT_PRIV_KEYS = [
+  "0000000000000000000000000000000000000000000000000000000000000001",
+  "0000000000000000000000000000000000000000000000000000000000000002",
+  "0000000000000000000000000000000000000000000000000000000000000003",
+  "0000000000000000000000000000000000000000000000000000000000000004"
+].map(privKey => Buffer.from(privKey, "hex"));
+
+const DEV_ACCOUNTS = DEV_ACCOUNT_PRIV_KEYS.map(privKey => ({
+  address: formatHex(privateToAddress(privKey).toString("hex")),
+  pubKey: formatHex(privateToPublic(privKey).toString("hex")),
   tokenBalance: 2,
   delegatedVotes: null
-};
+}));
 
 let poseidonInitialized = false;
 
@@ -91,14 +93,15 @@ async function writeTree(blockHeight: number) {
   for (let i = 0; i < accounts.length; i++) {
     console.log(`Processing account ${i + 1} of ${accounts.length}`);
     const account = accounts[i];
-    const address = account.id.replace("0x", ""); // Lowercase
+    const address = formatHex(account.id);
 
     // Search address code from the database
-    let code = cachedCode.find(cached => cached.address === address)?.code;
+    let code = cachedCode.find(cached => cached.address === address)
+      ?.code as FormattedHex;
 
     // Fetch the code from Alchemy if not yet cached in the database
     if (!code) {
-      code = await alchemy.core.getCode(address);
+      code = formatHex(await alchemy.core.getCode(address));
     }
 
     accountCodes.push({
@@ -113,7 +116,7 @@ async function writeTree(blockHeight: number) {
       // since there are cases where a Noun owner/delegate is also a owner of a multisig wallet.
       const owners = (await getOwners(address)).filter(
         owner => !allAccounts.find(a => a.address === owner)
-      ); // Lowercase
+      );
 
       for (let j = 0; j < owners.length; j++) {
         // Get the public key of the owner
@@ -126,7 +129,7 @@ async function writeTree(blockHeight: number) {
 
         if (ownerAccount) {
           ownerPubKey = Buffer.from(
-            BigInt("0x" + ownerAccount.pubkey).toString(16),
+            BigInt(ownerAccount.pubkey).toString(16),
             "hex"
           );
         } else {
@@ -140,7 +143,7 @@ async function writeTree(blockHeight: number) {
             address: owners[j],
             tokenBalance: (account as Owner).tokenBalance || null,
             delegatedVotes: (account as Delegate).delegatedVotes || null,
-            pubKey: ownerPubKey
+            pubKey: formatHex(ownerPubKey.toString("hex"))
           });
         } else {
           // Public key not found
@@ -167,10 +170,7 @@ async function writeTree(blockHeight: number) {
 
       let pubKey;
       if (cachedAccount) {
-        pubKey = Buffer.from(
-          BigInt("0x" + cachedAccount.pubkey).toString(16),
-          "hex"
-        );
+        pubKey = Buffer.from(BigInt(cachedAccount.pubkey).toString(16), "hex");
       } else {
         // No cache, extract from a past transaction
         pubKey = await getPubkey(address, blockHeight);
@@ -182,7 +182,7 @@ async function writeTree(blockHeight: number) {
           address,
           tokenBalance: (account as Owner).tokenBalance || null,
           delegatedVotes: (account as Delegate).delegatedVotes || null,
-          pubKey
+          pubKey: formatHex(pubKey.toString("hex"))
         });
       } else {
         // Public key not found
@@ -198,7 +198,7 @@ async function writeTree(blockHeight: number) {
     }
   }
   // Add the dev account
-  allAccounts.push(DEV_ACCOUNT);
+  allAccounts.push(...DEV_ACCOUNTS);
 
   console.timeEnd("Get pubkeys and multisig guardians");
 
@@ -214,7 +214,7 @@ async function writeTree(blockHeight: number) {
   await prisma.cachedEOA.createMany({
     data: newAccounts.map(account => ({
       address: account.address,
-      pubkey: account.pubKey.toString("hex")
+      pubkey: account.pubKey
     }))
   });
 
@@ -234,7 +234,7 @@ async function writeTree(blockHeight: number) {
   // ########################################################
 
   const sortedAccounts = allAccounts.sort((a, b) =>
-    b.pubKey.toString("hex") > a.pubKey.toString("hex") ? -1 : 1
+    b.pubKey > a.pubKey ? -1 : 1
   );
 
   const anonSet1 = sortedAccounts;
@@ -251,19 +251,28 @@ async function writeTree(blockHeight: number) {
   const anonSet1Tree = new Tree(treeDepth, poseidon);
   const anonSet2Tree = new Tree(treeDepth, poseidon);
 
+  const anonSet1PubKeyHashes: bigint[] = [];
+  const anonSet2PubKeyHashes: bigint[] = [];
+
   console.log("Creating Merkle tree... (Noun = 1)");
   console.time("Create Merkle tree (Noun = 1)");
   for (let i = 0; i < anonSet1.length; i++) {
-    const hashedPubKey = poseidon.hashPubKey(anonSet1[i].pubKey);
+    const hashedPubKey = poseidon.hashPubKey(
+      Buffer.from(anonSet1[i].pubKey.replace("0x", ""), "hex")
+    );
     anonSet1Tree.insert(hashedPubKey);
+    anonSet1PubKeyHashes.push(hashedPubKey);
   }
   console.timeEnd("Create Merkle tree (Noun = 1)");
 
   console.log("Creating Merkle tree... (Noun > 1)");
   console.time("Create Merkle tree (Noun > 1)");
   for (let i = 0; i < anonSet2.length; i++) {
-    const hashedPubKey = poseidon.hashPubKey(anonSet2[i].pubKey);
+    const hashedPubKey = poseidon.hashPubKey(
+      Buffer.from(anonSet2[i].pubKey.replace("0x", ""), "hex")
+    );
     anonSet2Tree.insert(hashedPubKey);
+    anonSet2PubKeyHashes.push(hashedPubKey);
   }
   console.timeEnd("Create Merkle tree (Noun > 1)");
 
@@ -291,11 +300,11 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet1.map(account => {
-        const index = anonSet1Tree.indexOf(poseidon.hashPubKey(account.pubKey));
+      data: anonSet1.map((account, i) => {
+        const index = anonSet1Tree.indexOf(anonSet1PubKeyHashes[i]);
         const merkleProof = anonSet1Tree.createProof(index);
         return {
-          pubkey: `0x${account.pubKey.toString("hex")}`,
+          pubkey: account.pubKey,
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.OneNoun
@@ -322,11 +331,11 @@ async function writeTree(blockHeight: number) {
     });
 
     await prisma.treeNode.createMany({
-      data: anonSet2.map(account => {
-        const index = anonSet2Tree.indexOf(poseidon.hashPubKey(account.pubKey));
+      data: anonSet2.map((account, i) => {
+        const index = anonSet2Tree.indexOf(anonSet2PubKeyHashes[i]);
         const merkleProof = anonSet2Tree.createProof(index);
         return {
-          pubkey: `0x${account.pubKey.toString("hex")}`,
+          pubkey: account.pubKey,
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.ManyNouns

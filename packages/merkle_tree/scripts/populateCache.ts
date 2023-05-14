@@ -43,7 +43,6 @@ const populateCache = async () => {
       pubkey: (row as CachedEOA).pubkey
     }))
   });
-
   const cachedCodes = await readFile(path.join(__dirname, "cached-codes.csv"));
 
   await prisma.cachedCode.deleteMany();

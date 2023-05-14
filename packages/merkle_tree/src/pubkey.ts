@@ -6,13 +6,14 @@ import {
 } from "@ethereumjs/tx";
 import alchemy from "./alchemy";
 import axiosBase from "axios";
+import { FormattedHex } from "./types";
 
 const es = axiosBase.create({
   baseURL: "https://api.etherscan.io/api"
 });
 
 export const getPubkey = async (
-  address: string,
+  address: FormattedHex,
   blockHeight: number
 ): Promise<Buffer | null> => {
   let pubKey;
@@ -22,7 +23,7 @@ export const getPubkey = async (
       params: {
         action: "txlist",
         module: "account",
-        address: "0x" + address,
+        address,
         startblock: 0,
         endblock: blockHeight,
         apikey: process.env.ETHERSCAN_API_KEY
@@ -31,7 +32,7 @@ export const getPubkey = async (
 
     const esTx = result.data.result.find(
       (tx: { from: string; chainId: number }) =>
-        tx.from.toLowerCase() === "0x" + address.toLowerCase()
+        tx.from.toLowerCase() === address.toLowerCase()
     );
 
     if (!esTx) {
@@ -106,15 +107,14 @@ export const getPubkey = async (
         pubKey = ecrecover(msgHash, v, r, s, chainId);
 
         // Check that the recovered public key hashes the address
-        const expectedAddress = address.replace("0x", "").toLowerCase();
-        const recoveredAddress = pubToAddress(pubKey)
+        const recoveredAddress = `0x${pubToAddress(pubKey)
           .toString("hex")
-          .toLowerCase();
-        if (expectedAddress !== recoveredAddress) {
+          .toLowerCase()}`;
+        if (address !== recoveredAddress) {
           console.error(
             "Failed to get the public key from the address",
             tx.type,
-            expectedAddress,
+            address,
             recoveredAddress
           );
         }
