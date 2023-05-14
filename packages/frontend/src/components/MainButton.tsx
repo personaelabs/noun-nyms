@@ -10,7 +10,8 @@ export const MainButton = (props: {
 
   return (
     <button
-      className={`font-bold bg-${color} text-white px-4 py-2.5 rounded-xl hover:scale-105 active:scale-100 transition-all`}
+      className="font-bold text-white px-4 py-2.5 rounded-xl hover:scale-105 active:scale-100 transition-all"
+      style={{ backgroundColor: color }}
       onClick={handler}
     >
       {loading ? <Spinner /> : <p>{message}</p>}

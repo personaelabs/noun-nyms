@@ -24,7 +24,7 @@ export default function ConnectWallet() {
             // TODO: if authenticated, show avatar with associated nym accounts
             <MainButton
               message={connected ? 'connected' : 'Connect Wallet'}
-              color="black"
+              color="blue"
               loading={false}
               handler={openConnectModal}
             />
