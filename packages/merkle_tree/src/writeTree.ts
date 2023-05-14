@@ -22,7 +22,7 @@ type EOA = {
   pubKey: Buffer;
 };
 
-type MultiSigAccount = {
+type AccountCode = {
   address: string;
   code: string;
 };
@@ -69,7 +69,7 @@ async function writeTree(blockHeight: number) {
   ).delegates;
   console.timeEnd("Fetch owners and delegates from subgraph");
 
-  const accounts: (Owner | Delegate | DevAccount)[] = owners;
+  const accounts: (Owner | Delegate)[] = owners;
 
   // Add delegates to the list of all accounts if they are not already there
   for (let i = 0; i < delegates.length; i++) {
@@ -80,12 +80,12 @@ async function writeTree(blockHeight: number) {
 
   // Load cached accounts from the database
   const cachedAccounts = await prisma.cachedEOA.findMany();
-  const cachedMultiSigAccounts = await prisma.cachedMultiSig.findMany();
+  const cachedCode = await prisma.cachedCode.findMany();
 
   let numNoPubKeySet1 = 0;
   let numNoPubKeySet2 = 0;
   const allAccounts: EOA[] = [];
-  const multiSigAccounts: MultiSigAccount[] = [];
+  const accountCodes: AccountCode[] = [];
 
   console.time("Get pubkeys and multisig guardians");
   for (let i = 0; i < accounts.length; i++) {
@@ -94,22 +94,20 @@ async function writeTree(blockHeight: number) {
     const address = account.id.replace("0x", ""); // Lowercase
 
     // Search address code from the database
-    let code = cachedMultiSigAccounts.find(
-      cached => cached.address === address
-    )?.code;
+    let code = cachedCode.find(cached => cached.address === address)?.code;
 
     // Fetch the code from Alchemy if not yet cached in the database
     if (!code) {
       code = await alchemy.core.getCode(address);
     }
 
+    accountCodes.push({
+      address,
+      code
+    });
+
     // If the address is a multisig wallet, fetch the owners
     if (code !== "0x") {
-      multiSigAccounts.push({
-        address,
-        code
-      });
-
       // Get owners that are not yet in the allAccounts array.
       // We do this because some addresses might have been already processed
       // since there are cases where a Noun owner/delegate is also a owner of a multisig wallet.
@@ -220,12 +218,11 @@ async function writeTree(blockHeight: number) {
     }))
   });
 
-  const newMultiSigAccounts = multiSigAccounts.filter(
-    account =>
-      !cachedMultiSigAccounts.find(cached => cached.address === account.address)
+  const newMultiSigAccounts = accountCodes.filter(
+    account => !cachedCode.find(cached => cached.address === account.address)
   );
 
-  await prisma.cachedMultiSig.createMany({
+  await prisma.cachedCode.createMany({
     data: newMultiSigAccounts.map(account => ({
       address: account.address,
       code: account.code
@@ -273,8 +270,8 @@ async function writeTree(blockHeight: number) {
   // ########################################################
   // Write trees to the database
   // ########################################################
-  const anonSet1Root = anonSet1Tree.root().toString(16);
-  const anonSet2Root = anonSet2Tree.root().toString(16);
+  const anonSet1Root = `0x${anonSet1Tree.root().toString(16)}`;
+  const anonSet2Root = `0x${anonSet2Tree.root().toString(16)}`;
 
   // Write only if the tree is new
   if (!(await treeExists(anonSet1Root))) {
@@ -298,7 +295,7 @@ async function writeTree(blockHeight: number) {
         const index = anonSet1Tree.indexOf(poseidon.hashPubKey(account.pubKey));
         const merkleProof = anonSet1Tree.createProof(index);
         return {
-          pubkey: account.pubKey.toString("hex"),
+          pubkey: `0x${account.pubKey.toString("hex")}`,
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.OneNoun
@@ -329,7 +326,7 @@ async function writeTree(blockHeight: number) {
         const index = anonSet2Tree.indexOf(poseidon.hashPubKey(account.pubKey));
         const merkleProof = anonSet2Tree.createProof(index);
         return {
-          pubkey: account.pubKey.toString("hex"),
+          pubkey: `0x${account.pubKey.toString("hex")}`,
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.ManyNouns
@@ -347,8 +344,13 @@ async function writeTree(blockHeight: number) {
 }
 
 const run = async () => {
+  const timerStart = Date.now();
   const blockHeight = await alchemy.core.getBlockNumber();
   await writeTree(blockHeight);
+  const timerEnd = Date.now();
+
+  const took = (timerEnd - timerStart) / 1000;
+  console.log(`Done in ${took} seconds`);
 };
 
 run();
