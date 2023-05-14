@@ -20,12 +20,12 @@
     "ethers": "^6.1.0",
     "graphql": "16.6.0",
     "graphql-tag": "2.12.6",
-    "nerman": "0.0.4"
+    "nerman": "0.0.4",
+    "@types/node": "18.11.3"
   },
   "devDependencies": {
     "@graphprotocol/client-cli": "2.2.15",
     "@types/jest": "^29.2.5",
-    "@types/node": "18.11.3",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
     "csv-parser": "^3.0.0",

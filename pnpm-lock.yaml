@@ -189,6 +189,9 @@ importers:
       '@prisma/client':
         specifier: 4.5.0
         version: 4.5.0(prisma@4.5.0)
+      '@types/node':
+        specifier: 18.11.3
+        version: 18.11.3
       alchemy-sdk:
         specifier: ^2.6.1
         version: 2.6.1
@@ -220,9 +223,6 @@ importers:
       '@types/jest':
         specifier: ^29.2.5
         version: 29.5.1
-      '@types/node':
-        specifier: 18.11.3
-        version: 18.11.3
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.55.0
         version: 5.55.0(@typescript-eslint/parser@5.55.0)(eslint@8.38.0)(typescript@5.0.4)
@@ -5333,7 +5333,6 @@ packages:
 
   /@types/node@18.11.3:
     resolution: {integrity: sha512-fNjDQzzOsZeKZu5NATgXUPsaFaTxeRgFXoosrHivTl8RGeV733OLawXsGfEk9a8/tySyZUyiZ6E8LcjPFZ2y1A==}
-    dev: true
 
   /@types/node@18.14.6:
     resolution: {integrity: sha512-93+VvleD3mXwlLI/xASjw0FzKcwzl3OdTCzm1LaRfqgS21gfFtK3zDXM5Op9TeeMsJVOaJ2VRDpT9q4Y3d0AvA==}
