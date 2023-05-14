@@ -1,6 +1,6 @@
 import { Dialog } from '@headlessui/react';
 import { useMemo } from 'react';
-import { CommentWriter } from './CommentWriter';
+import { CommentWriter } from '../userInput/CommentWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

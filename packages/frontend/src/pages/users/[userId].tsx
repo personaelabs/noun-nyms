@@ -1,4 +1,4 @@
-import { Post } from '@/components/Post';
+import { Post } from '@/components/post/Post';
 import { IUserPost, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

@@ -1,17 +1,20 @@
 import { motion } from 'framer-motion';
-import { Post } from '@/components/Post';
+import { Post } from '@/components/post/Post';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IRootPost } from '@/types/api';
-import Spinner from './Spinner';
+import Spinner from './global/Spinner';
 import ConnectWallet from './ConnectWallet';
 import { MainButton } from './MainButton';
 import { useState } from 'react';
-import { NewPost } from './NewPost';
+import { NewPost } from './userInput/NewPost';
+import { useRouter } from 'next/router';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
 export default function Posts() {
+  const router = useRouter();
+
   const { isLoading, data: posts } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
@@ -76,7 +79,12 @@ export default function Posts() {
               ) : posts ? (
                 <>
                   {posts.map((post) => (
-                    <Post key={post.id} {...post} userId={post.userId} />
+                    <Post
+                      key={post.id}
+                      {...post}
+                      shouldOpenModal={post.id === router.query.postId}
+                      userId={post.userId}
+                    />
                   ))}
                 </>
               ) : // TODO: handle error state here

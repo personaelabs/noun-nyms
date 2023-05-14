@@ -1,7 +1,7 @@
 import { Textarea } from './Textarea';
 import { useState, useMemo } from 'react';
-import Spinner from './Spinner';
-import { MainButton } from './MainButton';
+import Spinner from '../global/Spinner';
+import { MainButton } from '../MainButton';
 import Image from 'next/image';
 
 interface IWriterProps {
