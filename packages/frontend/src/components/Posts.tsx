@@ -12,8 +12,12 @@ import { useRouter } from 'next/router';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
-export default function Posts() {
-  const router = useRouter();
+interface PostsProps {
+  openPostId?: string;
+}
+
+export default function Posts(props: PostsProps) {
+  const { openPostId } = props;
 
   const { isLoading, data: posts } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
@@ -24,6 +28,8 @@ export default function Posts() {
   });
 
   const [newPostOpen, setNewPostOpen] = useState(false);
+
+  if (openPostId) console.log({ openPostId });
 
   return (
     <>
@@ -82,7 +88,7 @@ export default function Posts() {
                     <Post
                       key={post.id}
                       {...post}
-                      shouldOpenModal={post.id === router.query.postId}
+                      shouldOpenModal={post.id === openPostId}
                       userId={post.userId}
                     />
                   ))}

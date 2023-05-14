@@ -22,6 +22,8 @@ export const Post = (postProps: PostProps) => {
     setIsOpen(true);
   };
 
+  if (shouldOpenModal) console.log({ body });
+
   // TODO figure out how to pass in the comments
   const dateFromDescription = useMemo(() => {
     const date = dayjs(timestamp);

@@ -16,6 +16,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { id, isOpen, handleClose, dateFromDescription, title, body, replyCount, userId } =
     postWithRepliesProps;
 
+  if (isOpen) console.log({ id });
+
   //TODO: Note that this call happens regardless of if isOpen is true or not
   const { isLoading, data: singlePost } = useQuery<IPostWithReplies>({
     queryKey: ['post', id],
