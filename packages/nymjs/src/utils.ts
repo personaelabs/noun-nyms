@@ -268,7 +268,7 @@ export const deserializeNymAttestation = (
   };
 };
 
-export const toTypednymName = (nymName: string): EIP712TypedData => ({
+export const toTypedNymName = (nymName: string): EIP712TypedData => ({
   domain: DOMAIN,
   types: NYM_CODE_TYPE,
   value: { nymName },

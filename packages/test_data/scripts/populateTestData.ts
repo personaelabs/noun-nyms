@@ -23,7 +23,7 @@ import {
   toPost,
   toTypedContent,
   NymProver,
-  toTypednymName,
+  toTypedNymName,
   toTypedUpvote,
   toUpvote,
   PrefixedHex,
@@ -136,13 +136,13 @@ const populateTestData = async () => {
 
     if (attestationScheme === AttestationScheme.Nym) {
       const nymName = NYMS[accountIndex];
-      const typednymName = toTypednymName(nymName);
-      const typednymNameHash = eip712MsgHash(
-        typednymName.domain,
-        typednymName.types,
-        typednymName.value,
+      const typedNymName = toTypedNymName(nymName);
+      const typedNymNameHash = eip712MsgHash(
+        typedNymName.domain,
+        typedNymName.types,
+        typedNymName.value,
       );
-      const nymSig = ecsign(typednymNameHash, privKey);
+      const nymSig = ecsign(typedNymNameHash, privKey);
       const nymSigStr = toCompactSig(nymSig.v, nymSig.r, nymSig.s);
       const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[accountIndex]));
 

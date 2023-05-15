@@ -8,7 +8,7 @@ import {
   AttestationScheme,
   recoverUpvotePubkey,
   toPost,
-  toTypednymName,
+  toTypedNymName,
   toTypedContent,
   recoverPostPubkey,
   toTypedUpvote,
@@ -74,11 +74,11 @@ describe('nym', () => {
       const nymName = 'satoshi';
 
       // Sign the nymName
-      const typednymName = toTypednymName(nymName);
+      const typedNymName = toTypedNymName(nymName);
       const nymNameMsgHash = eip712MsgHash(
-        typednymName.domain,
-        typednymName.types,
-        typednymName.value,
+        typedNymName.domain,
+        typedNymName.types,
+        typedNymName.value,
       );
       const nymSig = ecsign(nymNameMsgHash, proverPrivKey);
 

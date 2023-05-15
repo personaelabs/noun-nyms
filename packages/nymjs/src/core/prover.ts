@@ -55,14 +55,14 @@ export class NymProver extends Profiler {
     contentSigStr: string,
     membershipProof: MerkleProof,
   ): Promise<Buffer> {
-    const typednymName: EIP712TypedData = {
+    const typedNymName: EIP712TypedData = {
       domain: DOMAIN,
       types: NYM_CODE_TYPE,
       value: {
         nymName,
       },
     };
-    const nymSig = computeEffECDSASig(nymSigStr, typednymName);
+    const nymSig = computeEffECDSASig(nymSigStr, typedNymName);
 
     const typedContentMessage: EIP712TypedData = {
       domain: DOMAIN,

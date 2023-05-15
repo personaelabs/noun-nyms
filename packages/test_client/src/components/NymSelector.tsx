@@ -3,7 +3,7 @@ import { useSignTypedData } from 'wagmi';
 import { computeNymHash, NYM_CODE_TYPE, DOMAIN, EIP712TypedData } from '@personaelabs/nymjs';
 
 type Props = {
-  onNymSelected: (nymName: EIP712TypedData, signednymName: string, nymHash: string) => void;
+  onNymSelected: (nymName: EIP712TypedData, signedNymName: string, nymHash: string) => void;
 };
 
 export default function NymSelector({ onNymSelected }: Props) {
@@ -12,21 +12,21 @@ export default function NymSelector({ onNymSelected }: Props) {
   const { signTypedDataAsync } = useSignTypedData();
 
   const createNym = async () => {
-    const typednymName = {
+    const typedNymName = {
       domain: DOMAIN,
       types: NYM_CODE_TYPE,
       value: {
         nymName,
       },
     };
-    const signednymName = await signTypedDataAsync(typednymName);
-    const nymHash = await computeNymHash(signednymName);
+    const signedNymName = await signTypedDataAsync(typedNymName);
+    const nymHash = await computeNymHash(signedNymName);
 
     // TODO: this should probably be handled with component state
     const nymNameInput = document.getElementById('nymNameInput') as HTMLInputElement;
     nymNameInput.readOnly = true;
 
-    onNymSelected(typednymName, signednymName, nymHash);
+    onNymSelected(typedNymName, signedNymName, nymHash);
   };
 
   return (

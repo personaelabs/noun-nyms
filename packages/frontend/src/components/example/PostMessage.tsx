@@ -7,7 +7,7 @@ import {
   DOMAIN,
   Content,
   AttestationScheme,
-  toTypednymName,
+  toTypedNymName,
   CONTENT_MESSAGE_TYPES,
   PrefixedHex,
   EIP712TypedData,
@@ -91,8 +91,8 @@ export const postPseudo = async (
 ) => {
   if (nymName && nymSig) {
     const group = await getLatestGroup();
-    const typednymName = toTypednymName(nymName);
-    const userPubKey = getPubKeyFromEIP712Sig(typednymName, nymSig);
+    const typedNymName = toTypedNymName(nymName);
+    const userPubKey = getPubKeyFromEIP712Sig(typedNymName, nymSig);
 
     // Get the user's merkle proof
     const userMerkleProof = group.members.find((member) => member.pubkey === userPubKey);

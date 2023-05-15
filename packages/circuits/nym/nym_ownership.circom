@@ -61,7 +61,7 @@ template NymOwnership(treeLevels) {
     nymSigVerify.pubKeyX === contentSigVerify.pubKeyX;
     nymSigVerify.pubKeyY === contentSigVerify.pubKeyY;
 
-    // nym hash check (double input poseidon, so uses signednymName as both inputs)
+    // nym hash check (double input poseidon, so uses signedNymName as both inputs)
     component nymHashCheck = Poseidon();
     nymHashCheck.inputs[0] <== nymSigS;
     nymHashCheck.inputs[1] <== nymSigS;

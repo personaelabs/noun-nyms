@@ -3,7 +3,7 @@ import { Profiler } from './profiler';
 import {
   loadCircuit,
   deserializeNymAttestation,
-  toTypednymName,
+  toTypedNymName,
   eip712MsgHash,
   serializePublicInput,
   toTypedContent,
@@ -46,17 +46,17 @@ export class NymVerifier extends Profiler {
     let isNymSigPubInputValid;
 
     try {
-      const typednymName = toTypednymName(nymName.toString('utf8'));
-      const typednymNameHash = eip712MsgHash(
-        typednymName.domain,
-        typednymName.types,
-        typednymName.value,
+      const typedNymName = toTypedNymName(nymName.toString('utf8'));
+      const typedNymNameHash = eip712MsgHash(
+        typedNymName.domain,
+        typedNymName.types,
+        typedNymName.value,
       );
 
       const nymSigPublicInput = new EffEcdsaPubInput(
         auxiliary.nymSigR,
         auxiliary.nymSigV,
-        typednymNameHash,
+        typedNymNameHash,
         new CircuitPubInput(
           publicInput.root,
           publicInput.nymSigTx,
