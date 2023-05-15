@@ -5,6 +5,8 @@ import { buildSVG, PNGCollectionEncoder } from '@nouns/sdk';
 import { useEffect, useMemo, useRef } from 'react';
 import { getSeedFromHash } from '../../lib/avatar-utils';
 import { NOUNS_AVATAR_RANGES } from '../../lib/constants';
+import { useAccount, useEnsName } from 'wagmi';
+import { isAddress } from 'viem';
 
 interface UserTagProps {
   imgURL?: string;
@@ -16,6 +18,15 @@ const encoder = new PNGCollectionEncoder(ImageData.palette);
 
 export const UserTag = (props: UserTagProps) => {
   const { imgURL, userId, date } = props;
+  const isDoxed = isAddress(userId);
+  console.log({ isDoxed });
+
+  const { address } = useAccount();
+  const { data, isError, isLoading } = useEnsName({
+    address,
+    enabled: isDoxed,
+  });
+
   const svgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,7 +56,15 @@ export const UserTag = (props: UserTagProps) => {
           ref={svgRef}
           dangerouslySetInnerHTML={{ __html: avatar }}
         />
-        <p className="font-semibold">{userId}</p>
+        {isDoxed ? (
+          data ? (
+            <p className="font-semibold">{data}</p>
+          ) : (
+            <p className="font-semibold">{userId}</p>
+          )
+        ) : (
+          <p className="font-semibold">{userId.split('-')[0]}</p>
+        )}
       </div>
       <p className="secondary">-</p>
       <p className="secondary">{date}</p>
