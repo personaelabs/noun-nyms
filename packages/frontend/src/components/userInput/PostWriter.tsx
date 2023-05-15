@@ -12,9 +12,9 @@ interface IWriterProps {
   parentId: PrefixedHex;
 }
 
-export const CommentWriter = ({ parentId }: IWriterProps) => {
-  //TODO: render title box if no commentId exists (distinguish between reply and top-level post)
-  const [body, setCommentMsg] = useState<string>('');
+export const PostWriter = ({ parentId }: IWriterProps) => {
+  //TODO: render title box if no postId exists (distinguish between reply and top-level post)
+  const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: 'Doxed' });
 
@@ -56,9 +56,9 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
               <Textarea
                 value={body}
-                placeholder={parentId === '0x0' ? 'Description' : 'Type your comment here'}
+                placeholder={parentId === '0x0' ? 'Description' : 'Type your post here'}
                 minHeight={100}
-                onChangeHandler={(newVal) => setCommentMsg(newVal)}
+                onChangeHandler={(newVal) => setPostMsg(newVal)}
               ></Textarea>
             </div>
           </div>

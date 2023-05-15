@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { CommentWriter } from '../userInput/CommentWriter';
+import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -59,7 +59,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         </div>
       </div>
       <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-        <CommentWriter parentId={id as PrefixedHex} />
+        <PostWriter parentId={id as PrefixedHex} />
         <h4>
           {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'comment' : 'comments'}
         </h4>
