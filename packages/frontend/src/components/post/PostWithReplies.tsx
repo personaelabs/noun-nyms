@@ -12,8 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { UpvoteIcon } from '../UpvoteIcon';
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { submitUpvote } from '../example/Upvote';
-import { useSignTypedData } from 'wagmi';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -33,15 +31,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     staleTime: 1000,
   });
 
-  const { signTypedDataAsync } = useSignTypedData();
-
-  const upvoteHandler = (postId: string) => {
-    submitUpvote(postId, signTypedDataAsync);
-  };
-
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0, upvoteHandler);
+      return resolveNestedReplyThreads(singlePost.replies, 0);
     } else {
       return <div></div>;
     }
@@ -76,7 +68,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 <div className="flex gap-4">
                   <ReplyCount count={replyCount} />
                   <div className="w-[1px] border border-dotted border-gray-200" />
-                  <UpvoteIcon count={upvotes.length} handler={() => upvoteHandler(id)} />
+                  <UpvoteIcon count={upvotes.length} postId={id} />
                 </div>
               </div>
             </div>
