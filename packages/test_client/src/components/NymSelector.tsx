@@ -3,39 +3,39 @@ import { useSignTypedData } from 'wagmi';
 import { computeNymHash, NYM_CODE_TYPE, DOMAIN, EIP712TypedData } from '@personaelabs/nymjs';
 
 type Props = {
-  onNymSelected: (nymCode: EIP712TypedData, signedNymCode: string, nymHash: string) => void;
+  onNymSelected: (nymName: EIP712TypedData, signednymName: string, nymHash: string) => void;
 };
 
 export default function NymSelector({ onNymSelected }: Props) {
-  const [nymCode, setNymCode] = useState('');
+  const [nymName, setnymName] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
 
   const createNym = async () => {
-    const typedNymCode = {
+    const typednymName = {
       domain: DOMAIN,
       types: NYM_CODE_TYPE,
       value: {
-        nymCode,
+        nymName,
       },
     };
-    const signedNymCode = await signTypedDataAsync(typedNymCode);
-    const nymHash = await computeNymHash(signedNymCode);
+    const signednymName = await signTypedDataAsync(typednymName);
+    const nymHash = await computeNymHash(signednymName);
 
     // TODO: this should probably be handled with component state
-    const nymCodeInput = document.getElementById('nymCodeInput') as HTMLInputElement;
-    nymCodeInput.readOnly = true;
+    const nymNameInput = document.getElementById('nymNameInput') as HTMLInputElement;
+    nymNameInput.readOnly = true;
 
-    onNymSelected(typedNymCode, signedNymCode, nymHash);
+    onNymSelected(typednymName, signednymName, nymHash);
   };
 
   return (
     <div>
       <input
         type="text"
-        id="nymCodeInput"
-        value={nymCode}
-        onChange={(e) => setNymCode(e.target.value)}
+        id="nymNameInput"
+        value={nymName}
+        onChange={(e) => setnymName(e.target.value)}
       />
 
       <button onClick={() => createNym()}>select nym</button>

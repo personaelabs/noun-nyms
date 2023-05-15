@@ -18,13 +18,13 @@ import {
 import { constructDummyTree } from '../utils';
 
 type Props = {
-  typedNymCode: EIP712TypedData;
-  signedNymCode: string; // NOTE: private
+  typednymName: EIP712TypedData;
+  signednymName: string; // NOTE: private
   nymHash: string;
 };
 
 // NOTE: when replying to a parent, parent probably needs to be passed in
-export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Props) {
+export default function PostMessage({ typednymName, signednymName, nymHash }: Props) {
   const [parentId, setParentId] = useState('');
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -85,9 +85,9 @@ export default function PostMessage({ typedNymCode, signedNymCode, nymHash }: Pr
 
     // Prove!
     const fullProof = await prover.prove(
-      typedNymCode,
+      typednymName,
       typedContentData,
-      signedNymCode,
+      signednymName,
       signedContentData,
       membershipProof,
     );

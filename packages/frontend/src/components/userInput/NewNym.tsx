@@ -13,13 +13,13 @@ interface NewNymProps {
   setNymOptions: (nymOptions: ClientNym[]) => void;
 }
 
-const signNym = async (nymCode: string, signTypedDataAsync: any): Promise<string> => {
+const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string> => {
   const nymSig = await signTypedDataAsync({
     primaryType: 'Nym',
     domain: DOMAIN,
     types: NYM_CODE_TYPE,
     message: {
-      nymCode,
+      nymName,
     },
   });
   return nymSig as string;
@@ -28,7 +28,7 @@ const signNym = async (nymCode: string, signTypedDataAsync: any): Promise<string
 export const NewNym = (props: NewNymProps) => {
   const { address } = useAccount();
   const { isOpen, handleClose, nymOptions, setNymOptions } = props;
-  const [nymCode, setnymCode] = useState('');
+  const [nymName, setnymName] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -38,22 +38,22 @@ export const NewNym = (props: NewNymProps) => {
       let newVal: string;
       if (nyms) {
         let existingNyms = JSON.parse(nyms);
-        existingNyms.push({ nymSig, nymCode });
+        existingNyms.push({ nymSig, nymName });
         newVal = JSON.stringify(existingNyms);
       } else {
-        newVal = JSON.stringify([{ nymSig, nymCode }]);
+        newVal = JSON.stringify([{ nymSig, nymName }]);
       }
       localStorage.setItem(address, newVal);
     }
   };
 
   const handleNewNym = async () => {
-    const nymSig = await signNym(nymCode, signTypedDataAsync);
+    const nymSig = await signNym(nymName, signTypedDataAsync);
 
     if (nymSig) {
       storeNym(nymSig);
     }
-    setNymOptions([...nymOptions, { nymCode, nymSig }]);
+    setNymOptions([...nymOptions, { nymName, nymSig }]);
     handleClose();
   };
   return (
@@ -72,8 +72,8 @@ export const NewNym = (props: NewNymProps) => {
               className="outline-none bg-transparent"
               type="text"
               placeholder="Name"
-              value={nymCode}
-              onChange={(event) => setnymCode(event.target.value)}
+              value={nymName}
+              onChange={(event) => setnymName(event.target.value)}
             />
           </div>
           <p className="secondary">#0000</p>
@@ -84,7 +84,7 @@ export const NewNym = (props: NewNymProps) => {
             message="Confirm"
             loading={false}
             handler={handleNewNym}
-            disabled={nymCode === ''}
+            disabled={nymName === ''}
           />
         </div>
       </div>

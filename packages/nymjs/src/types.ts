@@ -101,7 +101,7 @@ export const DOMAIN: EIP712Domain = {
 };
 
 export const NYM_CODE_TYPE = {
-  Nym: [{ name: 'nymCode', type: 'string' }],
+  Nym: [{ name: 'nymName', type: 'string' }],
 };
 
 export const CONTENT_MESSAGE_TYPES = {

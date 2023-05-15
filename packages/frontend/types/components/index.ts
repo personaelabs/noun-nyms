@@ -11,7 +11,7 @@ export type PostWithRepliesProps = IRootPost & {
 };
 
 export type ClientNym = {
-  nymCode: string;
+  nymName: string;
   nymSig: string;
 };
 

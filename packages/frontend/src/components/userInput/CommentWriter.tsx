@@ -16,7 +16,7 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
   //TODO: render title box if no commentId exists (distinguish between reply and top-level post)
   const [body, setCommentMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
-  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymCode: 'Doxed' });
+  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: 'Doxed' });
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -27,10 +27,10 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
   const { signTypedDataAsync } = useSignTypedData();
 
   const sendPost = () => {
-    if (nym.nymCode === 'Doxed') {
+    if (nym.nymName === 'Doxed') {
       postDoxed({ title, body, parentId }, signTypedDataAsync);
     } else {
-      postPseudo(nym.nymCode, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
+      postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
     }
   };
 

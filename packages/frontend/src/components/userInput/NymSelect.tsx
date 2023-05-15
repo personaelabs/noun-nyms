@@ -41,7 +41,7 @@ export const NymSelect = (props: NymSelectProps) => {
           onClick={() => setOpenSelect(!openSelect)}
         >
           <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-          <p>{selectedNym.nymCode}</p>
+          <p>{selectedNym.nymName}</p>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
         {openSelect ? (
@@ -58,7 +58,7 @@ export const NymSelect = (props: NymSelectProps) => {
                 >
                   <div className="flex gap-2 justify-start">
                     <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-                    <p>{nym.nymCode}</p>
+                    <p>{nym.nymName}</p>
                   </div>
                   <FontAwesomeIcon
                     icon={faCheck}

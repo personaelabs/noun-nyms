@@ -23,7 +23,7 @@ import {
   toPost,
   toTypedContent,
   NymProver,
-  toTypedNymCode,
+  toTypednymName,
   toTypedUpvote,
   toUpvote,
   PrefixedHex,
@@ -135,19 +135,19 @@ const populateTestData = async () => {
     const contentSigStr = toCompactSig(contentSig.v, contentSig.r, contentSig.s);
 
     if (attestationScheme === AttestationScheme.Nym) {
-      const nymCode = NYMS[accountIndex];
-      const typedNymCode = toTypedNymCode(nymCode);
-      const typedNymCodeHash = eip712MsgHash(
-        typedNymCode.domain,
-        typedNymCode.types,
-        typedNymCode.value,
+      const nymName = NYMS[accountIndex];
+      const typednymName = toTypednymName(nymName);
+      const typednymNameHash = eip712MsgHash(
+        typednymName.domain,
+        typednymName.types,
+        typednymName.value,
       );
-      const nymSig = ecsign(typedNymCodeHash, privKey);
+      const nymSig = ecsign(typednymNameHash, privKey);
       const nymSigStr = toCompactSig(nymSig.v, nymSig.r, nymSig.s);
       const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[accountIndex]));
 
       const attestation = await prover.prove(
-        nymCode,
+        nymName,
         content,
         nymSigStr,
         contentSigStr,
@@ -157,7 +157,7 @@ const populateTestData = async () => {
 
       const post = toPost(content, attestation, AttestationScheme.Nym);
       const { publicInput } = deserializeNymAttestation(attestation);
-      const nym = `${nymCode}-${publicInput.nymHash.toString(16)}`;
+      const nym = `${nymName}-${publicInput.nymHash.toString(16)}`;
 
       return {
         id: post.id,

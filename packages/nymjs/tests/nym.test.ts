@@ -8,7 +8,7 @@ import {
   AttestationScheme,
   recoverUpvotePubkey,
   toPost,
-  toTypedNymCode,
+  toTypednymName,
   toTypedContent,
   recoverPostPubkey,
   toTypedUpvote,
@@ -71,16 +71,16 @@ describe('nym', () => {
 
   describe('Content', () => {
     describe('AttestationScheme = Nym', () => {
-      const nymCode = 'satoshi';
+      const nymName = 'satoshi';
 
-      // Sign the nymCode
-      const typedNymCode = toTypedNymCode(nymCode);
-      const nymCodeMsgHash = eip712MsgHash(
-        typedNymCode.domain,
-        typedNymCode.types,
-        typedNymCode.value,
+      // Sign the nymName
+      const typednymName = toTypednymName(nymName);
+      const nymNameMsgHash = eip712MsgHash(
+        typednymName.domain,
+        typednymName.types,
+        typednymName.value,
       );
-      const nymSig = ecsign(nymCodeMsgHash, proverPrivKey);
+      const nymSig = ecsign(nymNameMsgHash, proverPrivKey);
 
       describe('prove and verify', () => {
         // Initialize prover
@@ -98,7 +98,7 @@ describe('nym', () => {
           await prover.initWasm();
 
           const attestation = await prover.prove(
-            nymCode,
+            nymName,
             content,
             toRpcSig(nymSig.v, nymSig.r, nymSig.s),
             toRpcSig(contentMessageSig.v, contentMessageSig.r, contentMessageSig.s),

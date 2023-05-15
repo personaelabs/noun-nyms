@@ -9,26 +9,26 @@ import PostMessage from '../components/PostMessage';
 import { EIP712TypedData } from '@personaelabs/nymjs';
 
 export default function Home() {
-  const [typedNymCode, setTypedNymCode] = useState<EIP712TypedData | null>();
+  const [typednymName, setTypednymName] = useState<EIP712TypedData | null>();
   const [nymHash, setNymHash] = useState('');
-  const [signedNymCode, setSignedNymCode] = useState('');
+  const [signednymName, setSignednymName] = useState('');
 
   function displayNym() {
     // NOTE: may want to shorten
-    return `${typedNymCode.value.nymCode}-${nymHash}`;
+    return `${typednymName.value.nymName}-${nymHash}`;
   }
 
-  const onNymSelected = (typedNymCode: EIP712TypedData, signedNymCode: string, nymHash) => {
-    setTypedNymCode(typedNymCode);
+  const onNymSelected = (typednymName: EIP712TypedData, signednymName: string, nymHash) => {
+    setTypednymName(typednymName);
     setNymHash(nymHash);
-    setSignedNymCode(signedNymCode);
+    setSignednymName(signednymName);
   };
 
   useEffect(() => {
-    if (typedNymCode) {
+    if (typednymName) {
       console.log(displayNym());
     }
-  }, [typedNymCode]);
+  }, [typednymName]);
 
   return (
     <>
@@ -49,8 +49,8 @@ export default function Home() {
 
         {nymHash.length > 0 && (
           <PostMessage
-            typedNymCode={typedNymCode}
-            signedNymCode={signedNymCode}
+            typednymName={typednymName}
+            signednymName={signednymName}
             nymHash={nymHash}
           ></PostMessage>
         )}

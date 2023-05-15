@@ -3,8 +3,8 @@ import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 import { useState } from 'react';
 
 type Props = {
-  nymCode: string;
-  signedNymCode: string; // NOTE: private
+  nymName: string;
+  signednymName: string; // NOTE: private
   nymHash: string;
 };
 
@@ -16,7 +16,7 @@ const dummyMerkleProof: MerkleProof = {
 };
 
 // NOTE: when replying to a parent, parent probably needs to be passed in
-export default function PostMessage({ nymCode, signedNymCode, nymHash }: Props) {
+export default function PostMessage({ nymName, signednymName, nymHash }: Props) {
   const [message, setMessage] = useState('');
 
   function handleMessageChange(event: any) {
