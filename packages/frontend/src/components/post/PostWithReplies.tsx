@@ -46,7 +46,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         <div className="flex min-h-full items-center justify-center">
           <Dialog.Panel className="w-full max-w-5xl bg-white mx-8 rounded-md">
             <div className="flex justify-end sm:hidden p-4 cursor-pointer">
-              <FontAwesomeIcon icon={faXmark} onClick={handleClose as any} />
+              <FontAwesomeIcon icon={faXmark} color="#98A2B3" onClick={handleClose as any} />
             </div>
 
             <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
@@ -56,7 +56,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                     <h3 className="tracking-tight">{title}</h3>
                   </div>
                   <div className="invisible sm:visible cursor-pointer">
-                    <FontAwesomeIcon icon={faXmark} onClick={handleClose as any} />
+                    <FontAwesomeIcon icon={faXmark} color="#98A2B3" onClick={handleClose as any} />
                   </div>
                 </div>
                 <p>{body}</p>

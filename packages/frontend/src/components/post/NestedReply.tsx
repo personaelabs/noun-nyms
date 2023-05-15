@@ -76,7 +76,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
           >
             <FontAwesomeIcon icon={faReply} color="#0E76FD" />
             {/* TODO: fix blue */}
-            <p className="hover:text-blue-500">Reply</p>
+            <p className="hover:text-blue">Reply</p>
           </div>
         </div>
       </div>

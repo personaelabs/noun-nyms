@@ -31,6 +31,8 @@ export default function Posts(props: PostsProps) {
 
   if (openPostId) console.log({ openPostId });
 
+  // TODO: get connected account information from wagmi
+
   return (
     <>
       <NewPost isOpen={newPostOpen} handleClose={() => setNewPostOpen(false)} />
@@ -72,7 +74,7 @@ export default function Posts(props: PostsProps) {
             <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
               <div className="flex justify-end">
                 <MainButton
-                  color="blue"
+                  color="#0E76FD"
                   message="Start Discussion"
                   loading={false}
                   handler={() => setNewPostOpen(true)}

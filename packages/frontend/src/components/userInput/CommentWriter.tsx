@@ -3,6 +3,8 @@ import { useState, useMemo } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
 import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 interface IWriterProps {
   commentId: string;
@@ -51,9 +53,10 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
           {/* //TODO with nym selection */}
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
             <p className="secondary">Posting as</p>
-            <div className="bg-white flex gap-1.5 border items-center border-gray-200 rounded-xl px-2 py-2.5">
-              <Image alt={'profile'} src={'/anon-noun.png'} width={30} height={30} />
+            <div className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer">
+              <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
               <p className="secondary">Mr. Noun</p>
+              <FontAwesomeIcon icon={faAngleDown} />
             </div>
             <MainButton
               color="black"
