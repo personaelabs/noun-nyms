@@ -2,7 +2,7 @@ import { Textarea } from './Textarea';
 import { useState, useMemo } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
-import { postDoxed, postPseudo } from '../example/PostMessage';
+import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { NymSelect } from './NymSelect';
