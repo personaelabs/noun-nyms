@@ -67,7 +67,7 @@ export default function Posts(props: PostsProps) {
             </div>
             <div className="flex justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="w-40" src="nouns.png" alt="nouns" />
+              <img className="w-40" src="/nouns.png" alt="nouns" />
             </div>
           </div>
           <div className="bg-gray-50 min-h-screen w-full">
