@@ -11,8 +11,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@dicebear/collection": "^6.0.3",
-    "@dicebear/core": "^6.0.3",
     "@ethereumjs/util": "^8.0.5",
     "@fortawesome/fontawesome-svg-core": "^6.4.0",
     "@fortawesome/free-solid-svg-icons": "^6.4.0",

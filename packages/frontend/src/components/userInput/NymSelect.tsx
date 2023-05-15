@@ -1,7 +1,7 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
 import { useAccount } from 'wagmi';

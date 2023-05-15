@@ -1,6 +1,4 @@
-import { createAvatar } from '@dicebear/core';
-import { pixelArt } from '@dicebear/collection';
-import { getNounData, getRandomNounSeed, ImageData } from '@nouns/assets';
+import { getNounData, ImageData } from '@nouns/assets';
 import { buildSVG, PNGCollectionEncoder } from '@nouns/sdk';
 import { useEffect, useMemo, useRef } from 'react';
 import { getSeedFromHash } from '../../lib/avatar-utils';
@@ -17,7 +15,7 @@ interface UserTagProps {
 const encoder = new PNGCollectionEncoder(ImageData.palette);
 
 export const UserTag = (props: UserTagProps) => {
-  const { imgURL, userId, date } = props;
+  const { userId, date } = props;
   const isDoxed = isAddress(userId);
 
   const { address } = useAccount();

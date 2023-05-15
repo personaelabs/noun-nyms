@@ -26,10 +26,6 @@ export const getNymFromAttestation = (attestation: Buffer): string => {
   return nym;
 };
 
-type Post = {
-  id: string;
-  rootId: string;
-};
 export const findPost = async (
   postId: string,
 ): Promise<{
