@@ -3,11 +3,14 @@ import { Modal } from '../global/Modal';
 import { useState } from 'react';
 import { MainButton } from '../MainButton';
 import { NYM_CODE_TYPE, DOMAIN } from '@personaelabs/nymjs';
-import { useSignTypedData } from 'wagmi';
+import { useSignTypedData, useAccount } from 'wagmi';
+import { ClientNym } from '@/types/components';
 
 interface NewNymProps {
   isOpen: boolean;
   handleClose: (isOpen: boolean) => void;
+  nymOptions: ClientNym[];
+  setNymOptions: (nymOptions: ClientNym[]) => void;
 }
 
 const signNym = async (nymCode: string, signTypedDataAsync: any): Promise<string> => {
@@ -23,21 +26,34 @@ const signNym = async (nymCode: string, signTypedDataAsync: any): Promise<string
 };
 
 export const NewNym = (props: NewNymProps) => {
-  const { isOpen, handleClose } = props;
+  const { address } = useAccount();
+  const { isOpen, handleClose, nymOptions, setNymOptions } = props;
   const [nymCode, setnymCode] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
 
   const storeNym = (nymSig: string) => {
-    localStorage.setItem(nymSig, nymCode);
+    if (address) {
+      const nyms = localStorage.getItem(address);
+      let newVal: string;
+      if (nyms) {
+        let existingNyms = JSON.parse(nyms);
+        existingNyms.push({ nymSig, nymCode });
+        newVal = JSON.stringify(existingNyms);
+      } else {
+        newVal = JSON.stringify([{ nymSig, nymCode }]);
+      }
+      localStorage.setItem(address, newVal);
+    }
   };
 
-  const handleNym = async () => {
+  const handleNewNym = async () => {
     const nymSig = await signNym(nymCode, signTypedDataAsync);
 
     if (nymSig) {
       storeNym(nymSig);
     }
+    setNymOptions([...nymOptions, { nymCode, nymSig }]);
   };
   return (
     <Modal width="50%" isOpen={isOpen} handleClose={handleClose}>
@@ -66,7 +82,7 @@ export const NewNym = (props: NewNymProps) => {
             color="#0E76FD"
             message="Confirm"
             loading={false}
-            handler={handleNym}
+            handler={handleNewNym}
             disabled={nymCode === ''}
           />
         </div>
