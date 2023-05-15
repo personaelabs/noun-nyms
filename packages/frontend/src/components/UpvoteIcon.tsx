@@ -3,10 +3,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface UpvoteIconProps {
   count: number;
+  handler: () => void;
 }
 
 export const UpvoteIcon = (props: UpvoteIconProps) => {
-  const { count } = props;
+  const { count, handler } = props;
 
   const outerStyle = {
     color: '#D0D5DD',
@@ -16,7 +17,7 @@ export const UpvoteIcon = (props: UpvoteIconProps) => {
   };
 
   return (
-    <div className="flex gap-1 justify-center items-center cursor-pointer">
+    <div onClick={handler} className="flex gap-1 justify-center items-center cursor-pointer">
       <span className="fa-layers fa-fw">
         <FontAwesomeIcon icon={faSquare} style={outerStyle} />
         <FontAwesomeIcon icon={faAngleUp} color="#ffffff" transform="shrink-4" />
