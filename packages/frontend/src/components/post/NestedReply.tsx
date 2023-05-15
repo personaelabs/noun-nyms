@@ -16,8 +16,13 @@ interface IReplyProps extends IPostWithReplies {
   proof: string;
   childrenLength: number;
   createdAt: Date;
+  upvoteHandler: (postId: string) => void;
 }
-export const resolveNestedReplyThreads = (allPosts: IPostWithReplies[], depth: number) => {
+export const resolveNestedReplyThreads = (
+  allPosts: IPostWithReplies[],
+  depth: number,
+  upvoteHandler: (postId: string) => void,
+) => {
   const replyNodes: React.ReactNode[] = [];
   const profileImgURL = '';
   const proof = '';
@@ -28,10 +33,11 @@ export const resolveNestedReplyThreads = (allPosts: IPostWithReplies[], depth: n
         key={post.id}
         depth={depth}
         createdAt={new Date(post.timestamp)}
-        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1)}
+        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, upvoteHandler)}
         profileImgURL={profileImgURL}
         proof={proof}
         childrenLength={post.replies.length}
+        upvoteHandler={upvoteHandler}
       />,
     );
   }
@@ -49,6 +55,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
     profileImgURL,
     childrenLength,
     upvotes,
+    upvoteHandler,
   } = replyProps;
   const dateFromDescription = useMemo(() => {
     const date = dayjs(createdAt);
@@ -67,7 +74,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <UserTag imgURL={profileImgURL} userId={userId} date={dateFromDescription} />
       <span>{body}</span>
       <div className="flex justify-between items-center py-2 border-t border-gray-300">
-        <UpvoteIcon count={upvotes.length} handler={() => console.log(`nested upvote`)} />
+        <UpvoteIcon count={upvotes.length} handler={() => upvoteHandler(id)} />
         <div className="flex gap-4 justify-center items-center">
           <ReplyCount count={childrenLength} />
           <div

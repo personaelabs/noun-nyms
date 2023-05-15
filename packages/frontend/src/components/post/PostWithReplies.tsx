@@ -35,13 +35,13 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const { signTypedDataAsync } = useSignTypedData();
 
-  const upvoteHandler = () => {
-    submitUpvote(id, signTypedDataAsync);
+  const upvoteHandler = (postId: string) => {
+    submitUpvote(postId, signTypedDataAsync);
   };
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0);
+      return resolveNestedReplyThreads(singlePost.replies, 0, upvoteHandler);
     } else {
       return <div></div>;
     }
@@ -76,7 +76,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 <div className="flex gap-4">
                   <ReplyCount count={replyCount} />
                   <div className="w-[1px] border border-dotted border-gray-200" />
-                  <UpvoteIcon count={upvotes.length} handler={upvoteHandler} />
+                  <UpvoteIcon count={upvotes.length} handler={() => upvoteHandler(id)} />
                 </div>
               </div>
             </div>
