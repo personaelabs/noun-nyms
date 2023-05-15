@@ -10,11 +10,8 @@ interface NewNymProps {
   handleClose: (isOpen: boolean) => void;
 }
 
-export const NewNym = (props: NewNymProps) => {
-  const { isOpen, handleClose } = props;
-  const [nymCode, setnymCode] = useState<string>('');
-
-  const { data: nymSig, signTypedData: signNymCode } = useSignTypedData({
+const signNym = async (nymCode: string, signTypedDataAsync: any): Promise<string> => {
+  const nymSig = await signTypedDataAsync({
     primaryType: 'Nym',
     domain: DOMAIN,
     types: NYM_CODE_TYPE,
@@ -22,11 +19,26 @@ export const NewNym = (props: NewNymProps) => {
       nymCode,
     },
   });
+  return nymSig as string;
+};
 
-  const storeNym = () => {
-    localStorage.setItem(nymSig as string, nymCode);
+export const NewNym = (props: NewNymProps) => {
+  const { isOpen, handleClose } = props;
+  const [nymCode, setnymCode] = useState('');
+
+  const { signTypedDataAsync } = useSignTypedData();
+
+  const storeNym = (nymSig: string) => {
+    localStorage.setItem(nymSig, nymCode);
   };
 
+  const handleNym = async () => {
+    const nymSig = await signNym(nymCode, signTypedDataAsync);
+
+    if (nymSig) {
+      storeNym(nymSig);
+    }
+  };
   return (
     <Modal width="50%" isOpen={isOpen} handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
@@ -54,12 +66,8 @@ export const NewNym = (props: NewNymProps) => {
             color="#0E76FD"
             message="Confirm"
             loading={false}
-            handler={async () => {
-              await signNymCode();
-              if (nymSig) storeNym();
-              else console.log('nym could not be created');
-            }}
-            disabled={nymCode !== '' && !nymSig ? false : true}
+            handler={handleNym}
+            disabled={nymCode === ''}
           />
         </div>
       </div>
