@@ -16,17 +16,10 @@ export const UpvoteIcon = (props: UpvoteIconProps) => {
     submitUpvote(postId, signTypedDataAsync);
   };
 
-  const outerStyle = {
-    color: '#D0D5DD',
-    ':hover': {
-      color: '#0E76FD',
-    },
-  };
-
   return (
     <div onClick={upvoteHandler} className="flex gap-1 justify-center items-center cursor-pointer">
-      <span className="fa-layers fa-fw">
-        <FontAwesomeIcon icon={faSquare} style={outerStyle} />
+      <span className="fa-layers fa-fw hoverIcon">
+        <FontAwesomeIcon icon={faSquare} />
         <FontAwesomeIcon icon={faAngleUp} color="#ffffff" transform="shrink-4" />
       </span>
       <p>{count}</p>

@@ -71,12 +71,11 @@ export const NestedReply = (replyProps: IReplyProps) => {
         <div className="flex gap-4 justify-center items-center">
           <ReplyCount count={childrenLength} />
           <div
-            className="flex gap-2 items-center cursor-pointer"
+            className="flex gap-2 items-center cursor-pointer hoverIcon"
             onClick={() => console.log('create reply')}
           >
-            <FontAwesomeIcon icon={faReply} color="#0E76FD" />
-            {/* TODO: fix blue */}
-            <p className="hover:text-blue">Reply</p>
+            <FontAwesomeIcon icon={faReply} />
+            <p className="text-gray-700">Reply</p>
           </div>
         </div>
       </div>
