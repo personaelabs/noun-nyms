@@ -8,7 +8,7 @@ import { ClientNym } from '@/types/components';
 
 interface NewNymProps {
   isOpen: boolean;
-  handleClose: (isOpen: boolean) => void;
+  handleClose: () => void;
   nymOptions: ClientNym[];
   setNymOptions: (nymOptions: ClientNym[]) => void;
 }
@@ -54,6 +54,7 @@ export const NewNym = (props: NewNymProps) => {
       storeNym(nymSig);
     }
     setNymOptions([...nymOptions, { nymCode, nymSig }]);
+    handleClose();
   };
   return (
     <Modal width="50%" isOpen={isOpen} handleClose={handleClose}>

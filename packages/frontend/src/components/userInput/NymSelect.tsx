@@ -1,7 +1,7 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
 import { useAccount } from 'wagmi';
@@ -19,10 +19,10 @@ export const NymSelect = (props: NymSelectProps) => {
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
   const [nymOptions, setNymOptions] = useState<ClientNym[]>([]);
 
-  const nymOptionsString = address ? localStorage.getItem(address) : '';
-  if (nymOptionsString) setNymOptions(JSON.parse(nymOptionsString));
-
-  console.log({ nymOptions });
+  useEffect(() => {
+    const nymOptionsString = address ? localStorage.getItem(address) : '';
+    if (nymOptionsString) setNymOptions(JSON.parse(nymOptionsString));
+  }, [address]);
 
   return (
     <>
