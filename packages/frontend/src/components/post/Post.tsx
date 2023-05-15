@@ -12,7 +12,7 @@ dayjs.extend(relativeTime);
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
 export const Post = (postProps: PostProps) => {
-  const { body, timestamp, replyCount, shouldOpenModal, userId } = postProps;
+  const { title, body, timestamp, replyCount, shouldOpenModal, userId } = postProps;
 
   const [isOpen, setIsOpen] = useState(shouldOpenModal || false);
   // TODO: after we add wagmi
@@ -47,7 +47,7 @@ export const Post = (postProps: PostProps) => {
         className="rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
       >
         <div className="self-start line-clamp-2">
-          <h4 className="tracking-tight">{body}</h4>
+          <h4 className="tracking-tight">{title}</h4>
         </div>
         <span>{body}</span>
         <div className="flex justify-between items-center">

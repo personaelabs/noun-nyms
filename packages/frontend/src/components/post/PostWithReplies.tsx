@@ -72,7 +72,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
             <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-              <CommentWriter commentId={id} />
+              <CommentWriter parentId={`0x${id}`} />
               <h4>
                 {singlePost?.replies.length}{' '}
                 {singlePost?.replies.length === 1 ? 'comment' : 'comments'}

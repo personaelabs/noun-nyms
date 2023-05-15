@@ -57,6 +57,32 @@ const getLatestGroup = async () => {
   return group;
 };
 
+export const postDoxed = async (doxedContentInput: ContentUserInput, signTypedDataAsync: any) => {
+  const group = await getLatestGroup();
+
+  // Construct the content to sign
+  const content: Content = {
+    venue: 'nouns',
+    title: doxedContentInput.title,
+    body: doxedContentInput.body,
+    parentId: doxedContentInput.parentId ? doxedContentInput.parentId : '0x0',
+    groupRoot: group.root,
+    timestamp: Math.round(Date.now() / 1000),
+  };
+
+  // Request the user to sign the content
+  const attestation = await signTypedDataAsync({
+    primaryType: 'Post',
+    domain: DOMAIN,
+    types: CONTENT_MESSAGE_TYPES,
+    message: content,
+  });
+
+  const result = await submitPost(content, attestation, AttestationScheme.EIP712);
+
+  console.log('Created a non-pseudonymous post! postId', result.data.postId);
+};
+
 const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string): string => {
   const { v, r, s } = fromRpcSig(sig);
   return `0x${ecrecover(
@@ -159,32 +185,6 @@ const ExamplePost = () => {
     }
   };
 
-  const postDoxed = async () => {
-    const group = await getLatestGroup();
-
-    // Construct the content to sign
-    const content: Content = {
-      venue: 'nouns',
-      title: doxedContentInput.title,
-      body: doxedContentInput.body,
-      parentId: doxedContentInput.parentId ? doxedContentInput.parentId : '0x0',
-      groupRoot: group.root,
-      timestamp: Math.round(Date.now() / 1000),
-    };
-
-    // Request the user to sign the content
-    const attestation = await signTypedDataAsync({
-      primaryType: 'Post',
-      domain: DOMAIN,
-      types: CONTENT_MESSAGE_TYPES,
-      message: content,
-    });
-
-    const result = await submitPost(content, attestation, AttestationScheme.EIP712);
-
-    console.log('Created a non-pseudonymous post! postId', result.data.postId);
-  };
-
   return (
     <div className="flex flex-row gap-16 mt-4 justify-center">
       <div>
@@ -193,7 +193,7 @@ const ExamplePost = () => {
         <p className="text-gray-700 font-bold mb-2 block">{hydrated && address}</p>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={postDoxed}
+          onClick={() => postDoxed(doxedContentInput, signTypedDataAsync)}
         >
           Submit a doxed post
         </button>

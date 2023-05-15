@@ -26,7 +26,8 @@ export const NewPost = (props: NewPostProps) => {
                   <FontAwesomeIcon icon={faXmark} color="#98A2B3" onClick={handleClose as any} />
                 </div>
               </div>
-              <CommentWriter commentId={'new'} />
+              {/* TODO actual commentId? */}
+              <CommentWriter parentId={'0x0'} />
             </div>
           </Dialog.Panel>
         </div>
