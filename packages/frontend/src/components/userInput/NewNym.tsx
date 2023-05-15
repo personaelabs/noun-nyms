@@ -12,16 +12,20 @@ interface NewNymProps {
 
 export const NewNym = (props: NewNymProps) => {
   const { isOpen, handleClose } = props;
-  const [nymName, setNymName] = useState<string>('');
+  const [nymCode, setnymCode] = useState<string>('');
 
   const { data: nymSig, signTypedData: signNymCode } = useSignTypedData({
     primaryType: 'Nym',
     domain: DOMAIN,
     types: NYM_CODE_TYPE,
     message: {
-      nymName,
+      nymCode,
     },
   });
+
+  const storeNym = () => {
+    localStorage.setItem(nymSig as string, nymCode);
+  };
 
   return (
     <Modal width="50%" isOpen={isOpen} handleClose={handleClose}>
@@ -39,8 +43,8 @@ export const NewNym = (props: NewNymProps) => {
               className="outline-none bg-transparent"
               type="text"
               placeholder="Name"
-              value={nymName}
-              onChange={(event) => setNymName(event.target.value)}
+              value={nymCode}
+              onChange={(event) => setnymCode(event.target.value)}
             />
           </div>
           <p className="secondary">#0000</p>
@@ -50,8 +54,12 @@ export const NewNym = (props: NewNymProps) => {
             color="#0E76FD"
             message="Confirm"
             loading={false}
-            handler={signNymCode}
-            disabled={nymName !== '' && !nymSig ? false : true}
+            handler={async () => {
+              await signNymCode();
+              if (nymSig) storeNym();
+              else console.log('nym could not be created');
+            }}
+            disabled={nymCode !== '' && !nymSig ? false : true}
           />
         </div>
       </div>
