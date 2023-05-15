@@ -19,7 +19,6 @@ const encoder = new PNGCollectionEncoder(ImageData.palette);
 export const UserTag = (props: UserTagProps) => {
   const { imgURL, userId, date } = props;
   const isDoxed = isAddress(userId);
-  console.log({ isDoxed });
 
   const { address } = useAccount();
   const { data, isError, isLoading } = useEnsName({
