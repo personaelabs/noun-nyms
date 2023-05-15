@@ -2,19 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
-    Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+@layer base {
+  h1 {
+    @apply text-5xl;
+    @apply font-bold;
+    @apply text-white;
+  }
+
+  h2 {
+    @apply text-4xl;
+    @apply font-bold;
+    @apply text-gray-700;
+  }
+
+  h3 {
+    @apply text-2xl;
+    @apply font-semibold;
+    @apply text-gray-700;
+  }
+
+  h4 {
+    @apply text-lg;
+    @apply font-semibold;
+    @apply text-gray-700;
+  }
+
+  body {
+    @apply text-sm;
+    @apply font-normal;
+  }
+
+  .secondary {
+    @apply text-xs;
+    @apply text-gray-500;
+  }
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+@layer components {
+  html,
+  body {
+    padding: 0;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell,
+      Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  }
 
-* {
-  box-sizing: border-box;
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Comment Writer Styles */
+  textarea,
+  pre {
+    border: none;
+    width: 100%;
+    line-height: 1.5em;
+    margin: 0;
+    border-radius: 8px;
+    outline: none;
+    background: transparent;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+  }
+
+  textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: hidden;
+    resize: none;
+    background: white;
+  }
 }
