@@ -5,7 +5,7 @@ import { useSignTypedData } from 'wagmi';
 import { getLatestGroup } from '@/lib/example-utils';
 
 const axios = axiosBase.create({
-  baseURL: `http://localhost:3000/api/v1`,
+  baseURL: `/api/v1`,
 });
 
 const UpvoteExample = () => {
