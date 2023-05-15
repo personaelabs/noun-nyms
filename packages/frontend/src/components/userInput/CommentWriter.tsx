@@ -5,21 +5,31 @@ import { MainButton } from '../MainButton';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
+import { postDoxed } from '../example/PostMessage';
+import { useSignTypedData } from 'wagmi';
+import { PrefixedHex } from '@personaelabs/nymjs';
 
 interface IWriterProps {
-  commentId: string;
+  parentId: PrefixedHex;
 }
 
-export const CommentWriter = ({ commentId }: IWriterProps) => {
+export const CommentWriter = ({ parentId }: IWriterProps) => {
   //TODO: render title box if no commentId exists (distinguish between reply and top-level post)
-  const [commentMsg, setCommentMsg] = useState<string>('');
-  const [titleMsg, setTitleMsg] = useState<string>('');
+  const [body, setCommentMsg] = useState<string>('');
+  const [title, setTitleMsg] = useState<string>('');
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
 
   // TODO
   const canPost = useMemo(() => true, []);
+
+  const { signTypedDataAsync } = useSignTypedData();
+
+  const sendPost = () => {
+    console.log(`posting`, title, body);
+    postDoxed({ title, body, parentId }, signTypedDataAsync);
+  };
 
   return (
     <>
@@ -30,10 +40,10 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
       ) : canPost ? (
         <div className="w-full flex flex-col gap-6 justify-center items-center">
           <div className="w-full flex flex-col gap-4">
-            {commentId === 'new' ? (
+            {parentId === '0x0' ? (
               <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
                 <Textarea
-                  value={titleMsg}
+                  value={title}
                   placeholder="Add title"
                   minHeight={50}
                   onChangeHandler={(newVal) => setTitleMsg(newVal)}
@@ -42,8 +52,8 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
             ) : null}
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
               <Textarea
-                value={commentMsg}
-                placeholder={commentId === 'new' ? 'Description' : 'Type your comment here'}
+                value={body}
+                placeholder={parentId === '0x0' ? 'Description' : 'Type your comment here'}
                 minHeight={100}
                 onChangeHandler={(newVal) => setCommentMsg(newVal)}
               ></Textarea>
@@ -58,12 +68,7 @@ export const CommentWriter = ({ commentId }: IWriterProps) => {
               <p className="secondary">Mr. Noun</p>
               <FontAwesomeIcon icon={faAngleDown} />
             </div>
-            <MainButton
-              color="black"
-              handler={() => console.log('post anonymously')}
-              loading={false}
-              message={'Send'}
-            />
+            <MainButton color="black" handler={sendPost} loading={false} message={'Send'} />
           </div>
         </div>
       ) : null}

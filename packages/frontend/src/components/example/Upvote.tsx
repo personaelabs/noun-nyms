@@ -5,34 +5,38 @@ import { useSignTypedData } from 'wagmi';
 import { getLatestGroup } from '@/lib/example-utils';
 
 const axios = axiosBase.create({
-  baseURL: `http://localhost:3000/api/v1`,
+  baseURL: `/api/v1`,
 });
+
+export const submitUpvote = async (postId: string, signTypedDataAsync: any) => {
+  const group = await getLatestGroup();
+
+  const upvote = {
+    postId: postId,
+    groupRoot: group.root,
+    timestamp: Math.round(Date.now() / 1000),
+  };
+
+  const sig = await signTypedDataAsync({
+    primaryType: 'Upvote',
+    domain: DOMAIN,
+    types: UPVOTE_TYPES,
+    message: upvote,
+  });
+
+  await axios.post(`/posts/${postId}/upvote`, {
+    groupRoot: upvote.groupRoot,
+    timestamp: upvote.timestamp,
+    sig,
+  });
+};
 
 const UpvoteExample = () => {
   const [postId, setPostId] = useState<string>('');
   const { signTypedDataAsync } = useSignTypedData();
 
   const handleUpvoteClick = useCallback(async () => {
-    const group = await getLatestGroup();
-
-    const upvote = {
-      postId: postId,
-      groupRoot: group.root,
-      timestamp: Math.round(Date.now() / 1000),
-    };
-
-    const sig = await signTypedDataAsync({
-      primaryType: 'Upvote',
-      domain: DOMAIN,
-      types: UPVOTE_TYPES,
-      message: upvote,
-    });
-
-    await axios.post(`/posts/${postId}/upvote`, {
-      groupRoot: upvote.groupRoot,
-      timestamp: upvote.timestamp,
-      sig,
-    });
+    await submitUpvote(postId, signTypedDataAsync);
     console.log('Upvoted post', postId);
   }, [postId, signTypedDataAsync]);
 

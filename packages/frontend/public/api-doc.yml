@@ -6,7 +6,7 @@ info:
     email: dan@personaelabs.org
   version: '1'
 servers:
-  - url: http://localhost:3000/api/v1
+  - url: /api/v1
     description: Local server
 paths:
   /posts:
@@ -57,7 +57,7 @@ paths:
                   description: Unix timestamp
                 attestationScheme:
                   type: string
-                  enum: 
+                  enum:
                     - Nym
                     - EIP712
               required:
@@ -103,7 +103,7 @@ paths:
                 timestamp:
                   type: number
                   description: Unix timestamp
-        
+
               required:
                 - sig
                 - postId
