@@ -7,7 +7,10 @@ function generateRandomNumbersFromHash(hash: string, count: number, ranges: numb
   }
 
   // Convert the Kecccak hash to a numeric seed
-  const seed = parseInt(hash.substr(2), 16);
+  //TODO: verify that collisions are sufficiently rare, we can't map this to its corresponding
+  // BigInt number because we can only provide numbers not BigInts to the Mersenne Twister. Also
+  // with sufficiently large numbers the generated random numbers end up being the same.
+  const seed = Number(parseInt(hash, 16).toString().substring(0, 12)) * 1000000;
 
   // Create a Mersenne Twister PRNG instance with the seed
   const mt = new MersenneTwister(seed);
@@ -27,6 +30,7 @@ function generateRandomNumbersFromHash(hash: string, count: number, ranges: numb
 
 export function getSeedFromHash(hash: string, count: number, ranges: number[]) {
   const randomNumbers = generateRandomNumbersFromHash(hash, count, ranges);
+  console.log('userID: ', hash, ' randomNumbers: ', randomNumbers);
   return {
     background: randomNumbers[0],
     body: randomNumbers[1],
