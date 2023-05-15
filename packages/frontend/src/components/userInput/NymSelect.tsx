@@ -11,18 +11,18 @@ interface NymSelectProps {
   setSelectedNym: (selectedNym: ClientNym) => void;
 }
 
+const getNymOptions = (address: string | undefined) => {
+  const nymOptionsString = address ? localStorage.getItem(address) : '';
+  return nymOptionsString ? (JSON.parse(nymOptionsString) as ClientNym[]) : [];
+};
+
 export const NymSelect = (props: NymSelectProps) => {
   const { address } = useAccount();
   const { selectedNym, setSelectedNym } = props;
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
-  const [nymOptions, setNymOptions] = useState<ClientNym[]>([]);
-
-  useEffect(() => {
-    const nymOptionsString = address ? localStorage.getItem(address) : '';
-    if (nymOptionsString) setNymOptions(JSON.parse(nymOptionsString));
-  }, [address]);
+  const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address));
 
   return (
     <>
