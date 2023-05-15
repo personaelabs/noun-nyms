@@ -40,7 +40,11 @@ export const UserTag = (props: UserTagProps) => {
   return (
     <div className="flex gap-2 items-center">
       <div className="flex gap-2 justify-center items-center">
-        <div ref={svgRef} dangerouslySetInnerHTML={{ __html: avatar }} />
+        <div
+          style={{ borderRadius: '50%', overflow: 'hidden' }}
+          ref={svgRef}
+          dangerouslySetInnerHTML={{ __html: avatar }}
+        />
         <p className="font-semibold">{userId}</p>
       </div>
       <p className="secondary">-</p>
