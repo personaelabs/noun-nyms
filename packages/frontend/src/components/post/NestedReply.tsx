@@ -2,10 +2,12 @@ import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
-import { ButtonIcon } from '../ButtonIcon';
 import { IPostWithReplies, IRootPost } from '@/types/api';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleUp, faReply, faSquare } from '@fortawesome/free-solid-svg-icons';
+import { UpvoteIcon } from '../UpvoteIcon';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -65,32 +67,19 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <UserTag imgURL={profileImgURL} userId={userId} date={dateFromDescription} />
       <span>{body}</span>
       <div className="flex justify-between items-center py-2 border-t border-gray-300">
-        <div className="flex justify-center items-center">
-          <ButtonIcon
-            onClick={() => console.log('clicked')}
-            iconPath="/upvote.svg"
-            bgColor="#D0D5DD"
-            hoverBgColor="#0E76FD"
-            iconWidth={20}
-            iconHeight={20}
-            iconText={upvotes.length.toString()}
-          />
-          <div className="px-1"></div>
-        </div>
-        <div className="flex gap-4 justif-center items-center">
+        <UpvoteIcon count={upvotes.length} />
+        <div className="flex gap-4 justify-center items-center">
           <ReplyCount count={childrenLength} />
-          <ButtonIcon
-            onClick={() => console.log('clicked')}
-            iconPath="/reply.svg"
-            bgColor="#D0D5DD"
-            hoverBgColor="#0E76FD"
-            iconWidth={15}
-            iconHeight={12.5}
-            iconText={'Reply'}
-          />
+          <div
+            className="flex gap-2 items-center cursor-pointer"
+            onClick={() => console.log('create reply')}
+          >
+            <FontAwesomeIcon icon={faReply} color="#0E76FD" />
+            {/* TODO: fix blue */}
+            <p className="hover:text-blue-500">Reply</p>
+          </div>
         </div>
       </div>
-      <div className="py-2"></div>
       {innerReplies}
     </div>
   );
