@@ -5,6 +5,7 @@ import {
   Content,
   DOMAIN,
   NymProver,
+  UPVOTE_TYPES,
   toTypedNymName,
 } from '@personaelabs/nymjs';
 import axiosBase from 'axios';
@@ -119,4 +120,27 @@ export const postPseudo = async (
     const result = await submitPost(content, attestationHex, AttestationScheme.Nym);
     console.log('Created a pseudonymous post! postId', result.data.postId);
   }
+};
+
+export const submitUpvote = async (postId: string, signTypedDataAsync: any) => {
+  const group = await getLatestGroup();
+
+  const upvote = {
+    postId: postId,
+    groupRoot: group.root,
+    timestamp: Math.round(Date.now() / 1000),
+  };
+
+  const sig = await signTypedDataAsync({
+    primaryType: 'Upvote',
+    domain: DOMAIN,
+    types: UPVOTE_TYPES,
+    message: upvote,
+  });
+
+  await axios.post(`/posts/${postId}/upvote`, {
+    groupRoot: upvote.groupRoot,
+    timestamp: upvote.timestamp,
+    sig,
+  });
 };
