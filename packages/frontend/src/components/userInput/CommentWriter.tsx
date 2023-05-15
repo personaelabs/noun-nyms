@@ -27,7 +27,7 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
   const { signTypedDataAsync } = useSignTypedData();
 
   const sendPost = () => {
-    if (nym.nymCode === 'Doxed Name') {
+    if (nym.nymCode === 'Doxed') {
       postDoxed({ title, body, parentId }, signTypedDataAsync);
     } else {
       postPseudo(nym.nymCode, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
