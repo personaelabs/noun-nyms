@@ -18,7 +18,7 @@ export const UpvoteIcon = (props: UpvoteIconProps) => {
 
   const outerStyle = {
     color: '#D0D5DD',
-    '&:hover': {
+    ':hover': {
       color: '#0E76FD',
     },
   };

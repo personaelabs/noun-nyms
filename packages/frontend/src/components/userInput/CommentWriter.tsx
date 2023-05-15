@@ -2,12 +2,10 @@ import { Textarea } from './Textarea';
 import { useState, useMemo } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
-import Image from 'next/image';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import { postDoxed } from '../example/PostMessage';
 import { useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
+import { NymSelect } from './NymSelect';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -62,12 +60,7 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
 
           {/* //TODO with nym selection */}
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            <p className="secondary">Posting as</p>
-            <div className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer">
-              <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-              <p className="secondary">Mr. Noun</p>
-              <FontAwesomeIcon icon={faAngleDown} />
-            </div>
+            <NymSelect />
             <MainButton color="black" handler={sendPost} loading={false} message={'Send'} />
           </div>
         </div>
