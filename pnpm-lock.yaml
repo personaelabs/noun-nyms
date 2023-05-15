@@ -95,6 +95,12 @@ importers:
       '@headlessui/react':
         specifier: ^1.7.14
         version: 1.7.14(react-dom@18.2.0)(react@18.2.0)
+      '@nouns/assets':
+        specifier: ^0.4.2
+        version: 0.4.2
+      '@nouns/sdk':
+        specifier: ^0.4.0
+        version: 0.4.0(ethers@5.7.2)
       '@personaelabs/nymjs':
         specifier: '*'
         version: link:../nymjs
@@ -122,6 +128,9 @@ importers:
       framer-motion:
         specifier: ^10.12.4
         version: 10.12.4(react-dom@18.2.0)(react@18.2.0)
+      mersenne-twister:
+        specifier: ^1.1.0
+        version: 1.1.0
       next:
         specifier: 13.2.4
         version: 13.2.4(react-dom@18.2.0)(react@18.2.0)
@@ -156,6 +165,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: ^4.29.4
         version: 4.29.4
+      '@types/mersenne-twister':
+        specifier: ^1.1.2
+        version: 1.1.2
       '@types/node':
         specifier: 18.15.3
         version: 18.15.3
@@ -4634,9 +4646,28 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
 
+  /@nouns/assets@0.4.2:
+    resolution: {integrity: sha512-pPiPU6Ifbldjx2WpIZOEet/h2hV32rpZd6GCBlCHmuJfW4p7qqCsD2glwQ8YRqVEr+JQ0Z3WIFKa5iumQxtM3Q==}
+    dependencies:
+      '@ethersproject/bignumber': 5.7.0
+      '@ethersproject/solidity': 5.7.0
+    dev: false
+
   /@nouns/contracts@0.3.0:
     resolution: {integrity: sha512-l619EP77QqX0gPGw3gPfh9tgBlz5lFwK8EzB+orLJx3JrfHSUqfjjYCfZih+I++bhJuK78ro2FgFx6U0kZnXEw==}
     dependencies:
+      ethers: 5.7.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: false
+
+  /@nouns/sdk@0.4.0(ethers@5.7.2):
+    resolution: {integrity: sha512-PLRDUad/TXCsGmP2ITXkYBrwlzQfO9DaoB0xwikvNPF/Vul+rAVnsXgMf8gm5KQ8CKVlxImoEnxsL8Dcx5elAw==}
+    peerDependencies:
+      ethers: '>=5.0.0'
+    dependencies:
+      '@nouns/contracts': 0.3.0
       ethers: 5.7.2
     transitivePeerDependencies:
       - bufferutil
@@ -5677,6 +5708,10 @@ packages:
   /@types/json5@0.0.29:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
     dev: false
+
+  /@types/mersenne-twister@1.1.2:
+    resolution: {integrity: sha512-7KMIfSkMpaVExbzJRLUXHMO4hkFWbbspHPREk8I6pBxiNN+3+l6eAEClMCIPIo2KjCkR0rjYfXppr6+wKdTwpA==}
+    dev: true
 
   /@types/minimist@1.2.2:
     resolution: {integrity: sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==}
@@ -13092,6 +13127,10 @@ packages:
     dependencies:
       '@types/node': 18.11.3
     dev: true
+
+  /mersenne-twister@1.1.0:
+    resolution: {integrity: sha512-mUYWsMKNrm4lfygPkL3OfGzOPTR2DBlTkBNHM//F6hGp8cLThY897crAlk3/Jo17LEOOjQUrNAx6DvgO77QJkA==}
+    dev: false
 
   /metro-babel-transformer@0.73.9:
     resolution: {integrity: sha512-DlYwg9wwYIZTHtic7dyD4BP0SDftoltZ3clma76nHu43blMWsCnrImHeHsAVne3XsQ+RJaSRxhN5nkG2VyVHwA==}
