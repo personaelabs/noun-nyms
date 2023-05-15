@@ -2,12 +2,11 @@ import { Textarea } from './Textarea';
 import { useState, useMemo } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
-import Image from 'next/image';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import { postDoxed } from '../example/PostMessage';
-import { useSignTypedData } from 'wagmi';
+import { postDoxed, postPseudo } from '../example/PostMessage';
+import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
+import { NymSelect } from './NymSelect';
+import { ClientNym } from '@/types/components';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -17,6 +16,7 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
   //TODO: render title box if no commentId exists (distinguish between reply and top-level post)
   const [body, setCommentMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
+  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymCode: 'Doxed' });
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -27,8 +27,11 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
   const { signTypedDataAsync } = useSignTypedData();
 
   const sendPost = () => {
-    console.log(`posting`, title, body);
-    postDoxed({ title, body, parentId }, signTypedDataAsync);
+    if (nym.nymCode === 'Doxed') {
+      postDoxed({ title, body, parentId }, signTypedDataAsync);
+    } else {
+      postPseudo(nym.nymCode, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
+    }
   };
 
   return (
@@ -59,15 +62,8 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
               ></Textarea>
             </div>
           </div>
-
-          {/* //TODO with nym selection */}
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            <p className="secondary">Posting as</p>
-            <div className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer">
-              <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-              <p className="secondary">Mr. Noun</p>
-              <FontAwesomeIcon icon={faAngleDown} />
-            </div>
+            <NymSelect selectedNym={nym} setSelectedNym={setNym} />
             <MainButton color="black" handler={sendPost} loading={false} message={'Send'} />
           </div>
         </div>

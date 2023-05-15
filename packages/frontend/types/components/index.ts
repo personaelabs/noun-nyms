@@ -9,3 +9,8 @@ export type PostWithRepliesProps = IRootPost & {
   handleClose: (isOpen: boolean) => void;
   dateFromDescription: string;
 };
+
+export type ClientNym = {
+  nymCode: string;
+  nymSig: string;
+};

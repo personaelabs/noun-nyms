@@ -80,4 +80,11 @@
     resize: none;
     background: white;
   }
+
+  .hoverIcon {
+    color: #d0d5dd;
+  }
+  .hoverIcon:hover {
+    color: #0e76fd;
+  }
 }
