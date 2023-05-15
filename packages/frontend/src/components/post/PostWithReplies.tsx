@@ -11,6 +11,7 @@ import { UserTag } from './UserTag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { UpvoteIcon } from '../UpvoteIcon';
+import { PrefixedHex } from '@personaelabs/nymjs';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -72,7 +73,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
             <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-              <CommentWriter parentId={`0x${id}`} />
+              <CommentWriter parentId={id as PrefixedHex} />
               <h4>
                 {singlePost?.replies.length}{' '}
                 {singlePost?.replies.length === 1 ? 'comment' : 'comments'}

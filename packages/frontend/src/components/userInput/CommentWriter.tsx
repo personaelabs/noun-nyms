@@ -18,6 +18,8 @@ export const CommentWriter = ({ parentId }: IWriterProps) => {
   const [body, setCommentMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
 
+  console.log(`received parent`, parentId);
+
   // TODO
   const someDbQuery = useMemo(() => true, []);
 
