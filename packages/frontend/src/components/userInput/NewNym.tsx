@@ -7,7 +7,6 @@ import { useSignTypedData, useAccount } from 'wagmi';
 import { ClientNym } from '@/types/components';
 
 interface NewNymProps {
-  isOpen: boolean;
   handleClose: () => void;
   nymOptions: ClientNym[];
   setNymOptions: (nymOptions: ClientNym[]) => void;
@@ -27,7 +26,7 @@ const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string
 
 export const NewNym = (props: NewNymProps) => {
   const { address } = useAccount();
-  const { isOpen, handleClose, nymOptions, setNymOptions } = props;
+  const { handleClose, nymOptions, setNymOptions } = props;
   const [nymName, setnymName] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
@@ -57,7 +56,7 @@ export const NewNym = (props: NewNymProps) => {
     handleClose();
   };
   return (
-    <Modal width="50%" isOpen={isOpen} handleClose={handleClose}>
+    <Modal width="50%" handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
           <h3>Create a new nym</h3>

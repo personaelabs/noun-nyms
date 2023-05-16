@@ -2,11 +2,10 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import { IRootPost } from '../api';
 
 export type PostProps = IRootPost & {
-  handleOpenPost?: () => void;
+  handleOpenPost: () => void;
 };
 
 export type PostWithRepliesProps = IRootPost & {
-  isOpen: boolean;
   handleClose: () => void;
 };
 

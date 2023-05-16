@@ -48,11 +48,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   return (
     <>
       {showWalletWarning ? (
-        <WalletWarning
-          isOpen={showWalletWarning}
-          handleClose={() => setShowWalletWarning(false)}
-          action="comment"
-        />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="comment" />
       ) : null}
       {someDbQuery === undefined ? (
         <div className="bg-gray-100 border border-gray-300 p-12 py-24 rounded-md flex justify-center text-gray-800">

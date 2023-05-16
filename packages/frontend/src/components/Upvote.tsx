@@ -49,16 +49,11 @@ export const Upvote = (props: UpvoteIconProps) => {
     <>
       {showVoteWarning ? (
         <UpvoteWarning
-          isOpen={showVoteWarning}
           handleClose={() => setShowVoteWarning(false)}
           upvoteHandler={upvoteHandler}
         />
       ) : showWalletWarning ? (
-        <WalletWarning
-          isOpen={showWalletWarning}
-          handleClose={() => setShowWalletWarning(false)}
-          action="upvote"
-        />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="upvote" />
       ) : null}
       <div
         onClick={handleClick}

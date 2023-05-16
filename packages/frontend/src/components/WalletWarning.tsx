@@ -2,16 +2,15 @@ import ConnectWallet from './ConnectWallet';
 import { Modal } from './global/Modal';
 
 interface WalletWarningProps {
-  isOpen: boolean;
   handleClose: () => void;
   action: string;
 }
 
 export const WalletWarning = (props: WalletWarningProps) => {
-  const { isOpen, handleClose, action } = props;
+  const { handleClose, action } = props;
 
   return (
-    <Modal width="50%" isOpen={isOpen} handleClose={handleClose}>
+    <Modal width="50%" handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <h3>Connect a wallet to {action}</h3>
         <p className="text-gray-700">

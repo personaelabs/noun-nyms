@@ -28,7 +28,6 @@ export const NymSelect = (props: NymSelectProps) => {
     <>
       {openNewNym ? (
         <NewNym
-          isOpen={openNewNym}
           handleClose={() => setOpenNewNym(false)}
           nymOptions={nymOptions}
           setNymOptions={setNymOptions}

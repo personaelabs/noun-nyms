@@ -16,7 +16,7 @@ const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { id, timestamp, isOpen, handleClose, title, body, replyCount, userId, upvotes } =
+  const { id, timestamp, handleClose, title, body, replyCount, userId, upvotes } =
     postWithRepliesProps;
 
   const {
@@ -58,7 +58,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   }, [singlePost]);
 
   return (
-    <Modal isOpen={isOpen} handleClose={handleClose}>
+    <Modal handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex flex-col gap-3">
           <div className="flex justify-between item-center">

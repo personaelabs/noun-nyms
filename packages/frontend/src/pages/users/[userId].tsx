@@ -42,9 +42,7 @@ export default function User() {
 
   return (
     <>
-      {openPost ? (
-        <PostWithReplies {...openPost} isOpen={true} handleClose={() => setOpenPostId('')} />
-      ) : null}
+      {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-black dots w-full">
