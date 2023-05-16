@@ -5,18 +5,22 @@ import { ReactNode } from 'react';
 
 interface ModalProps {
   width?: string;
+  startAtTop?: boolean;
   handleClose: () => void;
   children: ReactNode;
 }
 
 export const Modal = (props: ModalProps) => {
-  const { width, handleClose, children } = props;
+  const { width, startAtTop, handleClose, children } = props;
   return (
     <Dialog open={true} onClose={handleClose} className="relative z-50">
       {/* The backdrop, rendered as a fixed sibling to the panel container */}
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
       <div className="fixed inset-0 overflow-y-auto">
-        <div className="flex min-h-full items-center justify-center">
+        <div
+          className="flex min-h-full justify-center"
+          style={{ alignItems: startAtTop ? 'top' : 'center' }}
+        >
           <Dialog.Panel
             className="relative max-w-3xl bg-gray-50 mx-8 rounded-md"
             style={{ width: width ? width : '100%' }}

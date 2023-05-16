@@ -58,7 +58,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   }, [singlePost]);
 
   return (
-    <Modal handleClose={handleClose}>
+    <Modal startAtTop={true} handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex flex-col gap-3">
           <div className="flex justify-between item-center">
