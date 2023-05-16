@@ -8,7 +8,7 @@ import ConnectWallet from './ConnectWallet';
 import { MainButton } from './MainButton';
 import { useState } from 'react';
 import { NewPost } from './userInput/NewPost';
-import { useRouter } from 'next/router';
+import { Upvote } from './Upvote';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
@@ -87,12 +87,16 @@ export default function Posts(props: PostsProps) {
               ) : posts ? (
                 <>
                   {posts.map((post) => (
-                    <Post
-                      key={post.id}
-                      {...post}
-                      shouldOpenModal={post.id === openPostId}
-                      userId={post.userId}
-                    />
+                    <div className="flex gap-2" key={post.id}>
+                      <Upvote upvotes={post.upvotes} postId={post.id} col={true}>
+                        <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
+                      </Upvote>
+                      <Post
+                        {...post}
+                        shouldOpenModal={post.id === openPostId}
+                        userId={post.userId}
+                      />
+                    </div>
                   ))}
                 </>
               ) : // TODO: handle error state here

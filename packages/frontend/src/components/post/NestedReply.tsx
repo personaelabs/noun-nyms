@@ -6,8 +6,8 @@ import { IPostWithReplies, IRootPost } from '@/types/api';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleUp, faReply, faSquare } from '@fortawesome/free-solid-svg-icons';
-import { UpvoteIcon } from '../UpvoteIcon';
+import { faReply } from '@fortawesome/free-solid-svg-icons';
+import { Upvote } from '../Upvote';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -67,7 +67,9 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <UserTag imgURL={profileImgURL} userId={userId} date={dateFromDescription} />
       <span>{body}</span>
       <div className="flex justify-between items-center py-2 border-t border-gray-300">
-        <UpvoteIcon count={upvotes.length} postId={id} />
+        <Upvote upvotes={upvotes} postId={id}>
+          <p>{upvotes.length}</p>
+        </Upvote>
         <div className="flex gap-4 justify-center items-center">
           <ReplyCount count={childrenLength} />
           <div

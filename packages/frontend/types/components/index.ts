@@ -14,3 +14,9 @@ export type ClientNym = {
   nymCode: string;
   nymSig: string;
 };
+
+export type ClientUpvote = {
+  id: string;
+  address: string;
+  timestamp: Date;
+};

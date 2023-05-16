@@ -1,4 +1,3 @@
-import { Dialog } from '@headlessui/react';
 import { useMemo } from 'react';
 import { CommentWriter } from '../userInput/CommentWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
@@ -8,7 +7,7 @@ import { IPostWithReplies } from '@/types/api';
 import { PostWithRepliesProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
-import { UpvoteIcon } from '../UpvoteIcon';
+import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
 
@@ -53,7 +52,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
-            <UpvoteIcon count={upvotes.length} postId={id} />
+            <Upvote upvotes={upvotes} postId={id}>
+              <p>{upvotes.length}</p>
+            </Upvote>
           </div>
         </div>
       </div>
