@@ -42,19 +42,9 @@ export default function Posts(props: PostsProps) {
     refetch();
   };
 
-  // const router = useRouter();
-  // const openPostId = router.query.postId as string;
-  // console.log({ openPostId });
-
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
-
   const openPost = useMemo(() => posts?.find((p) => p.id === openPostId), [openPostId, posts]);
-
-  if (openPost) console.log({ openPost });
-  console.log({ openPostId });
-
-  // TODO: get connected account information from wagmi
 
   return (
     <>
@@ -64,14 +54,7 @@ export default function Posts(props: PostsProps) {
         onSuccess={manualRefetch}
       />
       {openPost ? (
-        <PostWithReplies
-          {...openPost}
-          isOpen={true}
-          handleClose={() => {
-            console.log('closing post');
-            setOpenPostId('');
-          }}
-        />
+        <PostWithReplies {...openPost} isOpen={true} handleClose={() => setOpenPostId('')} />
       ) : null}
 
       <main className="flex w-full flex-col justify-center items-center">
@@ -137,10 +120,7 @@ export default function Posts(props: PostsProps) {
                       <Post
                         {...post}
                         userId={post.userId}
-                        handleOpenPost={() => {
-                          console.log('setting new open post');
-                          setOpenPostId(post.id);
-                        }}
+                        handleOpenPost={() => setOpenPostId(post.id)}
                       />
                     </div>
                   ))}
