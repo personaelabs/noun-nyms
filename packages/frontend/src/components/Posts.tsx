@@ -23,6 +23,7 @@ export default function Posts(props: PostsProps) {
     isLoading,
     isRefetching,
     isFetching,
+    refetch,
     data: posts,
   } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
@@ -35,6 +36,11 @@ export default function Posts(props: PostsProps) {
   isRefetching ? console.log(`POSTS: is refetching`) : '';
   isFetching ? console.log(`POSTS: is fetching `) : '';
 
+  const manualRefetch = () => {
+    console.log('MANUAL REFETCH');
+    refetch();
+  };
+
   const [newPostOpen, setNewPostOpen] = useState(false);
 
   if (openPostId) console.log({ openPostId });
@@ -43,7 +49,11 @@ export default function Posts(props: PostsProps) {
 
   return (
     <>
-      <NewPost isOpen={newPostOpen} handleClose={() => setNewPostOpen(false)} />
+      <NewPost
+        isOpen={newPostOpen}
+        handleClose={() => setNewPostOpen(false)}
+        onSuccess={manualRefetch}
+      />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-black dots w-full">
@@ -96,7 +106,12 @@ export default function Posts(props: PostsProps) {
                 <>
                   {posts.map((post) => (
                     <div className="flex gap-2" key={post.id}>
-                      <Upvote upvotes={post.upvotes} postId={post.id} col={true}>
+                      <Upvote
+                        upvotes={post.upvotes}
+                        postId={post.id}
+                        col={true}
+                        onSuccess={manualRefetch}
+                      >
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
                       <Post

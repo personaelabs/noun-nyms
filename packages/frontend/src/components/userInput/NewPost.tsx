@@ -3,10 +3,11 @@ import { Modal } from '../global/Modal';
 
 interface NewPostProps {
   isOpen: boolean;
-  handleClose: (isOpen: boolean) => void;
+  handleClose: () => void;
+  onSuccess: () => void;
 }
 export const NewPost = (props: NewPostProps) => {
-  const { isOpen, handleClose } = props;
+  const { isOpen, handleClose, onSuccess } = props;
 
   return (
     <Modal isOpen={isOpen} handleClose={handleClose}>
@@ -14,7 +15,7 @@ export const NewPost = (props: NewPostProps) => {
         <div className="flex justify-start">
           <h3>Start a discussion here</h3>
         </div>
-        <PostWriter parentId={'0x0'} />
+        <PostWriter parentId={'0x0'} onSuccess={onSuccess} />
       </div>
     </Modal>
   );

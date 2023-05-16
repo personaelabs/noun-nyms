@@ -7,7 +7,7 @@ export type PostProps = IRootPost & {
 
 export type PostWithRepliesProps = IRootPost & {
   isOpen: boolean;
-  handleClose: (isOpen: boolean) => void;
+  handleClose: () => void;
   dateFromDescription: string;
 };
 

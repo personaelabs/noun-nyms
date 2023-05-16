@@ -18,8 +18,13 @@ interface IReplyProps extends IPostWithReplies {
   proof: string;
   childrenLength: number;
   createdAt: Date;
+  onSuccess: () => void;
 }
-export const resolveNestedReplyThreads = (allPosts: IPostWithReplies[], depth: number) => {
+export const resolveNestedReplyThreads = (
+  allPosts: IPostWithReplies[],
+  depth: number,
+  onSuccess: () => void,
+) => {
   const replyNodes: React.ReactNode[] = [];
   const profileImgURL = '';
   const proof = '';
@@ -30,10 +35,11 @@ export const resolveNestedReplyThreads = (allPosts: IPostWithReplies[], depth: n
         key={post.id}
         depth={depth}
         createdAt={new Date(post.timestamp)}
-        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1)}
+        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess)}
         profileImgURL={profileImgURL}
         proof={proof}
         childrenLength={post.replies.length}
+        onSuccess={onSuccess}
       />,
     );
   }
@@ -51,6 +57,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
     profileImgURL,
     childrenLength,
     upvotes,
+    onSuccess,
   } = replyProps;
   const dateFromDescription = useMemo(() => {
     const date = dayjs(createdAt);
@@ -71,7 +78,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <UserTag imgURL={profileImgURL} userId={userId} date={dateFromDescription} />
       <span>{body}</span>
       <div className="flex justify-between items-center py-2 border-t border-gray-300">
-        <Upvote upvotes={upvotes} postId={id}>
+        <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
           <p>{upvotes.length}</p>
         </Upvote>
         <div className="flex gap-4 justify-center items-center">
@@ -86,7 +93,11 @@ export const NestedReply = (replyProps: IReplyProps) => {
         </div>
       </div>
       {showPostWriter ? (
-        <PostWriter parentId={id as PrefixedHex} setShowWriter={setShowPostWriter} />
+        <PostWriter
+          parentId={id as PrefixedHex}
+          onSuccess={onSuccess}
+          handleCloseWriter={() => setShowPostWriter(false)}
+        />
       ) : null}
       {innerReplies}
     </div>

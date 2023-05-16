@@ -6,7 +6,7 @@ import { ReactNode } from 'react';
 interface ModalProps {
   width?: string;
   isOpen: boolean;
-  handleClose: (isOpen: boolean) => void;
+  handleClose: () => void;
   children: ReactNode;
 }
 

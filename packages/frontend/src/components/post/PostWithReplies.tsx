@@ -41,7 +41,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0);
+      return resolveNestedReplyThreads(singlePost.replies, 0, manualRefetch);
     } else {
       return <div></div>;
     }
@@ -64,7 +64,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
-            <Upvote upvotes={upvotes} postId={id}>
+            <Upvote upvotes={upvotes} postId={id} onSuccess={manualRefetch}>
               <p>{upvotes.length}</p>
             </Upvote>
           </div>
