@@ -52,7 +52,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
-            <Upvote upvotes={upvotes} postId={id} />
+            <Upvote upvotes={upvotes} postId={id}>
+              <p>{upvotes.length}</p>
+            </Upvote>
           </div>
         </div>
       </div>
