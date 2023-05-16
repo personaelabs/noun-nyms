@@ -32,6 +32,8 @@ export default function Posts(props: PostsProps) {
     retry: 1,
     enabled: true,
     staleTime: 1000,
+    refetchIntervalInBackground: true,
+    refetchInterval: 30000, // 30 seconds
   });
 
   isRefetching ? console.log(`POSTS: is refetching`) : '';

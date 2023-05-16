@@ -30,6 +30,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     retry: 1,
     enabled: true,
     staleTime: 5000,
+    refetchIntervalInBackground: true,
+    refetchInterval: 30000, // 30 seconds
   });
 
   const manualRefetch = () => {
