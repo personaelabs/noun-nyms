@@ -7,6 +7,7 @@ import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { NymSelect } from './NymSelect';
 import { ClientNym } from '@/types/components';
+import { WalletWarning } from '../WalletWarning';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -17,7 +18,9 @@ export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
   //TODO: render title box if no postId exists (distinguish between reply and top-level post)
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
+  const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: 'Doxed' });
+  const { address } = useAccount();
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -28,6 +31,10 @@ export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
   const { signTypedDataAsync } = useSignTypedData();
 
   const sendPost = async () => {
+    if (!address) {
+      setShowWalletWarning(true);
+      return;
+    }
     if (nym.nymName === 'Doxed') {
       await postDoxed({ title, body, parentId }, signTypedDataAsync);
     } else {
@@ -38,6 +45,13 @@ export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
 
   return (
     <>
+      {showWalletWarning ? (
+        <WalletWarning
+          isOpen={showWalletWarning}
+          handleClose={() => setShowWalletWarning(false)}
+          action="comment"
+        />
+      ) : null}
       {someDbQuery === undefined ? (
         <div className="bg-gray-100 border border-gray-300 p-12 py-24 rounded-md flex justify-center text-gray-800">
           <Spinner />
@@ -65,7 +79,7 @@ export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
             </div>
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            <NymSelect selectedNym={nym} setSelectedNym={setNym} />
+            {address ? <NymSelect selectedNym={nym} setSelectedNym={setNym} /> : null}
             <MainButton color="black" handler={sendPost} loading={false} message={'Send'} />
           </div>
         </div>
