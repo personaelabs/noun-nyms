@@ -3,7 +3,7 @@ import { Profiler } from './profiler';
 import {
   loadCircuit,
   deserializeNymAttestation,
-  toTypedNymCode,
+  toTypedNymName,
   eip712MsgHash,
   serializePublicInput,
   toTypedContent,
@@ -39,24 +39,24 @@ export class NymVerifier extends Profiler {
 
   verifyPublicInput(
     post: Post,
-    nymCode: Buffer,
+    nymName: Buffer,
     publicInput: PublicInput,
     auxiliary: NymProofAuxiliary,
   ): boolean {
     let isNymSigPubInputValid;
 
     try {
-      const typedNymCode = toTypedNymCode(nymCode.toString('utf8'));
-      const typedNymCodeHash = eip712MsgHash(
-        typedNymCode.domain,
-        typedNymCode.types,
-        typedNymCode.value,
+      const typedNymName = toTypedNymName(nymName.toString('utf8'));
+      const typedNymNameHash = eip712MsgHash(
+        typedNymName.domain,
+        typedNymName.types,
+        typedNymName.value,
       );
 
       const nymSigPublicInput = new EffEcdsaPubInput(
         auxiliary.nymSigR,
         auxiliary.nymSigV,
-        typedNymCodeHash,
+        typedNymNameHash,
         new CircuitPubInput(
           publicInput.root,
           publicInput.nymSigTx,
@@ -105,7 +105,7 @@ export class NymVerifier extends Profiler {
     const circuitBin = await loadCircuit(this.circuit);
     this.timeEnd('Load circuit');
 
-    const { nymCode, proof, publicInput, auxiliary } = deserializeNymAttestation(post.attestation);
+    const { nymName, proof, publicInput, auxiliary } = deserializeNymAttestation(post.attestation);
 
     // Verify that the content.groupRoot matches the `root` in the public input
     if (post.content.groupRoot !== bigIntToHex(publicInput.root)) {
@@ -115,7 +115,7 @@ export class NymVerifier extends Profiler {
     this.time('Verify public input');
     const isPublicInputValid = this.verifyPublicInput(
       post,
-      Buffer.from(nymCode, 'utf-8'),
+      Buffer.from(nymName, 'utf-8'),
       publicInput,
       auxiliary,
     );

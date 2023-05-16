@@ -1,4 +1,4 @@
-import { CommentWriter } from './CommentWriter';
+import { PostWriter } from './PostWriter';
 import { Modal } from '../global/Modal';
 
 interface NewPostProps {
@@ -14,7 +14,7 @@ export const NewPost = (props: NewPostProps) => {
         <div className="flex justify-start">
           <h3>Start a discussion here</h3>
         </div>
-        <CommentWriter parentId={'0x0'} />
+        <PostWriter parentId={'0x0'} />
       </div>
     </Modal>
   );

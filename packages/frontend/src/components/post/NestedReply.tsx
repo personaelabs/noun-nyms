@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
-import { IPostWithReplies, IRootPost } from '@/types/api';
+import { IPostWithReplies } from '@/types/api';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

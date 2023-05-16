@@ -2,8 +2,6 @@ import dayjs from 'dayjs';
 import { useMemo, useState } from 'react';
 import { PostWithReplies } from './PostWithReplies';
 import { PostProps } from '@/types/components';
-import * as React from 'react';
-import { IRootPost } from '@/types/api';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 const relativeTime = require('dayjs/plugin/relativeTime');

@@ -9,7 +9,7 @@ export {
   recoverUpvotePubkey,
   toPost,
   toUpvote,
-  toTypedNymCode,
+  toTypedNymName,
   toTypedContent,
   toTypedUpvote,
   recoverPostPubkey,

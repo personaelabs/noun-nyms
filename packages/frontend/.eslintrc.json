@@ -1,6 +1,10 @@
 {
   // You might want to additionally set this in monorepos where Next.js app is in a subdir
   "extends": ["next/core-web-vitals"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "import/no-unused-modules": "warn"
+  },
   "overrides": [
     {
       // Adapt to your needs (e.g. some might want to only override "next.config.js")

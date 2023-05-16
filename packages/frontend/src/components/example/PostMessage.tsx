@@ -1,163 +1,8 @@
 import { useEffect, useState } from 'react';
-import axiosBase from 'axios';
-import {
-  NYM_CODE_TYPE,
-  NymProver,
-  eip712MsgHash,
-  DOMAIN,
-  Content,
-  AttestationScheme,
-  toTypedNymCode,
-  CONTENT_MESSAGE_TYPES,
-  PrefixedHex,
-  EIP712TypedData,
-} from '@personaelabs/nymjs';
-import { MerkleProof } from '@personaelabs/spartan-ecdsa';
-import { ecrecover, fromRpcSig } from '@ethereumjs/util';
+import { NYM_CODE_TYPE, DOMAIN, PrefixedHex } from '@personaelabs/nymjs';
 import { useSignTypedData, useAccount } from 'wagmi';
-
-const axios = axiosBase.create({
-  baseURL: `/api/v1`,
-});
-
-type Member = {
-  pubkey: string;
-  path: string[];
-  indices: number[];
-};
-
-type ContentUserInput = {
-  title: string;
-  body: string;
-  parentId: PrefixedHex;
-};
-
-const submitPost = async (
-  content: Content,
-  attestation: string,
-  attestationScheme: AttestationScheme,
-) => {
-  const result = await axios.post(`/posts`, {
-    content,
-    attestation,
-    attestationScheme,
-  });
-
-  return result;
-};
-
-const getLatestGroup = async () => {
-  const { data } = await axios.get('/groups/latest?set=1');
-
-  const group: {
-    root: PrefixedHex;
-    members: Member[];
-  } = data;
-
-  return group;
-};
-
-export const postDoxed = async (doxedContentInput: ContentUserInput, signTypedDataAsync: any) => {
-  const group = await getLatestGroup();
-
-  // Construct the content to sign
-  const content: Content = {
-    venue: 'nouns',
-    title: doxedContentInput.title,
-    body: doxedContentInput.body,
-    parentId: doxedContentInput.parentId ? doxedContentInput.parentId : '0x0',
-    groupRoot: group.root,
-    timestamp: Math.round(Date.now() / 1000),
-  };
-
-  // Request the user to sign the content
-  const attestation = await signTypedDataAsync({
-    primaryType: 'Post',
-    domain: DOMAIN,
-    types: CONTENT_MESSAGE_TYPES,
-    message: content,
-  });
-
-  const result = await submitPost(content, attestation, AttestationScheme.EIP712);
-
-  console.log('Created a non-pseudonymous post! postId', result.data.postId);
-};
-
-export const postPseudo = async (
-  nymCode: string,
-  nymSig: any,
-  nymContentInput: ContentUserInput,
-  signTypedDataAsync: any,
-) => {
-  if (nymCode && nymSig) {
-    const group = await getLatestGroup();
-    const typedNymCode = toTypedNymCode(nymCode);
-    const userPubKey = getPubKeyFromEIP712Sig(typedNymCode, nymSig);
-
-    // Get the user's merkle proof
-    const userMerkleProof = group.members.find((member) => member.pubkey === userPubKey);
-
-    // Throw if merkle proof not found (implies user not in set)
-    if (!userMerkleProof) {
-      throw new Error('User not found in set');
-    }
-
-    const merkleProof: MerkleProof = {
-      pathIndices: userMerkleProof?.indices,
-      siblings: userMerkleProof?.path.map((sibling) => BigInt(sibling)),
-      root: BigInt(group.root),
-    };
-
-    // Construct the content to sign
-    const content: Content = {
-      venue: 'nouns',
-      title: nymContentInput.title,
-      body: nymContentInput.body,
-      parentId: nymContentInput.parentId ? nymContentInput.parentId : '0x0',
-      groupRoot: group.root,
-      timestamp: Math.round(Date.now() / 1000),
-    };
-
-    // Request the user to sign the content
-    const contentSig = await signTypedDataAsync({
-      primaryType: 'Post',
-      domain: DOMAIN,
-      types: CONTENT_MESSAGE_TYPES,
-      message: content,
-    });
-
-    // Setup the prover
-    const nymProver = new NymProver({
-      enableProfiler: true,
-    });
-
-    await nymProver.initWasm();
-
-    // Generate the proof
-    const attestation = await nymProver.prove(
-      nymCode,
-      content,
-      nymSig as string,
-      contentSig as string,
-      merkleProof,
-    );
-
-    const attestationHex = Buffer.from(attestation).toString('hex');
-
-    const result = await submitPost(content, attestationHex, AttestationScheme.Nym);
-    console.log('Created a pseudonymous post! postId', result.data.postId);
-  }
-};
-
-const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string): string => {
-  const { v, r, s } = fromRpcSig(sig);
-  return `0x${ecrecover(
-    eip712MsgHash(typedData.domain, typedData.types, typedData.value),
-    v,
-    r,
-    s,
-  ).toString('hex')}`;
-};
+import { ContentUserInput } from '@/types/components';
+import { postDoxed, postPseudo } from '@/lib/actions';
 
 const ExamplePost = () => {
   const { address } = useAccount();
@@ -166,7 +11,7 @@ const ExamplePost = () => {
     setHydrated(true);
   }, []);
 
-  const [nymCode, setNymCode] = useState<string>('');
+  const [nymName, setnymName] = useState<string>('');
   const [doxedContentInput, setDoxedContentInput] = useState<ContentUserInput>({
     title: 'This is the title of a doxed post',
     body: 'This is the body of a doxed post',
@@ -179,12 +24,12 @@ const ExamplePost = () => {
     parentId: '0x0',
   });
 
-  const { data: nymSig, signTypedData: signNymCode } = useSignTypedData({
+  const { data: nymSig, signTypedData: signnymName } = useSignTypedData({
     primaryType: 'Nym',
     domain: DOMAIN,
     types: NYM_CODE_TYPE,
     message: {
-      nymCode,
+      nymName,
     },
   });
 
@@ -227,8 +72,8 @@ const ExamplePost = () => {
             id="input"
             type="text"
             className="border border-gray-400 p-3 rounded-lg w-full focus:outline-none focus:border-blue-500"
-            value={nymCode}
-            onChange={(e) => setNymCode(e.target.value)}
+            value={nymName}
+            onChange={(e) => setnymName(e.target.value)}
           />
           <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
             <svg className="w-6 h-6 fill-current text-gray-400" viewBox="0 0 24 24">
@@ -239,9 +84,9 @@ const ExamplePost = () => {
         <div className="flex flex-col">
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-            // @ts-expect-error signNymCode is the function from signTypedData and has a type error.
-            onClick={signNymCode}
-            disabled={nymCode !== '' && !nymSig ? false : true}
+            // @ts-expect-error signnymName is the function from signTypedData and has a type error.
+            onClick={signnymName}
+            disabled={nymName !== '' && !nymSig ? false : true}
           >
             Sign Nym code
           </button>
@@ -260,7 +105,7 @@ const ExamplePost = () => {
           />
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-            onClick={() => postPseudo(nymCode, nymSig, nymContentInput, signTypedDataAsync)}
+            onClick={() => postPseudo(nymName, nymSig, nymContentInput, signTypedDataAsync)}
             disabled={!nymSig ? true : false}
           >
             Submit a pseudonymous post

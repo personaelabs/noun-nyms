@@ -12,24 +12,20 @@ export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
 };
 
 export const isNymValid = (nym: string): boolean => {
-  const [_nymCode, nymHash] = nym.split('-');
+  const [_nymName, nymHash] = nym.split('-');
   return nymHash.length === 64;
 };
 
 // Maybe move this into nymjs
 export const getNymFromAttestation = (attestation: Buffer): string => {
   const {
-    nymCode,
+    nymName,
     publicInput: { nymHash },
   } = deserializeNymAttestation(attestation);
-  const nym = `${nymCode}-${nymHash.toString(16)}`;
+  const nym = `${nymName}-${nymHash.toString(16)}`;
   return nym;
 };
 
-type Post = {
-  id: string;
-  rootId: string;
-};
 export const findPost = async (
   postId: string,
 ): Promise<{

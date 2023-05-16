@@ -66,7 +66,7 @@ The format of `attestation` depends on the `attestationScheme`.
   - `nymSigV`
   - `contentSigR`
   - `contentSigV`
-- `nymCode`: UTF-8 encoded Nym code, padded to equal 32 bytes.
+- `nymName`: UTF-8 encoded Nym code, padded to equal 32 bytes.
 
 ### If `attestationScheme = EIP712`
 
@@ -90,11 +90,11 @@ The following EIP712 domain and types MUST be used when signing an EIP712 signat
 
 `types`
 
-**EIP712 types for signing `nymCode`**
+**EIP712 types for signing `nymName`**
 
 ```json
 {
-  "Nym": [{ "name": "nymCode", "type": "string" }]
+  "Nym": [{ "name": "nymName", "type": "string" }]
 }
 ```
 

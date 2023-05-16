@@ -1,3 +1,4 @@
+import { PrefixedHex } from '@personaelabs/nymjs';
 import { IRootPost } from '../api';
 
 export type PostProps = IRootPost & {
@@ -11,7 +12,7 @@ export type PostWithRepliesProps = IRootPost & {
 };
 
 export type ClientNym = {
-  nymCode: string;
+  nymName: string;
   nymSig: string;
 };
 
@@ -19,4 +20,16 @@ export type ClientUpvote = {
   id: string;
   address: string;
   timestamp: Date;
+};
+
+export type Member = {
+  pubkey: string;
+  path: string[];
+  indices: number[];
+};
+
+export type ContentUserInput = {
+  title: string;
+  body: string;
+  parentId: PrefixedHex;
 };

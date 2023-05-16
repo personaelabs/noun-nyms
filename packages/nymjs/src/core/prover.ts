@@ -49,20 +49,20 @@ export class NymProver extends Profiler {
   }
 
   async prove(
-    nymCode: string,
+    nymName: string,
     message: Content,
     nymSigStr: string,
     contentSigStr: string,
     membershipProof: MerkleProof,
   ): Promise<Buffer> {
-    const typedNymCode: EIP712TypedData = {
+    const typedNymName: EIP712TypedData = {
       domain: DOMAIN,
       types: NYM_CODE_TYPE,
       value: {
-        nymCode,
+        nymName,
       },
     };
-    const nymSig = computeEffECDSASig(nymSigStr, typedNymCode);
+    const nymSig = computeEffECDSASig(nymSigStr, typedNymName);
 
     const typedContentMessage: EIP712TypedData = {
       domain: DOMAIN,
@@ -131,7 +131,7 @@ export class NymProver extends Profiler {
       Buffer.from(proof),
       publicInput,
       auxiliaryProof,
-      nymCode,
+      nymName,
     );
 
     return attestation;

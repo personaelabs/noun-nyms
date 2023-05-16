@@ -179,14 +179,14 @@ export const serializeNymAttestation = (
   proof: Buffer,
   publicInput: PublicInput,
   auxiliary: NymProofAuxiliary,
-  nymCode: string,
+  nymName: string,
 ): Buffer => {
   // TBD
   const numPublicInput = Object.values(publicInput).length;
-  const nymCodeSer = Buffer.from(nymCode, 'utf-8');
+  const nymNameSer = Buffer.from(nymName, 'utf-8');
 
   const serialized = new Uint8Array(
-    proof.length + 32 * numPublicInput + 32 * 2 + 2 + nymCodeSer.length,
+    proof.length + 32 * numPublicInput + 32 * 2 + 2 + nymNameSer.length,
   );
 
   // Append the proof bytes
@@ -204,7 +204,7 @@ export const serializeNymAttestation = (
     proof.length + 32 * numPublicInput + 33 + 32,
   );
 
-  serialized.set(nymCodeSer, proof.length + 32 * numPublicInput + 32 * 2 + 2);
+  serialized.set(nymNameSer, proof.length + 32 * numPublicInput + 32 * 2 + 2);
 
   return Buffer.from(serialized);
 };
@@ -213,7 +213,7 @@ export const serializeNymAttestation = (
 export const deserializeNymAttestation = (
   attestation: Buffer,
 ): {
-  nymCode: string;
+  nymName: string;
   proof: Buffer;
   publicInput: PublicInput;
   auxiliary: NymProofAuxiliary;
@@ -233,7 +233,7 @@ export const deserializeNymAttestation = (
     proofOffset + publicInputOffset + auxiliaryOffset,
   );
 
-  const nymCode = attestationSer.slice(
+  const nymName = attestationSer.slice(
     proofOffset + publicInputOffset + auxiliaryOffset,
     attestationSer.length,
   );
@@ -261,17 +261,17 @@ export const deserializeNymAttestation = (
   };
 
   return {
-    nymCode: Buffer.from(nymCode).toString('utf-8'),
+    nymName: Buffer.from(nymName).toString('utf-8'),
     proof: Buffer.from(proof),
     publicInput,
     auxiliary,
   };
 };
 
-export const toTypedNymCode = (nymCode: string): EIP712TypedData => ({
+export const toTypedNymName = (nymName: string): EIP712TypedData => ({
   domain: DOMAIN,
   types: NYM_CODE_TYPE,
-  value: { nymCode },
+  value: { nymName },
 });
 
 export const toTypedContent = (content: Content): EIP712TypedData => ({

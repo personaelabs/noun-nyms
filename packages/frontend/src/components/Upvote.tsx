@@ -1,7 +1,7 @@
 import { faAngleUp, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
-import { submitUpvote } from './example/Upvote';
+import { submitUpvote } from '@/lib/actions';
 import { useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
 import { ClientUpvote } from '@/types/components';

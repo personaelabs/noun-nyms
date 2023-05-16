@@ -1,5 +1,6 @@
 import axiosBase from 'axios';
-import { PrefixedHex } from '@personaelabs/nymjs';
+import { EIP712TypedData, PrefixedHex, eip712MsgHash } from '@personaelabs/nymjs';
+import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 
 export const axios = axiosBase.create({
   baseURL: `/api/v1`,
@@ -20,4 +21,14 @@ export const getLatestGroup = async () => {
   } = data;
 
   return group;
+};
+
+export const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string): string => {
+  const { v, r, s } = fromRpcSig(sig);
+  return `0x${ecrecover(
+    eip712MsgHash(typedData.domain, typedData.types, typedData.value),
+    v,
+    r,
+    s,
+  ).toString('hex')}`;
 };
