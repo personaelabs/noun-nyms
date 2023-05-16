@@ -35,7 +35,7 @@ model CachedEOA {
   createdAt DateTime @default(now())
 }
 
-model CachedMultiSig {
+model CachedCode {
   address   String   @id
   code      String
   createdAt DateTime @default(now())
