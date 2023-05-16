@@ -2,7 +2,7 @@ import { faAngleUp, faSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
 import { ClientUpvote } from '@/types/components';
 import { ReactNode } from 'react';
@@ -20,18 +20,17 @@ export const Upvote = (props: UpvoteIconProps) => {
   const { upvotes, postId, col, children } = props;
   const { signTypedDataAsync } = useSignTypedData();
 
-  const getHasUpvoted = (address: string | undefined) => {
+  const getHasUpvoted = () => {
     if (!address) return false;
     return upvotes.some((v) => v.address === address.toLowerCase());
   };
 
   const [showVoteWarning, setShowVoteWarning] = useState<boolean>(false);
-  const [hasUpvoted, setHasUpvoted] = useState<boolean>(() => getHasUpvoted(address));
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
+  const hasUpvoted = useMemo(getHasUpvoted, [address, upvotes]);
 
   const upvoteHandler = async () => {
     await submitUpvote(postId, signTypedDataAsync);
-    setHasUpvoted(true);
     setShowVoteWarning(false);
   };
 
