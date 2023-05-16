@@ -5,6 +5,7 @@ import { getSeedFromHash } from '../../lib/avatar-utils';
 import { NOUNS_AVATAR_RANGES } from '../../lib/constants';
 import { useAccount, useEnsName } from 'wagmi';
 import { isAddress } from 'viem';
+import Link from 'next/link';
 
 interface UserTagProps {
   imgURL?: string;
@@ -46,8 +47,9 @@ export const UserTag = (props: UserTagProps) => {
   }, [userId]);
 
   return (
-    <div className="flex gap-2 items-center">
-      <div className="flex gap-2 justify-center items-center">
+    // stop post modal from opening on click of user page link
+    <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
+      <Link href={`/users/${userId}`} className="flex gap-2 justify-center items-center">
         <div
           style={{ borderRadius: '50%', overflow: 'hidden' }}
           ref={svgRef}
@@ -57,12 +59,12 @@ export const UserTag = (props: UserTagProps) => {
           data ? (
             <p className="font-semibold">{data}</p>
           ) : (
-            <p className="font-semibold">{userId}</p>
+            <p className="font-semibold hover:underline">{userId}</p>
           )
         ) : (
-          <p className="font-semibold">{userId.split('-')[0]}</p>
+          <p className="font-semibold hover:underline">{userId.split('-')[0]}</p>
         )}
-      </div>
+      </Link>
       <p className="secondary">-</p>
       <p className="secondary">{date}</p>
     </div>
