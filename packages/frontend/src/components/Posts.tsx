@@ -6,36 +6,59 @@ import { IRootPost } from '@/types/api';
 import Spinner from './global/Spinner';
 import ConnectWallet from './ConnectWallet';
 import { MainButton } from './MainButton';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
+import { PostWithReplies } from './post/PostWithReplies';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
 interface PostsProps {
-  openPostId?: string;
+  initOpenPostId?: string;
 }
 
 export default function Posts(props: PostsProps) {
-  const { openPostId } = props;
+  const { initOpenPostId } = props;
 
-  const { isLoading, data: posts } = useQuery<IRootPost[]>({
+  const {
+    isLoading,
+    isRefetching,
+    isFetching,
+    refetch,
+    data: posts,
+  } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
     retry: 1,
     enabled: true,
     staleTime: 1000,
+    refetchIntervalInBackground: true,
+    refetchInterval: 30000, // 30 seconds
   });
 
+  isRefetching ? console.log(`POSTS: is refetching`) : '';
+  isFetching ? console.log(`POSTS: is fetching `) : '';
+
+  const manualRefetch = () => {
+    console.log('MANUAL REFETCH');
+    refetch();
+  };
+
   const [newPostOpen, setNewPostOpen] = useState(false);
-
-  if (openPostId) console.log({ openPostId });
-
-  // TODO: get connected account information from wagmi
+  const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
+  const openPost = useMemo(() => posts?.find((p) => p.id === openPostId), [openPostId, posts]);
 
   return (
     <>
-      <NewPost isOpen={newPostOpen} handleClose={() => setNewPostOpen(false)} />
+      <NewPost
+        isOpen={newPostOpen}
+        handleClose={() => setNewPostOpen(false)}
+        onSuccess={manualRefetch}
+      />
+      {openPost ? (
+        <PostWithReplies {...openPost} isOpen={true} handleClose={() => setOpenPostId('')} />
+      ) : null}
+
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-black dots w-full">
@@ -88,13 +111,18 @@ export default function Posts(props: PostsProps) {
                 <>
                   {posts.map((post) => (
                     <div className="flex gap-2" key={post.id}>
-                      <Upvote upvotes={post.upvotes} postId={post.id} col={true}>
+                      <Upvote
+                        upvotes={post.upvotes}
+                        postId={post.id}
+                        col={true}
+                        onSuccess={manualRefetch}
+                      >
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
                       <Post
                         {...post}
-                        shouldOpenModal={post.id === openPostId}
                         userId={post.userId}
+                        handleOpenPost={() => setOpenPostId(post.id)}
                       />
                     </div>
                   ))}

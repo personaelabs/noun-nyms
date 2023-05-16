@@ -11,10 +11,11 @@ import { WalletWarning } from '../WalletWarning';
 
 interface IWriterProps {
   parentId: PrefixedHex;
-  setShowWriter?: (showWriter: boolean) => void;
+  onSuccess: () => void;
+  handleCloseWriter?: () => void;
 }
 
-export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
+export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterProps) => {
   //TODO: render title box if no postId exists (distinguish between reply and top-level post)
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
@@ -40,7 +41,8 @@ export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
     } else {
       await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
     }
-    if (setShowWriter) setShowWriter(false);
+    onSuccess ? onSuccess() : null;
+    if (handleCloseWriter) handleCloseWriter();
   };
 
   return (

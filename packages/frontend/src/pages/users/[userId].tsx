@@ -1,8 +1,11 @@
 import { Post } from '@/components/post/Post';
+import { PostWithReplies } from '@/components/post/PostWithReplies';
+import { UserTag } from '@/components/post/UserTag';
 import { IUserPost, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useMemo, useState } from 'react';
 
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IUserPost[]>(`/api/v1/users/${userId}/posts`)).data;
@@ -31,33 +34,50 @@ export default function User() {
     staleTime: 1000,
   });
 
+  const [openPostId, setOpenPostId] = useState<string>('');
+  const openPost = useMemo(
+    () => userPosts?.find((p) => p.id === openPostId),
+    [openPostId, userPosts],
+  );
+
   return (
-    <main className="flex w-full flex-col justify-center items-center">
-      <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-        <div className="bg-black dots w-full">
-          <div className="pt-8">
-            <nav className="pr-6 flex justify-end">
-              <p className="text-white">Connect Wallet</p>
-            </nav>
+    <>
+      {openPost ? (
+        <PostWithReplies {...openPost} isOpen={true} handleClose={() => setOpenPostId('')} />
+      ) : null}
+      <main className="flex w-full flex-col justify-center items-center">
+        <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
+          <div className="bg-black dots w-full">
+            <div className="pt-8">
+              <nav className="pr-6 flex justify-end">
+                <p className="text-white">Connect Wallet</p>
+              </nav>
+            </div>
           </div>
-        </div>
-        <div className="py-8"></div>
-        <div className="bg-gray-50 min-h-screen w-full">
-          <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-            <h2>{userId}</h2>
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              <h4>Posts</h4>
-              {userPosts &&
-                userPosts.map((post) => <Post key={post.id} {...post} userId="John Doe" />)}
-              <h4>Upvotes</h4>
-              {userUpvotes &&
-                userUpvotes.map((vote) => (
-                  <Post key={vote.post.id} {...vote.post} userId="John Doe" />
-                ))}
+          <div className="py-8"></div>
+          <div className="bg-gray-50 min-h-screen w-full">
+            <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+              {userId && <UserTag userId={userId} />}
+              <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+                <h4>Posts</h4>
+                {userPosts &&
+                  userPosts.map((post) => (
+                    <Post key={post.id} {...post} handleOpenPost={() => setOpenPostId(post.id)} />
+                  ))}
+                <h4>Upvotes</h4>
+                {userUpvotes &&
+                  userUpvotes.map((vote) => (
+                    <Post
+                      key={vote.post.id}
+                      {...vote.post}
+                      handleOpenPost={() => setOpenPostId(vote.post.id)}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }

@@ -2,13 +2,12 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import { IRootPost } from '../api';
 
 export type PostProps = IRootPost & {
-  shouldOpenModal?: boolean;
+  handleOpenPost?: () => void;
 };
 
 export type PostWithRepliesProps = IRootPost & {
   isOpen: boolean;
-  handleClose: (isOpen: boolean) => void;
-  dateFromDescription: string;
+  handleClose: () => void;
 };
 
 export type ClientNym = {

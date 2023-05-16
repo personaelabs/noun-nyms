@@ -13,11 +13,12 @@ interface UpvoteIconProps {
   postId: string;
   children: ReactNode;
   col?: boolean;
+  onSuccess: () => void;
 }
 
 export const Upvote = (props: UpvoteIconProps) => {
   const { address } = useAccount();
-  const { upvotes, postId, col, children } = props;
+  const { upvotes, postId, col, children, onSuccess } = props;
   const { signTypedDataAsync } = useSignTypedData();
 
   const getHasUpvoted = () => {
@@ -31,6 +32,7 @@ export const Upvote = (props: UpvoteIconProps) => {
 
   const upvoteHandler = async () => {
     await submitUpvote(postId, signTypedDataAsync);
+    onSuccess();
     setShowVoteWarning(false);
   };
 

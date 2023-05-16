@@ -10,26 +10,48 @@ import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
+import dayjs from 'dayjs';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { id, isOpen, handleClose, dateFromDescription, title, body, replyCount, userId, upvotes } =
+  const { id, timestamp, isOpen, handleClose, title, body, replyCount, userId, upvotes } =
     postWithRepliesProps;
 
-  //TODO: Note that this call happens regardless of if isOpen is true or not
-  const { isLoading, data: singlePost } = useQuery<IPostWithReplies>({
+  const {
+    isRefetching,
+    isFetching,
+    refetch,
+    data: singlePost,
+  } = useQuery<IPostWithReplies>({
     queryKey: ['post', id],
     queryFn: () => getPostById(id),
     retry: 1,
     enabled: true,
-    staleTime: 1000,
+    staleTime: 5000,
+    refetchIntervalInBackground: true,
+    refetchInterval: 30000, // 30 seconds
   });
+
+  const manualRefetch = () => {
+    console.log(`MANUAL REFRESH`);
+    refetch();
+  };
+
+  isRefetching ? console.log(`is refetching ${id}`) : '';
+  isFetching ? console.log(`is fetching ${id}`) : '';
+
+  const dateFromDescription = useMemo(() => {
+    const date = dayjs(timestamp);
+    // Dayjs doesn't have typings on relative packages so we have to do this
+    // @ts-ignore
+    return date.fromNow();
+  }, [timestamp]);
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0);
+      return resolveNestedReplyThreads(singlePost.replies, 0, manualRefetch);
     } else {
       return <div></div>;
     }
@@ -52,14 +74,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
-            <Upvote upvotes={upvotes} postId={id}>
+            <Upvote upvotes={upvotes} postId={id} onSuccess={manualRefetch}>
               <p>{upvotes.length}</p>
             </Upvote>
           </div>
         </div>
       </div>
       <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-        <PostWriter parentId={id as PrefixedHex} />
+        <PostWriter parentId={id as PrefixedHex} onSuccess={manualRefetch} />
         <h4>
           {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'comment' : 'comments'}
         </h4>

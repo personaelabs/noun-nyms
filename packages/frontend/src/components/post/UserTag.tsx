@@ -10,7 +10,7 @@ import Link from 'next/link';
 interface UserTagProps {
   imgURL?: string;
   userId: string;
-  date: string;
+  date?: string;
 }
 
 const encoder = new PNGCollectionEncoder(ImageData.palette);
@@ -65,8 +65,13 @@ export const UserTag = (props: UserTagProps) => {
           <p className="font-semibold hover:underline">{userId.split('-')[0]}</p>
         )}
       </Link>
-      <p className="secondary">-</p>
-      <p className="secondary">{date}</p>
+      {date && (
+        <>
+          {' '}
+          <p className="secondary">-</p>
+          <p className="secondary">{date}</p>
+        </>
+      )}
     </div>
   );
 };
