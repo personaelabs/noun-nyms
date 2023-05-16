@@ -3,24 +3,30 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from './example/Upvote';
 import { useState } from 'react';
-import { Modal } from './global/Modal';
-import Image from 'next/image';
-import { MainButton } from './MainButton';
 import { UpvoteWarning } from './UpvoteWarning';
+import { ClientUpvote } from '@/types/components';
 
 interface UpvoteIconProps {
-  count: number;
+  upvotes: ClientUpvote[];
   postId: string;
 }
 
-export const UpvoteIcon = (props: UpvoteIconProps) => {
+export const Upvote = (props: UpvoteIconProps) => {
   const { address } = useAccount();
-  const { count, postId } = props;
+  const { upvotes, postId } = props;
   const { signTypedDataAsync } = useSignTypedData();
+
+  const getHasUpvoted = (address: string | undefined) => {
+    if (!address) return false;
+    return upvotes.some((v) => v.address === address.toLowerCase());
+  };
+
   const [showWarning, setShowWarning] = useState<boolean>(false);
+  const [hasUpvoted, setHasUpvoted] = useState<boolean>(() => getHasUpvoted(address));
 
   const upvoteHandler = async () => {
     await submitUpvote(postId, signTypedDataAsync);
+    setHasUpvoted(true);
     setShowWarning(false);
   };
 
@@ -38,10 +44,10 @@ export const UpvoteIcon = (props: UpvoteIconProps) => {
         className="flex gap-1 justify-center items-center cursor-pointer"
       >
         <span className="fa-layers fa-fw hoverIcon">
-          <FontAwesomeIcon icon={faSquare} />
+          <FontAwesomeIcon icon={faSquare} color={hasUpvoted ? '#0e76fd' : ''} />
           <FontAwesomeIcon icon={faAngleUp} color="#ffffff" transform="shrink-4" />
         </span>
-        <p>{count}</p>
+        <p>{upvotes.length}</p>
       </div>
     </>
   );
