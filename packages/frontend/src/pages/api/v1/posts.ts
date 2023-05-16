@@ -1,3 +1,4 @@
+import path from 'path';
 import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {
@@ -107,8 +108,9 @@ const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) 
 };
 
 let verifierInitialized = false;
+const circuitPath = path.join(__dirname, '../../../../../nym_ownership.circuit');
 const verifier = new NymVerifier({
-  circuitUrl: './nym_ownership.circuit',
+  circuitUrl: circuitPath,
   enableProfiler: true,
 });
 
