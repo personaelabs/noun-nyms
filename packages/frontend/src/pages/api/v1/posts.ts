@@ -12,6 +12,7 @@ import { HashScheme, AttestationScheme as PrismaAttestationScheme } from '@prism
 import { pubToAddress } from '@ethereumjs/util';
 import { verifyInclusion, getNymFromAttestation, getRootFromParent } from '../v1/utils';
 import { IRootPost, rootPostsSelect } from '@/types/api';
+import fs from 'fs';
 
 const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
@@ -108,11 +109,7 @@ const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) 
 };
 
 let verifierInitialized = false;
-const circuitPath = path.join(__dirname, '../../../../../nym_ownership.circuit');
-const verifier = new NymVerifier({
-  circuitUrl: circuitPath,
-  enableProfiler: true,
-});
+let verifier: NymVerifier;
 
 // Handle pseudonymous post creation
 // Verify the proof and save the post
@@ -123,6 +120,15 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
   const post = toPost(content, attestation, AttestationScheme.Nym);
 
   if (!verifierInitialized) {
+    // Load the circuit from the JSON file
+    const circuitJson = fs.readFileSync(path.join(process.cwd(), 'circuit.json'));
+
+    // Initialize the verifier
+    verifier = new NymVerifier({
+      circuitBin: Buffer.from(JSON.parse(circuitJson.toString()).circuit, 'hex'),
+      enableProfiler: true,
+    });
+
     await verifier.initWasm();
     verifierInitialized = true;
   }
