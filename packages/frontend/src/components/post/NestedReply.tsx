@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -8,6 +8,8 @@ import { UserTag } from './UserTag';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faReply } from '@fortawesome/free-solid-svg-icons';
 import { Upvote } from '../Upvote';
+import { PrefixedHex } from '@personaelabs/nymjs';
+import { PostWriter } from '../userInput/PostWriter';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -57,6 +59,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
     return date.fromNow();
   }, [createdAt]);
 
+  const [showPostWriter, setShowPostWriter] = useState<boolean>(false);
+
   return (
     // TODO: fix border here
     <div
@@ -74,13 +78,16 @@ export const NestedReply = (replyProps: IReplyProps) => {
           <ReplyCount count={childrenLength} />
           <div
             className="flex gap-2 items-center cursor-pointer hoverIcon"
-            onClick={() => console.log('create reply')}
+            onClick={() => setShowPostWriter(!showPostWriter)}
           >
-            <FontAwesomeIcon icon={faReply} />
-            <p className="text-gray-700">Reply</p>
+            <FontAwesomeIcon icon={faReply} color={showPostWriter ? '#0E76FD' : ''} />
+            <p className={`text-gray-700 ${showPostWriter ? 'font-bold' : ''}`}>Reply</p>
           </div>
         </div>
       </div>
+      {showPostWriter ? (
+        <PostWriter parentId={id as PrefixedHex} setShowWriter={setShowPostWriter} />
+      ) : null}
       {innerReplies}
     </div>
   );
