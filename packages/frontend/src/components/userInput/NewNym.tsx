@@ -47,13 +47,16 @@ export const NewNym = (props: NewNymProps) => {
   };
 
   const handleNewNym = async () => {
-    const nymSig = await signNym(nymName, signTypedDataAsync);
+    try {
+      const nymSig = await signNym(nymName, signTypedDataAsync);
+      if (nymSig) storeNym(nymSig);
 
-    if (nymSig) {
-      storeNym(nymSig);
+      setNymOptions([...nymOptions, { nymName, nymSig }]);
+      handleClose();
+    } catch (error) {
+      //TODO: error handling
+      console.error(error);
     }
-    setNymOptions([...nymOptions, { nymName, nymSig }]);
-    handleClose();
   };
   return (
     <Modal width="50%" handleClose={handleClose}>

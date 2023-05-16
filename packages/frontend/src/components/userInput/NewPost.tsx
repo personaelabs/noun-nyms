@@ -14,7 +14,7 @@ export const NewPost = (props: NewPostProps) => {
         <div className="flex justify-start">
           <h3>Start a discussion here</h3>
         </div>
-        <PostWriter parentId={'0x0'} onSuccess={onSuccess} />
+        <PostWriter parentId={'0x0'} onSuccess={onSuccess} handleCloseWriter={handleClose} />
       </div>
     </Modal>
   );
