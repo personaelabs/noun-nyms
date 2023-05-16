@@ -10,12 +10,13 @@ import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
+import dayjs from 'dayjs';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { id, isOpen, handleClose, dateFromDescription, title, body, replyCount, userId, upvotes } =
+  const { id, timestamp, isOpen, handleClose, title, body, replyCount, userId, upvotes } =
     postWithRepliesProps;
 
   const {
@@ -38,6 +39,13 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   isRefetching ? console.log(`is refetching ${id}`) : '';
   isFetching ? console.log(`is fetching ${id}`) : '';
+
+  const dateFromDescription = useMemo(() => {
+    const date = dayjs(timestamp);
+    // Dayjs doesn't have typings on relative packages so we have to do this
+    // @ts-ignore
+    return date.fromNow();
+  }, [timestamp]);
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {

@@ -6,18 +6,19 @@ import { IRootPost } from '@/types/api';
 import Spinner from './global/Spinner';
 import ConnectWallet from './ConnectWallet';
 import { MainButton } from './MainButton';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
+import { PostWithReplies } from './post/PostWithReplies';
 
 const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
 
 interface PostsProps {
-  openPostId?: string;
+  initOpenPostId?: string;
 }
 
 export default function Posts(props: PostsProps) {
-  const { openPostId } = props;
+  const { initOpenPostId } = props;
 
   const {
     isLoading,
@@ -41,9 +42,17 @@ export default function Posts(props: PostsProps) {
     refetch();
   };
 
-  const [newPostOpen, setNewPostOpen] = useState(false);
+  // const router = useRouter();
+  // const openPostId = router.query.postId as string;
+  // console.log({ openPostId });
 
-  if (openPostId) console.log({ openPostId });
+  const [newPostOpen, setNewPostOpen] = useState(false);
+  const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
+
+  const openPost = useMemo(() => posts?.find((p) => p.id === openPostId), [openPostId, posts]);
+
+  if (openPost) console.log({ openPost });
+  console.log({ openPostId });
 
   // TODO: get connected account information from wagmi
 
@@ -54,6 +63,17 @@ export default function Posts(props: PostsProps) {
         handleClose={() => setNewPostOpen(false)}
         onSuccess={manualRefetch}
       />
+      {openPost ? (
+        <PostWithReplies
+          {...openPost}
+          isOpen={true}
+          handleClose={() => {
+            console.log('closing post');
+            setOpenPostId('');
+          }}
+        />
+      ) : null}
+
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-black dots w-full">
@@ -116,8 +136,11 @@ export default function Posts(props: PostsProps) {
                       </Upvote>
                       <Post
                         {...post}
-                        shouldOpenModal={post.id === openPostId}
                         userId={post.userId}
+                        handleOpenPost={() => {
+                          console.log('setting new open post');
+                          setOpenPostId(post.id);
+                        }}
                       />
                     </div>
                   ))}
