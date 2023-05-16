@@ -1,4 +1,5 @@
 import { Post } from '@/components/post/Post';
+import { UserTag } from '@/components/post/UserTag';
 import { IUserPost, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -44,16 +45,12 @@ export default function User() {
         <div className="py-8"></div>
         <div className="bg-gray-50 min-h-screen w-full">
           <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-            <h2>{userId}</h2>
+            <UserTag userId={userId} />
             <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
               <h4>Posts</h4>
-              {userPosts &&
-                userPosts.map((post) => <Post key={post.id} {...post} userId="John Doe" />)}
+              {userPosts && userPosts.map((post) => <Post key={post.id} {...post} />)}
               <h4>Upvotes</h4>
-              {userUpvotes &&
-                userUpvotes.map((vote) => (
-                  <Post key={vote.post.id} {...vote.post} userId="John Doe" />
-                ))}
+              {userUpvotes && userUpvotes.map((vote) => <Post key={vote.post.id} {...vote.post} />)}
             </div>
           </div>
         </div>
