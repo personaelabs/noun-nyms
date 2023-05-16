@@ -18,14 +18,26 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { id, isOpen, handleClose, dateFromDescription, title, body, replyCount, userId, upvotes } =
     postWithRepliesProps;
 
-  //TODO: Note that this call happens regardless of if isOpen is true or not
-  const { isLoading, data: singlePost } = useQuery<IPostWithReplies>({
+  const {
+    isRefetching,
+    isFetching,
+    refetch,
+    data: singlePost,
+  } = useQuery<IPostWithReplies>({
     queryKey: ['post', id],
     queryFn: () => getPostById(id),
     retry: 1,
     enabled: true,
-    staleTime: 1000,
+    staleTime: 5000,
   });
+
+  const manualRefetch = () => {
+    console.log(`MANUAL REFRESH`);
+    refetch();
+  };
+
+  isRefetching ? console.log(`is refetching ${id}`) : '';
+  isFetching ? console.log(`is fetching ${id}`) : '';
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
@@ -59,7 +71,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         </div>
       </div>
       <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-        <PostWriter parentId={id as PrefixedHex} />
+        <PostWriter parentId={id as PrefixedHex} onSuccess={manualRefetch} />
         <h4>
           {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'comment' : 'comments'}
         </h4>

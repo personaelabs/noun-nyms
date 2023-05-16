@@ -19,13 +19,21 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { openPostId } = props;
 
-  const { isLoading, data: posts } = useQuery<IRootPost[]>({
+  const {
+    isLoading,
+    isRefetching,
+    isFetching,
+    data: posts,
+  } = useQuery<IRootPost[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
     retry: 1,
     enabled: true,
     staleTime: 1000,
   });
+
+  isRefetching ? console.log(`POSTS: is refetching`) : '';
+  isFetching ? console.log(`POSTS: is fetching `) : '';
 
   const [newPostOpen, setNewPostOpen] = useState(false);
 
