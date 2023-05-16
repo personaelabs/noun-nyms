@@ -57,7 +57,7 @@ export default function User() {
           <div className="py-8"></div>
           <div className="bg-gray-50 min-h-screen w-full">
             <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              <UserTag userId={userId} />
+              {userId && <UserTag userId={userId} />}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
                 <h4>Posts</h4>
                 {userPosts &&
