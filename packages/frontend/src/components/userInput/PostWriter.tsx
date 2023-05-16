@@ -10,9 +10,10 @@ import { ClientNym } from '@/types/components';
 
 interface IWriterProps {
   parentId: PrefixedHex;
+  setShowWriter?: (showWriter: boolean) => void;
 }
 
-export const PostWriter = ({ parentId }: IWriterProps) => {
+export const PostWriter = ({ parentId, setShowWriter }: IWriterProps) => {
   //TODO: render title box if no postId exists (distinguish between reply and top-level post)
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
@@ -26,12 +27,13 @@ export const PostWriter = ({ parentId }: IWriterProps) => {
 
   const { signTypedDataAsync } = useSignTypedData();
 
-  const sendPost = () => {
+  const sendPost = async () => {
     if (nym.nymName === 'Doxed') {
-      postDoxed({ title, body, parentId }, signTypedDataAsync);
+      await postDoxed({ title, body, parentId }, signTypedDataAsync);
     } else {
-      postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
+      await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
     }
+    if (setShowWriter) setShowWriter(false);
   };
 
   return (
