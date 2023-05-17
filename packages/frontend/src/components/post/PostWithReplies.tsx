@@ -11,6 +11,7 @@ import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
 import dayjs from 'dayjs';
+import Spinner from '../global/Spinner';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -22,6 +23,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const {
     isRefetching,
     isFetching,
+    isLoading,
     refetch,
     data: singlePost,
   } = useQuery<IPostWithReplies>({
@@ -82,12 +84,19 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       </div>
       <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
         <PostWriter parentId={id as PrefixedHex} onSuccess={manualRefetch} />
-        <h4>
-          {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'comment' : 'comments'}
-        </h4>
-        <div className="flex flex-col gap-6 w-full justify-center iterms-center">
-          {nestedComponentThreads}
-        </div>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <>
+            <h4>
+              {singlePost?.replies.length}{' '}
+              {singlePost?.replies.length === 1 ? 'comment' : 'comments'}
+            </h4>
+            <div className="flex flex-col gap-6 w-full justify-center iterms-center">
+              {nestedComponentThreads}
+            </div>
+          </>
+        )}
       </div>
     </Modal>
   );
