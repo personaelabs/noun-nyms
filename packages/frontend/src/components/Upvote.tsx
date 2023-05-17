@@ -31,9 +31,14 @@ export const Upvote = (props: UpvoteIconProps) => {
   const hasUpvoted = useMemo(getHasUpvoted, [address, upvotes]);
 
   const upvoteHandler = async () => {
-    await submitUpvote(postId, signTypedDataAsync);
-    onSuccess();
-    setShowVoteWarning(false);
+    try {
+      await submitUpvote(postId, signTypedDataAsync);
+      onSuccess();
+      setShowVoteWarning(false);
+    } catch (error) {
+      //TODO: error handling
+      console.error(error);
+    }
   };
 
   const handleClick = () => {
@@ -49,16 +54,11 @@ export const Upvote = (props: UpvoteIconProps) => {
     <>
       {showVoteWarning ? (
         <UpvoteWarning
-          isOpen={showVoteWarning}
           handleClose={() => setShowVoteWarning(false)}
           upvoteHandler={upvoteHandler}
         />
       ) : showWalletWarning ? (
-        <WalletWarning
-          isOpen={showWalletWarning}
-          handleClose={() => setShowWalletWarning(false)}
-          action="upvote"
-        />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="upvote" />
       ) : null}
       <div
         onClick={handleClick}

@@ -22,6 +22,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: 'Doxed' });
   const { address } = useAccount();
+  const { signTypedDataAsync } = useSignTypedData();
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -29,30 +30,35 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   // TODO
   const canPost = useMemo(() => true, []);
 
-  const { signTypedDataAsync } = useSignTypedData();
+  const resetWriter = () => {
+    onSuccess();
+    if (handleCloseWriter) handleCloseWriter();
+    setPostMsg('');
+    setTitleMsg('');
+  };
 
   const sendPost = async () => {
     if (!address) {
       setShowWalletWarning(true);
       return;
     }
-    if (nym.nymName === 'Doxed') {
-      await postDoxed({ title, body, parentId }, signTypedDataAsync);
-    } else {
-      await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
+    try {
+      if (nym.nymName === 'Doxed') {
+        await postDoxed({ title, body, parentId }, signTypedDataAsync);
+      } else {
+        await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
+      }
+      resetWriter();
+    } catch (error) {
+      //TODO: error handling
+      console.error(error);
     }
-    onSuccess ? onSuccess() : null;
-    if (handleCloseWriter) handleCloseWriter();
   };
 
   return (
     <>
       {showWalletWarning ? (
-        <WalletWarning
-          isOpen={showWalletWarning}
-          handleClose={() => setShowWalletWarning(false)}
-          action="comment"
-        />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="comment" />
       ) : null}
       {someDbQuery === undefined ? (
         <div className="bg-gray-100 border border-gray-300 p-12 py-24 rounded-md flex justify-center text-gray-800">

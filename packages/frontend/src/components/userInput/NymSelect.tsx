@@ -1,7 +1,7 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
 import { useAccount } from 'wagmi';
@@ -19,23 +19,36 @@ const getNymOptions = (address: string | undefined) => {
 export const NymSelect = (props: NymSelectProps) => {
   const { address } = useAccount();
   const { selectedNym, setSelectedNym } = props;
+  const divRef = useRef<HTMLDivElement>(null);
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
   const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address));
 
+  //TODO: make this outclick event work for nym select modal
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (divRef.current && !divRef.current.contains(event.target as Node)) {
+        setOpenSelect(false);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, []);
+
   return (
     <>
       {openNewNym ? (
         <NewNym
-          isOpen={openNewNym}
           handleClose={() => setOpenNewNym(false)}
           nymOptions={nymOptions}
           setNymOptions={setNymOptions}
         />
       ) : null}
       <p className="secondary">Posting as</p>
-      <div className="relative w-max">
+      <div className="relative w-max" ref={divRef}>
         <div
           className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}

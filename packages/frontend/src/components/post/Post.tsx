@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
-import { PostWithReplies } from './PostWithReplies';
+import { useMemo } from 'react';
 import { PostProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
