@@ -1,3 +1,4 @@
+import Spinner from '@/components/global/Spinner';
 import { Post } from '@/components/post/Post';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
 import { UserTag } from '@/components/post/UserTag';
@@ -6,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useMemo, useState } from 'react';
+import { isAddress } from 'viem';
 
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IUserPost[]>(`/api/v1/users/${userId}/posts`)).data;
@@ -16,6 +18,7 @@ const getUpvotesByUserId = async (userId: string) =>
 export default function User() {
   const router = useRouter();
   const userId = router.query.userId as string;
+  const isDoxed = userId && isAddress(userId);
 
   // determine if post creator or replied to post (does post have a parent ID)
   const { isLoading: postsLoading, data: userPosts } = useQuery<IUserPost[]>({
@@ -30,7 +33,7 @@ export default function User() {
     queryKey: ['userUpvotes', userId],
     queryFn: () => getUpvotesByUserId(userId),
     retry: 1,
-    enabled: !!userId,
+    enabled: !!isDoxed,
     staleTime: 1000,
   });
 
@@ -58,19 +61,30 @@ export default function User() {
               {userId && <UserTag userId={userId} />}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
                 <h4>Posts</h4>
-                {userPosts &&
+                {userPosts ? (
                   userPosts.map((post) => (
                     <Post key={post.id} {...post} handleOpenPost={() => setOpenPostId(post.id)} />
-                  ))}
-                <h4>Upvotes</h4>
-                {userUpvotes &&
-                  userUpvotes.map((vote) => (
-                    <Post
-                      key={vote.post.id}
-                      {...vote.post}
-                      handleOpenPost={() => setOpenPostId(vote.post.id)}
-                    />
-                  ))}
+                  ))
+                ) : (
+                  <Spinner />
+                )}
+                {/* Ugly code but will only show upvotes if user is doxed. */}
+                {isDoxed ? (
+                  <>
+                    <h4>Upvotes</h4>
+                    {userUpvotes ? (
+                      userUpvotes.map((vote) => (
+                        <Post
+                          key={vote.post.id}
+                          {...vote.post}
+                          handleOpenPost={() => setOpenPostId(vote.post.id)}
+                        />
+                      ))
+                    ) : (
+                      <Spinner />
+                    )}
+                  </>
+                ) : null}
               </div>
             </div>
           </div>

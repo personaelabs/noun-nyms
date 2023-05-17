@@ -89,8 +89,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         ) : (
           <>
             <h4>
-              {singlePost?.replies.length}{' '}
-              {singlePost?.replies.length === 1 ? 'comment' : 'comments'}
+              {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'reply' : 'replies'}
             </h4>
             <div className="flex flex-col gap-6 w-full justify-center iterms-center">
               {nestedComponentThreads}
