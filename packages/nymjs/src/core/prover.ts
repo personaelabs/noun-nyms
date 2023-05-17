@@ -16,6 +16,7 @@ import {
   computeNymHash,
   serializePublicInput,
   serializeNymAttestation,
+  toTypedNymName,
 } from '../utils';
 import { EIP712TypedData } from '../types';
 import { MerkleProof } from '@personaelabs/spartan-ecdsa';
@@ -55,13 +56,7 @@ export class NymProver extends Profiler {
     contentSigStr: string,
     membershipProof: MerkleProof,
   ): Promise<Buffer> {
-    const typedNymName: EIP712TypedData = {
-      domain: DOMAIN,
-      types: NYM_CODE_TYPE,
-      value: {
-        nymName,
-      },
-    };
+    const typedNymName = toTypedNymName(nymName);
     const nymSig = computeEffECDSASig(nymSigStr, typedNymName);
 
     const typedContentMessage: EIP712TypedData = {

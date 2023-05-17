@@ -15,6 +15,7 @@ import {
   Upvote,
   PrefixedHex,
   Content,
+  NYM_CODE_WARNING,
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
@@ -271,7 +272,7 @@ export const deserializeNymAttestation = (
 export const toTypedNymName = (nymName: string): EIP712TypedData => ({
   domain: DOMAIN,
   types: NYM_CODE_TYPE,
-  value: { nymName },
+  value: { nymName, warning: NYM_CODE_WARNING },
 });
 
 export const toTypedContent = (content: Content): EIP712TypedData => ({
