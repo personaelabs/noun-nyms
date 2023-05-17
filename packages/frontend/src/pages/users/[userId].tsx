@@ -19,6 +19,7 @@ export default function User() {
   const router = useRouter();
   const userId = router.query.userId as string;
   const isDoxed = userId && isAddress(userId);
+  console.log({ isDoxed }, !!isDoxed);
 
   // determine if post creator or replied to post (does post have a parent ID)
   const { isLoading: postsLoading, data: userPosts } = useQuery<IUserPost[]>({
@@ -42,6 +43,7 @@ export default function User() {
     () => userPosts?.find((p) => p.id === openPostId),
     [openPostId, userPosts],
   );
+  console.log(upvotesLoading);
 
   return (
     <>
@@ -61,18 +63,21 @@ export default function User() {
               {userId && <UserTag userId={userId} />}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
                 <h4>Posts</h4>
-                {userPosts ? (
+
+                {postsLoading ? (
+                  <Spinner />
+                ) : userPosts ? (
                   userPosts.map((post) => (
                     <Post key={post.id} {...post} handleOpenPost={() => setOpenPostId(post.id)} />
                   ))
-                ) : (
-                  <Spinner />
-                )}
-                {/* Ugly code but will only show upvotes if user is doxed. */}
+                ) : null}
+                {/* TODO: Ugly code to only render upvotes when doxed */}
                 {isDoxed ? (
                   <>
                     <h4>Upvotes</h4>
-                    {userUpvotes ? (
+                    {upvotesLoading ? (
+                      <Spinner />
+                    ) : userUpvotes ? (
                       userUpvotes.map((vote) => (
                         <Post
                           key={vote.post.id}
@@ -80,9 +85,7 @@ export default function User() {
                           handleOpenPost={() => setOpenPostId(vote.post.id)}
                         />
                       ))
-                    ) : (
-                      <Spinner />
-                    )}
+                    ) : null}
                   </>
                 ) : null}
               </div>
