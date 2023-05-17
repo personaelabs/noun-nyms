@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Modal } from '../global/Modal';
 import { useState } from 'react';
 import { MainButton } from '../MainButton';
-import { NYM_CODE_TYPE, DOMAIN } from '@personaelabs/nymjs';
+import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING } from '@personaelabs/nymjs';
 import { useSignTypedData, useAccount } from 'wagmi';
 import { ClientNym } from '@/types/components';
 
@@ -20,6 +20,7 @@ const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string
     types: NYM_CODE_TYPE,
     message: {
       nymName,
+      warning: NYM_CODE_WARNING,
     },
   });
   return nymSig as string;

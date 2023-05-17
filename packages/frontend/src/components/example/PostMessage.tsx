@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { NYM_CODE_TYPE, DOMAIN, PrefixedHex } from '@personaelabs/nymjs';
+import { NYM_CODE_TYPE, DOMAIN, PrefixedHex, NYM_CODE_WARNING } from '@personaelabs/nymjs';
 import { useSignTypedData, useAccount } from 'wagmi';
 import { ContentUserInput } from '@/types/components';
 import { postDoxed, postPseudo } from '@/lib/actions';
@@ -29,7 +29,8 @@ const ExamplePost = () => {
     domain: DOMAIN,
     types: NYM_CODE_TYPE,
     message: {
-      nymName,
+      nymName: nymName,
+      warning: NYM_CODE_WARNING,
     },
   });
 
