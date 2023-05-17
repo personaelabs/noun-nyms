@@ -21,15 +21,18 @@ const CIRCUIT_URL =
   'https://storage.googleapis.com/personae-proving-keys/nym/nym_ownership.circuit';
 
 export type VerifierConfig = {
+  circuitBin?: Buffer;
   circuitUrl?: string;
   enableProfiler?: boolean;
 };
 
 export class NymVerifier extends Profiler {
   circuit: string;
+  circuitBin?: Buffer;
   constructor(options: VerifierConfig) {
     super({ enabled: options?.enableProfiler });
 
+    this.circuitBin = options.circuitBin;
     this.circuit = options.circuitUrl || CIRCUIT_URL;
   }
 
@@ -102,7 +105,7 @@ export class NymVerifier extends Profiler {
 
   async verify(post: Post): Promise<boolean> {
     this.time('Load circuit');
-    const circuitBin = await loadCircuit(this.circuit);
+    const circuitBin = this.circuitBin || (await loadCircuit(this.circuit));
     this.timeEnd('Load circuit');
 
     const { nymName, proof, publicInput, auxiliary } = deserializeNymAttestation(post.attestation);
