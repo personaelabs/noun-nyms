@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { isNymValid } from '../../utils';
 import { IUserPost, userPostsSelect } from '@/types/api';
+import { isAddress } from 'viem';
 
 // Return posts as specified by the query parameters
 const handleGetUserPosts = async (
@@ -11,7 +12,7 @@ const handleGetUserPosts = async (
   const userId = req.query.userId as string;
 
   // Determine if `user` is a nym or an ETH address by using a regex to identify ETH addresses.
-  const isNym = /^0x[0-9a-fA-F]{40}$/.test(userId) ? false : true;
+  const isNym = !isAddress(userId);
   const skip = req.query.offset ? parseInt(req.query.offset as string) : undefined;
   const take = req.query.limit ? parseInt(req.query.limit as string) : undefined;
 

@@ -1,22 +1,7 @@
-// TODO: Prisma group by query that performs user stats based on group by + count.
-/**
- * End goal is data like:
- * {
- *  userId:
- *  numPosts:
- *  numUpvotes:
- *  timeLastActive:
- *  numReplies:
- * }
- */
-
 import prisma from '@/lib/prisma';
 import { UserPostCounts } from '@/types/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-
-const isEthAddress = (userId: string) => {
-  return /^0x[0-9a-fA-F]{40}$/.test(userId);
-};
+import { isAddress } from 'viem';
 
 interface UpvoteCount {
   [address: string]: number;
@@ -55,13 +40,13 @@ const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPost
     numPosts: _count._all - _count.parentId,
     numReplies: _count.parentId,
     totalPosts: _count._all,
-    doxed: isEthAddress(userId),
+    doxed: isAddress(userId),
     lastActive: _max.timestamp,
     // Util to get human readable name for nym. Might want to get ens in the future as well.
     // not sure if best client or server side tho.
-    name: isEthAddress(userId) ? userId : userId.split('-')[0],
+    name: isAddress(userId) ? userId : userId.split('-')[0],
     // Also not sure if we need to reduce to get upvote count.
-    upvotes: isEthAddress(userId) ? getUpvoteCount(userId, countsObject) : 0,
+    upvotes: isAddress(userId) ? getUpvoteCount(userId, countsObject) : 0,
   }));
 
   res.send(finalCounts);
