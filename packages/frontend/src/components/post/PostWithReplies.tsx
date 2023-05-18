@@ -16,25 +16,28 @@ const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { handleClose, rootId, id, root, ...restPost } = postWithRepliesProps;
+  const { handleClose, root: rootContent, ...postContent } = postWithRepliesProps;
 
-  const postId = rootId || id;
+  // The postContent IS NOT a root if has rootContent.
+  // The postContent IS a root, if it does not have rootContent.
+  const topContent = rootContent || postContent;
+  const { userId, id, title, body, _count, timestamp, upvotes } = topContent;
+
+  const replyCount = _count.descendants;
+
   const {
     isLoading,
     refetch,
     data: singlePost,
   } = useQuery<IPostWithReplies>({
-    queryKey: ['post', postId],
-    queryFn: () => getPostById(postId),
+    queryKey: ['post', id],
+    queryFn: () => getPostById(id),
     retry: 1,
     enabled: true,
     staleTime: 5000,
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
   });
-
-  const { userId, title, body, _count, timestamp, upvotes } = root ? root : restPost;
-  const replyCount = _count.descendants;
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
