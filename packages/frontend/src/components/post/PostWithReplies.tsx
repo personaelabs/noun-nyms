@@ -10,7 +10,6 @@ import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
-import dayjs from 'dayjs';
 import Spinner from '../global/Spinner';
 
 const getPostById = async (postId: string) =>
@@ -23,18 +22,15 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const getTopPost = () => {
     if (root) {
       const { _count, ...restRoot } = root;
+      // TODO: replyCount is tweaked here because I couldn't type it on the backend :(
       return { ...restRoot, replyCount: _count.descendants };
     } else {
       return { ...restPost };
     }
   };
 
-  const { userId, title, body, replyCount, timestamp, upvotes } = getTopPost();
-
   const postId = rootId || id;
   const {
-    isRefetching,
-    isFetching,
     isLoading,
     refetch,
     data: singlePost,
@@ -48,15 +44,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetchInterval: 30000, // 30 seconds
   });
 
-  isRefetching ? console.log(`is refetching ${postId}`) : '';
-  isFetching ? console.log(`is fetching ${postId}`) : '';
-
-  const dateFromDescription = useMemo(() => {
-    const date = dayjs(timestamp);
-    // Dayjs doesn't have typings on relative packages so we have to do this
-    // @ts-ignore
-    return date.fromNow();
-  }, [timestamp]);
+  const { userId, title, body, replyCount, timestamp, upvotes } = getTopPost();
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
@@ -79,7 +67,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         </div>
         <div className="h-[1px] border border-dotted border-gray-200" />
         <div className="flex justify-between items-center">
-          <UserTag userId={userId} date={dateFromDescription} />
+          <UserTag userId={userId} timestamp={timestamp} />
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
@@ -98,7 +86,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             <h4>
               {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
             </h4>
-            <div className="flex flex-col gap-6 w-full justify-center iterms-center">
+            <div className="flex flex-col gap-6 w-full justify-center items-center">
               {nestedComponentThreads}
             </div>
           </>

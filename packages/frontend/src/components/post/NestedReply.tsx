@@ -1,7 +1,4 @@
-import { useMemo, useState } from 'react';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-dayjs.extend(relativeTime);
+import { useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
@@ -14,10 +11,8 @@ import { PostWriter } from '../userInput/PostWriter';
 interface IReplyProps extends IPostWithReplies {
   depth: number;
   innerReplies: React.ReactNode;
-  profileImgURL: string;
   proof: string;
   childrenLength: number;
-  createdAt: Date;
   onSuccess: () => void;
 }
 export const resolveNestedReplyThreads = (
@@ -26,7 +21,6 @@ export const resolveNestedReplyThreads = (
   onSuccess: () => void,
 ) => {
   const replyNodes: React.ReactNode[] = [];
-  const profileImgURL = '';
   const proof = '';
   for (const post of allPosts) {
     replyNodes.push(
@@ -34,9 +28,7 @@ export const resolveNestedReplyThreads = (
         {...post}
         key={post.id}
         depth={depth}
-        createdAt={new Date(post.timestamp)}
         innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess)}
-        profileImgURL={profileImgURL}
         proof={proof}
         childrenLength={post.replies.length}
         onSuccess={onSuccess}
@@ -47,24 +39,8 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const {
-    depth,
-    id,
-    body,
-    createdAt,
-    userId,
-    innerReplies,
-    profileImgURL,
-    childrenLength,
-    upvotes,
-    onSuccess,
-  } = replyProps;
-  const dateFromDescription = useMemo(() => {
-    const date = dayjs(createdAt);
-    // Dayjs doesn't have typings on relative packages so we have to do this
-    // @ts-ignore
-    return date.fromNow();
-  }, [createdAt]);
+  const { depth, id, body, userId, timestamp, innerReplies, childrenLength, upvotes, onSuccess } =
+    replyProps;
 
   const [showPostWriter, setShowPostWriter] = useState<boolean>(false);
 
@@ -75,7 +51,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
       key={id}
       style={{ marginLeft: `${depth * 20}px` }}
     >
-      <UserTag imgURL={profileImgURL} userId={userId} date={dateFromDescription} />
+      <UserTag userId={userId} timestamp={timestamp} />
       <span>{body}</span>
       <div className="flex justify-between items-center py-2 border-t border-gray-300">
         <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>

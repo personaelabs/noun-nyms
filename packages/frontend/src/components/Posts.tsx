@@ -21,8 +21,6 @@ export default function Posts(props: PostsProps) {
 
   const {
     isLoading,
-    isRefetching,
-    isFetching,
     refetch,
     data: posts,
   } = useQuery<IPostPreview[]>({
@@ -35,15 +33,10 @@ export default function Posts(props: PostsProps) {
     refetchInterval: 30000, // 30 seconds
   });
 
-  isRefetching ? console.log(`POSTS: is refetching`) : '';
-  isFetching ? console.log(`POSTS: is fetching `) : '';
-
   const manualRefetch = () => {
     console.log('MANUAL REFETCH');
     refetch();
   };
-
-  if (posts) console.log('data', posts);
 
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
