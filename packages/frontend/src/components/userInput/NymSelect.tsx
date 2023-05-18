@@ -4,26 +4,28 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
-import { useAccount } from 'wagmi';
+import { UserAvatar } from '../global/UserAvatar';
 
 interface NymSelectProps {
+  address: string;
   selectedNym: ClientNym;
   setSelectedNym: (selectedNym: ClientNym) => void;
 }
 
-const getNymOptions = (address: string | undefined) => {
-  const nymOptionsString = address ? localStorage.getItem(address) : '';
-  return nymOptionsString ? (JSON.parse(nymOptionsString) as ClientNym[]) : [];
+const getNymOptions = (address: string, doxed: ClientNym) => {
+  const nymOptionsString = localStorage.getItem(address);
+  return [doxed].concat(nymOptionsString ? (JSON.parse(nymOptionsString) as ClientNym[]) : []);
 };
 
 export const NymSelect = (props: NymSelectProps) => {
-  const { address } = useAccount();
-  const { selectedNym, setSelectedNym } = props;
+  const { address, selectedNym, setSelectedNym } = props;
   const divRef = useRef<HTMLDivElement>(null);
+
+  const doxed = { nymSig: '0x0', nymName: address.slice(0, 5) };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
-  const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address));
+  const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address, doxed));
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
@@ -42,9 +44,12 @@ export const NymSelect = (props: NymSelectProps) => {
     <>
       {openNewNym ? (
         <NewNym
-          handleClose={() => setOpenNewNym(false)}
+          handleClose={() => {
+            setOpenNewNym(false), setOpenSelect(false);
+          }}
           nymOptions={nymOptions}
           setNymOptions={setNymOptions}
+          setSelectedNym={setSelectedNym}
         />
       ) : null}
       <p className="secondary">Posting as</p>
@@ -53,8 +58,8 @@ export const NymSelect = (props: NymSelectProps) => {
           className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}
         >
-          <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-          <p>{selectedNym.nymName}</p>
+          <UserAvatar userId={address} width={20} />
+          <p>{selectedNym.nymName ? selectedNym.nymName : doxed.nymName}</p>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
         {openSelect ? (
@@ -70,7 +75,8 @@ export const NymSelect = (props: NymSelectProps) => {
                   }}
                 >
                   <div className="flex gap-2 justify-start">
-                    <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
+                    {/* TODO: get avatar using correct userId (need access to nymHash) */}
+                    <UserAvatar userId={address} width={20} />
                     <p>{nym.nymName}</p>
                   </div>
                   <FontAwesomeIcon

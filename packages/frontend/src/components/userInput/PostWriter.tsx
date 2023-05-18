@@ -20,7 +20,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
-  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: 'Doxed' });
+  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: '' });
   const { address } = useAccount();
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -87,7 +87,9 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
             </div>
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            {address ? <NymSelect selectedNym={nym} setSelectedNym={setNym} /> : null}
+            {address ? (
+              <NymSelect address={address} selectedNym={nym} setSelectedNym={setNym} />
+            ) : null}
             <MainButton color="black" handler={sendPost} loading={false} message={'Send'} />
           </div>
         </div>
