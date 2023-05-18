@@ -20,8 +20,8 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
-  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: '' });
   const { address } = useAccount();
+  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: address as string });
   const { signTypedDataAsync } = useSignTypedData();
 
   // TODO
@@ -43,7 +43,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
       return;
     }
     try {
-      if (nym.nymName === 'Doxed') {
+      if (nym.nymName === address) {
         await postDoxed({ title, body, parentId }, signTypedDataAsync);
       } else {
         await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);

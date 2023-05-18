@@ -21,7 +21,7 @@ export const NymSelect = (props: NymSelectProps) => {
   const { address, selectedNym, setSelectedNym } = props;
   const divRef = useRef<HTMLDivElement>(null);
 
-  const doxed = { nymSig: '0x0', nymName: address.slice(0, 5) };
+  const doxed = { nymSig: '0x0', nymName: address };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
@@ -59,11 +59,15 @@ export const NymSelect = (props: NymSelectProps) => {
           onClick={() => setOpenSelect(!openSelect)}
         >
           <UserAvatar userId={address} width={20} />
-          <p>{selectedNym.nymName ? selectedNym.nymName : doxed.nymName}</p>
+          <p>
+            {selectedNym.nymName === address
+              ? selectedNym.nymName.slice(0, 5) + '...'
+              : selectedNym.nymName}
+          </p>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
         {openSelect ? (
-          <div className="w-max absolute top-full left-0 w-full bg-white mt-2 border items-center border-gray-200 rounded-xl cursor-pointer">
+          <div className="w-max absolute top-full right-0 w-full bg-white mt-2 border items-center border-gray-200 rounded-xl cursor-pointer">
             {nymOptions &&
               nymOptions.map((nym) => (
                 <div
@@ -77,7 +81,7 @@ export const NymSelect = (props: NymSelectProps) => {
                   <div className="flex gap-2 justify-start">
                     {/* TODO: get avatar using correct userId (need access to nymHash) */}
                     <UserAvatar userId={address} width={20} />
-                    <p>{nym.nymName}</p>
+                    <p>{nym.nymName === address ? nym.nymName.slice(0, 5) + '...' : nym.nymName}</p>
                   </div>
                   <FontAwesomeIcon
                     icon={faCheck}
