@@ -36,11 +36,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetchInterval: 30000, // 30 seconds
   });
 
-  const manualRefetch = () => {
-    console.log(`MANUAL REFRESH`);
-    refetch();
-  };
-
   isRefetching ? console.log(`is refetching ${id}`) : '';
   isFetching ? console.log(`is fetching ${id}`) : '';
 
@@ -53,11 +48,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0, manualRefetch);
+      return resolveNestedReplyThreads(singlePost.replies, 0, refetch);
     } else {
       return <div></div>;
     }
-  }, [singlePost]);
+  }, [singlePost, refetch]);
 
   return (
     <Modal startAtTop={true} handleClose={handleClose}>
@@ -76,20 +71,20 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
-            <Upvote upvotes={upvotes} postId={id} onSuccess={manualRefetch}>
+            <Upvote upvotes={upvotes} postId={id} onSuccess={refetch}>
               <p>{upvotes.length}</p>
             </Upvote>
           </div>
         </div>
       </div>
       <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-        <PostWriter parentId={id as PrefixedHex} onSuccess={manualRefetch} />
+        <PostWriter parentId={id as PrefixedHex} onSuccess={refetch} />
         {isLoading ? (
           <Spinner />
         ) : (
           <>
             <h4>
-              {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'reply' : 'replies'}
+              {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
             </h4>
             <div className="flex flex-col gap-6 w-full justify-center iterms-center">
               {nestedComponentThreads}

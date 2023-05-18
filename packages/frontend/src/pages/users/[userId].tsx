@@ -19,7 +19,6 @@ export default function User() {
   const router = useRouter();
   const userId = router.query.userId as string;
   const isDoxed = userId && isAddress(userId);
-  console.log({ isDoxed }, !!isDoxed);
 
   // determine if post creator or replied to post (does post have a parent ID)
   const { isLoading: postsLoading, data: userPosts } = useQuery<IUserPost[]>({
@@ -39,14 +38,21 @@ export default function User() {
   });
 
   const [openPostId, setOpenPostId] = useState<string>('');
-  const openPost = useMemo(
-    () => userPosts?.find((p) => p.id === openPostId),
-    [openPostId, userPosts],
-  );
-  console.log(upvotesLoading);
+  const openPost = useMemo(() => {
+    // If openPostId has a root, fetch that data instead.
+    const foundPost = userPosts?.find((p) => p.id === openPostId);
+    console.log(`FOUND POST`, foundPost);
+    if (foundPost?.rootId && foundPost.root) {
+      // @ts-expect-error
+      foundPost.root.replyCount = foundPost.root._count.descendants;
+      return foundPost.root;
+    } else return foundPost;
+  }, [openPostId, userPosts]);
+  console.log('openPost', openPost);
 
   return (
     <>
+      {/* @ts-expect-error GRR */}
       {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -63,7 +69,6 @@ export default function User() {
               {userId && <UserTag userId={userId} />}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
                 <h4>Posts</h4>
-
                 {postsLoading ? (
                   <Spinner />
                 ) : userPosts ? (

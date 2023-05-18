@@ -1,6 +1,7 @@
 // Select query for the route GET /users/{userId}/posts
 
 import { Prisma } from '@prisma/client';
+import { rootPostsSelect } from './rootPostsSelect';
 
 export const userPostsSelect = {
   id: true,
@@ -8,6 +9,10 @@ export const userPostsSelect = {
   body: true,
   timestamp: true,
   userId: true,
+  rootId: true,
+  root: {
+    select: { ...rootPostsSelect },
+  },
   upvotes: {
     select: {
       id: true,
