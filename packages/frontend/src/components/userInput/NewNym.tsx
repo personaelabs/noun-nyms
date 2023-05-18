@@ -10,6 +10,7 @@ interface NewNymProps {
   handleClose: () => void;
   nymOptions: ClientNym[];
   setNymOptions: (nymOptions: ClientNym[]) => void;
+  setSelectedNym: (selectedNym: ClientNym) => void;
 }
 
 const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string> => {
@@ -27,7 +28,7 @@ const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string
 
 export const NewNym = (props: NewNymProps) => {
   const { address } = useAccount();
-  const { handleClose, nymOptions, setNymOptions } = props;
+  const { handleClose, nymOptions, setNymOptions, setSelectedNym } = props;
   const [nymName, setnymName] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
@@ -51,8 +52,9 @@ export const NewNym = (props: NewNymProps) => {
     try {
       const nymSig = await signNym(nymName, signTypedDataAsync);
       if (nymSig) storeNym(nymSig);
-
-      setNymOptions([...nymOptions, { nymName, nymSig }]);
+      const newNym = { nymName, nymSig };
+      setNymOptions([...nymOptions, newNym]);
+      setSelectedNym(newNym);
       handleClose();
     } catch (error) {
       //TODO: error handling
@@ -79,7 +81,6 @@ export const NewNym = (props: NewNymProps) => {
               onChange={(event) => setnymName(event.target.value)}
             />
           </div>
-          <p className="secondary">#0000</p>
         </div>
         <div className="flex justify-center">
           <MainButton
