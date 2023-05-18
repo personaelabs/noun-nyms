@@ -78,7 +78,7 @@ export const selectAndCleanPosts = async (userId?: string, skip?: number, take?:
     },
   });
 
-  // Format the data returned from the database
+  // Format the data returned from the database so _count is replaced with replyCount for post and root if it exists
   const posts = postsRaw.map((post) => {
     const postObject = {
       ...post,
