@@ -17,9 +17,21 @@ const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { id, timestamp, handleClose, title, body, replyCount, userId, upvotes } =
-    postWithRepliesProps;
+  const { handleClose, rootId, id, root, ...restPost } = postWithRepliesProps;
 
+  // If root exists, render that. otherewise render post (which is a root).
+  const getTopPost = () => {
+    if (root) {
+      const { _count, ...restRoot } = root;
+      return { ...restRoot, replyCount: _count.descendants };
+    } else {
+      return { ...restPost };
+    }
+  };
+
+  const { userId, title, body, replyCount, timestamp, upvotes } = getTopPost();
+
+  const postId = rootId || id;
   const {
     isRefetching,
     isFetching,
@@ -27,8 +39,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetch,
     data: singlePost,
   } = useQuery<IPostWithReplies>({
-    queryKey: ['post', id],
-    queryFn: () => getPostById(id),
+    queryKey: ['post', postId],
+    queryFn: () => getPostById(postId),
     retry: 1,
     enabled: true,
     staleTime: 5000,
@@ -36,8 +48,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetchInterval: 30000, // 30 seconds
   });
 
-  isRefetching ? console.log(`is refetching ${id}`) : '';
-  isFetching ? console.log(`is fetching ${id}`) : '';
+  isRefetching ? console.log(`is refetching ${postId}`) : '';
+  isFetching ? console.log(`is fetching ${postId}`) : '';
 
   const dateFromDescription = useMemo(() => {
     const date = dayjs(timestamp);

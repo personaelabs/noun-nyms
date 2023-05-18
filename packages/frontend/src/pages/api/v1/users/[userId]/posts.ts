@@ -1,13 +1,12 @@
-import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { isNymValid } from '../../utils';
-import { IUserPost, userPostsSelect } from '@/types/api';
+import { isNymValid, selectAndCleanPosts } from '../../utils';
+import { IPostPreview } from '@/types/api';
 import { isAddress } from 'viem';
 
 // Return posts as specified by the query parameters
 const handleGetUserPosts = async (
   req: NextApiRequest,
-  res: NextApiResponse<IUserPost[] | { error: string }>,
+  res: NextApiResponse<IPostPreview[] | { error: string }>,
 ) => {
   const userId = req.query.userId as string;
 
@@ -21,27 +20,7 @@ const handleGetUserPosts = async (
     return;
   }
 
-  const postsRaw = await prisma.post.findMany({
-    select: userPostsSelect,
-    orderBy: {
-      timestamp: 'desc',
-    },
-    where: {
-      userId: isNym ? userId : userId.toLowerCase(),
-    },
-    skip,
-    take,
-  });
-
-  // Format the data returned from the database
-  const posts = postsRaw.map((post) => {
-    const { _count, ...restPost } = post;
-    return {
-      ...restPost,
-      replyCount: post._count.descendants,
-    };
-  });
-
+  const posts = await selectAndCleanPosts(userId, skip, take);
   res.send(posts);
 };
 

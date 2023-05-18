@@ -1,5 +1,7 @@
 import { deserializeNymAttestation } from '@personaelabs/nymjs';
 import prisma from '@/lib/prisma';
+import { postPreviewSelect } from '@/types/api';
+import { isAddress } from 'viem';
 
 export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
   const node = await prisma.treeNode.findFirst({
@@ -60,4 +62,40 @@ export const getRootFromParent = async (parentId: string): Promise<string | null
   }
 
   return rootId;
+};
+
+export const selectAndCleanPosts = async (userId?: string, skip?: number, take?: number) => {
+  const isNym = userId && !isAddress(userId);
+  // Determines whether we are searching for a user's posts or all root posts.
+  const where = userId ? { userId: isNym ? userId : userId.toLowerCase() } : { rootId: null };
+  const postsRaw = await prisma.post.findMany({
+    select: postPreviewSelect,
+    where,
+    skip,
+    take,
+    orderBy: {
+      timestamp: 'desc',
+    },
+  });
+
+  // Format the data returned from the database
+  const posts = postsRaw.map((post) => {
+    const postObject = {
+      ...post,
+      replyCount: post._count.descendants,
+    };
+
+    if (post.root) {
+      const rootObject = {
+        ...post.root,
+        replyCount: post.root._count.descendants,
+      };
+      post.root = rootObject;
+    } else {
+      post.root = null;
+    }
+
+    return postObject;
+  });
+  return posts;
 };

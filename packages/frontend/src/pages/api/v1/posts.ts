@@ -10,8 +10,13 @@ import {
 } from '@personaelabs/nymjs';
 import { HashScheme, AttestationScheme as PrismaAttestationScheme } from '@prisma/client';
 import { pubToAddress } from '@ethereumjs/util';
-import { verifyInclusion, getNymFromAttestation, getRootFromParent } from '../v1/utils';
-import { IRootPost, rootPostsSelect } from '@/types/api';
+import {
+  verifyInclusion,
+  getNymFromAttestation,
+  getRootFromParent,
+  selectAndCleanPosts,
+} from '../v1/utils';
+import { IPostPreview } from '@/types/api';
 import fs from 'fs';
 
 const isTimestampValid = (timestamp: number): boolean => {
@@ -30,34 +35,11 @@ const verifyRoot = async (root: string): Promise<boolean> =>
     : false;
 
 // Return posts as specified by the query parameters
-const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IRootPost[]>) => {
+const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPreview[]>) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
-  const postsRaw = await prisma.post.findMany({
-    select: rootPostsSelect,
-    where: {
-      // Only return root posts
-      rootId: null,
-    },
-    skip,
-    take,
-    orderBy: {
-      timestamp: 'desc',
-    },
-  });
-
-  // Format the data returned from the database
-  const posts = postsRaw.map((post) => ({
-    id: post.id,
-    title: post.title,
-    body: post.body,
-    timestamp: post.timestamp,
-    userId: post.userId,
-    replyCount: post._count.descendants,
-    upvotes: post.upvotes,
-  }));
-
+  const posts = await selectAndCleanPosts(undefined, skip, take);
   res.send(posts);
 };
 

@@ -40,7 +40,7 @@ const handleGetUserUpvotes = async (
       },
     };
   });
-  // @ts-expect-error problem with omitting the upvote.post._count property in the type
+  // @ts-expect-error Upvotes doesn't like replyCount
   res.send(upvotes);
 };
 
