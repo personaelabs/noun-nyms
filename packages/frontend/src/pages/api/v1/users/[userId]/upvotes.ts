@@ -29,19 +29,7 @@ const handleGetUserUpvotes = async (
     take,
   });
 
-  const upvotes = upvotesRaw.map((upvote) => {
-    const { post, ...restUpvote } = upvote;
-    const { _count, ...restPost } = post;
-    return {
-      ...restUpvote,
-      post: {
-        ...restPost,
-        replyCount: _count.descendants,
-      },
-    };
-  });
-  // @ts-expect-error problem with omitting the upvote.post._count property in the type
-  res.send(upvotes);
+  res.send(upvotesRaw);
 };
 
 // Entry point for the API below /api/v1/users/{user}/upvotes

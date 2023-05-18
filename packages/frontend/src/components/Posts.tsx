@@ -1,7 +1,7 @@
 import { Post } from '@/components/post/Post';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { IRootPost } from '@/types/api';
+import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
 import { useMemo, useState } from 'react';
@@ -10,7 +10,7 @@ import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
 
-const getPosts = async () => (await axios.get<IRootPost[]>('/api/v1/posts')).data;
+const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
 interface PostsProps {
   initOpenPostId?: string;
@@ -21,11 +21,9 @@ export default function Posts(props: PostsProps) {
 
   const {
     isLoading,
-    isRefetching,
-    isFetching,
     refetch,
     data: posts,
-  } = useQuery<IRootPost[]>({
+  } = useQuery<IPostPreview[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
     retry: 1,
@@ -34,9 +32,6 @@ export default function Posts(props: PostsProps) {
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
   });
-
-  isRefetching ? console.log(`POSTS: is refetching`) : '';
-  isFetching ? console.log(`POSTS: is fetching `) : '';
 
   const manualRefetch = () => {
     console.log('MANUAL REFETCH');

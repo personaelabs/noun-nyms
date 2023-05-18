@@ -10,25 +10,22 @@ import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
-import dayjs from 'dayjs';
 import Spinner from '../global/Spinner';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { id, timestamp, handleClose, title, body, replyCount, userId, upvotes } =
-    postWithRepliesProps;
+  const { handleClose, rootId, id, root, ...restPost } = postWithRepliesProps;
 
+  const postId = rootId || id;
   const {
-    isRefetching,
-    isFetching,
     isLoading,
     refetch,
     data: singlePost,
   } = useQuery<IPostWithReplies>({
-    queryKey: ['post', id],
-    queryFn: () => getPostById(id),
+    queryKey: ['post', postId],
+    queryFn: () => getPostById(postId),
     retry: 1,
     enabled: true,
     staleTime: 5000,
@@ -36,28 +33,16 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetchInterval: 30000, // 30 seconds
   });
 
-  const manualRefetch = () => {
-    console.log(`MANUAL REFRESH`);
-    refetch();
-  };
-
-  isRefetching ? console.log(`is refetching ${id}`) : '';
-  isFetching ? console.log(`is fetching ${id}`) : '';
-
-  const dateFromDescription = useMemo(() => {
-    const date = dayjs(timestamp);
-    // Dayjs doesn't have typings on relative packages so we have to do this
-    // @ts-ignore
-    return date.fromNow();
-  }, [timestamp]);
+  const { userId, title, body, _count, timestamp, upvotes } = root ? root : restPost;
+  const replyCount = _count.descendants;
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0, manualRefetch);
+      return resolveNestedReplyThreads(singlePost.replies, 0, refetch);
     } else {
       return <div></div>;
     }
-  }, [singlePost]);
+  }, [singlePost, refetch]);
 
   return (
     <Modal startAtTop={true} handleClose={handleClose}>
@@ -72,26 +57,26 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         </div>
         <div className="h-[1px] border border-dotted border-gray-200" />
         <div className="flex justify-between items-center">
-          <UserTag userId={userId} date={dateFromDescription} />
+          <UserTag userId={userId} timestamp={timestamp} />
           <div className="flex gap-4">
             <ReplyCount count={replyCount} />
             <div className="w-[1px] border border-dotted border-gray-200" />
-            <Upvote upvotes={upvotes} postId={id} onSuccess={manualRefetch}>
+            <Upvote upvotes={upvotes} postId={id} onSuccess={refetch}>
               <p>{upvotes.length}</p>
             </Upvote>
           </div>
         </div>
       </div>
       <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-        <PostWriter parentId={id as PrefixedHex} onSuccess={manualRefetch} />
+        <PostWriter parentId={id as PrefixedHex} onSuccess={refetch} />
         {isLoading ? (
           <Spinner />
         ) : (
           <>
             <h4>
-              {singlePost?.replies.length} {singlePost?.replies.length === 1 ? 'reply' : 'replies'}
+              {replyCount} {replyCount === 1 ? 'reply' : 'replies'}
             </h4>
-            <div className="flex flex-col gap-6 w-full justify-center iterms-center">
+            <div className="flex flex-col gap-6 w-full justify-center items-center">
               {nestedComponentThreads}
             </div>
           </>

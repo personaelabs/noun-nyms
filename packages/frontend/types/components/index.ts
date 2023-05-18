@@ -1,11 +1,11 @@
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { IRootPost } from '../api';
+import { IPostPreview } from '../api';
 
-export type PostProps = IRootPost & {
+export type PostProps = IPostPreview & {
   handleOpenPost: () => void;
 };
 
-export type PostWithRepliesProps = IRootPost & {
+export type PostWithRepliesProps = IPostPreview & {
   handleClose: () => void;
 };
 

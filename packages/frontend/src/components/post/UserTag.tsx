@@ -3,13 +3,16 @@ import { isAddress } from 'viem';
 import Link from 'next/link';
 import { UserAvatar } from '../global/UserAvatar';
 
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
+
 interface UserTagProps {
-  imgURL?: string;
   userId: string;
-  date?: string;
+  timestamp?: Date;
 }
 export const UserTag = (props: UserTagProps) => {
-  const { userId, date } = props;
+  const { userId, timestamp } = props;
   const isDoxed = isAddress(userId);
 
   const { address } = useAccount();
@@ -33,10 +36,10 @@ export const UserTag = (props: UserTagProps) => {
           <p className="font-semibold hover:underline">{userId.split('-')[0]}</p>
         )}
       </Link>
-      {date && (
+      {timestamp && (
         <>
           <p className="secondary">-</p>
-          <p className="secondary whitespace-nowrap">{date}</p>
+          <p className="secondary">{dayjs(timestamp).fromNow()}</p>
         </>
       )}
     </div>

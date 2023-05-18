@@ -1,23 +1,12 @@
 import dayjs from 'dayjs';
-import { useMemo } from 'react';
 import { PostProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
-const relativeTime = require('dayjs/plugin/relativeTime');
-dayjs.extend(relativeTime);
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
 export const Post = (postProps: PostProps) => {
-  const { title, body, timestamp, replyCount, handleOpenPost, userId } = postProps;
-
-  // TODO figure out how to pass in the comments
-  const dateFromDescription = useMemo(() => {
-    const date = dayjs(timestamp);
-    // Dayjs doesn't have typings on relative packages so we have to do this
-    // @ts-ignore
-    return date.fromNow();
-  }, [timestamp]);
+  const { title, body, timestamp, _count, handleOpenPost, userId } = postProps;
 
   return (
     <div
@@ -29,8 +18,8 @@ export const Post = (postProps: PostProps) => {
       </div>
       <span>{body}</span>
       <div className="flex justify-between items-center">
-        <UserTag userId={userId} date={dateFromDescription} />
-        <ReplyCount count={replyCount} />
+        <UserTag userId={userId} timestamp={timestamp} />
+        <ReplyCount count={_count.descendants} />
       </div>
     </div>
   );

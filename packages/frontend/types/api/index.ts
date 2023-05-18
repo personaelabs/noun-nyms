@@ -1,5 +1,4 @@
 export * from './postSelect';
-export * from './rootPostsSelect';
-export * from './userPostsSelect';
+export * from './postPreviewSelect';
 export * from './userUpvotesSelect';
 export * from './users';
