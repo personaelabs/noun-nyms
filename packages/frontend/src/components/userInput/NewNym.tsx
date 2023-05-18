@@ -26,10 +26,21 @@ const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string
   return nymSig as string;
 };
 
+const generateRandomString = (length: number) => {
+  let string = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let i = 0;
+  while (i < length) {
+    string += chars.charAt(Math.floor(Math.random() * chars.length));
+    i += 1;
+  }
+  return string;
+};
+
 export const NewNym = (props: NewNymProps) => {
   const { address } = useAccount();
   const { handleClose, nymOptions, setNymOptions, setSelectedNym } = props;
-  const [nymName, setnymName] = useState('');
+  const [nymName, setNymName] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -62,7 +73,7 @@ export const NewNym = (props: NewNymProps) => {
     }
   };
   return (
-    <Modal width="50%" handleClose={handleClose}>
+    <Modal width="60%" handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
           <h3>Create a new nym</h3>
@@ -78,9 +89,15 @@ export const NewNym = (props: NewNymProps) => {
               type="text"
               placeholder="Name"
               value={nymName}
-              onChange={(event) => setnymName(event.target.value)}
+              onChange={(event) => setNymName(event.target.value)}
             />
           </div>
+          <button
+            className="secondary underline"
+            onClick={() => setNymName(generateRandomString(5))}
+          >
+            Generate random name
+          </button>
         </div>
         <div className="flex justify-center">
           <MainButton
