@@ -20,7 +20,6 @@ const postSelect = {
 /** Need post count for Root, but not parent */
 export const postPreviewSelect = {
   ...postSelect,
-  rootId: true,
   root: {
     select: {
       ...postSelect,
@@ -31,7 +30,6 @@ export const postPreviewSelect = {
       },
     },
   },
-  parentId: true,
   parent: {
     select: { ...postSelect },
   },
