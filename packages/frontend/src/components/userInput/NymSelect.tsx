@@ -20,12 +20,16 @@ export const NymSelect = (props: NymSelectProps) => {
   const { address, selectedNym, setSelectedNym } = props;
   const divRef = useRef<HTMLDivElement>(null);
 
-  const doxed = { nymSig: '0x0', nymName: address };
+  const doxed = { nymSig: '0x0', nymHash: '', nymName: address };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
   const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address, doxed));
   const [maxSelectHeight, setMaxSelectHeight] = useState<number>(0);
+
+  const getUserId = (nym: ClientNym): string => {
+    return nym.nymName === address ? address : `${nym.nymName}-${nym.nymHash}`;
+  };
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
@@ -50,6 +54,7 @@ export const NymSelect = (props: NymSelectProps) => {
     <>
       {openNewNym ? (
         <NewNym
+          address={address}
           handleClose={() => {
             setOpenNewNym(false), setOpenSelect(false);
           }}
@@ -65,7 +70,7 @@ export const NymSelect = (props: NymSelectProps) => {
           onClick={() => setOpenSelect(!openSelect)}
         >
           <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
-            <UserAvatar userId={address} width={20} />
+            <UserAvatar userId={getUserId(selectedNym)} width={20} />
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">{selectedNym.nymName}</p>
           </div>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
@@ -86,9 +91,8 @@ export const NymSelect = (props: NymSelectProps) => {
                   }}
                 >
                   <div className="w-full flex justify-between gap-2">
-                    {/* TODO: get avatar using correct userId (need access to nymHash) */}
                     <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
-                      <UserAvatar userId={address} width={20} />
+                      <UserAvatar userId={getUserId(nym)} width={20} />
                       <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
                         {nym.nymName}
                       </p>

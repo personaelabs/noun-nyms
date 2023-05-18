@@ -21,7 +21,11 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const { address } = useAccount();
-  const [nym, setNym] = useState<ClientNym>({ nymSig: '0x0', nymName: address as string });
+  const [nym, setNym] = useState<ClientNym>({
+    nymSig: '0x0',
+    nymHash: '',
+    nymName: address as string,
+  });
   const { signTypedDataAsync } = useSignTypedData();
 
   // TODO
