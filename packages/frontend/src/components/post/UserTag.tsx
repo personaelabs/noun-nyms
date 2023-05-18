@@ -35,9 +35,8 @@ export const UserTag = (props: UserTagProps) => {
       </Link>
       {date && (
         <>
-          {' '}
           <p className="secondary">-</p>
-          <p className="secondary">{date}</p>
+          <p className="secondary whitespace-nowrap">{date}</p>
         </>
       )}
     </div>

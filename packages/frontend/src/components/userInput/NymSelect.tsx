@@ -1,6 +1,5 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
@@ -26,6 +25,7 @@ export const NymSelect = (props: NymSelectProps) => {
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
   const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address, doxed));
+  const [maxSelectHeight, setMaxSelectHeight] = useState<number>(0);
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
@@ -34,7 +34,13 @@ export const NymSelect = (props: NymSelectProps) => {
         setOpenSelect(false);
       }
     };
-    document.addEventListener('click', handleOutsideClick);
+
+    if (divRef.current) {
+      const { bottom } = divRef.current.getBoundingClientRect();
+      setMaxSelectHeight(window.innerHeight - bottom - 30);
+      document.addEventListener('click', handleOutsideClick);
+    }
+
     return () => {
       document.removeEventListener('click', handleOutsideClick);
     };
@@ -53,41 +59,48 @@ export const NymSelect = (props: NymSelectProps) => {
         />
       ) : null}
       <p className="secondary">Posting as</p>
-      <div className="relative w-max" ref={divRef}>
+      <div className="relative w-[30%]" ref={divRef}>
         <div
-          className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
+          className="bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}
         >
-          <UserAvatar userId={address} width={20} />
-          <p>
-            {selectedNym.nymName === address
-              ? selectedNym.nymName.slice(0, 5) + '...'
-              : selectedNym.nymName}
-          </p>
+          <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
+            <UserAvatar userId={address} width={20} />
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">{selectedNym.nymName}</p>
+          </div>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
         {openSelect ? (
-          <div className="w-max absolute top-full right-0 w-full bg-white mt-2 border items-center border-gray-200 rounded-xl cursor-pointer">
+          <div
+            className="w-full absolute top-full left-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer"
+            style={{ maxHeight: maxSelectHeight, overflow: 'scroll' }}
+          >
             {nymOptions &&
               nymOptions.map((nym) => (
                 <div
                   key={nym.nymSig}
-                  className="flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
+                  className="w-full flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
                   onClick={() => {
                     setSelectedNym(nym);
                     setOpenSelect(false);
                   }}
                 >
-                  <div className="flex gap-2 justify-start">
+                  <div className="w-full flex justify-between gap-2">
                     {/* TODO: get avatar using correct userId (need access to nymHash) */}
-                    <UserAvatar userId={address} width={20} />
-                    <p>{nym.nymName === address ? nym.nymName.slice(0, 5) + '...' : nym.nymName}</p>
+                    <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
+                      <UserAvatar userId={address} width={20} />
+                      <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
+                        {nym.nymName}
+                      </p>
+                    </div>
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      color={'#0E76FD'}
+                      className={`shrink-0 ${
+                        nym.nymSig === selectedNym.nymSig ? 'opacity-1' : 'opacity-0'
+                      }`}
+                    />
                   </div>
-                  <FontAwesomeIcon
-                    icon={faCheck}
-                    color={'#0E76FD'}
-                    className={`${nym.nymSig === selectedNym.nymSig ? 'opacity-1' : 'opacity-0'}`}
-                  />
                 </div>
               ))}
             <div

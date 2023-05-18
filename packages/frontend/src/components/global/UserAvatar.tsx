@@ -36,6 +36,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
   }, [userId]);
   return (
     <div
+      className="shrink-0"
       style={{ borderRadius: '50%', overflow: 'hidden', width: width, height: width }}
       ref={svgRef}
       dangerouslySetInnerHTML={{ __html: avatar }}
