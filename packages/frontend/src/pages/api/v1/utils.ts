@@ -78,24 +78,5 @@ export const selectAndCleanPosts = async (userId?: string, skip?: number, take?:
     },
   });
 
-  // Format the data returned from the database so _count is replaced with replyCount for post and root if it exists
-  const posts = postsRaw.map((post) => {
-    const postObject = {
-      ...post,
-      replyCount: post._count.descendants,
-    };
-
-    if (post.root) {
-      const rootObject = {
-        ...post.root,
-        replyCount: post.root._count.descendants,
-      };
-      post.root = rootObject;
-    } else {
-      post.root = null;
-    }
-
-    return postObject;
-  });
-  return posts;
+  return postsRaw;
 };

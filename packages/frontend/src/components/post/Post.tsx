@@ -6,7 +6,7 @@ import { UserTag } from './UserTag';
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
 export const Post = (postProps: PostProps) => {
-  const { title, body, timestamp, replyCount, handleOpenPost, userId } = postProps;
+  const { title, body, timestamp, _count, handleOpenPost, userId } = postProps;
 
   return (
     <div
@@ -19,7 +19,7 @@ export const Post = (postProps: PostProps) => {
       <span>{body}</span>
       <div className="flex justify-between items-center">
         <UserTag userId={userId} timestamp={timestamp} />
-        <ReplyCount count={replyCount} />
+        <ReplyCount count={_count.descendants} />
       </div>
     </div>
   );

@@ -44,6 +44,4 @@ export const postPreviewSelect = {
 
 type PostPreviewPayload = Prisma.PostGetPayload<{ select: typeof postPreviewSelect }>;
 
-// type RootWithReply = (PostPreviewPayload['root'] & { replyCount: number }) | null;
-
-export type IPostPreview = PostPreviewPayload & { replyCount: number };
+export type IPostPreview = PostPreviewPayload;

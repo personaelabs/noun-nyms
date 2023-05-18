@@ -18,17 +18,6 @@ const getPostById = async (postId: string) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { handleClose, rootId, id, root, ...restPost } = postWithRepliesProps;
 
-  // If root exists, render that. otherewise render post (which is a root).
-  const getTopPost = () => {
-    if (root) {
-      const { _count, ...restRoot } = root;
-      // TODO: replyCount is tweaked here because I couldn't type it on the backend :(
-      return { ...restRoot, replyCount: _count.descendants };
-    } else {
-      return { ...restPost };
-    }
-  };
-
   const postId = rootId || id;
   const {
     isLoading,
@@ -44,7 +33,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetchInterval: 30000, // 30 seconds
   });
 
-  const { userId, title, body, replyCount, timestamp, upvotes } = getTopPost();
+  const { userId, title, body, _count, timestamp, upvotes } = root ? root : restPost;
+  const replyCount = _count.descendants;
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
