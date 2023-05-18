@@ -18,9 +18,10 @@ const getPostById = async (postId: string) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { handleClose, root: rootContent, ...postContent } = postWithRepliesProps;
 
-  // The current post IS NOT a root if has rootContent.
-  // The current post IS a root, if it does not have rootContent.
-  const { userId, id, title, body, _count, timestamp, upvotes } = rootContent || postContent;
+  // The postContent IS NOT a root if has rootContent.
+  // The postContent IS a root, if it does not have rootContent.
+  const topContent = rootContent || postContent;
+  const { userId, id, title, body, _count, timestamp, upvotes } = topContent;
 
   const replyCount = _count.descendants;
 
