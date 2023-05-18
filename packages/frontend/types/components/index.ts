@@ -12,6 +12,7 @@ export type PostWithRepliesProps = IRootPost & {
 export type ClientNym = {
   nymName: string;
   nymSig: string;
+  nymHash: string;
 };
 
 export type ClientUpvote = {

@@ -1,15 +1,17 @@
-import Image from 'next/image';
 import { Modal } from '../global/Modal';
 import { useState } from 'react';
 import { MainButton } from '../MainButton';
-import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING } from '@personaelabs/nymjs';
-import { useSignTypedData, useAccount } from 'wagmi';
+import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING, computeNymHash } from '@personaelabs/nymjs';
+import { useSignTypedData } from 'wagmi';
 import { ClientNym } from '@/types/components';
+import { UserAvatar } from '../global/UserAvatar';
 
 interface NewNymProps {
+  address: string;
   handleClose: () => void;
   nymOptions: ClientNym[];
   setNymOptions: (nymOptions: ClientNym[]) => void;
+  setSelectedNym: (selectedNym: ClientNym) => void;
 }
 
 const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string> => {
@@ -25,34 +27,45 @@ const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string
   return nymSig as string;
 };
 
+const generateRandomString = (length: number) => {
+  let string = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let i = 0;
+  while (i < length) {
+    string += chars.charAt(Math.floor(Math.random() * chars.length));
+    i += 1;
+  }
+  return string;
+};
+
 export const NewNym = (props: NewNymProps) => {
-  const { address } = useAccount();
-  const { handleClose, nymOptions, setNymOptions } = props;
-  const [nymName, setnymName] = useState('');
+  const { address, handleClose, nymOptions, setNymOptions, setSelectedNym } = props;
+  const [nymName, setNymName] = useState('');
 
   const { signTypedDataAsync } = useSignTypedData();
 
-  const storeNym = (nymSig: string) => {
-    if (address) {
-      const nyms = localStorage.getItem(address);
-      let newVal: string;
-      if (nyms) {
-        let existingNyms = JSON.parse(nyms);
-        existingNyms.push({ nymSig, nymName });
-        newVal = JSON.stringify(existingNyms);
-      } else {
-        newVal = JSON.stringify([{ nymSig, nymName }]);
-      }
-      localStorage.setItem(address, newVal);
+  const storeNym = async (nymSig: string, nymHash: string) => {
+    const nyms = localStorage.getItem(address);
+    let newVal: string;
+    if (nyms) {
+      let existingNyms = JSON.parse(nyms) as ClientNym[];
+      existingNyms.push({ nymSig, nymName, nymHash });
+      newVal = JSON.stringify(existingNyms);
+    } else {
+      newVal = JSON.stringify([{ nymSig, nymName, nymHash }]);
     }
+    localStorage.setItem(address, newVal);
   };
 
   const handleNewNym = async () => {
     try {
       const nymSig = await signNym(nymName, signTypedDataAsync);
-      if (nymSig) storeNym(nymSig);
+      const nymHash = await computeNymHash(nymSig);
 
-      setNymOptions([...nymOptions, { nymName, nymSig }]);
+      if (nymSig) storeNym(nymSig, nymHash);
+      const newNym = { nymName, nymSig, nymHash };
+      setNymOptions([...nymOptions, newNym]);
+      setSelectedNym(newNym);
       handleClose();
     } catch (error) {
       //TODO: error handling
@@ -60,7 +73,7 @@ export const NewNym = (props: NewNymProps) => {
     }
   };
   return (
-    <Modal width="50%" handleClose={handleClose}>
+    <Modal width="60%" handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
           <h3>Create a new nym</h3>
@@ -69,17 +82,22 @@ export const NewNym = (props: NewNymProps) => {
           What does it mean to create a new nym? Any warnings the user should know beforehand?
         </p>
         <div className="flex justify-start items-center gap-2">
-          <Image alt={'profile'} src={'/anon-noun.png'} width={24} height={24} />
+          <UserAvatar width={24} userId={address} />
           <div className="relative border border-gray-200 rounded-md px-2 py-1">
             <input
               className="outline-none bg-transparent"
               type="text"
               placeholder="Name"
               value={nymName}
-              onChange={(event) => setnymName(event.target.value)}
+              onChange={(event) => setNymName(event.target.value)}
             />
           </div>
-          <p className="secondary">#0000</p>
+          <button
+            className="secondary underline"
+            onClick={() => setNymName(generateRandomString(5))}
+          >
+            Generate random name
+          </button>
         </div>
         <div className="flex justify-center">
           <MainButton

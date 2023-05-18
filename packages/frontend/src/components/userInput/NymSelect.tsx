@@ -1,29 +1,35 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
-import { useAccount } from 'wagmi';
+import { UserAvatar } from '../global/UserAvatar';
 
 interface NymSelectProps {
+  address: string;
   selectedNym: ClientNym;
   setSelectedNym: (selectedNym: ClientNym) => void;
 }
 
-const getNymOptions = (address: string | undefined) => {
-  const nymOptionsString = address ? localStorage.getItem(address) : '';
-  return nymOptionsString ? (JSON.parse(nymOptionsString) as ClientNym[]) : [];
+const getNymOptions = (address: string, doxed: ClientNym) => {
+  const nymOptionsString = localStorage.getItem(address);
+  return [doxed].concat(nymOptionsString ? (JSON.parse(nymOptionsString) as ClientNym[]) : []);
 };
 
 export const NymSelect = (props: NymSelectProps) => {
-  const { address } = useAccount();
-  const { selectedNym, setSelectedNym } = props;
+  const { address, selectedNym, setSelectedNym } = props;
   const divRef = useRef<HTMLDivElement>(null);
+
+  const doxed = { nymSig: '0x0', nymHash: '', nymName: address };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
-  const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address));
+  const [nymOptions, setNymOptions] = useState<ClientNym[]>(getNymOptions(address, doxed));
+  const [maxSelectHeight, setMaxSelectHeight] = useState<number>(0);
+
+  const getUserId = (nym: ClientNym): string => {
+    return nym.nymName === address ? address : `${nym.nymName}-${nym.nymHash}`;
+  };
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
@@ -32,7 +38,13 @@ export const NymSelect = (props: NymSelectProps) => {
         setOpenSelect(false);
       }
     };
-    document.addEventListener('click', handleOutsideClick);
+
+    if (divRef.current) {
+      const { bottom } = divRef.current.getBoundingClientRect();
+      setMaxSelectHeight(window.innerHeight - bottom - 30);
+      document.addEventListener('click', handleOutsideClick);
+    }
+
     return () => {
       document.removeEventListener('click', handleOutsideClick);
     };
@@ -42,42 +54,57 @@ export const NymSelect = (props: NymSelectProps) => {
     <>
       {openNewNym ? (
         <NewNym
-          handleClose={() => setOpenNewNym(false)}
+          address={address}
+          handleClose={() => {
+            setOpenNewNym(false), setOpenSelect(false);
+          }}
           nymOptions={nymOptions}
           setNymOptions={setNymOptions}
+          setSelectedNym={setSelectedNym}
         />
       ) : null}
       <p className="secondary">Posting as</p>
-      <div className="relative w-max" ref={divRef}>
+      <div className="relative w-[30%]" ref={divRef}>
         <div
-          className="bg-white flex gap-2 border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
+          className="bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}
         >
-          <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-          <p>{selectedNym.nymName}</p>
+          <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
+            <UserAvatar userId={getUserId(selectedNym)} width={20} />
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">{selectedNym.nymName}</p>
+          </div>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
         {openSelect ? (
-          <div className="w-max absolute top-full left-0 w-full bg-white mt-2 border items-center border-gray-200 rounded-xl cursor-pointer">
+          <div
+            className="w-full absolute top-full left-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer"
+            style={{ maxHeight: maxSelectHeight, overflow: 'scroll' }}
+          >
             {nymOptions &&
               nymOptions.map((nym) => (
                 <div
                   key={nym.nymSig}
-                  className="flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
+                  className="w-full flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
                   onClick={() => {
                     setSelectedNym(nym);
                     setOpenSelect(false);
                   }}
                 >
-                  <div className="flex gap-2 justify-start">
-                    <Image alt={'profile'} src={'/anon-noun.png'} width={20} height={20} />
-                    <p>{nym.nymName}</p>
+                  <div className="w-full flex justify-between gap-2">
+                    <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
+                      <UserAvatar userId={getUserId(nym)} width={20} />
+                      <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
+                        {nym.nymName}
+                      </p>
+                    </div>
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      color={'#0E76FD'}
+                      className={`shrink-0 ${
+                        nym.nymSig === selectedNym.nymSig ? 'opacity-1' : 'opacity-0'
+                      }`}
+                    />
                   </div>
-                  <FontAwesomeIcon
-                    icon={faCheck}
-                    color={'#0E76FD'}
-                    className={`${nym.nymSig === selectedNym.nymSig ? 'opacity-1' : 'opacity-0'}`}
-                  />
                 </div>
               ))}
             <div
