@@ -1,4 +1,4 @@
-import { Post } from '@/components/post/Post';
+import { PostPreview } from '@/components/post/PostPreview';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPostPreview } from '@/types/api';
@@ -77,10 +77,11 @@ export default function Posts(props: PostsProps) {
                       >
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
-                      <Post
+                      <PostPreview
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => setOpenPostId(post.id)}
+                        onSuccess={manualRefetch}
                       />
                     </div>
                   ))}
