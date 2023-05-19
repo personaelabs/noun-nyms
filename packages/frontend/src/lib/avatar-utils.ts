@@ -1,5 +1,4 @@
 import MersenneTwister from 'mersenne-twister';
-import { NOUNS_AVATAR_RANGES } from './constants';
 
 // generate count random numbers from a hash within each respective range
 function generateRandomNumbersFromHash(hash: string, count: number, ranges: number[]): number[] {
