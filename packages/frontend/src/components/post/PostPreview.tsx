@@ -1,9 +1,7 @@
 import { PostProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
-import { Upvote } from '../Upvote';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faReply } from '@fortawesome/free-solid-svg-icons';
+import { SingleReply } from './SingleReply';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -21,6 +19,8 @@ export const PostPreview = (postProps: PostProps) => {
     handleOpenPost,
     onSuccess,
   } = postProps;
+
+  const postInfo = { id, body, upvotes, timestamp, userId };
 
   return (
     <>
@@ -45,23 +45,12 @@ export const PostPreview = (postProps: PostProps) => {
             <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 20 }}>
               <div className="flex flex-col gap-2 pl-2 border-l border-dotted border-gray-300">
                 <div className="self-start line-clamp-2"></div>
-                <UserTag userId={userId} timestamp={timestamp} />
-                <span>{body}</span>
-                <div className="flex gap-2 justify-between">
-                  <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
-                    <p className="postDetail">{upvotes.length}</p>
-                  </Upvote>
-                  <div className="flex gap-2">
-                    <ReplyCount count={_count.descendants} />
-                    <div
-                      className="flex gap-2 items-center cursor-pointer hoverIcon"
-                      onClick={handleOpenPost}
-                    >
-                      <FontAwesomeIcon className="hoverIcon" icon={faReply} />
-                      <p className="text-gray-700">Reply</p>
-                    </div>
-                  </div>
-                </div>
+                <SingleReply
+                  {...postInfo}
+                  replyCount={_count.descendants}
+                  onSuccess={onSuccess}
+                  handleReply={handleOpenPost}
+                />
               </div>
             </div>
           </>
