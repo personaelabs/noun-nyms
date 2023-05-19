@@ -1,4 +1,5 @@
 import MersenneTwister from 'mersenne-twister';
+import { isAddress } from 'viem';
 
 // generate count random numbers from a hash within each respective range
 function generateRandomNumbersFromHash(hash: string, count: number, ranges: number[]): number[] {
@@ -14,7 +15,7 @@ function generateRandomNumbersFromHash(hash: string, count: number, ranges: numb
   // within range to actually produce meaningful random numbers.
   let seed;
   // if it's an address
-  if (hash.startsWith('0x')) {
+  if (isAddress(hash)) {
     seed = Number(parseInt(hash, 16).toString().substring(0, 12)) * 10000000000000000000000;
   } else {
     // if it's a nym we need to remove the nym code prefix
