@@ -2,13 +2,13 @@ const wasm_tester = require('circom_tester').wasm;
 import * as path from 'path';
 import { Poseidon, computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
 import { ecsign, hashPersonalMessage, privateToPublic } from '@ethereumjs/util';
-import { constructTree, bytesToBigInt } from './test_utils';
+import { constructTree, bytesToBigInt, CircuitInput, deepCopy } from './test_utils';
 
 // process.env.CI is set to true in GitHub Actions
 const maybe = process.env.CI ? describe.skip : describe;
 
 maybe('nym ownership', () => {
-  let circuitInput: any;
+  let circuitInput: CircuitInput;
   let circuit: any;
 
   beforeAll(async () => {
@@ -105,5 +105,42 @@ maybe('nym ownership', () => {
   it('should pass when both signatures and the Merkle proof are valid', async () => {
     const w = await circuit.calculateWitness(circuitInput, true);
     await circuit.checkConstraints(w);
+  });
+
+  // Check that the circuit fails when any of the inputs is invalid
+  [
+    'nymHash',
+    'nymSigTx',
+    'nymSigTy',
+    'nymSigUx',
+    'nymSigUy',
+    'nymSigS',
+    'contentSigTx',
+    'contentSigTy',
+    'contentSigUx',
+    'contentSigUy',
+    'contentSigS',
+    'siblings',
+    'pathIndices',
+    'root',
+  ].forEach((key) => {
+    it.failing(`should fail when ${key} is invalid`, async () => {
+      const invalidCircuitInput = deepCopy(circuitInput);
+      if (key === 'siblings') {
+        invalidCircuitInput.siblings[0] += BigInt(1);
+      } else if (key === 'pathIndices') {
+        invalidCircuitInput.pathIndices[0] += 1;
+      } else {
+        (invalidCircuitInput[key] as bigint) += BigInt(1);
+      }
+
+      const w = await circuit.calculateWitness(
+        {
+          ...invalidCircuitInput,
+        },
+        true,
+      );
+      circuit.checkConstraints(w);
+    });
   });
 });
