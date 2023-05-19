@@ -1,4 +1,5 @@
 import MersenneTwister from 'mersenne-twister';
+import { NOUNS_AVATAR_RANGES } from './constants';
 
 // generate count random numbers from a hash within each respective range
 function generateRandomNumbersFromHash(hash: string, count: number, ranges: number[]): number[] {
@@ -12,7 +13,16 @@ function generateRandomNumbersFromHash(hash: string, count: number, ranges: numb
   // with sufficiently large numbers the generated random numbers end up being the same. So
   // tl;dr we do this to get fairly unqiue deterministic seed for a given userId that is
   // within range to actually produce meaningful random numbers.
-  const seed = Number(parseInt(hash, 16).toString().substring(0, 12)) * 1000000;
+  let seed;
+  // if it's an address
+  if (hash.startsWith('0x')) {
+    seed = Number(parseInt(hash, 16).toString().substring(0, 12)) * 10000000000000000000000;
+  } else {
+    // if it's a nym we need to remove the nym code prefix
+    seed =
+      Number(parseInt(hash.split('-')[1], 16).toString().substring(0, 12)) *
+      10000000000000000000000;
+  }
 
   // Create a Mersenne Twister PRNG instance with the seed
   const mt = new MersenneTwister(seed);
