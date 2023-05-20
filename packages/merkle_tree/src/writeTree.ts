@@ -304,6 +304,7 @@ async function writeTree(blockHeight: number) {
         const index = anonSet1Tree.indexOf(anonSet1PubKeyHashes[i]);
         const merkleProof = anonSet1Tree.createProof(index);
         return {
+          address: account.address,
           pubkey: account.pubKey,
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
@@ -335,6 +336,7 @@ async function writeTree(blockHeight: number) {
         const index = anonSet2Tree.indexOf(anonSet2PubKeyHashes[i]);
         const merkleProof = anonSet2Tree.createProof(index);
         return {
+          address: account.address,
           pubkey: account.pubKey,
           path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
