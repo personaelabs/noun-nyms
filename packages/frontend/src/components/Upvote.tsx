@@ -69,7 +69,7 @@ export const Upvote = (props: UpvoteIconProps) => {
         onClick={handleClick}
         className={`flex ${
           col ? 'flex-col' : 'flex-row'
-        } gap-1 justify-center items-center cursor-pointer`}
+        } gap-2 justify-center items-center cursor-pointer`}
       >
         <FontAwesomeIcon className="hoverIcon" icon={faUpLong} color={'#0e76fd'} />
         {children}
