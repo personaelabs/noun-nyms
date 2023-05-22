@@ -9,7 +9,8 @@
     "check": "tsc --noEmit --incremental",
     "lint": "next lint",
     "format": "prettier . --write .",
-    "start": "next start"
+    "start": "next start",
+    "test": "jest"
   },
   "dependencies": {
     "@ethereumjs/util": "^8.0.5",
