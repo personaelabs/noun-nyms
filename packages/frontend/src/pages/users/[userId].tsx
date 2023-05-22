@@ -1,5 +1,5 @@
 import Spinner from '@/components/global/Spinner';
-import { Post } from '@/components/post/Post';
+import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
 import { UserTag } from '@/components/post/UserTag';
 import { IPostPreview, IUserUpvote } from '@/types/api';
@@ -68,7 +68,12 @@ export default function User() {
                   <Spinner />
                 ) : userPosts ? (
                   userPosts.map((post) => (
-                    <Post key={post.id} {...post} handleOpenPost={() => setOpenPostId(post.id)} />
+                    <PostPreview
+                      key={post.id}
+                      {...post}
+                      handleOpenPost={() => setOpenPostId(post.id)}
+                      onSuccess={() => console.log('need to refetch here')}
+                    />
                   ))
                 ) : null}
                 {/* TODO: Ugly code to only render upvotes when doxed */}
@@ -79,10 +84,11 @@ export default function User() {
                       <Spinner />
                     ) : userUpvotes ? (
                       userUpvotes.map((vote) => (
-                        <Post
+                        <PostPreview
                           key={vote.post.id}
                           {...vote.post}
                           handleOpenPost={() => setOpenPostId(vote.post.id)}
+                          onSuccess={() => console.log('need to refetch here')}
                         />
                       ))
                     ) : null}

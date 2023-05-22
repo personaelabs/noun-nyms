@@ -30,6 +30,12 @@
   body {
     @apply text-sm;
     @apply font-normal;
+    @apply text-gray-700;
+  }
+
+  .postDetail {
+    @apply text-sm;
+    @apply font-semibold;
   }
 
   .secondary {

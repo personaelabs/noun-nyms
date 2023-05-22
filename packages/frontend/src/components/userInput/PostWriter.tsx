@@ -20,6 +20,8 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
+  const [sendingPost, setSendingPost] = useState<boolean>(false);
+
   const { address } = useAccount();
   const [nym, setNym] = useState<ClientNym>({
     nymSig: '0x0',
@@ -47,13 +49,16 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
       return;
     }
     try {
+      setSendingPost(true);
       if (nym.nymName === address) {
         await postDoxed({ title, body, parentId }, signTypedDataAsync);
       } else {
         await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
       }
       resetWriter();
+      setSendingPost(false);
     } catch (error) {
+      setSendingPost(false);
       //TODO: error handling
       console.error(error);
     }
@@ -94,7 +99,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
             {address ? (
               <NymSelect address={address} selectedNym={nym} setSelectedNym={setNym} />
             ) : null}
-            <MainButton color="black" handler={sendPost} loading={false} message={'Send'} />
+            <MainButton color="black" handler={sendPost} loading={sendingPost} message={'Send'} />
           </div>
         </div>
       ) : null}

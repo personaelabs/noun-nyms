@@ -40,7 +40,8 @@ const generateRandomString = (length: number) => {
 
 export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedNym } = props;
-  const [nymName, setNymName] = useState('');
+  const [nymName, setNymName] = useState<string>('');
+  const [loadingNym, setLoadingNym] = useState<boolean>(false);
 
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -59,6 +60,7 @@ export const NewNym = (props: NewNymProps) => {
 
   const handleNewNym = async () => {
     try {
+      setLoadingNym(true);
       const nymSig = await signNym(nymName, signTypedDataAsync);
       const nymHash = await computeNymHash(nymSig);
 
@@ -67,7 +69,9 @@ export const NewNym = (props: NewNymProps) => {
       setNymOptions([...nymOptions, newNym]);
       setSelectedNym(newNym);
       handleClose();
+      setLoadingNym(false);
     } catch (error) {
+      setLoadingNym(false);
       //TODO: error handling
       console.error(error);
     }
@@ -103,7 +107,7 @@ export const NewNym = (props: NewNymProps) => {
           <MainButton
             color="#0E76FD"
             message="Confirm"
-            loading={false}
+            loading={loadingNym}
             handler={handleNewNym}
             disabled={nymName === ''}
           />

@@ -6,10 +6,11 @@ import { useAccount } from 'wagmi';
 interface UpvoteWarningProps {
   handleClose: () => void;
   upvoteHandler: () => void;
+  loadingUpvote: boolean;
 }
 
 export const UpvoteWarning = (props: UpvoteWarningProps) => {
-  const { handleClose, upvoteHandler } = props;
+  const { handleClose, upvoteHandler, loadingUpvote } = props;
 
   const { address } = useAccount();
 
@@ -30,7 +31,12 @@ export const UpvoteWarning = (props: UpvoteWarningProps) => {
           <p>Don&apos;t show this again</p>
         </div>
         <div className="flex justify-center">
-          <MainButton color="#0E76FD" message="Vote" loading={false} handler={upvoteHandler} />
+          <MainButton
+            color="#0E76FD"
+            message="Vote"
+            loading={loadingUpvote}
+            handler={upvoteHandler}
+          />
         </div>
       </div>
     </Modal>

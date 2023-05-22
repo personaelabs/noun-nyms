@@ -28,14 +28,18 @@ export const Upvote = (props: UpvoteIconProps) => {
 
   const [showVoteWarning, setShowVoteWarning] = useState<boolean>(false);
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
+  const [loadingUpvote, setLoadingUpvote] = useState<boolean>(false);
   const hasUpvoted = useMemo(getHasUpvoted, [address, upvotes]);
 
   const upvoteHandler = async () => {
     try {
+      setLoadingUpvote(true);
       await submitUpvote(postId, signTypedDataAsync);
+      setLoadingUpvote(false);
       onSuccess();
       setShowVoteWarning(false);
     } catch (error) {
+      setLoadingUpvote(false);
       //TODO: error handling
       console.error(error);
     }
@@ -56,6 +60,7 @@ export const Upvote = (props: UpvoteIconProps) => {
         <UpvoteWarning
           handleClose={() => setShowVoteWarning(false)}
           upvoteHandler={upvoteHandler}
+          loadingUpvote={loadingUpvote}
         />
       ) : showWalletWarning ? (
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action="upvote" />
