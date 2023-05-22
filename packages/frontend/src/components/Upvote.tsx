@@ -66,7 +66,10 @@ export const Upvote = (props: UpvoteIconProps) => {
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action="upvote" />
       ) : null}
       <div
-        onClick={handleClick}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleClick();
+        }}
         className={`flex ${
           col ? 'flex-col' : 'flex-row'
         } gap-2 justify-center items-center cursor-pointer`}
