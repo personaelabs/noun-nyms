@@ -85,8 +85,8 @@ describe('nym', () => {
       describe('prove and verify', () => {
         // Initialize prover
         const config = {
-          witnessGenWasm: path.join(__dirname, './circuit_artifacts/nym_ownership.wasm'),
-          circuitUrl: path.join(__dirname, './circuit_artifacts/nym_ownership.circuit'),
+          witnessGenWasm: path.join(__dirname, '../../circuits/artifacts/nym_ownership.wasm'),
+          circuitUrl: path.join(__dirname, '../../circuits/artifacts/nym_ownership.circuit'),
           enableProfiler: true,
         };
         const prover = new NymProver(config);
