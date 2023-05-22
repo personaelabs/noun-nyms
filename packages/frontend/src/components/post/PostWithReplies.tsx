@@ -16,7 +16,7 @@ const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { handleClose, root: rootContent, ...postContent } = postWithRepliesProps;
+  const { writerToShow, handleClose, root: rootContent, ...postContent } = postWithRepliesProps;
 
   // The postContent IS NOT a root if has rootContent.
   // The postContent IS a root, if it does not have rootContent.
@@ -41,11 +41,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0, refetch);
+      return resolveNestedReplyThreads(singlePost.replies, 0, refetch, writerToShow);
     } else {
       return <div></div>;
     }
-  }, [singlePost, refetch]);
+  }, [singlePost, refetch, writerToShow]);
 
   return (
     <Modal startAtTop={true} handleClose={handleClose}>

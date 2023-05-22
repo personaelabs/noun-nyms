@@ -40,6 +40,7 @@ export default function User() {
   });
 
   const [openPostId, setOpenPostId] = useState<string>('');
+  const [writerToShow, setWriterToShow] = useState<string>('');
 
   const openPost = useMemo(() => {
     // If openPostId has a root, fetch that data instead.
@@ -48,10 +49,21 @@ export default function User() {
     return foundPost;
   }, [openPostId, userPosts, userUpvotes]);
 
+  const handleOpenPost = (id: string, writerToShow: string) => {
+    setWriterToShow(writerToShow);
+    setOpenPostId(id);
+  };
+
   return (
     <>
       <Header />
-      {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
+      {openPost ? (
+        <PostWithReplies
+          writerToShow={writerToShow}
+          {...openPost}
+          handleClose={() => setOpenPostId('')}
+        />
+      ) : null}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
@@ -70,7 +82,9 @@ export default function User() {
                     <PostPreview
                       key={post.id}
                       {...post}
-                      handleOpenPost={() => setOpenPostId(post.id)}
+                      handleOpenPost={(writerToShow: string) => {
+                        handleOpenPost(post.id, writerToShow);
+                      }}
                       onSuccess={() => console.log('need to refetch here')}
                     />
                   ))

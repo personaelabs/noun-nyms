@@ -41,10 +41,10 @@ export const UserTag = (props: UserTagProps) => {
         )}
       </Link>
       {timestamp && (
-        <>
+        <div className="flex gap-2 shrink-0">
           <p className="secondary">-</p>
           <p className="secondary">{dayjs(timestamp).fromNow()}</p>
-        </>
+        </div>
       )}
     </div>
   );

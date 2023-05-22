@@ -10,11 +10,13 @@ interface IReplyProps extends IPostWithReplies {
   proof: string;
   childrenLength: number;
   onSuccess: () => void;
+  showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
   allPosts: IPostWithReplies[],
   depth: number,
   onSuccess: () => void,
+  writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
   const proof = '';
@@ -23,8 +25,9 @@ export const resolveNestedReplyThreads = (
       <NestedReply
         {...post}
         key={post.id}
+        showReplyWriter={writerToShow === post.id}
         depth={depth}
-        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess)}
+        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess, writerToShow)}
         proof={proof}
         childrenLength={post.replies.length}
         onSuccess={onSuccess}
@@ -35,28 +38,39 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const { id, body, userId, timestamp, upvotes, depth, innerReplies, childrenLength, onSuccess } =
-    replyProps;
+  const {
+    id,
+    body,
+    userId,
+    timestamp,
+    upvotes,
+    depth,
+    innerReplies,
+    childrenLength,
+    onSuccess,
+    showReplyWriter,
+  } = replyProps;
 
   const postInfo = { id, body, userId, timestamp, upvotes };
-  const [showPostWriter, setShowPostWriter] = useState<boolean>(false);
+  const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
 
   return (
-    <div className="flex flex-col gap-2" key={id} style={{ marginLeft: `${depth * 10}px` }}>
+    <div className="w-full flex flex-col gap-2" key={id} style={{ marginLeft: `${depth * 10}px` }}>
       <SingleReply
         {...postInfo}
         replyCount={childrenLength}
         onSuccess={onSuccess}
-        handleReply={() => setShowPostWriter(true)}
-        innerReplies={innerReplies}
-      />
-      {showPostWriter ? (
-        <PostWriter
-          parentId={id as PrefixedHex}
-          onSuccess={onSuccess}
-          handleCloseWriter={() => setShowPostWriter(false)}
-        />
-      ) : null}
+        handleReply={() => setShowPostWriter(!showPostWriter)}
+      >
+        {showPostWriter ? (
+          <PostWriter
+            parentId={id as PrefixedHex}
+            onSuccess={onSuccess}
+            handleCloseWriter={() => setShowPostWriter(false)}
+          />
+        ) : null}
+        {innerReplies}
+      </SingleReply>
     </div>
   );
 };

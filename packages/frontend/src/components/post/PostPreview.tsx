@@ -25,7 +25,7 @@ export const PostPreview = (postProps: PostProps) => {
   return (
     <>
       <div
-        onClick={handleOpenPost}
+        onClick={() => handleOpenPost('')}
         className="rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
       >
         {root ? (
@@ -37,7 +37,7 @@ export const PostPreview = (postProps: PostProps) => {
               <span className="secondary"> commented on </span>
               <span className="postDetail hover:underline">{root.title}</span>
             </p>
-            <a href={`/users/${root.userId}`} className="secondary">
+            <a href={`/users/${root.userId}`} className="w-max secondary">
               Posted by <strong className="hover:underline">{root.userId}</strong>
             </a>
           </div>
@@ -54,7 +54,7 @@ export const PostPreview = (postProps: PostProps) => {
                   {...postInfo}
                   replyCount={_count.descendants}
                   onSuccess={onSuccess}
-                  handleReply={handleOpenPost}
+                  handleReply={(writerToShow: string) => handleOpenPost(writerToShow)}
                 />
               </div>
             </div>
