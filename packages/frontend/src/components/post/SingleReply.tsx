@@ -14,12 +14,23 @@ interface SingleReplyProps {
   upvotes: ClientUpvote[];
   onSuccess: () => void;
   handleReply: (id: string) => void;
+  replyOpen: boolean;
   children?: React.ReactNode;
 }
 
 export const SingleReply = (props: SingleReplyProps) => {
-  const { id, userId, timestamp, body, upvotes, replyCount, onSuccess, handleReply, children } =
-    props;
+  const {
+    id,
+    userId,
+    timestamp,
+    body,
+    upvotes,
+    replyCount,
+    onSuccess,
+    handleReply,
+    children,
+    replyOpen,
+  } = props;
 
   return (
     <div className="w-full flex flex-col gap-2">
@@ -39,8 +50,13 @@ export const SingleReply = (props: SingleReplyProps) => {
                 handleReply(id);
               }}
             >
-              <FontAwesomeIcon icon={faReply} />
-              <p className="text-gray-700 hover:underline">Reply</p>
+              <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
+              <p
+                className="text-gray-700 hover:underline"
+                style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}
+              >
+                Reply
+              </p>
             </div>
           </div>
         </div>

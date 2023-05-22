@@ -54,6 +54,7 @@ export const PostPreview = (postProps: PostProps) => {
                   {...postInfo}
                   replyCount={_count.descendants}
                   onSuccess={onSuccess}
+                  replyOpen={false}
                   handleReply={(writerToShow: string) => handleOpenPost(writerToShow)}
                 />
               </div>

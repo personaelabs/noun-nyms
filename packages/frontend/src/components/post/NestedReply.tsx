@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
@@ -53,13 +53,26 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current && showReplyWriter) {
+      console.log('scrolling into view');
+      divRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [showReplyWriter]);
 
   return (
-    <div className="w-full flex flex-col gap-2" key={id} style={{ marginLeft: `${depth * 10}px` }}>
+    <div
+      ref={divRef}
+      className="w-full flex flex-col gap-2"
+      style={{ marginLeft: `${depth * 10}px` }}
+    >
       <SingleReply
         {...postInfo}
         replyCount={childrenLength}
         onSuccess={onSuccess}
+        replyOpen={showPostWriter}
         handleReply={() => setShowPostWriter(!showPostWriter)}
       >
         {showPostWriter ? (
