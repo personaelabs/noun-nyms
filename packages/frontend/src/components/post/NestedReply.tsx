@@ -1,17 +1,12 @@
 import { useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
-import { ReplyCount } from './ReplyCount';
-import { UserTag } from './UserTag';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faReply } from '@fortawesome/free-solid-svg-icons';
-import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
-  innerReplies: React.ReactNode;
+  innerReplies: React.ReactNode[];
   proof: string;
   childrenLength: number;
   onSuccess: () => void;
@@ -47,17 +42,13 @@ export const NestedReply = (replyProps: IReplyProps) => {
   const [showPostWriter, setShowPostWriter] = useState<boolean>(false);
 
   return (
-    // TODO: fix border here
-    <div
-      className="flex flex-col gap-2 pl-2 border-l border-dotted border-gray-300"
-      key={id}
-      style={{ marginLeft: `${depth * 20}px` }}
-    >
+    <div className="flex flex-col gap-2" key={id} style={{ marginLeft: `${depth * 10}px` }}>
       <SingleReply
         {...postInfo}
         replyCount={childrenLength}
         onSuccess={onSuccess}
         handleReply={() => setShowPostWriter(true)}
+        innerReplies={innerReplies}
       />
       {showPostWriter ? (
         <PostWriter
@@ -66,7 +57,6 @@ export const NestedReply = (replyProps: IReplyProps) => {
           handleCloseWriter={() => setShowPostWriter(false)}
         />
       ) : null}
-      {innerReplies}
     </div>
   );
 };

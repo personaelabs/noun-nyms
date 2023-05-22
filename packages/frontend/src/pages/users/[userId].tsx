@@ -1,4 +1,6 @@
+import { Header } from '@/components/Header';
 import Spinner from '@/components/global/Spinner';
+import { UserAvatar } from '@/components/global/UserAvatar';
 import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
 import { UserTag } from '@/components/post/UserTag';
@@ -48,22 +50,19 @@ export default function User() {
 
   return (
     <>
+      <Header />
       {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-          <div className="bg-black dots w-full">
-            <div className="pt-8">
-              <nav className="pr-6 flex justify-end">
-                <p className="text-white">Connect Wallet</p>
-              </nav>
-            </div>
-          </div>
-          <div className="py-8"></div>
           <div className="bg-gray-50 min-h-screen w-full">
-            <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              {userId && <UserTag userId={userId} />}
+            <div className="relative max-w-3xl mx-auto py-16 px-3 md:px-0">
+              <div className="absolute top-0 left-0 -translate-y-2/4 -translate-x-2/4">
+                <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
+                  {userId && <UserAvatar userId={userId} width={75} />}
+                </div>
+              </div>
+              {userId && <h2>{userId}</h2>}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-                <h4>Posts</h4>
                 {postsLoading ? (
                   <Spinner />
                 ) : userPosts ? (
@@ -75,24 +74,6 @@ export default function User() {
                       onSuccess={() => console.log('need to refetch here')}
                     />
                   ))
-                ) : null}
-                {/* TODO: Ugly code to only render upvotes when doxed */}
-                {isDoxed ? (
-                  <>
-                    <h4>Upvotes</h4>
-                    {upvotesLoading ? (
-                      <Spinner />
-                    ) : userUpvotes ? (
-                      userUpvotes.map((vote) => (
-                        <PostPreview
-                          key={vote.post.id}
-                          {...vote.post}
-                          handleOpenPost={() => setOpenPostId(vote.post.id)}
-                          onSuccess={() => console.log('need to refetch here')}
-                        />
-                      ))
-                    ) : null}
-                  </>
                 ) : null}
               </div>
             </div>

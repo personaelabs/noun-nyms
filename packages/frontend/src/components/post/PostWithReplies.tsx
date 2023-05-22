@@ -58,15 +58,15 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           </div>
           <p>{body}</p>
         </div>
-        <div className="h-[1px] border border-dotted border-gray-200" />
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between pt-2 border-t border-dotted border-gray-300 items-center">
           <UserTag userId={userId} timestamp={timestamp} />
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <ReplyCount count={replyCount} />
-            <div className="w-[1px] border border-dotted border-gray-200" />
-            <Upvote upvotes={upvotes} postId={id} onSuccess={refetch}>
-              <p>{upvotes.length}</p>
-            </Upvote>
+            <div className="border-l border-dotted border-gray-200 pl-2">
+              <Upvote upvotes={upvotes} postId={id} onSuccess={refetch}>
+                <p>{upvotes.length}</p>
+              </Upvote>
+            </div>
           </div>
         </div>
       </div>

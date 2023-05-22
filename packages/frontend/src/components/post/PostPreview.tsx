@@ -30,21 +30,26 @@ export const PostPreview = (postProps: PostProps) => {
       >
         {root ? (
           <div className="flex flex-col gap-2">
-            <p className="postDetail">{root.title}</p>
-            <p className="secondary">
-              Posted by <strong>{root.userId}</strong>
+            <p>
+              <a href={`/users/${userId}`} className="postDetail hover:underline">
+                {userId}
+              </a>
+              <span className="secondary"> commented on </span>
+              <span className="postDetail hover:underline">{root.title}</span>
             </p>
+            <a href={`/users/${root.userId}`} className="secondary">
+              Posted by <strong className="hover:underline">{root.userId}</strong>
+            </a>
           </div>
         ) : (
           <h4 className="tracking-tight">{title}</h4>
         )}
         {parent ? (
-          <>
+          <div className="flex flex-col gap-2">
             <UserTag userId={parent.userId} timestamp={parent.timestamp} />
-            <span>{parent.body}</span>
-            <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 20 }}>
-              <div className="flex flex-col gap-2 pl-2 border-l border-dotted border-gray-300">
-                <div className="self-start line-clamp-2"></div>
+            <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
+              <span>{parent.body}</span>
+              <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 10 }}>
                 <SingleReply
                   {...postInfo}
                   replyCount={_count.descendants}
@@ -53,7 +58,7 @@ export const PostPreview = (postProps: PostProps) => {
                 />
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <>
             <span>{body}</span>
