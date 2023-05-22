@@ -69,12 +69,7 @@ export default function Posts(props: PostsProps) {
                 <>
                   {posts.map((post) => (
                     <div className="flex gap-2" key={post.id}>
-                      <Upvote
-                        upvotes={post.upvotes}
-                        postId={post.id}
-                        col={true}
-                        onSuccess={manualRefetch}
-                      >
+                      <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={manualRefetch}>
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
                       <PostPreview

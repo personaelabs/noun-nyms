@@ -1,4 +1,4 @@
-import { faAngleUp, faSquare } from '@fortawesome/free-solid-svg-icons';
+import { faAngleUp, faCircleUp, faSquare, faUpLong } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
@@ -71,10 +71,7 @@ export const Upvote = (props: UpvoteIconProps) => {
           col ? 'flex-col' : 'flex-row'
         } gap-1 justify-center items-center cursor-pointer`}
       >
-        <span className="fa-layers fa-fw hoverIcon">
-          <FontAwesomeIcon icon={faSquare} color={hasUpvoted ? '#0e76fd' : ''} />
-          <FontAwesomeIcon icon={faAngleUp} color="#ffffff" transform="shrink-4" />
-        </span>
+        <FontAwesomeIcon className="hoverIcon" icon={faUpLong} color={'#0e76fd'} />
         {children}
       </div>
     </>
