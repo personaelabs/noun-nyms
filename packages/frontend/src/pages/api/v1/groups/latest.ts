@@ -15,6 +15,7 @@ const handleGetLatestGroup = async (req: NextApiRequest, res: NextApiResponse) =
 
   const treeNodes = await prisma.treeNode.findMany({
     select: {
+      address: true,
       pubkey: true,
       path: true,
       indices: true,

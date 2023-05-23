@@ -315,6 +315,7 @@ const populateTestData = async () => {
     data: PRIV_KEYS.map((privKey, i) => {
       const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[i]));
       return {
+        address: `0x${privateToAddress(privKey).toString('hex')}`,
         pubkey: `0x${privateToPublic(privKey).toString('hex')}`,
         path: merkleProof.siblings.map((sibling) => `${sibling.toString()}`),
         indices: merkleProof.pathIndices.map((index) => index.toString()),
