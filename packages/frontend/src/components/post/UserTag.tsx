@@ -24,7 +24,11 @@ export const UserTag = (props: UserTagProps) => {
   return (
     // stop post modal from opening on click of user page link
     <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
-      <Link href={`/users/${userId}`} className="flex gap-2 justify-center items-center">
+      <Link
+        style={{ outline: 'none' }}
+        href={`/users/${userId}`}
+        className="flex gap-2 justify-center items-center"
+      >
         <UserAvatar userId={userId} width={30} />
         {isDoxed ? (
           data ? (
