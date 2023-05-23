@@ -16,6 +16,7 @@ export const PostPreview = (postProps: PostProps) => {
     userId,
     parent,
     root,
+    showUserHeader,
     handleOpenPost,
     onSuccess,
   } = postProps;
@@ -42,7 +43,17 @@ export const PostPreview = (postProps: PostProps) => {
             </a>
           </div>
         ) : (
-          <h4 className="tracking-tight">{title}</h4>
+          <>
+            {showUserHeader ? (
+              <p>
+                <span className="secondary">Posted by </span>
+                <a href={`/users/${userId}`} className="postDetail hover:underline">
+                  {userId}
+                </a>
+              </p>
+            ) : null}
+            <h4 className="tracking-tight">{title}</h4>
+          </>
         )}
         {parent ? (
           <div className="flex flex-col gap-2">

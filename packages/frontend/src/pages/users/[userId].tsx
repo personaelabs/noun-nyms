@@ -3,7 +3,6 @@ import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
 import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
-import { UserTag } from '@/components/post/UserTag';
 import { IPostPreview, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -80,6 +79,7 @@ export default function User() {
                 ) : userPosts ? (
                   userPosts.map((post) => (
                     <PostPreview
+                      showUserHeader={true}
                       key={post.id}
                       {...post}
                       handleOpenPost={(writerToShow: string) => {
