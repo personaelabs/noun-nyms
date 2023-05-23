@@ -10,7 +10,7 @@ interface UserTagProps {
 }
 export const UserTag = (props: UserTagProps) => {
   const { userId, timestamp } = props;
-  const name = useName({ userId });
+  const { name } = useName({ userId });
 
   return (
     // stop post modal from opening on click of user page link

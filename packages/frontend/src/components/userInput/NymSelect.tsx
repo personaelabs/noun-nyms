@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientNym } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
-import useName from '@/hooks/useName';
 
 interface NymSelectProps {
   address: string;
@@ -20,7 +19,6 @@ const getNymOptions = (address: string, doxed: ClientNym) => {
 export const NymSelect = (props: NymSelectProps) => {
   const { address, selectedNym, setSelectedNym } = props;
   const divRef = useRef<HTMLDivElement>(null);
-  const name = useName({ userId: selectedNym.nymName });
   const doxed = { nymSig: '0x0', nymHash: '', nymName: address };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
@@ -72,7 +70,7 @@ export const NymSelect = (props: NymSelectProps) => {
         >
           <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
             <UserAvatar userId={getUserId(selectedNym)} width={20} />
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">{name}</p>
+            <p className="overflow-hidden text-ellipsis whitespace-nowrap">{selectedNym.nymName}</p>
           </div>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
