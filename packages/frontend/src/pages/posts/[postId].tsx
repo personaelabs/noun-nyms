@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { GetServerSidePropsContext } from 'next';
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const title = 'My Dynamic Title'; // Replace this with your dynamic title logic
+  const title = context.query.postId; // Replace this with your dynamic title logic
   return {
     props: {
       title,
