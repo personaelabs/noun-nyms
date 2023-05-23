@@ -22,6 +22,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   // The postContent IS a root, if it does not have rootContent.
   const topContent = rootContent || postContent;
   const { userId, id, title, body, _count, timestamp, upvotes } = topContent;
+  console.log({ id });
 
   const replyCount = _count.descendants;
 
