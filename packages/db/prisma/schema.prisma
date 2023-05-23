@@ -12,6 +12,7 @@ datasource db {
 
 model TreeNode {
   pubkey    String
+  address   String
   type      GroupType
   path      String[]
   indices   String[]

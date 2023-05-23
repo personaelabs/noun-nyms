@@ -7,6 +7,7 @@ import { faReply } from '@fortawesome/free-solid-svg-icons';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
+import { SingleReply } from './SingleReply';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -39,9 +40,10 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const { depth, id, body, userId, timestamp, innerReplies, childrenLength, upvotes, onSuccess } =
+  const { id, body, userId, timestamp, upvotes, depth, innerReplies, childrenLength, onSuccess } =
     replyProps;
 
+  const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(false);
 
   return (
@@ -51,23 +53,12 @@ export const NestedReply = (replyProps: IReplyProps) => {
       key={id}
       style={{ marginLeft: `${depth * 20}px` }}
     >
-      <UserTag userId={userId} timestamp={timestamp} />
-      <span>{body}</span>
-      <div className="flex justify-between items-center py-2 border-t border-gray-300">
-        <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
-          <p>{upvotes.length}</p>
-        </Upvote>
-        <div className="flex gap-4 justify-center items-center">
-          <ReplyCount count={childrenLength} />
-          <div
-            className="flex gap-2 items-center cursor-pointer hoverIcon"
-            onClick={() => setShowPostWriter(!showPostWriter)}
-          >
-            <FontAwesomeIcon icon={faReply} color={showPostWriter ? '#0E76FD' : ''} />
-            <p className={`text-gray-700 ${showPostWriter ? 'font-bold' : ''}`}>Reply</p>
-          </div>
-        </div>
-      </div>
+      <SingleReply
+        {...postInfo}
+        replyCount={childrenLength}
+        onSuccess={onSuccess}
+        handleReply={() => setShowPostWriter(true)}
+      />
       {showPostWriter ? (
         <PostWriter
           parentId={id as PrefixedHex}
