@@ -11,7 +11,7 @@ export default function PostId() {
         <title>Nym post</title>
         <meta property="og:title" content="The Rock" />
         <meta property="og:description" content="my post content" />
-        <meta property="og:url" content={window.location.href} />
+        <meta property="og:url" content={'https://nym-git-dev-personaelabs.vercel.app/'} />
         <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
       </Head>
       {openPostId && <Posts initOpenPostId={openPostId} />}
