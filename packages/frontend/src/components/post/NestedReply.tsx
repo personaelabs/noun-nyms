@@ -58,8 +58,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   useEffect(() => {
     if (divRef.current && showReplyWriter) {
-      console.log('scrolling into view');
-      divRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => divRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
   }, [showReplyWriter]);
 
