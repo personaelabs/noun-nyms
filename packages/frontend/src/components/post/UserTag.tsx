@@ -17,7 +17,7 @@ export const UserTag = (props: UserTagProps) => {
     <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
       <a href={`/users/${userId}`} className="outline-none flex gap-2 justify-center items-center">
         <UserAvatar userId={userId} width={30} />
-        <p className="font-semibold on:hover">{name}</p>
+        <p className="font-semibold hover:underline">{name}</p>
       </a>
       {timestamp && (
         <div className="flex gap-2 shrink-0">

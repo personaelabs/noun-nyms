@@ -2,6 +2,7 @@ import { PostProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { SingleReply } from './SingleReply';
+import useName from '@/hooks/useName';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -22,6 +23,8 @@ export const PostPreview = (postProps: PostProps) => {
   } = postProps;
 
   const postInfo = { id, body, upvotes, timestamp, userId };
+
+  const { name } = useName({ userId });
 
   return (
     <>

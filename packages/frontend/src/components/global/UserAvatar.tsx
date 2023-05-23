@@ -40,15 +40,14 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
   // If ens + avatar exists, return image
   const { name, isEns } = useName({ userId });
+  console.log(`is ${userId} ens?`, isEns);
 
   const { data: avatarUrl } = useEnsAvatar({
     name: 'jxom.eth', // TODO: replace with actual name
     enabled: isEns,
   });
 
-  console.log(avatarUrl);
-
-  return avatarUrl ? (
+  return avatarUrl && isEns ? (
     <Image
       src={avatarUrl}
       alt="ENS Avatar"
