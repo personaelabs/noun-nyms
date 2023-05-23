@@ -2,11 +2,13 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import { IPostPreview } from '../api';
 
 export type PostProps = IPostPreview & {
-  handleOpenPost: () => void;
+  showUserHeader?: boolean;
+  handleOpenPost: (writerToShow: string) => void;
   onSuccess: () => void;
 };
 
 export type PostWithRepliesProps = IPostPreview & {
+  writerToShow?: string;
   handleClose: () => void;
 };
 

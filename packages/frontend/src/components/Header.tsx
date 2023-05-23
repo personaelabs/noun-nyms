@@ -1,11 +1,16 @@
 import { motion } from 'framer-motion';
 import ConnectWallet from './ConnectWallet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 
 export const Header = () => {
   return (
     <div className="bg-black dots w-full">
       <div className="pt-8">
-        <nav className="pr-6 flex justify-end">
+        <nav className="px-6 flex justify-between">
+          <a href={'/'}>
+            <FontAwesomeIcon icon={faHome} className="fa-xl" color="#ffffff" />
+          </a>
           <ConnectWallet />
         </nav>
         <div className="max-w-7xl mx-auto pt-12 pb-8 px-4 sm:px-6 lg:px-8">

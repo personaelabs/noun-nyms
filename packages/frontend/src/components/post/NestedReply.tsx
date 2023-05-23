@@ -1,25 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
-import { ReplyCount } from './ReplyCount';
-import { UserTag } from './UserTag';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faReply } from '@fortawesome/free-solid-svg-icons';
-import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
-  innerReplies: React.ReactNode;
+  innerReplies: React.ReactNode[];
   proof: string;
   childrenLength: number;
   onSuccess: () => void;
+  showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
   allPosts: IPostWithReplies[],
   depth: number,
   onSuccess: () => void,
+  writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
   const proof = '';
@@ -28,8 +25,9 @@ export const resolveNestedReplyThreads = (
       <NestedReply
         {...post}
         key={post.id}
+        showReplyWriter={writerToShow === post.id}
         depth={depth}
-        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess)}
+        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess, writerToShow)}
         proof={proof}
         childrenLength={post.replies.length}
         onSuccess={onSuccess}
@@ -40,33 +38,52 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const { id, body, userId, timestamp, upvotes, depth, innerReplies, childrenLength, onSuccess } =
-    replyProps;
+  const {
+    id,
+    body,
+    userId,
+    timestamp,
+    upvotes,
+    depth,
+    innerReplies,
+    childrenLength,
+    onSuccess,
+    showReplyWriter,
+  } = replyProps;
 
   const postInfo = { id, body, userId, timestamp, upvotes };
-  const [showPostWriter, setShowPostWriter] = useState<boolean>(false);
+  const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (divRef.current && showReplyWriter) {
+      console.log('scrolling into view');
+      divRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [showReplyWriter]);
 
   return (
-    // TODO: fix border here
     <div
-      className="flex flex-col gap-2 pl-2 border-l border-dotted border-gray-300"
-      key={id}
-      style={{ marginLeft: `${depth * 20}px` }}
+      ref={divRef}
+      className="flex flex-col gap-2"
+      style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
     >
       <SingleReply
         {...postInfo}
         replyCount={childrenLength}
         onSuccess={onSuccess}
-        handleReply={() => setShowPostWriter(true)}
-      />
-      {showPostWriter ? (
-        <PostWriter
-          parentId={id as PrefixedHex}
-          onSuccess={onSuccess}
-          handleCloseWriter={() => setShowPostWriter(false)}
-        />
-      ) : null}
-      {innerReplies}
+        replyOpen={showPostWriter}
+        handleReply={() => setShowPostWriter(!showPostWriter)}
+      >
+        {showPostWriter ? (
+          <PostWriter
+            parentId={id as PrefixedHex}
+            onSuccess={onSuccess}
+            handleCloseWriter={() => setShowPostWriter(false)}
+          />
+        ) : null}
+        {innerReplies}
+      </SingleReply>
     </div>
   );
 };

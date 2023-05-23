@@ -1,6 +1,5 @@
 import { useAccount, useEnsName } from 'wagmi';
 import { isAddress } from 'viem';
-import Link from 'next/link';
 import { UserAvatar } from '../global/UserAvatar';
 
 import dayjs from 'dayjs';
@@ -24,11 +23,7 @@ export const UserTag = (props: UserTagProps) => {
   return (
     // stop post modal from opening on click of user page link
     <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
-      <Link
-        style={{ outline: 'none' }}
-        href={`/users/${userId}`}
-        className="flex gap-2 justify-center items-center"
-      >
+      <a href={`/users/${userId}`} className="outline-none flex gap-2 justify-center items-center">
         <UserAvatar userId={userId} width={30} />
         {isDoxed ? (
           data ? (
@@ -39,12 +34,12 @@ export const UserTag = (props: UserTagProps) => {
         ) : (
           <p className="font-semibold hover:underline">{userId.split('-')[0]}</p>
         )}
-      </Link>
+      </a>
       {timestamp && (
-        <>
+        <div className="flex gap-2 shrink-0">
           <p className="secondary">-</p>
           <p className="secondary">{dayjs(timestamp).fromNow()}</p>
-        </>
+        </div>
       )}
     </div>
   );

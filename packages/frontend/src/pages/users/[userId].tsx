@@ -1,7 +1,8 @@
+import { Header } from '@/components/Header';
 import Spinner from '@/components/global/Spinner';
+import { UserAvatar } from '@/components/global/UserAvatar';
 import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
-import { UserTag } from '@/components/post/UserTag';
 import { IPostPreview, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -38,6 +39,7 @@ export default function User() {
   });
 
   const [openPostId, setOpenPostId] = useState<string>('');
+  const [writerToShow, setWriterToShow] = useState<string>('');
 
   const openPost = useMemo(() => {
     // If openPostId has a root, fetch that data instead.
@@ -46,53 +48,46 @@ export default function User() {
     return foundPost;
   }, [openPostId, userPosts, userUpvotes]);
 
+  const handleOpenPost = (id: string, writerToShow: string) => {
+    setWriterToShow(writerToShow);
+    setOpenPostId(id);
+  };
+
   return (
     <>
-      {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
+      <Header />
+      {openPost ? (
+        <PostWithReplies
+          writerToShow={writerToShow}
+          {...openPost}
+          handleClose={() => setOpenPostId('')}
+        />
+      ) : null}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-          <div className="bg-black dots w-full">
-            <div className="pt-8">
-              <nav className="pr-6 flex justify-end">
-                <p className="text-white">Connect Wallet</p>
-              </nav>
-            </div>
-          </div>
-          <div className="py-8"></div>
           <div className="bg-gray-50 min-h-screen w-full">
-            <div className="max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              {userId && <UserTag userId={userId} />}
+            <div className="relative max-w-3xl mx-auto py-16 px-3 md:px-0">
+              <div className="absolute top-0 left-0 -translate-y-2/4 -translate-x-2/4">
+                <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
+                  {userId && <UserAvatar userId={userId} width={75} />}
+                </div>
+              </div>
+              {userId && <h2>{userId}</h2>}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-                <h4>Posts</h4>
                 {postsLoading ? (
                   <Spinner />
                 ) : userPosts ? (
                   userPosts.map((post) => (
                     <PostPreview
+                      showUserHeader={true}
                       key={post.id}
                       {...post}
-                      handleOpenPost={() => setOpenPostId(post.id)}
+                      handleOpenPost={(writerToShow: string) => {
+                        handleOpenPost(post.id, writerToShow);
+                      }}
                       onSuccess={() => console.log('need to refetch here')}
                     />
                   ))
-                ) : null}
-                {/* TODO: Ugly code to only render upvotes when doxed */}
-                {isDoxed ? (
-                  <>
-                    <h4>Upvotes</h4>
-                    {upvotesLoading ? (
-                      <Spinner />
-                    ) : userUpvotes ? (
-                      userUpvotes.map((vote) => (
-                        <PostPreview
-                          key={vote.post.id}
-                          {...vote.post}
-                          handleOpenPost={() => setOpenPostId(vote.post.id)}
-                          onSuccess={() => console.log('need to refetch here')}
-                        />
-                      ))
-                    ) : null}
-                  </>
                 ) : null}
               </div>
             </div>

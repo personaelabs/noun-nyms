@@ -16,6 +16,7 @@ export const PostPreview = (postProps: PostProps) => {
     userId,
     parent,
     root,
+    showUserHeader,
     handleOpenPost,
     onSuccess,
   } = postProps;
@@ -25,35 +26,51 @@ export const PostPreview = (postProps: PostProps) => {
   return (
     <>
       <div
-        onClick={handleOpenPost}
+        onClick={() => handleOpenPost('')}
         className="rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
       >
         {root ? (
           <div className="flex flex-col gap-2">
-            <p className="postDetail">{root.title}</p>
-            <p className="secondary">
-              Posted by <strong>{root.userId}</strong>
+            <p>
+              <a href={`/users/${userId}`} className="postDetail hover:underline">
+                {userId}
+              </a>
+              <span className="secondary"> commented on </span>
+              <span className="postDetail hover:underline">{root.title}</span>
             </p>
+            <a href={`/users/${root.userId}`} className="w-max secondary">
+              Posted by <strong className="hover:underline">{root.userId}</strong>
+            </a>
           </div>
         ) : (
-          <h4 className="tracking-tight">{title}</h4>
+          <>
+            {showUserHeader ? (
+              <p>
+                <span className="secondary">Posted by </span>
+                <a href={`/users/${userId}`} className="postDetail hover:underline">
+                  {userId}
+                </a>
+              </p>
+            ) : null}
+            <h4 className="tracking-tight">{title}</h4>
+          </>
         )}
         {parent ? (
-          <>
+          <div className="flex flex-col gap-2">
             <UserTag userId={parent.userId} timestamp={parent.timestamp} />
-            <span>{parent.body}</span>
-            <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 20 }}>
-              <div className="flex flex-col gap-2 pl-2 border-l border-dotted border-gray-300">
-                <div className="self-start line-clamp-2"></div>
+            <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
+              <span>{parent.body}</span>
+              <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 10 }}>
                 <SingleReply
                   {...postInfo}
                   replyCount={_count.descendants}
                   onSuccess={onSuccess}
-                  handleReply={handleOpenPost}
+                  replyOpen={false}
+                  handleReply={(writerToShow: string) => handleOpenPost(writerToShow)}
                 />
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <>
             <span>{body}</span>
