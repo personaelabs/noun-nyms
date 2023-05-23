@@ -33,7 +33,7 @@ export const SingleReply = (props: SingleReplyProps) => {
   } = props;
 
   return (
-    <div className="w-full flex flex-col gap-2">
+    <div className="flex flex-col gap-2">
       <UserTag userId={userId} timestamp={timestamp} />
       <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-200">
         <span>{body}</span>
