@@ -15,14 +15,17 @@ import {
   getNymFromAttestation,
   getRootFromParent,
   selectAndCleanPosts,
+  isTimestampValid,
 } from '../v1/utils';
 import { IPostPreview } from '@/types/api';
 import fs from 'fs';
-
-const isTimestampValid = (timestamp: number): boolean => {
-  const now = Math.floor(Date.now() / 1000);
-  return Math.abs(now - timestamp) < 100;
-};
+import {
+  INVALID_MERKLE_ROOT,
+  INVALID_PROOF,
+  INVALID_SIGNATURE,
+  INVALID_TIMESTAMP,
+  USER_NOT_IN_LATEST_GROUP,
+} from '@/lib/errors';
 
 // Check if the given root exists in the database or not
 const verifyRoot = async (root: string): Promise<boolean> =>
@@ -45,25 +48,34 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPre
 
 // Handle non-pseudonymous post creation
 // Verify the ECDSA signature and save the post
-const handleCreateDoxedPost = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleCreateDoxedPost = async (
+  req: NextApiRequest,
+  res: NextApiResponse<{} | { error: string }>,
+) => {
   const content: Content = req.body.content;
   const sig: string = req.body.attestation;
 
   if (!isTimestampValid(content.timestamp)) {
-    res.status(400).send('Invalid timestamp!');
+    res.status(400).send({ error: INVALID_TIMESTAMP });
     return;
   }
 
   if (!verifyRoot(content.groupRoot)) {
-    res.status(400).send('Invalid group root!');
+    res.status(400).send({ error: INVALID_MERKLE_ROOT });
     return;
   }
 
   const post = toPost(content, sig, AttestationScheme.EIP712);
-  const pubKey = recoverPostPubkey(post);
+  let pubKey;
+  try {
+    pubKey = recoverPostPubkey(post);
+  } catch (_err) {
+    res.status(400).send({ error: INVALID_SIGNATURE });
+    return;
+  }
 
   if (!(await verifyInclusion(pubKey))) {
-    res.status(400).send('Public key not in latest group');
+    res.status(400).send({ error: USER_NOT_IN_LATEST_GROUP });
     return;
   }
 
@@ -95,7 +107,10 @@ let verifier: NymVerifier;
 
 // Handle pseudonymous post creation
 // Verify the proof and save the post
-const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleCreatePseudoPost = async (
+  req: NextApiRequest,
+  res: NextApiResponse<{ postId: string } | { error: string }>,
+) => {
   const attestation: Buffer = Buffer.from(req.body.attestation.replace('0x', ''), 'hex');
   const content: Content = req.body.content;
 
@@ -120,19 +135,19 @@ const handleCreatePseudoPost = async (req: NextApiRequest, res: NextApiResponse)
   const proofVerified = await verifier.verify(post);
   if (!proofVerified) {
     console.log('Proof verification failed!');
-    res.status(400).send('Invalid proof!');
+    res.status(400).send({ error: INVALID_PROOF });
     return;
   }
 
   if (!(await verifyRoot(content.groupRoot))) {
-    res.status(400).send('Invalid Merkle root!');
+    res.status(400).send({ error: INVALID_MERKLE_ROOT });
     return;
   }
 
   // After this point, we can assume that the attestation is valid.
 
   if (!isTimestampValid(content.timestamp)) {
-    res.status(400).send('Invalid timestamp!');
+    res.status(400).send({ error: INVALID_TIMESTAMP });
     return;
   }
 

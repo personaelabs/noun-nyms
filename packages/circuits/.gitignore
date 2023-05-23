@@ -3,3 +3,5 @@ witness_calculator.js
 
 *.r1cs
 *.wasm
+
+!artifacts/nym_ownership.wasm

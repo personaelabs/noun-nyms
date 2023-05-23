@@ -80,3 +80,19 @@ export const selectAndCleanPosts = async (userId?: string, skip?: number, take?:
 
   return postsRaw;
 };
+
+export const upvoteExists = async (postId: string, address: string): Promise<boolean> => {
+  const upvote = await prisma.doxedUpvote.findFirst({
+    where: {
+      postId,
+      address,
+    },
+  });
+
+  return upvote ? true : false;
+};
+
+export const isTimestampValid = (timestamp: number): boolean => {
+  const now = Math.floor(Date.now() / 1000);
+  return Math.abs(now - timestamp) < 100;
+};
