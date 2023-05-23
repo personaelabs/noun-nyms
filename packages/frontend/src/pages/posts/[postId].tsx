@@ -1,11 +1,20 @@
 import { useRouter } from 'next/router';
 import Posts from '@/components/Posts';
 import { NextSeo } from 'next-seo';
+import { GetServerSidePropsContext } from 'next';
 
-export default function PostId() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const title = 'My Dynamic Title'; // Replace this with your dynamic title logic
+  return {
+    props: {
+      title,
+    },
+  };
+}
+
+export default function PostId({ title }: { title: string }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
-  const title = 'hi';
 
   return (
     <>
