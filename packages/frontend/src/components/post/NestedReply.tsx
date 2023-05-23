@@ -66,6 +66,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
   return (
     <div
       ref={divRef}
+      id={id}
       className="flex flex-col gap-2"
       style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
     >
