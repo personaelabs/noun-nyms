@@ -5,16 +5,16 @@ import { NewNym } from './NewNym';
 import { ClientName, LocalNym, NameType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
+import { useAccount } from 'wagmi';
 
 interface NameSelectProps {
-  address: string;
   selectedName: ClientName | null;
   setSelectedName: (selectedName: ClientName | null) => void;
 }
 
-const getNymOptions = (address: string): ClientName[] => {
-  const nymOptionsString = localStorage.getItem(address);
+const getNymOptions = (address: string | undefined): ClientName[] => {
   let nymOptions: ClientName[] = [];
+  const nymOptionsString = address && localStorage.getItem(address);
   if (nymOptionsString) {
     JSON.parse(nymOptionsString).forEach((nym: LocalNym) => {
       nymOptions.push({
@@ -28,9 +28,10 @@ const getNymOptions = (address: string): ClientName[] => {
   return nymOptions;
 };
 
-export const NymSelect = (props: NameSelectProps) => {
-  const { address, selectedName, setSelectedName } = props;
+export const NameSelect = (props: NameSelectProps) => {
+  const { selectedName, setSelectedName } = props;
   const divRef = useRef<HTMLDivElement>(null);
+  const { address } = useAccount();
 
   const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
 
@@ -67,7 +68,7 @@ export const NymSelect = (props: NameSelectProps) => {
 
   return (
     <>
-      {openNewNym ? (
+      {address && openNewNym ? (
         <NewNym
           address={address}
           handleClose={() => {

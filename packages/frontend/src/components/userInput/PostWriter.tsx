@@ -5,7 +5,7 @@ import { MainButton } from '../MainButton';
 import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { NymSelect } from './NameSelect';
+import { NameSelect } from './NameSelect';
 import { ClientName, NameType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 
@@ -101,9 +101,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
             </div>
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            {address ? (
-              <NymSelect address={address} selectedName={name} setSelectedName={setName} />
-            ) : null}
+            {address ? <NameSelect selectedName={name} setSelectedName={setName} /> : null}
             <MainButton color="black" handler={sendPost} loading={sendingPost} message={'Send'} />
           </div>
         </div>
