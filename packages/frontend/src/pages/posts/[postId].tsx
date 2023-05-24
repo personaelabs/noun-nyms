@@ -4,7 +4,6 @@ import { NextSeo } from 'next-seo';
 import { GetServerSidePropsContext } from 'next';
 import { postSelectSimple, IPostSimple } from '@/types/api/postSelectSimple';
 import prisma from '@/lib/prisma';
-import useName from '@/hooks/useName';
 import { createPublicClient, http, isAddress } from 'viem';
 import { mainnet } from 'viem/chains';
 
@@ -32,7 +31,7 @@ export async function getServerSideProps(
       const ensName = await publicClient.getEnsName({
         address: postSimple.userId,
       }); // @ts-expect-error;
-      postSimple.name = ensName;
+      postSimple.name = ensName || postSimple.userId;
     }
   }
 
@@ -53,18 +52,18 @@ export default function PostId({ post }: { post?: IPostSimple }) {
     // @ts-expect-error
     dateString = new Date(post.timestamp as number).toLocaleString();
   }
-
-  const description = `${post?.body}\n${post?.name} * ${dateString}`;
-
+  const name = post?.name || post?.id || '';
+  const description = `${post?.body}\n✒️ ${name} * ${dateString}`;
+  const title = post?.title || '';
   return (
     <>
       {post && (
         <NextSeo
           // Title tbd
-          title={post.title}
+          title={title}
           description={description}
           openGraph={{
-            title: post.title,
+            title,
             description,
             site_name: 'Noun Nyms',
             type: 'website',
