@@ -73,9 +73,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             </div>
           </div>
           <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-            <PostWriter parentId={postId as PrefixedHex} onSuccess={refetchAndScrollToPost} />
+            <PostWriter
+              parentId={singlePost.id as PrefixedHex}
+              onSuccess={refetchAndScrollToPost}
+            />
             <>
-              <h4>{singlePost.replies.length === 1 ? 'reply' : 'replies'}</h4>
+              <h4>
+                {singlePost.replies.length} {singlePost.replies.length === 1 ? 'reply' : 'replies'}
+              </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
                 {nestedComponentThreads}
               </div>
