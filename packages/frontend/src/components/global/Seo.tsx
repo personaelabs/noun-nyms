@@ -21,7 +21,7 @@ export function Seo(props: SeoProps) {
         description,
         site_name: 'Noun Nyms',
         type: 'website',
-        images: [{ url: 'https://nym-git-cha0s-link-personaelabs.vercel.app/noun_og.jpg' }],
+        images: [{ url: 'https://nym.vercel.app/noun_og.jpg' }],
       }}
       twitter={{ cardType: 'summary', site: '@personaelabs' }}
     />
