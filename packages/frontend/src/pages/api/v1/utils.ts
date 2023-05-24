@@ -121,7 +121,7 @@ export const getSimplePost = async (
       title: postSimple.title,
       body: postSimple.body,
       timestamp: postSimple.timestamp.getTime(),
-      name: postSimple.userId,
+      name: '',
       id: postSimple.id,
       userId: postSimple.userId,
     };
