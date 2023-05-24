@@ -73,7 +73,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           </div>
         </>
       ) : (
-        <Spinner />
+        <div className="h-full flex flex-col justify-center">
+          <Spinner />
+        </div>
       )}
     </Modal>
   );
