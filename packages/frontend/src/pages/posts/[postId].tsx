@@ -5,8 +5,17 @@ import { GetServerSidePropsContext } from 'next';
 import { postSelectSimple, IPostSimple } from '@/types/api/postSelectSimple';
 import prisma from '@/lib/prisma';
 import useName from '@/hooks/useName';
+import { createPublicClient, http, isAddress } from 'viem';
+import { mainnet } from 'viem/chains';
 
-export async function getServerSideProps(context: GetServerSidePropsContext) {
+export const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+});
+
+export async function getServerSideProps(
+  context: GetServerSidePropsContext,
+): Promise<{ props: { post: IPostSimple | null } }> {
   const id = context.query.postId; // Replace this with your dynamic title logic
 
   const postSimple = await prisma.post.findFirst({
@@ -19,10 +28,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   if (postSimple) {
     // @ts-expect-error
     postSimple.timestamp = postSimple.timestamp.getTime();
+    if (isAddress(postSimple.userId)) {
+      const ensName = await publicClient.getEnsName({
+        address: postSimple.userId,
+      }); // @ts-expect-error;
+      postSimple.name = ensName;
+    }
   }
 
   return {
     props: {
+      // @ts-expect-error name
       post: postSimple,
     },
   };
@@ -32,14 +48,13 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
 
-  const { name } = useName({ userId: post?.userId });
   let dateString = '';
   if (post) {
     // @ts-expect-error
     dateString = new Date(post.timestamp as number).toLocaleString();
   }
 
-  const description = `${name}\n${post?.body}\nNoun Nyms * ${dateString}`;
+  const description = `${post?.name}\n${post?.body}\n${dateString}`;
 
   return (
     <>
