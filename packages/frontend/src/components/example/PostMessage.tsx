@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { NYM_CODE_TYPE, DOMAIN, PrefixedHex, NYM_CODE_WARNING } from '@personaelabs/nymjs';
-import { useSignTypedData, useAccount } from 'wagmi';
+import { useSignTypedData } from 'wagmi';
 import { ContentUserInput } from '@/types/components';
 import { postDoxed, postPseudo } from '@/lib/actions';
+import useAccount from '@/hooks/useAccount';
 
 const ExamplePost = () => {
-  const { address } = useAccount();
+  const { address, valid, error } = useAccount();
+  console.log({ valid, error });
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     setHydrated(true);
