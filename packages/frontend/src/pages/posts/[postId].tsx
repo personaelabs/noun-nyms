@@ -30,6 +30,8 @@ export default function PostId({ post }: { post: IPostSimple }) {
     <>
       <NextSeo
         // Title tbd
+        title={post.title}
+        description={post.body}
         openGraph={{
           title: post.title,
           description: post.body,
