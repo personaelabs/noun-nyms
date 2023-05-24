@@ -116,13 +116,13 @@ export const NameSelect = (props: NameSelectProps) => {
                 nymOptions.map((nym) => (
                   <div
                     key={nym.nymSig}
-                    className="w-full flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
+                    className="w-full flex justify-between gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
                     onClick={() => {
                       setSelectedName(nym);
                       setOpenSelect(false);
                     }}
                   >
-                    <div className="w-full flex justify-between gap-2">
+                    <div className="w-full flex justify-between items-center gap-2">
                       <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
                         <UserAvatar
                           type={NameType.PSEUDO}
@@ -153,10 +153,23 @@ export const NameSelect = (props: NameSelectProps) => {
                 setOpenSelect(false);
               }}
             >
-              <UserAvatar type={NameType.DOXED} userId={getUserIdFromName(doxedName)} width={20} />
-              <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
-                {doxedName.name}
-              </p>
+              <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
+                <UserAvatar
+                  type={NameType.DOXED}
+                  userId={getUserIdFromName(doxedName)}
+                  width={20}
+                />
+                <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
+                  {doxedName.name}
+                </p>
+              </div>
+              <FontAwesomeIcon
+                icon={faCheck}
+                color={'#0E76FD'}
+                className={`shrink-0 ${
+                  selectedName?.name === doxedName.name ? 'opacity-1' : 'opacity-0'
+                }`}
+              />
             </div>
           </div>
         ) : null}
