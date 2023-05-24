@@ -54,7 +54,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
     dateString = new Date(post.timestamp as number).toLocaleString();
   }
 
-  const description = `${post?.name}\n${post?.body}\n${dateString}`;
+  const description = `${post?.body}\n${post?.name} * ${dateString}`;
 
   return (
     <>
