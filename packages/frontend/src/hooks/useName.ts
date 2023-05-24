@@ -12,7 +12,7 @@ const useName = ({ userId }: { userId?: string }) => {
   // If doxed, check ens. If ens, return ens. If not doxed, return nym name.
   const name = isDoxed ? ensName || userId : userId?.split('-')[0];
   const isEns = !!(isDoxed && ensName);
-  return { name, isEns };
+  return { name, isEns, isDoxed };
 };
 
 export default useName;

@@ -86,7 +86,13 @@ export const NameSelect = (props: NameSelectProps) => {
           onClick={() => setOpenSelect(!openSelect)}
         >
           <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
-            {selectedName && <UserAvatar userId={getUserIdFromName(selectedName)} width={20} />}
+            {selectedName && (
+              <UserAvatar
+                type={selectedName.type}
+                userId={getUserIdFromName(selectedName)}
+                width={20}
+              />
+            )}
             <p className="overflow-hidden text-ellipsis whitespace-nowrap">
               {selectedName ? selectedName.name : 'No Nym Selected'}
             </p>
@@ -118,7 +124,11 @@ export const NameSelect = (props: NameSelectProps) => {
                   >
                     <div className="w-full flex justify-between gap-2">
                       <div className="flex gap-2" style={{ width: 'calc(100% - 18px)' }}>
-                        <UserAvatar userId={getUserIdFromName(nym)} width={20} />
+                        <UserAvatar
+                          type={NameType.PSEUDO}
+                          userId={getUserIdFromName(nym)}
+                          width={20}
+                        />
                         <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
                           {nym.name}
                         </p>
@@ -143,7 +153,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 setOpenSelect(false);
               }}
             >
-              <UserAvatar userId={getUserIdFromName(doxedName)} width={20} />
+              <UserAvatar type={NameType.DOXED} userId={getUserIdFromName(doxedName)} width={20} />
               <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
                 {doxedName.name}
               </p>
