@@ -53,7 +53,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
     dateString = new Date(post.timestamp as number).toLocaleString();
   }
   const name = post?.name || post?.id || '';
-  const description = `${post?.body}\n✒️ ${name} * ${dateString}`;
+  const description = `${post?.body}\n️ - ${name}, ${dateString}`;
   const title = post?.title || '';
   return (
     <>
