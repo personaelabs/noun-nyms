@@ -8,7 +8,8 @@ const handleGetPost = async (
   req: NextApiRequest,
   res: NextApiResponse<IPostWithReplies | { error: string }>,
 ) => {
-  const fromRoot = !!req.query.fromRoot;
+  const fromRoot = !!(req.query.fromRoot && req.query.fromRoot == 'true');
+
   // If fromRoot is true, we get the rootId of the given post
   let id = req.query.postId as string;
   // First get postPreview.
