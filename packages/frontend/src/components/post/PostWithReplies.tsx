@@ -36,6 +36,16 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
   }, [singlePost, refetch, writerToShow]);
 
+  const refetchAndScrollToPost = async (postId?: string) => {
+    await refetch();
+    if (postId) {
+      //wait for DOM to update
+      setTimeout(() => {
+        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  };
+
   return (
     <Modal startAtTop={true} handleClose={handleClose}>
       {singlePost ? (
@@ -63,7 +73,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             </div>
           </div>
           <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
-            <PostWriter parentId={(singlePost.parentId as PrefixedHex) || ''} onSuccess={refetch} />
+            <PostWriter parentId={postId as PrefixedHex} onSuccess={refetchAndScrollToPost} />
             <>
               <h4>{singlePost.replies.length === 1 ? 'reply' : 'replies'}</h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">

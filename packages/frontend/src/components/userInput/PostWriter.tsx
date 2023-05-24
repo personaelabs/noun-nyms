@@ -11,7 +11,7 @@ import { WalletWarning } from '../WalletWarning';
 
 interface IWriterProps {
   parentId: PrefixedHex;
-  onSuccess: () => void;
+  onSuccess: (id: string) => void;
   handleCloseWriter?: () => void;
 }
 
@@ -38,8 +38,6 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   // TODO
   const canPost = useMemo(() => true, []);
 
-  if (hasSignedPost) console.log('scroll to where post will be');
-
   const resetWriter = () => {
     if (handleCloseWriter) handleCloseWriter();
     setPostMsg('');
@@ -63,8 +61,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
               signTypedDataAsync,
               signedHandler,
             );
-      console.log('submitted a post: ', result?.data.postId);
-      onSuccess();
+      onSuccess(result?.data.postId);
       resetWriter();
       setSendingPost(false);
     } catch (error) {

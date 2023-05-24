@@ -34,9 +34,14 @@ export default function Posts(props: PostsProps) {
     refetchInterval: 30000, // 30 seconds
   });
 
-  const manualRefetch = () => {
-    console.log('MANUAL REFETCH');
-    refetch();
+  const refetchAndScrollToPost = async (postId?: string) => {
+    await refetch();
+    if (postId) {
+      //wait for DOM to update
+      setTimeout(() => {
+        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
   };
 
   const [newPostOpen, setNewPostOpen] = useState(false);
@@ -45,7 +50,7 @@ export default function Posts(props: PostsProps) {
   return (
     <>
       {newPostOpen ? (
-        <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={manualRefetch} />
+        <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
       ) : null}
       {openPostId ? (
         <PostWithReplies postId={openPostId} handleClose={() => setOpenPostId('')} />
@@ -71,14 +76,14 @@ export default function Posts(props: PostsProps) {
                 <>
                   {posts.map((post) => (
                     <div className="flex gap-2" key={post.id}>
-                      <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={manualRefetch}>
+                      <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={refetch}>
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
                       <PostPreview
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => setOpenPostId(post.id)}
-                        onSuccess={manualRefetch}
+                        onSuccess={refetchAndScrollToPost}
                       />
                     </div>
                   ))}
