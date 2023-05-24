@@ -30,7 +30,11 @@ export const submitPost = async (
   return result;
 };
 
-export const postDoxed = async (doxedContentInput: ContentUserInput, signTypedDataAsync: any) => {
+export const postDoxed = async (
+  doxedContentInput: ContentUserInput,
+  signTypedDataAsync: any,
+  onSigned?: () => void,
+) => {
   const group = await getLatestGroup();
 
   // Construct the content to sign
@@ -51,9 +55,10 @@ export const postDoxed = async (doxedContentInput: ContentUserInput, signTypedDa
     message: content,
   });
 
-  const result = await submitPost(content, attestation, AttestationScheme.EIP712);
+  // Call handler once user has signed the post
+  if (onSigned) onSigned();
 
-  console.log('Created a non-pseudonymous post! postId', result.data.postId);
+  return await submitPost(content, attestation, AttestationScheme.EIP712);
 };
 
 export const postPseudo = async (
@@ -61,6 +66,7 @@ export const postPseudo = async (
   nymSig: any,
   nymContentInput: ContentUserInput,
   signTypedDataAsync: any,
+  onSigned?: () => void,
 ) => {
   if (nymName && nymSig) {
     const group = await getLatestGroup();
@@ -99,6 +105,9 @@ export const postPseudo = async (
       message: content,
     });
 
+    // Call handler once user has signed the post
+    if (onSigned) onSigned();
+
     // Setup the prover
     const nymProver = new NymProver({
       enableProfiler: true,
@@ -117,8 +126,7 @@ export const postPseudo = async (
 
     const attestationHex = Buffer.from(attestation).toString('hex');
 
-    const result = await submitPost(content, attestationHex, AttestationScheme.Nym);
-    console.log('Created a pseudonymous post! postId', result.data.postId);
+    return await submitPost(content, attestationHex, AttestationScheme.Nym);
   }
 };
 

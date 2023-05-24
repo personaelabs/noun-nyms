@@ -58,14 +58,14 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   useEffect(() => {
     if (divRef.current && showReplyWriter) {
-      console.log('scrolling into view');
-      divRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => divRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
   }, [showReplyWriter]);
 
   return (
     <div
       ref={divRef}
+      id={id}
       className="flex flex-col gap-2"
       style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
     >

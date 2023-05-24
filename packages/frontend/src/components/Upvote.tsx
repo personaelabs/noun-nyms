@@ -74,7 +74,9 @@ export const Upvote = (props: UpvoteIconProps) => {
           col ? 'flex-col' : 'flex-row'
         } gap-2 justify-center items-center cursor-pointer`}
       >
-        <FontAwesomeIcon className="hoverIcon" icon={faUpLong} color={'#0e76fd'} />
+        <div className="hoverIcon">
+          <FontAwesomeIcon icon={faUpLong} color={hasUpvoted ? '#0e76fd' : ''} />
+        </div>
         {children}
       </div>
     </>

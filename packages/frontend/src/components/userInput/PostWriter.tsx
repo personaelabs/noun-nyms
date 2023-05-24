@@ -11,7 +11,7 @@ import { WalletWarning } from '../WalletWarning';
 
 interface IWriterProps {
   parentId: PrefixedHex;
-  onSuccess: () => void;
+  onSuccess: (id: string) => void;
   handleCloseWriter?: () => void;
 }
 
@@ -21,6 +21,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [sendingPost, setSendingPost] = useState<boolean>(false);
+  const [hasSignedPost, setHasSignedPost] = useState<boolean>(false);
 
   const { address } = useAccount();
   const [nym, setNym] = useState<ClientNym>({
@@ -29,6 +30,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     nymName: address as string,
   });
   const { signTypedDataAsync } = useSignTypedData();
+  const signedHandler = () => setHasSignedPost(true);
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -37,7 +39,6 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const canPost = useMemo(() => true, []);
 
   const resetWriter = () => {
-    onSuccess();
     if (handleCloseWriter) handleCloseWriter();
     setPostMsg('');
     setTitleMsg('');
@@ -50,11 +51,17 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     }
     try {
       setSendingPost(true);
-      if (nym.nymName === address) {
-        await postDoxed({ title, body, parentId }, signTypedDataAsync);
-      } else {
-        await postPseudo(nym.nymName, nym.nymSig, { title, body, parentId }, signTypedDataAsync);
-      }
+      const result =
+        nym.nymName === address
+          ? await postDoxed({ title, body, parentId }, signTypedDataAsync, signedHandler)
+          : await postPseudo(
+              nym.nymName,
+              nym.nymSig,
+              { title, body, parentId },
+              signTypedDataAsync,
+              signedHandler,
+            );
+      onSuccess(result?.data.postId);
       resetWriter();
       setSendingPost(false);
     } catch (error) {
