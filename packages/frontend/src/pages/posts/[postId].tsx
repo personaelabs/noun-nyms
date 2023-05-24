@@ -52,7 +52,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
     // @ts-expect-error
     dateString = new Date(post.timestamp as number).toLocaleString();
   }
-  const name = post?.name || post?.id || '';
+  const name = post?.name || post?.userId.split('-')[0] || '';
   const description = `${post?.body}\n️ - ${name}, ${dateString}`;
   const title = post?.title || '';
   return (
