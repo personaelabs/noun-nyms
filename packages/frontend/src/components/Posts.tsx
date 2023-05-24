@@ -4,7 +4,7 @@ import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
@@ -18,6 +18,7 @@ interface PostsProps {
 
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
+  console.log({ initOpenPostId });
 
   const {
     isLoading,
@@ -40,14 +41,15 @@ export default function Posts(props: PostsProps) {
 
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
-  const openPost = useMemo(() => posts?.find((p) => p.id === openPostId), [openPostId, posts]);
 
   return (
     <>
       {newPostOpen ? (
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={manualRefetch} />
       ) : null}
-      {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
+      {openPostId ? (
+        <PostWithReplies postId={openPostId} handleClose={() => setOpenPostId('')} />
+      ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">

@@ -62,7 +62,7 @@ export default function User() {
       {openPost ? (
         <PostWithReplies
           writerToShow={writerToShow}
-          {...openPost}
+          postId={openPostId}
           handleClose={() => setOpenPostId('')}
         />
       ) : null}

@@ -15,6 +15,7 @@ const selectFields = {
       timestamp: true,
     },
   },
+  parentId: true,
 };
 
 // We need to hardcode the structure of the query to let Prisma infer the return types.
