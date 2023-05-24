@@ -1,7 +1,10 @@
 import { deserializeNymAttestation } from '@personaelabs/nymjs';
 import prisma from '@/lib/prisma';
 import { postPreviewSelect } from '@/types/api';
-import { isAddress } from 'viem';
+import { createPublicClient, http, isAddress } from 'viem';
+import { GetServerSidePropsContext } from 'next';
+import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
+import { mainnet } from 'viem/chains';
 
 export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
   const node = await prisma.treeNode.findFirst({
@@ -95,4 +98,50 @@ export const upvoteExists = async (postId: string, address: string): Promise<boo
 export const isTimestampValid = (timestamp: number): boolean => {
   const now = Math.floor(Date.now() / 1000);
   return Math.abs(now - timestamp) < 100;
+};
+
+export const getSimplePost = async (
+  context: GetServerSidePropsContext,
+): Promise<{ props: { post: IPostSimple | null } }> => {
+  const publicClient = createPublicClient({
+    chain: mainnet,
+    transport: http(),
+  });
+
+  const id = context.query.postId;
+
+  let postSimple = await prisma.post.findFirst({
+    select: postSelectSimple,
+    where: {
+      id: id as string,
+    },
+  });
+  if (postSimple) {
+    const post: IPostSimple = {
+      title: postSimple.title,
+      body: postSimple.body,
+      timestamp: postSimple.timestamp.getTime(),
+      name: postSimple.userId,
+      id: postSimple.id,
+      userId: postSimple.userId,
+    };
+
+    if (isAddress(postSimple.userId)) {
+      const ensName = await publicClient.getEnsName({
+        address: postSimple.userId,
+      });
+      if (ensName) post.name = ensName;
+    }
+    return {
+      props: {
+        post,
+      },
+    };
+  } else {
+    return {
+      props: {
+        post: null,
+      },
+    };
+  }
 };

@@ -1,75 +1,35 @@
 import { useRouter } from 'next/router';
 import Posts from '@/components/Posts';
-import { NextSeo } from 'next-seo';
 import { GetServerSidePropsContext } from 'next';
-import { postSelectSimple, IPostSimple } from '@/types/api/postSelectSimple';
-import prisma from '@/lib/prisma';
-import { createPublicClient, http, isAddress } from 'viem';
-import { mainnet } from 'viem/chains';
+import { IPostSimple } from '@/types/api/postSelectSimple';
+import { getSimplePost } from '../api/v1/utils';
+import { Seo } from '@/components/global/Seo';
 
-export const publicClient = createPublicClient({
-  chain: mainnet,
-  transport: http(),
-});
-
+// This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
   context: GetServerSidePropsContext,
 ): Promise<{ props: { post: IPostSimple | null } }> {
-  const id = context.query.postId; // Replace this with your dynamic title logic
-
-  const postSimple = await prisma.post.findFirst({
-    select: postSelectSimple,
-    where: {
-      id: id as string,
-    },
-  });
-
-  if (postSimple) {
-    // @ts-expect-error
-    postSimple.timestamp = postSimple.timestamp.getTime();
-    if (isAddress(postSimple.userId)) {
-      const ensName = await publicClient.getEnsName({
-        address: postSimple.userId,
-      }); // @ts-expect-error;
-      postSimple.name = ensName || postSimple.userId;
-    }
-  }
-
-  return {
-    props: {
-      // @ts-expect-error name
-      post: postSimple,
-    },
-  };
+  return getSimplePost(context);
 }
 
-export default function PostId({ post }: { post?: IPostSimple }) {
-  const router = useRouter();
-  const openPostId = router.query.postId as string;
-
+const buildSeo = (post?: IPostSimple) => {
   let dateString = '';
   if (post) {
-    // @ts-expect-error
-    dateString = new Date(post.timestamp as number).toLocaleString();
+    dateString = new Date(post.timestamp).toLocaleString();
   }
   const name = post?.name || post?.userId.split('-')[0] || '';
   const description = `${post?.body}\n️ - ${name}, ${dateString}`;
   const title = post?.title || '';
+  return { title, description };
+};
+
+export default function PostId({ post }: { post?: IPostSimple }) {
+  const router = useRouter();
+  const openPostId = router.query.postId as string;
+  const { title, description } = buildSeo(post);
   return (
     <>
-      <NextSeo
-        // Title tbd
-        title={title}
-        description={description}
-        openGraph={{
-          title,
-          description,
-          site_name: 'Noun Nyms',
-          type: 'website',
-          images: [{ url: 'https://nym-git-cha0s-link-personaelabs.vercel.app/noun_og.jpg' }],
-        }}
-        twitter={{ cardType: 'summary', site: '@personaelabs' }}
-      />
+      <Seo title={title} description={description} />
       {openPostId && <Posts initOpenPostId={openPostId} />}
     </>
   );

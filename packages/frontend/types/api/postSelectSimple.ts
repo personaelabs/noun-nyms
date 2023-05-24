@@ -17,4 +17,4 @@ export const postSelectSimple = {
 } satisfies Prisma.PostSelect;
 
 type PostPayload = Prisma.PostGetPayload<{ select: typeof postSelectSimple }>;
-export type IPostSimple = PostPayload & { name: string };
+export type IPostSimple = Omit<PostPayload, 'timestamp'> & { name: string } & { timestamp: number };
