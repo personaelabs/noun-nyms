@@ -9,7 +9,6 @@ import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
-import Head from 'next/head';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
