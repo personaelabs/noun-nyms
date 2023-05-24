@@ -16,6 +16,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     },
   });
 
+  if (postSimple) {
+    // @ts-expect-error
+    postSimple.timestamp = postSimple.timestamp.getTime();
+  }
+
   return {
     props: {
       post: postSimple,
@@ -27,10 +32,14 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
 
-  const name = useName({ userId: post?.userId });
-  // const time = post ? new Date(post.timestamp.getTime()) | '';
+  const { name } = useName({ userId: post?.userId });
+  let dateString = '';
+  if (post) {
+    // @ts-expect-error
+    dateString = new Date(post.timestamp as number).toLocaleString();
+  }
 
-  const description = `${name}\n${post?.body}\nNoun Nyms * ${post?.timestamp}`;
+  const description = `${name}\n${post?.body}\nNoun Nyms * ${dateString}`;
 
   return (
     <>

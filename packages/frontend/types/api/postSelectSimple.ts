@@ -8,13 +8,6 @@ export const selectFields = {
   body: true,
   timestamp: true,
   userId: true,
-  upvotes: {
-    select: {
-      id: true,
-      address: true,
-      timestamp: true,
-    },
-  },
 };
 
 // We need to hardcode the structure of the query to let Prisma infer the return types.
