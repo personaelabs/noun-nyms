@@ -35,9 +35,9 @@ export const SingleReply = (props: SingleReplyProps) => {
   return (
     <div className="flex flex-col gap-2">
       <UserTag userId={userId} timestamp={timestamp} />
-      <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-200">
+      <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
         <span>{body}</span>
-        <div className="flex justify-between items-center py-2 border-t border-gray-200">
+        <div className="flex justify-between items-center py-2 border-t border-gray-300">
           <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
             <p>{upvotes.length}</p>
           </Upvote>
