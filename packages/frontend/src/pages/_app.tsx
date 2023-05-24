@@ -5,7 +5,8 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { WagmiConfig, createConfig, mainnet } from 'wagmi';
 import { createPublicClient, http } from 'viem';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Head from '@/components/global/Head';
+import { HOME_DESCRIPTION, Seo, TITLE } from '@/components/global/Seo';
+import Head from 'next/head';
 
 config.autoAddCss = false;
 
@@ -24,7 +25,10 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <Head />
+        <Head>
+          <link type="favicon" rel="icon" href="/favicon-3.ico" />
+        </Head>
+        <Seo title={TITLE} description={HOME_DESCRIPTION} />
         <Component {...pageProps} />
       </WagmiConfig>
     </QueryClientProvider>

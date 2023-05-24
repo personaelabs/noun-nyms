@@ -31,6 +31,7 @@
     "framer-motion": "^10.12.4",
     "mersenne-twister": "^1.1.0",
     "next": "13.2.4",
+    "next-seo": "^6.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-inlinesvg": "^3.0.2",

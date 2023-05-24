@@ -21,6 +21,7 @@ export const resolveNestedReplyThreads = (
   const replyNodes: React.ReactNode[] = [];
   const proof = '';
   for (const post of allPosts) {
+    console.log(`nest`, post.id);
     replyNodes.push(
       <NestedReply
         {...post}

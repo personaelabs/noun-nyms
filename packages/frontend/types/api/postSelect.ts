@@ -54,5 +54,4 @@ export const postSelect = {
 } satisfies Prisma.PostSelect;
 
 type PostPayload = Prisma.PostGetPayload<{ select: typeof postSelect }>;
-export type IPost = PostPayload;
 export type IPostWithReplies = PostPayload;
