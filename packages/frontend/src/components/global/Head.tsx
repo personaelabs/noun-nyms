@@ -1,19 +1,21 @@
-import Head from 'next/head';
+import { NextSeo } from 'next-seo';
 
 function HeadHtml() {
   return (
     <div>
-      <Head>
-        <title>Noun Nyms</title>
-        <link type="favicon" rel="icon" href="/favicon-3.ico" />
-        <meta property="description" content="Where the truth comes out." />
-        <meta
-          property="og:image"
-          content="https://nym-git-cha0s-link-personaelabs.vercel.app/noun_og.jpg"
-        />
-        <meta property="og:title" content="Noun Nyms" />
-        <meta property="og:description" content="Where the truth comes out." />
-      </Head>
+      <NextSeo
+        // Title tbd
+        title={'Noun Nyms'}
+        description={'where the truth comes out'}
+        openGraph={{
+          title: 'Noun Nyms',
+          description: 'where the truth comes out',
+          site_name: 'Noun Nyms',
+          type: 'website',
+          images: [{ url: 'https://nym-git-cha0s-link-personaelabs.vercel.app/noun_og.jpg' }],
+        }}
+        twitter={{ cardType: 'summary', site: '@personaelabs' }}
+      />
     </div>
   );
 }

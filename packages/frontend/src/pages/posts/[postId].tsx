@@ -57,20 +57,19 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const title = post?.title || '';
   return (
     <>
-      {post && (
-        <NextSeo
-          // Title tbd
-          title={title}
-          description={description}
-          openGraph={{
-            title,
-            description,
-            site_name: 'Noun Nyms',
-            type: 'website',
-          }}
-          twitter={{ cardType: 'summary', site: '@personaelabs' }}
-        />
-      )}
+      <NextSeo
+        // Title tbd
+        title={title}
+        description={description}
+        openGraph={{
+          title,
+          description,
+          site_name: 'Noun Nyms',
+          type: 'website',
+          images: [{ url: 'https://nym-git-cha0s-link-personaelabs.vercel.app/noun_og.jpg' }],
+        }}
+        twitter={{ cardType: 'summary', site: '@personaelabs' }}
+      />
       {openPostId && <Posts initOpenPostId={openPostId} />}
     </>
   );
