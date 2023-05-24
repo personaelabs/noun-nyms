@@ -68,7 +68,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
             site_name: 'Noun Nyms',
             type: 'website',
           }}
-          twitter={{ cardType: 'summary' }}
+          twitter={{ cardType: 'summary', site: '@personaelabs' }}
         />
       )}
       {openPostId && <Posts initOpenPostId={openPostId} />}
