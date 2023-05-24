@@ -7,7 +7,8 @@ export type PostProps = IPostPreview & {
   onSuccess: () => void;
 };
 
-export type PostWithRepliesProps = IPostPreview & {
+export type PostWithRepliesProps = {
+  postId: string;
   writerToShow?: string;
   handleClose: () => void;
 };

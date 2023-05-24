@@ -47,7 +47,9 @@ export default function Posts(props: PostsProps) {
       {newPostOpen ? (
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={manualRefetch} />
       ) : null}
-      {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
+      {openPost ? (
+        <PostWithReplies postId={openPostId} handleClose={() => setOpenPostId('')} />
+      ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">

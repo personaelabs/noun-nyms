@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { postSelect, IPostWithReplies } from '@/types/api';
+import { postSelect, IPostWithReplies, postPreviewSelect } from '@/types/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Return a single post and all of its replies till depth = 5
@@ -8,10 +8,30 @@ const handleGetPost = async (
   req: NextApiRequest,
   res: NextApiResponse<IPostWithReplies | { error: string }>,
 ) => {
+  const fromRoot = !!req.query.fromRoot;
+  // If fromRoot is true, we get the rootId of the given post
+  let id = req.query.postId as string;
+  // First get postPreview.
+  if (fromRoot) {
+    const postPreview = await prisma.post.findFirst({
+      select: postPreviewSelect,
+      where: {
+        id,
+      },
+    });
+    if (postPreview) {
+      // Get the root id if it exists
+      const { root, ...post } = postPreview;
+      const topContent = root || post;
+      const { id: topId } = topContent;
+      id = topId;
+    }
+  }
+
   const postWithReplies = await prisma.post.findFirst({
     select: postSelect,
     where: {
-      id: req.query.postId as string,
+      id,
     },
   });
 
