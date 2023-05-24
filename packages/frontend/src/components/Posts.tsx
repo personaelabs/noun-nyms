@@ -49,14 +49,6 @@ export default function Posts(props: PostsProps) {
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={manualRefetch} />
       ) : null}
       {openPost ? <PostWithReplies {...openPost} handleClose={() => setOpenPostId('')} /> : null}
-      {openPost ? (
-        <Head>
-          <meta property="og:title" content="The Rock" />
-          <meta property="og:description" content="my post content" />
-          <meta property="og:url" content={'https://nym-git-dev-personaelabs.vercel.app/'} />
-          <meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
-        </Head>
-      ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
