@@ -1,8 +1,11 @@
+import useName from '@/hooks/useName';
 import { getSeedFromHash } from '@/lib/avatar-utils';
 import { NOUNS_AVATAR_RANGES } from '@/lib/constants';
 import { ImageData, getNounData } from '@nouns/assets';
 import { PNGCollectionEncoder, buildSVG } from '@nouns/sdk';
+import Image from 'next/image';
 import { useEffect, useMemo, useRef } from 'react';
+import { useEnsAvatar } from 'wagmi';
 
 const encoder = new PNGCollectionEncoder(ImageData.palette);
 
@@ -34,7 +37,25 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
     return svg;
   }, [userId]);
-  return (
+
+  // If ens + avatar exists, return image
+  const { name, isEns } = useName({ userId });
+
+  const { data: avatarUrl } = useEnsAvatar({
+    name: 'jxom.eth', // TODO: replace with actual name
+    enabled: isEns,
+  });
+
+  return avatarUrl && isEns ? (
+    <Image
+      src={avatarUrl}
+      alt="ENS Avatar"
+      width={width}
+      height={width}
+      style={{ borderRadius: '50%', overflow: 'hidden' }}
+      className="shrink-0"
+    />
+  ) : (
     <div
       className="shrink-0"
       style={{ borderRadius: '50%', overflow: 'hidden', width: width, height: width }}

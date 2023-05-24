@@ -2,6 +2,7 @@ import { PostProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { SingleReply } from './SingleReply';
+import useName from '@/hooks/useName';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -23,6 +24,10 @@ export const PostPreview = (postProps: PostProps) => {
 
   const postInfo = { id, body, upvotes, timestamp, userId };
 
+  const { name: userName } = useName({ userId });
+  const { name: rootName } = useName({ userId: root?.userId });
+  useName({ userId: root?.userId });
+
   return (
     <>
       <div
@@ -33,13 +38,13 @@ export const PostPreview = (postProps: PostProps) => {
           <div className="flex flex-col gap-2">
             <p>
               <a href={`/users/${userId}`} className="postDetail hover:underline">
-                {userId}
+                {userName}
               </a>
               <span className="secondary"> commented on </span>
               <span className="postDetail hover:underline">{root.title}</span>
             </p>
             <a href={`/users/${root.userId}`} className="w-max secondary">
-              Posted by <strong className="hover:underline">{root.userId}</strong>
+              Posted by <strong className="hover:underline">{rootName}</strong>
             </a>
           </div>
         ) : (
@@ -48,7 +53,7 @@ export const PostPreview = (postProps: PostProps) => {
               <p>
                 <span className="secondary">Posted by </span>
                 <a href={`/users/${userId}`} className="postDetail hover:underline">
-                  {userId}
+                  {userName}
                 </a>
               </p>
             ) : null}

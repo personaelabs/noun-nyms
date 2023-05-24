@@ -3,6 +3,15 @@ const FilterWarningsPlugin = require('webpack-filter-warnings-plugin');
 
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+        port: '',
+      },
+    ],
+  },
   transpilePackages: [
     'react-syntax-highlighter',
     'swagger-client',

@@ -19,7 +19,6 @@ const getNymOptions = (address: string, doxed: ClientNym) => {
 export const NymSelect = (props: NymSelectProps) => {
   const { address, selectedNym, setSelectedNym } = props;
   const divRef = useRef<HTMLDivElement>(null);
-
   const doxed = { nymSig: '0x0', nymHash: '', nymName: address };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
@@ -86,6 +85,7 @@ export const NymSelect = (props: NymSelectProps) => {
                   key={nym.nymSig}
                   className="w-full flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
                   onClick={() => {
+                    console.log(`setting as seleced`, nym);
                     setSelectedNym(nym);
                     setOpenSelect(false);
                   }}
