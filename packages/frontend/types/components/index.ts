@@ -13,10 +13,22 @@ export type PostWithRepliesProps = {
   handleClose: () => void;
 };
 
-export type ClientNym = {
+export type LocalNym = {
   nymName: string;
   nymSig: string;
   nymHash: string;
+};
+
+export enum NameType {
+  PSEUDO,
+  DOXED,
+}
+
+export type ClientName = {
+  type: NameType;
+  name: string | undefined;
+  nymSig?: string;
+  nymHash?: string;
 };
 
 export type ClientUpvote = {

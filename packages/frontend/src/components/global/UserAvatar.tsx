@@ -1,6 +1,7 @@
 import useName from '@/hooks/useName';
 import { getSeedFromHash } from '@/lib/avatar-utils';
 import { NOUNS_AVATAR_RANGES } from '@/lib/constants';
+import { NameType } from '@/types/components';
 import { ImageData, getNounData } from '@nouns/assets';
 import { PNGCollectionEncoder, buildSVG } from '@nouns/sdk';
 import Image from 'next/image';
@@ -10,13 +11,17 @@ import { useEnsAvatar } from 'wagmi';
 const encoder = new PNGCollectionEncoder(ImageData.palette);
 
 interface UserAvatarProps {
+  type?: NameType;
   userId: string;
   width: number;
 }
 
 export const UserAvatar = (props: UserAvatarProps) => {
-  const { userId, width } = props;
+  const { type, userId, width } = props;
   const svgRef = useRef<HTMLDivElement>(null);
+
+  const strokeColor =
+    type === NameType.DOXED ? '#0E76FD' : type === NameType.PSEUDO ? '#6B21A8' : 'transparent';
 
   useEffect(() => {
     const scaleSVG = () => {
@@ -50,15 +55,21 @@ export const UserAvatar = (props: UserAvatarProps) => {
     <Image
       src={avatarUrl}
       alt="ENS Avatar"
-      width={width}
-      height={width}
-      style={{ borderRadius: '50%', overflow: 'hidden' }}
+      width={width + 4}
+      height={width + 4}
+      style={{ borderRadius: '50%', overflow: 'hidden', border: `2px solid ${strokeColor}` }}
       className="shrink-0"
     />
   ) : (
     <div
       className="shrink-0"
-      style={{ borderRadius: '50%', overflow: 'hidden', width: width, height: width }}
+      style={{
+        borderRadius: '50%',
+        overflow: 'hidden',
+        width: width + 4,
+        height: width + 4,
+        border: `2px solid ${strokeColor}`,
+      }}
       ref={svgRef}
       dangerouslySetInnerHTML={{ __html: avatar }}
     />

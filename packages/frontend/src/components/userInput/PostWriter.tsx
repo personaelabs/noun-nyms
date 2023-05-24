@@ -5,8 +5,8 @@ import { MainButton } from '../MainButton';
 import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { NymSelect } from './NymSelect';
-import { ClientNym } from '@/types/components';
+import { NameSelect } from './NameSelect';
+import { ClientName, NameType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 
 interface IWriterProps {
@@ -16,7 +16,6 @@ interface IWriterProps {
 }
 
 export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterProps) => {
-  //TODO: render title box if no postId exists (distinguish between reply and top-level post)
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
@@ -24,11 +23,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [hasSignedPost, setHasSignedPost] = useState<boolean>(false);
 
   const { address } = useAccount();
-  const [nym, setNym] = useState<ClientNym>({
-    nymSig: '0x0',
-    nymHash: '',
-    nymName: address as string,
-  });
+  const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
 
@@ -48,27 +43,30 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     if (!address) {
       setShowWalletWarning(true);
       return;
-    }
-    try {
-      setSendingPost(true);
-      const result =
-        nym.nymName === address
-          ? await postDoxed({ title, body, parentId }, signTypedDataAsync, signedHandler)
-          : await postPseudo(
-              nym.nymName,
-              nym.nymSig,
-              { title, body, parentId },
-              signTypedDataAsync,
-              signedHandler,
-            );
-      onSuccess(result?.data.postId);
-      resetWriter();
-      setSendingPost(false);
-    } catch (error) {
-      setSendingPost(false);
-      //TODO: error handling
-      console.error(error);
-    }
+    } else if (!name) {
+      console.log('must select an identity to post');
+    } else
+      try {
+        setSendingPost(true);
+        let result = undefined;
+        if (name.type === NameType.DOXED) {
+          result = await postDoxed({ title, body, parentId }, signTypedDataAsync);
+        } else if (name.type === NameType.PSEUDO && name.name) {
+          result = await postPseudo(
+            name.name,
+            name.nymSig,
+            { title, body, parentId },
+            signTypedDataAsync,
+          );
+        } else throw new Error('must select a valid identity to post');
+        onSuccess(result?.data.postId);
+        resetWriter();
+        setSendingPost(false);
+      } catch (error) {
+        setSendingPost(false);
+        //TODO: error handling
+        console.error(error);
+      }
   };
 
   return (
@@ -103,9 +101,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
             </div>
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            {address ? (
-              <NymSelect address={address} selectedNym={nym} setSelectedNym={setNym} />
-            ) : null}
+            {address ? <NameSelect selectedName={name} setSelectedName={setName} /> : null}
             <MainButton color="black" handler={sendPost} loading={sendingPost} message={'Send'} />
           </div>
         </div>

@@ -3,15 +3,15 @@ import { useState } from 'react';
 import { MainButton } from '../MainButton';
 import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING, computeNymHash } from '@personaelabs/nymjs';
 import { useSignTypedData } from 'wagmi';
-import { ClientNym } from '@/types/components';
+import { ClientName, LocalNym, NameType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 
 interface NewNymProps {
   address: string;
   handleClose: () => void;
-  nymOptions: ClientNym[];
-  setNymOptions: (nymOptions: ClientNym[]) => void;
-  setSelectedNym: (selectedNym: ClientNym) => void;
+  nymOptions: ClientName[];
+  setNymOptions: (nymOptions: ClientName[]) => void;
+  setSelectedName: (selectedNym: ClientName) => void;
 }
 
 const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string> => {
@@ -39,7 +39,7 @@ const generateRandomString = (length: number) => {
 };
 
 export const NewNym = (props: NewNymProps) => {
-  const { address, handleClose, nymOptions, setNymOptions, setSelectedNym } = props;
+  const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
   const [nymName, setNymName] = useState<string>('');
   const [loadingNym, setLoadingNym] = useState<boolean>(false);
 
@@ -49,8 +49,8 @@ export const NewNym = (props: NewNymProps) => {
     const nyms = localStorage.getItem(address);
     let newVal: string;
     if (nyms) {
-      let existingNyms = JSON.parse(nyms) as ClientNym[];
-      existingNyms.push({ nymSig, nymName, nymHash });
+      let existingNyms = JSON.parse(nyms) as LocalNym[];
+      existingNyms.push({ nymName, nymSig, nymHash });
       newVal = JSON.stringify(existingNyms);
     } else {
       newVal = JSON.stringify([{ nymSig, nymName, nymHash }]);
@@ -65,9 +65,9 @@ export const NewNym = (props: NewNymProps) => {
       const nymHash = await computeNymHash(nymSig);
 
       if (nymSig) storeNym(nymSig, nymHash);
-      const newNym = { nymName, nymSig, nymHash };
+      const newNym = { type: NameType.PSEUDO, name: nymName, nymSig, nymHash };
       setNymOptions([...nymOptions, newNym]);
-      setSelectedNym(newNym);
+      setSelectedName(newNym);
       handleClose();
       setLoadingNym(false);
     } catch (error) {
