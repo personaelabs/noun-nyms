@@ -28,7 +28,9 @@ import {
   USER_NOT_IN_LATEST_GROUP,
   ALREADY_UPVOTED,
   INVALID_TIMESTAMP,
+  PARENT_NOT_FOUND,
 } from '@/lib/errors';
+import { prisma } from '@prisma/client';
 
 // Create a supertest client from the Next.js API route handler
 const createTestClient = (handler: NextApiHandler, query: { [key: string]: string | number }) => {
@@ -281,6 +283,38 @@ describe('POST /api/v1/posts', () => {
         error: INVALID_MERKLE_ROOT,
       });
     });
+
+    it("should return 400 if the parent doesn't exist", async () => {
+      mockFindTreeNodeOnce(merkleProof);
+      mockFindTreeOnce(treeRoot);
+      // Simulate non-existence of parentId by returning null
+      prismaMock.post.findFirst.mockResolvedValueOnce(null);
+
+      const validParentId = content.parentId;
+
+      // Set the parent ID to a non-existent post
+      content.parentId = '0x'.padEnd(66, 'f') as PrefixedHex;
+
+      const proofInvalidParentId = await prover.prove(
+        nymName,
+        content,
+        nymSigStr,
+        signContent(content),
+        merkleProof,
+      );
+
+      const response = await postsClient.post('/api/v1/posts').send({
+        attestation: proofInvalidParentId.toString('hex'),
+        attestationScheme: AttestationScheme.Nym,
+        content,
+      });
+
+      expectStatusWithObject(response, 400, {
+        error: PARENT_NOT_FOUND,
+      });
+
+      content.parentId = validParentId;
+    });
   });
 
   describe('Doxed posts', () => {
@@ -368,6 +402,30 @@ describe('POST /api/v1/posts', () => {
       expectStatusWithObject(response, 400, {
         error: USER_NOT_IN_LATEST_GROUP,
       });
+    });
+
+    it("should return 400 if the parent doesn't exist", async () => {
+      mockFindTreeNodeOnce(merkleProof);
+      mockFindTreeOnce(treeRoot);
+      // Simulate non-existence of parentId by returning null
+      prismaMock.post.findFirst.mockResolvedValueOnce(null);
+
+      const validParentId = content.parentId;
+
+      // Set the parent ID to a non-existent post
+      content.parentId = '0x'.padEnd(66, 'f') as PrefixedHex;
+
+      const response = await postsClient.post('/api/v1/posts').send({
+        attestation: signContent(content),
+        attestationScheme: AttestationScheme.EIP712,
+        content,
+      });
+
+      expectStatusWithObject(response, 400, {
+        error: PARENT_NOT_FOUND,
+      });
+
+      content.parentId = validParentId;
     });
   });
 });
