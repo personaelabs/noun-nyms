@@ -1,12 +1,14 @@
-import { FetchError } from '@/components/global/FetchError';
+import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
 import { UserPostCounts } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { useState } from 'react';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
 export default function Users() {
+  const [errorMsg, setErrorMsg] = useState<string>('');
   const {
     isLoading,
     isError,
@@ -18,6 +20,11 @@ export default function Users() {
     retry: 1,
     enabled: true,
     staleTime: 1000,
+    onError: (error) => {
+      if (error instanceof Error) {
+        setErrorMsg(error.message);
+      }
+    },
   });
 
   console.log(users);
@@ -42,7 +49,7 @@ export default function Users() {
       ) : isLoading ? (
         <Spinner />
       ) : isError ? (
-        <FetchError message="Could not get users. Retry?" refetchHandler={refetch} />
+        <RetryError message="Could not get users." error={errorMsg} refetchHandler={refetch} />
       ) : null}
     </main>
   );

@@ -8,6 +8,8 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import { NameSelect } from './NameSelect';
 import { ClientName, NameType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
+import { Modal } from '../global/Modal';
+import { RetryError } from '../global/RetryError';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -21,6 +23,8 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [sendingPost, setSendingPost] = useState<boolean>(false);
   const [hasSignedPost, setHasSignedPost] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [isError, setIsError] = useState<boolean>(false);
 
   const { address } = useAccount();
   const [name, setName] = useState<ClientName | null>(null);
@@ -39,15 +43,23 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     setTitleMsg('');
   };
 
+  const clearErrors = () => {
+    setErrorMsg('');
+    setIsError(false);
+  };
+
   const sendPost = async () => {
     if (!address) {
       setShowWalletWarning(true);
       return;
-    } else if (!name) {
-      console.log('must select an identity to post');
-    } else
+    } else {
+      setShowWalletWarning(false);
       try {
+        clearErrors();
         setSendingPost(true);
+        if (!name) throw new Error('must select an identity to post');
+        if (!body) throw new Error('post cannot be empty');
+        if (parentId === '0x0' && !title) throw new Error('title cannot be empty');
         let result = undefined;
         if (name.type === NameType.DOXED) {
           result = await postDoxed({ title, body, parentId }, signTypedDataAsync);
@@ -63,16 +75,29 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
         resetWriter();
         setSendingPost(false);
       } catch (error) {
+        if (error instanceof Error) {
+          setErrorMsg(error.message);
+        }
+        setIsError(true);
         setSendingPost(false);
-        //TODO: error handling
-        console.error(error);
       }
+    }
   };
 
   return (
     <>
       {showWalletWarning ? (
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action="comment" />
+      ) : errorMsg || isError ? (
+        <Modal width="50%" handleClose={clearErrors}>
+          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
+            <RetryError
+              message="Could not submit post:"
+              error={errorMsg}
+              refetchHandler={sendPost}
+            />
+          </div>
+        </Modal>
       ) : null}
       {someDbQuery === undefined ? (
         <div className="bg-gray-100 border border-gray-300 p-12 py-24 rounded-md flex justify-center text-gray-800">
@@ -102,7 +127,13 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
             {address ? <NameSelect selectedName={name} setSelectedName={setName} /> : null}
-            <MainButton color="black" handler={sendPost} loading={sendingPost} message={'Send'} />
+            <MainButton
+              color="black"
+              handler={sendPost}
+              loading={sendingPost}
+              message={'Send'}
+              disabled={!body || (parentId === '0x0' && !title)}
+            />
           </div>
         </div>
       ) : null}

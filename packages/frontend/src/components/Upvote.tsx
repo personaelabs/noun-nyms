@@ -7,6 +7,8 @@ import { UpvoteWarning } from './UpvoteWarning';
 import { ClientUpvote } from '@/types/components';
 import { ReactNode } from 'react';
 import { WalletWarning } from './WalletWarning';
+import { Modal } from './global/Modal';
+import { RetryError } from './global/RetryError';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -29,19 +31,30 @@ export const Upvote = (props: UpvoteIconProps) => {
   const [showVoteWarning, setShowVoteWarning] = useState<boolean>(false);
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [loadingUpvote, setLoadingUpvote] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [isError, setIsError] = useState<boolean>(false);
+
   const hasUpvoted = useMemo(getHasUpvoted, [address, upvotes]);
+
+  const clearErrors = () => {
+    setErrorMsg('');
+    setIsError(false);
+  };
 
   const upvoteHandler = async () => {
     try {
+      clearErrors();
       setLoadingUpvote(true);
       await submitUpvote(postId, signTypedDataAsync);
       setLoadingUpvote(false);
       onSuccess();
       setShowVoteWarning(false);
     } catch (error) {
+      if (error instanceof Error) {
+        setErrorMsg(error.message);
+      }
+      setIsError(true);
       setLoadingUpvote(false);
-      //TODO: error handling
-      console.error(error);
     }
   };
 
@@ -56,7 +69,17 @@ export const Upvote = (props: UpvoteIconProps) => {
 
   return (
     <>
-      {showVoteWarning ? (
+      {errorMsg || isError ? (
+        <Modal width="50%" handleClose={clearErrors}>
+          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
+            <RetryError
+              message="Could not upvote:"
+              error={errorMsg}
+              refetchHandler={upvoteHandler}
+            />
+          </div>
+        </Modal>
+      ) : showVoteWarning ? (
         <UpvoteWarning
           handleClose={() => setShowVoteWarning(false)}
           upvoteHandler={upvoteHandler}

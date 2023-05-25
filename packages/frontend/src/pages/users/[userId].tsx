@@ -1,5 +1,5 @@
 import { Header } from '@/components/Header';
-import { FetchError } from '@/components/global/FetchError';
+import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
 import { PostPreview } from '@/components/post/PostPreview';
@@ -35,10 +35,16 @@ export default function User() {
     retry: 1,
     enabled: !!userId,
     staleTime: 1000,
+    onError: (error) => {
+      if (error instanceof Error) {
+        setErrorMsg(error.message);
+      }
+    },
   });
 
   const [openPostId, setOpenPostId] = useState<string>('');
   const [writerToShow, setWriterToShow] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   const openPost = useMemo(() => {
     // If openPostId has a root, fetch that data instead.
@@ -77,8 +83,9 @@ export default function User() {
                 {isLoading ? (
                   <Spinner />
                 ) : isError ? (
-                  <FetchError
-                    message="Could not fetch user data. Retry?"
+                  <RetryError
+                    message="Could not fetch user data."
+                    error={errorMsg}
                     refetchHandler={refetch}
                   />
                 ) : userPosts ? (

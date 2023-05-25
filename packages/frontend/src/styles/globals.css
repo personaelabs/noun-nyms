@@ -42,6 +42,11 @@
     @apply text-xs;
     @apply text-gray-500;
   }
+
+  .error {
+    @apply text-xs;
+    @apply text-red-700;
+  }
 }
 
 @layer components {

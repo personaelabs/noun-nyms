@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
-import { FetchError } from '../global/FetchError';
+import { RetryError } from '../global/RetryError';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -19,6 +19,8 @@ const getPostById = async (postId: string, fromRoot = false) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
   const fromRoot = true;
+  const [errorMsg, setErrorMsg] = useState<string>('');
+
   const {
     isLoading,
     isError,
@@ -32,6 +34,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     staleTime: 5000,
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
+    onError: (error) => {
+      if (error instanceof Error) {
+        setErrorMsg(error.message);
+      }
+    },
   });
 
   const nestedComponentThreads = useMemo(() => {
@@ -97,7 +104,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           {isLoading ? (
             <Spinner />
           ) : isError ? (
-            <FetchError message="Could not fetch post. Retry?" refetchHandler={refetch} />
+            <RetryError message="Could not fetch post:" error={errorMsg} refetchHandler={refetch} />
           ) : null}
         </div>
       )}

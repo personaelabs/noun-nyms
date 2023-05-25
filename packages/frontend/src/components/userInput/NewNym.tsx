@@ -42,6 +42,7 @@ export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
   const [nymName, setNymName] = useState<string>('');
   const [loadingNym, setLoadingNym] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string>('');
 
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -60,10 +61,11 @@ export const NewNym = (props: NewNymProps) => {
 
   const handleNewNym = async () => {
     try {
+      setErrorMsg('');
       setLoadingNym(true);
+      if (!nymName) throw new Error('Must submit a valid name');
       const nymSig = await signNym(nymName, signTypedDataAsync);
       const nymHash = await computeNymHash(nymSig);
-
       if (nymSig) storeNym(nymSig, nymHash);
       const newNym = { type: NameType.PSEUDO, name: nymName, nymSig, nymHash };
       setNymOptions([...nymOptions, newNym]);
@@ -71,20 +73,22 @@ export const NewNym = (props: NewNymProps) => {
       handleClose();
       setLoadingNym(false);
     } catch (error) {
+      if (error instanceof Error) {
+        setErrorMsg(error.message);
+      }
       setLoadingNym(false);
-      //TODO: error handling
-      console.error(error);
     }
   };
   return (
     <Modal width="60%" handleClose={handleClose}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
-          <h3>Create a new nym</h3>
+          <h3>Create a new pseudo</h3>
         </div>
         <p className="text-gray-700">
           What does it mean to create a new nym? Any warnings the user should know beforehand?
         </p>
+        {errorMsg ? <p className="error">Could not create pseudo: {errorMsg}</p> : null}
         <div className="flex justify-start items-center gap-2">
           <UserAvatar width={24} userId={address} />
           <div className="relative border border-gray-200 rounded-md px-2 py-1">
