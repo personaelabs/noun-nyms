@@ -9,6 +9,7 @@ import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
+import { FetchError } from './global/FetchError';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -22,6 +23,7 @@ export default function Posts(props: PostsProps) {
 
   const {
     isLoading,
+    isError,
     refetch,
     data: posts,
   } = useQuery<IPostPreview[]>({
@@ -88,8 +90,9 @@ export default function Posts(props: PostsProps) {
                     </div>
                   ))}
                 </>
-              ) : // TODO: handle error state here
-              null}
+              ) : isError ? (
+                <FetchError message={'Could not fetch posts. Retry?'} refetchHandler={refetch} />
+              ) : null}
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { Header } from '@/components/Header';
+import { FetchError } from '@/components/global/FetchError';
 import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
 import { PostPreview } from '@/components/post/PostPreview';
@@ -23,19 +24,16 @@ export default function User() {
   const isDoxed = userId && isAddress(userId);
 
   // determine if post creator or replied to post (does post have a parent ID)
-  const { isLoading: postsLoading, data: userPosts } = useQuery<IPostPreview[]>({
+  const {
+    isError,
+    isLoading,
+    refetch,
+    data: userPosts,
+  } = useQuery<IPostPreview[]>({
     queryKey: ['userPosts', userId],
     queryFn: () => getPostsByUserId(userId),
     retry: 1,
     enabled: !!userId,
-    staleTime: 1000,
-  });
-
-  const { isLoading: upvotesLoading, data: userUpvotes } = useQuery<IUserUpvote[]>({
-    queryKey: ['userUpvotes', userId],
-    queryFn: () => getUpvotesByUserId(userId),
-    retry: 1,
-    enabled: !!isDoxed,
     staleTime: 1000,
   });
 
@@ -45,9 +43,8 @@ export default function User() {
   const openPost = useMemo(() => {
     // If openPostId has a root, fetch that data instead.
     let foundPost = userPosts?.find((p) => p.id === openPostId);
-    if (!foundPost) foundPost = userUpvotes?.find((v) => v.post.id === openPostId)?.post;
     return foundPost;
-  }, [openPostId, userPosts, userUpvotes]);
+  }, [openPostId, userPosts]);
 
   const handleOpenPost = (id: string, writerToShow: string) => {
     setWriterToShow(writerToShow);
@@ -77,8 +74,13 @@ export default function User() {
               </div>
               {name && <h2>{name}</h2>}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-                {postsLoading ? (
+                {isLoading ? (
                   <Spinner />
+                ) : isError ? (
+                  <FetchError
+                    message="Could not fetch user data. Retry?"
+                    refetchHandler={refetch}
+                  />
                 ) : userPosts ? (
                   userPosts.map((post) => (
                     <PostPreview

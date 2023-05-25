@@ -11,6 +11,7 @@ import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
+import { FetchError } from '../global/FetchError';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -18,7 +19,12 @@ const getPostById = async (postId: string, fromRoot = false) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
   const fromRoot = true;
-  const { refetch, data: singlePost } = useQuery<IPostWithReplies>({
+  const {
+    isLoading,
+    isError,
+    refetch,
+    data: singlePost,
+  } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId, fromRoot],
     queryFn: () => getPostById(postId, fromRoot),
     retry: 1,
@@ -50,7 +56,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     <Modal startAtTop={true} handleClose={handleClose}>
       {singlePost ? (
         <>
-          {' '}
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
@@ -89,7 +94,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         </>
       ) : (
         <div className="h-full flex flex-col justify-center">
-          <Spinner />
+          {isLoading ? (
+            <Spinner />
+          ) : isError ? (
+            <FetchError message="Could not fetch post. Retry?" refetchHandler={refetch} />
+          ) : null}
         </div>
       )}
     </Modal>
