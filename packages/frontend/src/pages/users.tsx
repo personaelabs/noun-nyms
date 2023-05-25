@@ -1,5 +1,6 @@
 import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
+import { UserTag } from '@/components/post/UserTag';
 import useError from '@/hooks/useError';
 import { UserPostCounts } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
@@ -25,30 +26,27 @@ export default function Users() {
     },
   });
 
-  console.log(users);
   return (
     <main>
-      {users ? (
-        <>
-          <h1>Users</h1>
-          <br></br>
-          {users &&
-            users.map((u) => (
-              <div key={u.userId}>
-                <p> Name: {u.name} </p>
-                <p> Posts: {u.numPosts} </p>
-                <p> Replies: {u.numReplies} </p>
-                {u.upvotes && <p> Upvotes: {u.upvotes}</p>}
-                {u.lastActive && <p>Last active: {new Date(u.lastActive).toLocaleString()}</p>}
-                <br></br>
-              </div>
-            ))}
-        </>
-      ) : isLoading ? (
-        <Spinner />
-      ) : isError ? (
-        <RetryError message="Could not get users." error={errorMsg} refetchHandler={refetch} />
-      ) : null}
+      <h1>Users</h1>
+      <br></br>
+      {isLoading && <Spinner />}
+      {isError && (
+        <RetryError message="Could not fetch users." error={errorMsg} refetchHandler={refetch} />
+      )}
+      {users &&
+        users.map((u) => (
+          <div key={u.userId}>
+            <a href={`/users/${u.userId}`} className="hover:underline">
+              <UserTag userId={u.userId}></UserTag>
+            </a>
+            <p> Posts: {u.numPosts} </p>
+            <p> Replies: {u.numReplies} </p>
+            <p> Upvotes Received: {u.upvotes}</p>
+            {u.lastActive && <p>Last active: {new Date(u.lastActive).toLocaleString()}</p>}
+            <br></br>
+          </div>
+        ))}
     </main>
   );
 }

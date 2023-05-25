@@ -1,3 +1,4 @@
+import useError from '@/hooks/useError';
 import { faRotateRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -9,6 +10,11 @@ interface RetryErrorProps {
 
 export const RetryError = (props: RetryErrorProps) => {
   const { message, error, refetchHandler } = props;
+  const { clearError } = useError();
+  const refetchAndReset = async () => {
+    await refetchHandler();
+    clearError();
+  };
   return (
     <div className="flex flex-col gap-4 items-center">
       <div className="flex flex-col gap-2 items-center">
@@ -17,7 +23,11 @@ export const RetryError = (props: RetryErrorProps) => {
       </div>
       <div className="flex gap-2 items-center">
         <p>Retry?</p>
-        <FontAwesomeIcon className="cursor-pointer" icon={faRotateRight} onClick={refetchHandler} />
+        <FontAwesomeIcon
+          className="cursor-pointer"
+          icon={faRotateRight}
+          onClick={refetchAndReset}
+        />
       </div>
     </div>
   );
