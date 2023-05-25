@@ -155,6 +155,7 @@ const populateTestData = async () => {
     accountIndex: number,
     parentId: string | null,
     rootId: string | null,
+    depth: number,
     attestationScheme: AttestationScheme,
   ): Promise<PostExt> => {
     const privKey = PRIV_KEYS[accountIndex];
@@ -219,6 +220,7 @@ const populateTestData = async () => {
         updatedAt: new Date(),
         userId: nym,
         upvotes,
+        depth,
       };
     } else {
       const post = toPost(content, contentSigStr, AttestationScheme.EIP712);
@@ -239,6 +241,7 @@ const populateTestData = async () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         upvotes,
+        depth,
       };
     }
   };
@@ -247,6 +250,7 @@ const populateTestData = async () => {
   const createPostWithReplies = async (
     rootId: string | null,
     parentId: string | null,
+    depth: number,
     data: TestData,
     isRoot: boolean,
   ): Promise<PostExt[]> => {
@@ -259,6 +263,7 @@ const populateTestData = async () => {
       accountIndex,
       parentId,
       rootId,
+      depth,
       data.attestationScheme,
     );
 
@@ -267,6 +272,7 @@ const populateTestData = async () => {
         createPostWithReplies(
           isRoot ? (post.id as PrefixedHex) : rootId,
           post.id as PrefixedHex,
+          depth + 1,
           reply,
           false,
         ),
@@ -280,7 +286,7 @@ const populateTestData = async () => {
   for (let i = 0; i < testData.length; i++) {
     const data = testData[i];
 
-    allPosts.push(...(await createPostWithReplies(null, null, data, true)));
+    allPosts.push(...(await createPostWithReplies(null, null, 0, data, true)));
   }
   log('...done\n');
 

@@ -16,6 +16,7 @@ import {
   getRootFromParent,
   selectAndCleanPosts,
   isTimestampValid,
+  getPostDepthFromParent,
 } from '../v1/utils';
 import { IPostPreview } from '@/types/api';
 import fs from 'fs';
@@ -24,6 +25,7 @@ import {
   INVALID_PROOF,
   INVALID_SIGNATURE,
   INVALID_TIMESTAMP,
+  PARENT_NOT_FOUND,
   USER_NOT_IN_LATEST_GROUP,
 } from '@/lib/errors';
 
@@ -82,6 +84,9 @@ const handleCreateDoxedPost = async (
   const address = `0x${pubToAddress(Buffer.from(pubKey.replace('0x', ''), 'hex')).toString('hex')}`;
   const rootId = await getRootFromParent(content.parentId);
 
+  // Get the depth of the post from its parent.
+  const depth = await getPostDepthFromParent(content.parentId);
+
   await prisma.post.create({
     data: {
       id: post.id,
@@ -96,6 +101,7 @@ const handleCreateDoxedPost = async (
       attestationScheme: PrismaAttestationScheme.EIP712,
       hashScheme: HashScheme.Keccak256,
       userId: address,
+      depth,
     },
   });
 
@@ -154,6 +160,9 @@ const handleCreatePseudoPost = async (
   const nym = getNymFromAttestation(attestation);
   const rootId = await getRootFromParent(content.parentId);
 
+  // Get the depth of the post from its parent.
+  const depth = await getPostDepthFromParent(content.parentId);
+
   const attestationHex = `0x${attestation.toString('hex')}`;
 
   await prisma.post.create({
@@ -170,6 +179,7 @@ const handleCreatePseudoPost = async (
       attestationScheme: PrismaAttestationScheme.Nym,
       hashScheme: HashScheme.Keccak256,
       userId: nym,
+      depth,
     },
   });
 
@@ -179,6 +189,21 @@ const handleCreatePseudoPost = async (
 // Entry point for the API below /api/v1/posts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method == 'POST') {
+    // Check that specified parent exists
+    const parentId = req.body.content.parentId;
+    if (parentId !== '0x0') {
+      const parent = await prisma.post.findFirst({
+        where: {
+          id: parentId,
+        },
+      });
+
+      if (!parent) {
+        res.status(400).send({ error: PARENT_NOT_FOUND });
+        return;
+      }
+    }
+
     if (req.body.attestationScheme === AttestationScheme.Nym) {
       await handleCreatePseudoPost(req, res);
     } else if (req.body.attestationScheme === AttestationScheme.EIP712) {

@@ -78,6 +78,7 @@ model Post {
   userId            String // Nym or ETH address
   hashScheme        HashScheme
   attestationScheme AttestationScheme
+  depth             Int
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
 }
