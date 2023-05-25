@@ -31,6 +31,28 @@ export const getNymFromAttestation = (attestation: Buffer): string => {
   return nym;
 };
 
+export const getPostDepthFromParent = async (parentId: string): Promise<number> => {
+  if (parentId === '0x0') {
+    return 0;
+  }
+
+  const parent = await prisma.post.findFirst({
+    select: {
+      depth: true,
+    },
+    where: {
+      id: parentId,
+    },
+  });
+
+  if (!parent) {
+    // Here we assume that the parent exists, so if it doesn't, throw an error.
+    throw new Error(`Parent not found in getPostDepthFromParent. parentId: ${parentId})`);
+  }
+
+  return parent.depth + 1;
+};
+
 export const findPost = async (
   postId: string,
 ): Promise<{
