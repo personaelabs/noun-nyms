@@ -16,6 +16,13 @@ enum Filter {
   Pseudo = 'Pseudo',
 }
 
+enum Sort {
+  lastActive = 'Last Active',
+  posts = 'Posts',
+  replies = 'Replies',
+  votes = 'Votes',
+}
+
 const filterBySearch = (users: UserPostCounts[] | undefined, query: string) => {
   return users?.filter((u) => {
     const toSearch = u.name ? u.name.toLowerCase() : u.userId.toLowerCase();
@@ -23,10 +30,14 @@ const filterBySearch = (users: UserPostCounts[] | undefined, query: string) => {
   });
 };
 
-const filterUsers = (users: UserPostCounts[] | undefined, filter: string, searchQuery: string) => {
+const filterUsers = (users: UserPostCounts[] | undefined, filter: Filter, searchQuery: string) => {
   let searchResult = searchQuery ? filterBySearch(users, searchQuery) : users;
   if (filter === Filter.All) return searchQuery ? filterBySearch(searchResult, searchQuery) : users;
   else return searchResult?.filter((u) => u.doxed === (filter === Filter.Doxed));
+};
+
+const sortUsers = (users: UserPostCounts[] | undefined, query: string) => {
+  return query ? users?.sort((a, b) => b['numPosts'] - a['numPosts']) : users;
 };
 
 export default function Users() {
@@ -47,12 +58,16 @@ export default function Users() {
     },
   });
 
-  const [filter, setFilter] = useState<string>(Filter.All);
+  const [filter, setFilter] = useState<Filter>(Filter.All);
+  const [sort, setSort] = useState<string>(Sort.lastActive);
+
   const [searchQuery, setSearchQuery] = useState<string>('');
   const filteredUsers = useMemo(
     () => filterUsers(users, filter, searchQuery),
     [filter, users, searchQuery],
   );
+
+  const sortedUsers = useMemo(() => sortUsers(filteredUsers, sort), [filteredUsers, sort]);
 
   return (
     <main>
@@ -94,36 +109,52 @@ export default function Users() {
                         </button>
                       ))}
                     </div>
-                    <p>Sorting</p>
-                  </div>
-                  {filteredUsers.map((u) => (
-                    <div
-                      className="rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
-                      key={u.userId}
+                    <select
+                      className="outline-none bg-transparent"
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
                     >
-                      <div className="hover:no-underline">
-                        <UserTag
-                          avatarWidth={50}
-                          userId={u.userId}
-                          lastActive={u.lastActive}
-                        ></UserTag>
-                      </div>
-                      <div className="flex gap-4">
-                        <span className="m-auto">
-                          <strong>{u.numPosts}</strong>
-                          {' Posts'}
-                        </span>
-                        <span className="m-auto">
-                          <strong>{u.numReplies}</strong>
-                          {' Replies'}
-                        </span>
-                        <span className="m-auto">
-                          <strong>{u.upvotes}</strong>
-                          {' Votes'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                      {Object.values(Sort).map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {sortedUsers && sortedUsers.length > 0 ? (
+                    sortedUsers.map((u) => (
+                      <a
+                        href={`/users/${u.userId}`}
+                        className="outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+                        key={u.userId}
+                      >
+                        <div className="hover:no-underline">
+                          <UserTag
+                            hideLink={true}
+                            avatarWidth={50}
+                            userId={u.userId}
+                            lastActive={u.lastActive}
+                          ></UserTag>
+                        </div>
+                        <div className="flex gap-4">
+                          <span className="m-auto">
+                            <strong>{u.numPosts}</strong>
+                            {' Posts'}
+                          </span>
+                          <span className="m-auto">
+                            <strong>{u.numReplies}</strong>
+                            {' Replies'}
+                          </span>
+                          <span className="m-auto">
+                            <strong>{u.upvotes}</strong>
+                            {' Votes'}
+                          </span>
+                        </div>
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-center">No Users Found</p>
+                  )}
                 </>
               ) : (
                 <RetryError

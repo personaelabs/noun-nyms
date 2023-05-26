@@ -10,9 +10,10 @@ interface UserTagProps {
   avatarWidth?: number;
   timestamp?: Date;
   lastActive?: Date | null;
+  hideLink?: boolean;
 }
 export const UserTag = (props: UserTagProps) => {
-  const { userId, avatarWidth, timestamp, lastActive } = props;
+  const { userId, avatarWidth, timestamp, lastActive, hideLink } = props;
   const { name, isDoxed } = useName({ userId });
 
   return (
@@ -24,9 +25,14 @@ export const UserTag = (props: UserTagProps) => {
         width={avatarWidth || 30}
       />
       <div className="flex flex-col gap-1 shrink-0">
-        <a href={`/users/${userId}`} className="outline-none">
-          <p className="font-semibold hover:underline">{name}</p>
-        </a>
+        {hideLink ? (
+          <p className="font-semibold">{name}</p>
+        ) : (
+          <a href={`/users/${userId}`} className="outline-none">
+            <p className="font-semibold hover:underline">{name}</p>
+          </a>
+        )}
+
         {lastActive && (
           <div className="flex gap-1 shrink-0 secondary">
             <p>Last active </p>
