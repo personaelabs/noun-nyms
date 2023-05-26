@@ -16,9 +16,17 @@ enum Filter {
   Pseudo = 'Pseudo',
 }
 
-const filterUsers = (users: UserPostCounts[] | undefined, filter: string) => {
-  if (filter === Filter.All) return users;
-  else return users?.filter((u) => u.doxed === (filter === Filter.Doxed));
+const filterBySearch = (users: UserPostCounts[] | undefined, query: string) => {
+  return users?.filter((u) => {
+    const toSearch = u.name ? u.name.toLowerCase() : u.userId.toLowerCase();
+    return toSearch.includes(query);
+  });
+};
+
+const filterUsers = (users: UserPostCounts[] | undefined, filter: string, searchQuery: string) => {
+  let searchResult = searchQuery ? filterBySearch(users, searchQuery) : users;
+  if (filter === Filter.All) return searchQuery ? filterBySearch(searchResult, searchQuery) : users;
+  else return searchResult?.filter((u) => u.doxed === (filter === Filter.Doxed));
 };
 
 export default function Users() {
@@ -40,7 +48,11 @@ export default function Users() {
   });
 
   const [filter, setFilter] = useState<string>(Filter.All);
-  const filteredUsers = useMemo(() => filterUsers(users, filter), [filter, users]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const filteredUsers = useMemo(
+    () => filterUsers(users, filter, searchQuery),
+    [filter, users, searchQuery],
+  );
 
   return (
     <main>
@@ -53,7 +65,16 @@ export default function Users() {
             <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
               <div className="flex justify-between">
                 <h3>Users</h3>
-                <p>Search!</p>
+                <input
+                  className="outline-none bg-white px-2"
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(event) => {
+                    setSearchQuery(event.target.value);
+                    filterBySearch(filteredUsers, searchQuery);
+                  }}
+                />
               </div>
               {isLoading ? (
                 <Spinner />
