@@ -7,19 +7,34 @@ dayjs.extend(relativeTime);
 
 interface UserTagProps {
   userId: string;
+  avatarWidth?: number;
   timestamp?: Date;
+  lastActive?: Date | null;
 }
 export const UserTag = (props: UserTagProps) => {
-  const { userId, timestamp } = props;
+  const { userId, avatarWidth, timestamp, lastActive } = props;
   const { name, isDoxed } = useName({ userId });
 
   return (
     // stop post modal from opening on click of user page link
     <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
-      <a href={`/users/${userId}`} className="outline-none flex gap-2 justify-center items-center">
-        <UserAvatar type={isDoxed ? NameType.DOXED : NameType.PSEUDO} userId={userId} width={30} />
-        <p className="font-semibold hover:underline">{name}</p>
-      </a>
+      <UserAvatar
+        type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
+        userId={userId}
+        width={avatarWidth || 30}
+      />
+      <div className="flex flex-col gap-1 shrink-0">
+        <a href={`/users/${userId}`} className="outline-none">
+          <p className="font-semibold hover:underline">{name}</p>
+        </a>
+        {lastActive && (
+          <div className="flex gap-1 shrink-0 secondary">
+            <p>Last active </p>
+            <p className="font-semibold">{dayjs(lastActive).fromNow()}</p>
+          </div>
+        )}
+      </div>
+
       {timestamp && (
         <div className="flex gap-2 shrink-0">
           <p className="secondary">-</p>
