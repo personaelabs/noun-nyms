@@ -19,8 +19,9 @@ import {
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
-import { computeEffEcdsaPubInput, Poseidon } from '@personaelabs/spartan-ecdsa';
+import { computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
 import { EIP712TypedData, EffECDSASig, Post, PublicInput, NymProofAuxiliary } from './types';
+import wasm, { init } from './wasm';
 
 // Byte length of a spartan-ecdsa proof
 const PROOF_BYTE_LENGTH = 19391;
@@ -63,10 +64,20 @@ const fetchCircuit = async (url: string): Promise<Uint8Array> => {
 export const bufferToBigInt = (bytes: Uint8Array): bigint =>
   BigInt('0x' + Buffer.from(bytes).toString('hex'));
 
+export const bufferLeToBigInt = (bytes: Uint8Array): bigint => {
+  const reversed = bytes.reverse();
+  return bufferToBigInt(reversed);
+};
+
 export const bigIntToBytes = (n: bigint, size: number): Uint8Array => {
   const hex = n.toString(16);
   const hexPadded = hex.padStart(size * 2, '0');
   return Buffer.from(hexPadded, 'hex');
+};
+
+export const bigIntToLeBytes = (n: bigint, size: number): Uint8Array => {
+  const bytes = bigIntToBytes(n, size);
+  return bytes.reverse();
 };
 
 export const bigIntToPrefixedHex = (val: bigint): PrefixedHex => `0x${val.toString(16)}`;
@@ -145,17 +156,22 @@ export function computeEffECDSASig(sigStr: string, typedData: EIP712TypedData): 
   return { Tx, Ty, Ux, Uy, s, r, v };
 }
 
-let poseidon: Poseidon | null;
+async function poseidonHash(inputs: bigint[]): Promise<bigint> {
+  const inputsBytes = new Uint8Array(32 * inputs.length);
+  for (let i = 0; i < inputs.length; i++) {
+    inputsBytes.set(bigIntToLeBytes(inputs[i], 32), i * 32);
+  }
+
+  await init();
+
+  const result = wasm.poseidon(inputsBytes);
+  return bufferLeToBigInt(result);
+}
+
 // Compute nymHash = Poseidon([nymSig.s, nymSig.s])
 export async function computeNymHash(nymSig: string): Promise<string> {
   const nymSigS = bufferToBigInt(fromRpcSig(nymSig).s);
-
-  if (!poseidon) {
-    poseidon = new Poseidon();
-    await poseidon.initWasm();
-  }
-
-  return poseidon.hash([nymSigS, nymSigS]).toString(16);
+  return (await poseidonHash([nymSigS, nymSigS])).toString(16);
 }
 
 export const serializePublicInput = (publicInput: PublicInput): Buffer => {
