@@ -114,17 +114,20 @@ export default function Users() {
                         </button>
                       ))}
                     </div>
-                    <select
-                      className="outline-none bg-transparent"
-                      value={sort}
-                      onChange={(e) => setSort(e.target.value)}
-                    >
-                      {Object.keys(sortOptions).map((s) => (
-                        <option key={s} value={s}>
-                          {sortOptions[s]}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex gap-1 items-center">
+                      <p className="text-gray-500">Sort by</p>
+                      <select
+                        className="outline-none bg-transparent font-semibold"
+                        value={sort}
+                        onChange={(e) => setSort(e.target.value)}
+                      >
+                        {Object.keys(sortOptions).map((s) => (
+                          <option key={s} value={s}>
+                            {sortOptions[s]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                   {sortedUsers && sortedUsers.length > 0 ? (
                     sortedUsers.map((u) => (
