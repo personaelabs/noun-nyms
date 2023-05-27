@@ -116,15 +116,6 @@ paths:
     get:
       description: Get all members and their Merkle proof of the latest group
       operationId: getLatestGroup
-      parameters:
-        - in: query
-          required: true
-          name: set
-          schema:
-            type: number
-            enum:
-              - 1
-              - 2
       responses:
         '200':
           description: OK
