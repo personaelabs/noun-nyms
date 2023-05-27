@@ -77,7 +77,7 @@ export function initSync(module: SyncInitInput, maybe_memory?: WebAssembly.Memor
  *
  * @returns {Promise<InitOutput>}
  */
-export default function init(
+export default function __wbg_init(
   module_or_path?: InitInput | Promise<InitInput>,
   maybe_memory?: WebAssembly.Memory,
 ): Promise<InitOutput>;
