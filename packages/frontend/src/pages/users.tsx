@@ -16,12 +16,12 @@ enum Filter {
   Pseudo = 'Pseudo',
 }
 
-enum Sort {
-  lastActive = 'Last Active',
-  posts = 'Posts',
-  replies = 'Replies',
-  votes = 'Votes',
-}
+const sortOptions: { [key: string]: string } = {
+  lastActive: 'Last Active',
+  numPosts: 'Posts',
+  numReplies: 'Replies',
+  upvotes: 'Votes',
+};
 
 const filterBySearch = (users: UserPostCounts[] | undefined, query: string) => {
   return users?.filter((u) => {
@@ -37,7 +37,12 @@ const filterUsers = (users: UserPostCounts[] | undefined, filter: Filter, search
 };
 
 const sortUsers = (users: UserPostCounts[] | undefined, query: string) => {
-  return query ? users?.sort((a, b) => b['numPosts'] - a['numPosts']) : users;
+  const queryString = query as keyof UserPostCounts;
+  return users
+    ? users.sort((a, b) => {
+        return (b[queryString] as number) - (a[queryString] as number);
+      })
+    : users;
 };
 
 export default function Users() {
@@ -59,7 +64,7 @@ export default function Users() {
   });
 
   const [filter, setFilter] = useState<Filter>(Filter.All);
-  const [sort, setSort] = useState<string>(Sort.lastActive);
+  const [sort, setSort] = useState<string>(sortOptions.lastActive);
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const filteredUsers = useMemo(
@@ -114,9 +119,9 @@ export default function Users() {
                       value={sort}
                       onChange={(e) => setSort(e.target.value)}
                     >
-                      {Object.values(Sort).map((s) => (
+                      {Object.keys(sortOptions).map((s) => (
                         <option key={s} value={s}>
-                          {s}
+                          {sortOptions[s]}
                         </option>
                       ))}
                     </select>
