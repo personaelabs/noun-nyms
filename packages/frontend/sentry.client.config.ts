@@ -12,7 +12,14 @@ Sentry.init({
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
-
+  integrations: function (integrations) {
+    // integrations will be all default integrations
+    return integrations.filter(function (integration) {
+      // Remove "HttpContext" which includes browser/device info
+      // from the reported errors
+      return integration.name !== 'HttpContext' ? true : false;
+    });
+  },
   autoSessionTracking: false,
   sendClientReports: false,
 });
