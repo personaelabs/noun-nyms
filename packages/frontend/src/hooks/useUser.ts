@@ -1,16 +1,12 @@
 import { useState } from 'react';
 
-const useUser = () => {
+const useUser = (address: string | undefined) => {
   // default to unknown error
-  const [address, setAddress] = useState('');
   const [isValid, setIsValid] = useState(false);
 
-  const onAddressChange = (address: string) => {
-    console.log(`handling address change... `);
-    setAddress(address);
-  };
+  console.log(`handling address change... ${address}`);
 
-  return { address, isValid, onAddressChange };
+  return { address, isValid };
 };
 
 export default useUser;
