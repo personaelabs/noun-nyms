@@ -24,6 +24,8 @@
     "@personaelabs/spartan-ecdsa": "^2.1.3",
     "@prisma/client": "4.5.0",
     "@rainbow-me/rainbowkit": "1.0.0",
+    "@sentry/integrations": "^7.53.1",
+    "@sentry/nextjs": "^7.53.1",
     "@tanstack/react-query": "^4.29.5",
     "axios": "^1.3.4",
     "dayjs": "^1.11.7",
