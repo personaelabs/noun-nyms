@@ -46,6 +46,12 @@ export const NameSelect = (props: NameSelectProps) => {
     } else return '';
   };
 
+  useEffect(() => {
+    if (address) {
+      setNymOptions(getNymOptions(address));
+    }
+  }, [address]);
+
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
     setSelectedName(nymOptions.length > 0 ? nymOptions[0] : null);
