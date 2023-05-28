@@ -11,6 +11,8 @@ import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
+import { RetryError } from '../global/RetryError';
+import useError from '@/hooks/useError';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -18,7 +20,14 @@ const getPostById = async (postId: string, fromRoot = false) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
   const fromRoot = true;
-  const { refetch, data: singlePost } = useQuery<IPostWithReplies>({
+  const { errorMsg, setError } = useError();
+
+  const {
+    isLoading,
+    isError,
+    refetch,
+    data: singlePost,
+  } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId, fromRoot],
     queryFn: () => getPostById(postId, fromRoot),
     retry: 1,
@@ -26,6 +35,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     staleTime: 5000,
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
+    onError: (error) => {
+      setError(error);
+    },
   });
 
   const nestedComponentThreads = useMemo(() => {
@@ -50,7 +62,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     <Modal startAtTop={true} handleClose={handleClose}>
       {singlePost ? (
         <>
-          {' '}
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
@@ -89,7 +100,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         </>
       ) : (
         <div className="h-full flex flex-col justify-center">
-          <Spinner />
+          {isLoading ? (
+            <Spinner />
+          ) : isError ? (
+            <RetryError message="Could not fetch post:" error={errorMsg} refetchHandler={refetch} />
+          ) : null}
         </div>
       )}
     </Modal>

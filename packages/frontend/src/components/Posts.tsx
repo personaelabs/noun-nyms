@@ -9,6 +9,8 @@ import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
+import { RetryError } from './global/RetryError';
+import useError from '@/hooks/useError';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -18,10 +20,11 @@ interface PostsProps {
 
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
-  console.log({ initOpenPostId });
+  const { errorMsg, setError } = useError();
 
   const {
     isLoading,
+    isError,
     refetch,
     data: posts,
   } = useQuery<IPostPreview[]>({
@@ -32,6 +35,9 @@ export default function Posts(props: PostsProps) {
     staleTime: 1000,
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
+    onError: (error) => {
+      setError(error);
+    },
   });
 
   const refetchAndScrollToPost = async (postId?: string) => {
@@ -88,8 +94,13 @@ export default function Posts(props: PostsProps) {
                     </div>
                   ))}
                 </>
-              ) : // TODO: handle error state here
-              null}
+              ) : isError ? (
+                <RetryError
+                  message={'Could not fetch posts:'}
+                  error={errorMsg}
+                  refetchHandler={refetch}
+                />
+              ) : null}
             </div>
           </div>
         </div>
