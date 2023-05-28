@@ -64,7 +64,7 @@ export default function Posts(props: PostsProps) {
         <PostWithReplies
           postId={openPostId}
           handleClose={() => {
-            router.replace('/');
+            router.replace('/', undefined, { shallow: true });
             setOpenPostId('');
           }}
         />
@@ -90,14 +90,21 @@ export default function Posts(props: PostsProps) {
                 <>
                   {posts.map((post) => (
                     <div className="flex gap-2" key={post.id}>
-                      <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={refetch}>
+                      <Upvote
+                        upvotes={post.upvotes}
+                        col={true}
+                        postId={post.id}
+                        onSuccess={refetch}
+                      >
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
                       <PostPreview
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => {
-                          router.replace(`/posts/${post.id}`);
+                          router.replace(window.location.href, `/posts/${post.id}`, {
+                            shallow: true,
+                          });
                           setOpenPostId(post.id);
                         }}
                         onSuccess={refetchAndScrollToPost}

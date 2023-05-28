@@ -66,7 +66,7 @@ export default function User() {
           writerToShow={writerToShow}
           postId={openPostId}
           handleClose={() => {
-            router.replace('/');
+            router.replace('/', undefined, { shallow: true });
             setOpenPostId('');
           }}
         />
@@ -97,7 +97,9 @@ export default function User() {
                       key={post.id}
                       {...post}
                       handleOpenPost={(writerToShow: string) => {
-                        router.replace(`/posts/${post.id}`);
+                        router.replace(window.location.href, `/posts/${post.id}`, {
+                          shallow: true,
+                        });
                         handleOpenPost(post.id, writerToShow);
                       }}
                       onSuccess={() => console.log('need to refetch here')}
