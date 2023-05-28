@@ -37,6 +37,7 @@ export type ProverConfig = {
 export class NymProver extends Profiler {
   circuit: string;
   witnessGenWasm: string;
+  circuitBin?: Uint8Array;
 
   constructor(options: ProverConfig) {
     super({ enabled: options?.enableProfiler });
@@ -47,6 +48,12 @@ export class NymProver extends Profiler {
 
   async initWasm() {
     await init();
+  }
+
+  async loadCircuit() {
+    if (!this.circuitBin) {
+      this.circuitBin = await loadCircuit(this.circuit);
+    }
   }
 
   async prove(
@@ -93,9 +100,9 @@ export class NymProver extends Profiler {
     };
 
     const witness = await snarkJsWitnessGen(witnessInput, this.witnessGenWasm);
-    this.time('load circuit');
-    const circuitBin = await loadCircuit(this.circuit);
-    this.timeEnd('load circuit');
+
+    await this.initWasm();
+    await this.loadCircuit();
 
     const publicInput: PublicInput = {
       root: membershipProof.root,
@@ -119,7 +126,7 @@ export class NymProver extends Profiler {
     };
 
     this.time('prove');
-    const proof = wasm.prove(circuitBin, witness.data, publicInputSer);
+    const proof = wasm.prove(this.circuitBin as Uint8Array, witness.data, publicInputSer);
     this.timeEnd('prove');
 
     const attestation = serializeNymAttestation(
