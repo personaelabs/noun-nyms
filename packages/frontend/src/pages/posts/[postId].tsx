@@ -17,7 +17,7 @@ const buildSeo = (post?: IPostSimple) => {
   if (post) {
     dateString = new Date(post.timestamp).toLocaleString();
   }
-  const name = post?.name || post?.userId.split('-')[0] || '';
+  const name = post?.name || '';
   const description = `${post?.body}\n️${dateString}`;
   return { title: name, description };
 };

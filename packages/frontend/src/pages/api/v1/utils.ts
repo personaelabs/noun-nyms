@@ -122,14 +122,27 @@ export const isTimestampValid = (timestamp: number): boolean => {
   return Math.abs(now - timestamp) < 100;
 };
 
-export const getSimplePost = async (
-  context: GetServerSidePropsContext,
-): Promise<{ props: { post: IPostSimple | null } }> => {
+export const userIdToName = async (userId: string) => {
   const publicClient = createPublicClient({
     chain: mainnet,
     transport: http(),
   });
 
+  if (isAddress(userId)) {
+    const ensName = await publicClient.getEnsName({
+      address: userId,
+    });
+    return ensName || userId;
+  } else {
+    const parts = userId.split('-');
+    const extractedValue = parts.slice(0, -1).join('-');
+    return extractedValue;
+  }
+};
+
+export const getSimplePost = async (
+  context: GetServerSidePropsContext,
+): Promise<{ props: { post: IPostSimple | null } }> => {
   const id = context.query.postId;
 
   let postSimple = await prisma.post.findFirst({
@@ -143,17 +156,11 @@ export const getSimplePost = async (
       title: postSimple.title,
       body: postSimple.body,
       timestamp: postSimple.timestamp.getTime(),
-      name: '',
+      name: await userIdToName(postSimple.userId),
       id: postSimple.id,
       userId: postSimple.userId,
     };
 
-    if (isAddress(postSimple.userId)) {
-      const ensName = await publicClient.getEnsName({
-        address: postSimple.userId,
-      });
-      if (ensName) post.name = ensName;
-    }
     return {
       props: {
         post,

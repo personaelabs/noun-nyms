@@ -14,3 +14,7 @@ To run a specifc command in a workspace from the root folder:
    - Ex: `"frontend": "workspace:*"`
 2. Run `pnpm -F <package_name> run <command>`
    - Ex: `pnpm -F frontend run dev:all`
+
+# Dev branch
+
+Just for using prod frontend with staging db.
