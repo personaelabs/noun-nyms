@@ -7,6 +7,7 @@ import { createPublicClient, http } from 'viem';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HOME_DESCRIPTION, Seo, TITLE } from '@/components/global/Seo';
 import Head from 'next/head';
+import { User } from '@/components/global/User';
 
 config.autoAddCss = false;
 
@@ -25,6 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
+        <User />
         <Head>
           <link type="favicon" rel="icon" href="/favicon-3.ico" />
         </Head>
