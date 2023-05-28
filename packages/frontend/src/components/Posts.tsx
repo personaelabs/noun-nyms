@@ -11,6 +11,7 @@ import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
+import { useRouter } from 'next/router';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -21,6 +22,7 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
+  const router = useRouter();
 
   const {
     isLoading,
@@ -59,7 +61,13 @@ export default function Posts(props: PostsProps) {
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
       ) : null}
       {openPostId ? (
-        <PostWithReplies postId={openPostId} handleClose={() => setOpenPostId('')} />
+        <PostWithReplies
+          postId={openPostId}
+          handleClose={() => {
+            router.replace('/');
+            setOpenPostId('');
+          }}
+        />
       ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
@@ -88,7 +96,10 @@ export default function Posts(props: PostsProps) {
                       <PostPreview
                         {...post}
                         userId={post.userId}
-                        handleOpenPost={() => setOpenPostId(post.id)}
+                        handleOpenPost={() => {
+                          router.replace(`/posts/${post.id}`);
+                          setOpenPostId(post.id);
+                        }}
                         onSuccess={refetchAndScrollToPost}
                       />
                     </div>
