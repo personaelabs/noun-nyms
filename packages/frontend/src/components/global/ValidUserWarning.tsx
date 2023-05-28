@@ -14,7 +14,7 @@ export const ValidUserWarning = () => {
   return (
     <>
       {isValid || !showWarning ? null : (
-        <Modal width="50%" handleClose={() => setShowWarning(false)}>
+        <Modal width="60%" handleClose={() => setShowWarning(false)}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
             <h3>The connected wallet is not valid.</h3>
             <p className="text-gray-700">

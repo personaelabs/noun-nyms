@@ -11,7 +11,7 @@ export const WalletWarning = (props: WalletWarningProps) => {
 
   return (
     <>
-      <Modal width="50%" handleClose={handleClose}>
+      <Modal width="60%" handleClose={handleClose}>
         <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
           <h3>Connect a valid wallet to {action}</h3>
           <p className="text-gray-700">
