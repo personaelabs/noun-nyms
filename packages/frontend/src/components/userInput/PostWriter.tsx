@@ -81,7 +81,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     <>
       {showWalletWarning ? (
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action="comment" />
-      ) : errorMsg || isError ? (
+      ) : errorMsg && isError ? (
         <Modal width="50%" handleClose={clearError}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
             <RetryError
