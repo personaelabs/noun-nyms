@@ -6,27 +6,28 @@ import { ClientName, LocalNym, NameType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { useAccount } from 'wagmi';
+import useUserInfo from '@/hooks/useUserInfo';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
   setSelectedName: (selectedName: ClientName | null) => void;
 }
 
-const getNymOptions = (address: string | undefined): ClientName[] => {
-  let nymOptions: ClientName[] = [];
-  const nymOptionsString = address && localStorage.getItem(address);
-  if (nymOptionsString) {
-    JSON.parse(nymOptionsString).forEach((nym: LocalNym) => {
-      nymOptions.push({
-        type: NameType.PSEUDO,
-        name: nym.nymName,
-        nymSig: nym.nymSig,
-        nymHash: nym.nymHash,
-      });
-    });
-  }
-  return nymOptions;
-};
+// const getNymOptions = (address: string | undefined): ClientName[] => {
+//   let nymOptions: ClientName[] = [];
+//   const nymOptionsString = address && localStorage.getItem(address);
+//   if (nymOptionsString) {
+//     JSON.parse(nymOptionsString).forEach((nym: LocalNym) => {
+//       nymOptions.push({
+//         type: NameType.PSEUDO,
+//         name: nym.nymName,
+//         nymSig: nym.nymSig,
+//         nymHash: nym.nymHash,
+//       });
+//     });
+//   }
+//   return nymOptions;
+// };
 
 export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName } = props;
@@ -35,9 +36,11 @@ export const NameSelect = (props: NameSelectProps) => {
 
   const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
 
+  const { nymOptions, setNymOptions } = useUserInfo({ address: address });
+
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
-  const [nymOptions, setNymOptions] = useState<ClientName[]>(getNymOptions(address));
+  // const [nymOptions, setNymOptions] = useState<ClientName[]>(getNymOptions(address));
   const [maxSelectHeight, setMaxSelectHeight] = useState<number>(0);
 
   const getUserIdFromName = (user: ClientName): string => {
@@ -46,11 +49,11 @@ export const NameSelect = (props: NameSelectProps) => {
     } else return '';
   };
 
-  useEffect(() => {
-    if (address) {
-      setNymOptions(getNymOptions(address));
-    }
-  }, [address]);
+  // useEffect(() => {
+  //   if (address) {
+  //     setNymOptions(getNymOptions(address));
+  //   }
+  // }, [address]);
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
