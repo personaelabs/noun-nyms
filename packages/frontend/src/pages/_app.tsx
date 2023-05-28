@@ -7,6 +7,7 @@ import { createPublicClient, http } from 'viem';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HOME_DESCRIPTION, Seo, TITLE } from '@/components/global/Seo';
 import Head from 'next/head';
+import { ValidUserWarning } from '@/components/global/ValidUserWarning';
 
 config.autoAddCss = false;
 
@@ -30,6 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
         </Head>
         <Seo title={TITLE} description={HOME_DESCRIPTION} />
         <Component {...pageProps} />
+        <ValidUserWarning />
       </WagmiConfig>
     </QueryClientProvider>
   );
