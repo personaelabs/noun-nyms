@@ -9,7 +9,7 @@ export const ValidUserWarning = () => {
   const { isValid } = useUserInfo({ address: address });
   const [showWarning, setShowWarning] = useState<boolean>(!isValid);
 
-  useEffect(() => setShowWarning(!isValid), [isValid]);
+  useEffect(() => setShowWarning(!isValid), [address, isValid]);
 
   return (
     <>
