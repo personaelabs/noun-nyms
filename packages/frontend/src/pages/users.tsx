@@ -1,14 +1,14 @@
 import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
+import useError from '@/hooks/useError';
 import { UserPostCounts } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useState } from 'react';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
 export default function Users() {
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const { errorMsg, setError } = useError();
   const {
     isLoading,
     isError,
@@ -21,9 +21,7 @@ export default function Users() {
     enabled: true,
     staleTime: 1000,
     onError: (error) => {
-      if (error instanceof Error) {
-        setErrorMsg(error.message);
-      }
+      setError(error);
     },
   });
 

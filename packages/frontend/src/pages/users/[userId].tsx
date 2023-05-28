@@ -4,6 +4,7 @@ import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
 import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
+import useError from '@/hooks/useError';
 import useName from '@/hooks/useName';
 import { IPostPreview, IUserUpvote } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
@@ -20,6 +21,7 @@ const getUpvotesByUserId = async (userId: string) =>
 
 export default function User() {
   const router = useRouter();
+  const { errorMsg, setError } = useError();
   const userId = router.query.userId as string;
   const isDoxed = userId && isAddress(userId);
 
@@ -36,15 +38,12 @@ export default function User() {
     enabled: !!userId,
     staleTime: 1000,
     onError: (error) => {
-      if (error instanceof Error) {
-        setErrorMsg(error.message);
-      }
+      setError(error);
     },
   });
 
   const [openPostId, setOpenPostId] = useState<string>('');
   const [writerToShow, setWriterToShow] = useState<string>('');
-  const [errorMsg, setErrorMsg] = useState<string>('');
 
   const openPost = useMemo(() => {
     // If openPostId has a root, fetch that data instead.

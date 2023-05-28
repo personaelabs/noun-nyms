@@ -9,6 +9,7 @@ import { ReactNode } from 'react';
 import { WalletWarning } from './WalletWarning';
 import { Modal } from './global/Modal';
 import { RetryError } from './global/RetryError';
+import useError from '@/hooks/useError';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -19,8 +20,10 @@ interface UpvoteIconProps {
 }
 
 export const Upvote = (props: UpvoteIconProps) => {
-  const { address } = useAccount();
   const { upvotes, postId, col, children, onSuccess } = props;
+  const { address } = useAccount();
+  const { errorMsg, setError, clearError, isError } = useError();
+
   const { signTypedDataAsync } = useSignTypedData();
 
   const getHasUpvoted = () => {
@@ -31,29 +34,19 @@ export const Upvote = (props: UpvoteIconProps) => {
   const [showVoteWarning, setShowVoteWarning] = useState<boolean>(false);
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [loadingUpvote, setLoadingUpvote] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string>('');
-  const [isError, setIsError] = useState<boolean>(false);
 
   const hasUpvoted = useMemo(getHasUpvoted, [address, upvotes]);
 
-  const clearErrors = () => {
-    setErrorMsg('');
-    setIsError(false);
-  };
-
   const upvoteHandler = async () => {
     try {
-      clearErrors();
+      clearError();
       setLoadingUpvote(true);
       await submitUpvote(postId, signTypedDataAsync);
       setLoadingUpvote(false);
       onSuccess();
       setShowVoteWarning(false);
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMsg(error.message);
-      }
-      setIsError(true);
+      setError(error);
       setLoadingUpvote(false);
     }
   };
@@ -69,8 +62,8 @@ export const Upvote = (props: UpvoteIconProps) => {
 
   return (
     <>
-      {errorMsg || isError ? (
-        <Modal width="50%" handleClose={clearErrors}>
+      {errorMsg && isError ? (
+        <Modal width="50%" handleClose={clearError}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
             <RetryError
               message="Could not upvote:"

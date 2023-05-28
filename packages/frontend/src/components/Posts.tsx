@@ -10,6 +10,7 @@ import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
 import { RetryError } from './global/RetryError';
+import useError from '@/hooks/useError';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -19,9 +20,7 @@ interface PostsProps {
 
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
-  const [errorMsg, setErrorMsg] = useState<string>('');
-
-  console.log({ initOpenPostId });
+  const { errorMsg, setError } = useError();
 
   const {
     isLoading,
@@ -37,9 +36,7 @@ export default function Posts(props: PostsProps) {
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
     onError: (error) => {
-      if (error instanceof Error) {
-        setErrorMsg(error.message);
-      }
+      setError(error);
     },
   });
 

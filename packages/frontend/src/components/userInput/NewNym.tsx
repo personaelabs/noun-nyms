@@ -5,6 +5,7 @@ import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING, computeNymHash } from '@person
 import { useSignTypedData } from 'wagmi';
 import { ClientName, LocalNym, NameType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
+import useError from '@/hooks/useError';
 
 interface NewNymProps {
   address: string;
@@ -42,7 +43,7 @@ export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
   const [nymName, setNymName] = useState<string>('');
   const [loadingNym, setLoadingNym] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const { errorMsg, setError } = useError();
 
   const { signTypedDataAsync } = useSignTypedData();
 
@@ -61,7 +62,7 @@ export const NewNym = (props: NewNymProps) => {
 
   const handleNewNym = async () => {
     try {
-      setErrorMsg('');
+      setError('');
       setLoadingNym(true);
       if (!nymName) throw new Error('Must submit a valid name');
       const nymSig = await signNym(nymName, signTypedDataAsync);
@@ -73,9 +74,7 @@ export const NewNym = (props: NewNymProps) => {
       handleClose();
       setLoadingNym(false);
     } catch (error) {
-      if (error instanceof Error) {
-        setErrorMsg(error.message);
-      }
+      setError(error);
       setLoadingNym(false);
     }
   };

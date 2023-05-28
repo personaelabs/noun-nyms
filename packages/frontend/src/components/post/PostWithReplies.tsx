@@ -12,6 +12,7 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
+import useError from '@/hooks/useError';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -19,7 +20,7 @@ const getPostById = async (postId: string, fromRoot = false) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
   const fromRoot = true;
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const { errorMsg, setError } = useError();
 
   const {
     isLoading,
@@ -35,9 +36,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
     onError: (error) => {
-      if (error instanceof Error) {
-        setErrorMsg(error.message);
-      }
+      setError(error);
     },
   });
 

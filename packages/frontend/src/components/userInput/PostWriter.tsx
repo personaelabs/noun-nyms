@@ -10,6 +10,7 @@ import { ClientName, NameType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
+import useError from '@/hooks/useError';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -23,7 +24,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [sendingPost, setSendingPost] = useState<boolean>(false);
   const [hasSignedPost, setHasSignedPost] = useState<boolean>(false);
-  const [errorMsg, setErrorMsg] = useState<string>('');
+  const { errorMsg, setError, clearError } = useError();
   const [isError, setIsError] = useState<boolean>(false);
 
   const { address } = useAccount();
@@ -43,11 +44,6 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     setTitleMsg('');
   };
 
-  const clearErrors = () => {
-    setErrorMsg('');
-    setIsError(false);
-  };
-
   const sendPost = async () => {
     if (!address) {
       setShowWalletWarning(true);
@@ -55,7 +51,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
     } else {
       setShowWalletWarning(false);
       try {
-        clearErrors();
+        clearError();
         setSendingPost(true);
         if (!name) throw new Error('must select an identity to post');
         if (!body) throw new Error('post cannot be empty');
@@ -75,10 +71,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
         resetWriter();
         setSendingPost(false);
       } catch (error) {
-        if (error instanceof Error) {
-          setErrorMsg(error.message);
-        }
-        setIsError(true);
+        setError(error);
         setSendingPost(false);
       }
     }
@@ -89,7 +82,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
       {showWalletWarning ? (
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action="comment" />
       ) : errorMsg || isError ? (
-        <Modal width="50%" handleClose={clearErrors}>
+        <Modal width="50%" handleClose={clearError}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
             <RetryError
               message="Could not submit post:"
