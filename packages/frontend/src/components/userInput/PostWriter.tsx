@@ -24,8 +24,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
   const [sendingPost, setSendingPost] = useState<boolean>(false);
   const [hasSignedPost, setHasSignedPost] = useState<boolean>(false);
-  const { errorMsg, setError, clearError } = useError();
-  const [isError, setIsError] = useState<boolean>(false);
+  const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
   const [name, setName] = useState<ClientName | null>(null);
