@@ -2,12 +2,16 @@ import { useState } from 'react';
 
 const useError = () => {
   // default to unknown error
-  const [errorMsg, setErrorMsg] = useState('error unknown');
+  const [errorMsg, setErrorMsg] = useState('');
   const [isError, setIsError] = useState(false);
 
   const setError = (error: unknown) => {
-    if (error && error instanceof Error) setErrorMsg(error.message);
-    if (error) setIsError(true);
+    if (error) {
+      setIsError(true);
+      if (error instanceof Error) {
+        setErrorMsg(error.message);
+      } else setErrorMsg('error unknown');
+    }
   };
 
   const clearError = () => {
