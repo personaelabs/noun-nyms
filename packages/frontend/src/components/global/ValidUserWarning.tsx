@@ -1,12 +1,13 @@
-import useUserInfo from '@/hooks/useUserInfo';
 import ConnectWallet from '../ConnectWallet';
 import { Modal } from './Modal';
 import { useAccount } from 'wagmi';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 export const ValidUserWarning = () => {
   const { address } = useAccount();
-  const { isValid } = useUserInfo({ address: address });
+  const { isValid } = useContext(UserContext) as UserContextType;
   const [showWarning, setShowWarning] = useState<boolean>(!isValid);
 
   useEffect(() => setShowWarning(!isValid), [address, isValid]);

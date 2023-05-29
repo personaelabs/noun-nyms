@@ -1,17 +1,17 @@
 import { Textarea } from './Textarea';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
 import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { NameSelect } from './NameSelect';
-import { ClientName, NameType } from '@/types/components';
+import { ClientName, NameType, UserContextType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
-import useUserInfo from '@/hooks/useUserInfo';
+import { UserContext } from '@/pages/_app';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -28,7 +28,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
-  const { isValid } = useUserInfo({ address: address });
+  const { isValid } = useContext(UserContext) as UserContextType;
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);

@@ -1,13 +1,13 @@
 import { useAccount } from 'wagmi';
 import { UserAvatar } from './global/UserAvatar';
-import { useState } from 'react';
-import useUserInfo from '@/hooks/useUserInfo';
-import { ClientName, NameType } from '@/types/components';
+import { useContext, useState } from 'react';
+import { ClientName, NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
+import { UserContext } from '@/pages/_app';
 
 export const MyProfile = () => {
   const { address } = useAccount();
-  const { nymOptions, isValid } = useUserInfo({ address: address });
+  const { nymOptions, isValid } = useContext(UserContext) as UserContextType;
   const { name } = useName({ userId: address });
 
   const [openProfile, setOpenProfile] = useState<boolean>(false);
@@ -17,9 +17,6 @@ export const MyProfile = () => {
       return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
     } else return '';
   };
-
-  console.log({ nymOptions });
-
   return (
     <>
       {address && isValid ? (

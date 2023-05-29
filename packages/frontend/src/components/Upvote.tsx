@@ -2,15 +2,15 @@ import { faAngleUp, faCircleUp, faSquare, faUpLong } from '@fortawesome/free-sol
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
-import { ClientUpvote } from '@/types/components';
+import { ClientUpvote, UserContextType } from '@/types/components';
 import { ReactNode } from 'react';
 import { WalletWarning } from './WalletWarning';
 import { Modal } from './global/Modal';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
-import useUserInfo from '@/hooks/useUserInfo';
+import { UserContext } from '@/pages/_app';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -23,7 +23,7 @@ interface UpvoteIconProps {
 export const Upvote = (props: UpvoteIconProps) => {
   const { upvotes, postId, col, children, onSuccess } = props;
   const { address } = useAccount();
-  const { isValid } = useUserInfo({ address: address });
+  const { isValid } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError, clearError, isError } = useError();
 
   const { signTypedDataAsync } = useSignTypedData();

@@ -1,5 +1,6 @@
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { IPostPreview } from '../api';
+import { Dispatch, SetStateAction } from 'react';
 
 export type PostProps = IPostPreview & {
   showUserHeader?: boolean;
@@ -47,4 +48,10 @@ export type ContentUserInput = {
   title: string;
   body: string;
   parentId: PrefixedHex;
+};
+
+export type UserContextType = {
+  nymOptions: ClientName[];
+  setNymOptions: Dispatch<SetStateAction<ClientName[]>>;
+  isValid: boolean;
 };
