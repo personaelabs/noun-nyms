@@ -11,6 +11,7 @@ import { WalletWarning } from '../WalletWarning';
 import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
+import useUserInfo from '@/hooks/useUserInfo';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -27,6 +28,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
+  const { isValid } = useUserInfo({ address: address });
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
@@ -44,7 +46,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   };
 
   const sendPost = async () => {
-    if (!address) {
+    if (!address || !isValid) {
       setShowWalletWarning(true);
       return;
     } else {
@@ -118,7 +120,9 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
             </div>
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            {address ? <NameSelect selectedName={name} setSelectedName={setName} /> : null}
+            {address && isValid ? (
+              <NameSelect selectedName={name} setSelectedName={setName} />
+            ) : null}
             <MainButton
               color="black"
               handler={sendPost}

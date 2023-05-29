@@ -1,4 +1,4 @@
-import WalletProvider from '@/components/example/Providers';
+import WalletProvider from '@/components/global/Providers';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function ConnectWallet() {

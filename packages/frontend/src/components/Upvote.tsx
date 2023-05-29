@@ -10,6 +10,7 @@ import { WalletWarning } from './WalletWarning';
 import { Modal } from './global/Modal';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
+import useUserInfo from '@/hooks/useUserInfo';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -22,6 +23,7 @@ interface UpvoteIconProps {
 export const Upvote = (props: UpvoteIconProps) => {
   const { upvotes, postId, col, children, onSuccess } = props;
   const { address } = useAccount();
+  const { isValid } = useUserInfo({ address: address });
   const { errorMsg, setError, clearError, isError } = useError();
 
   const { signTypedDataAsync } = useSignTypedData();
@@ -52,7 +54,7 @@ export const Upvote = (props: UpvoteIconProps) => {
   };
 
   const handleClick = () => {
-    if (!address) {
+    if (!address || !isValid) {
       setShowWalletWarning(true);
       return;
     }

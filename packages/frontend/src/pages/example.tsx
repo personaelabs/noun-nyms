@@ -1,6 +1,6 @@
 import PostMessage from '@/components/example/PostMessage';
 import Upvote from '@/components/example/Upvote';
-import ExampleProviders from '@/components/example/Providers';
+import ExampleProviders from '@/components/global/Providers';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function Example() {
