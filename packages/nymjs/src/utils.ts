@@ -394,3 +394,7 @@ export const recoverUpvotePubkey = (upvote: Upvote): string => {
 
   return `0x${pubKey.toString('hex')}`;
 };
+
+export const pubToPrefixedAddress = (pubKey: Buffer): PrefixedHex => {
+  return `0x${pubToAddress(pubKey).toString('hex')}`;
+};

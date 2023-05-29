@@ -1,11 +1,4 @@
-import {
-  DOMAIN,
-  NYM_CODE_TYPE,
-  CONTENT_MESSAGE_TYPES,
-  NymProofAuxiliary,
-  PublicInput,
-  Content,
-} from '../types';
+import { DOMAIN, CONTENT_MESSAGE_TYPES, NymProofAuxiliary, PublicInput, Content } from '../types';
 import wasm, { init } from '../wasm';
 import { Profiler } from './profiler';
 import {
@@ -17,9 +10,13 @@ import {
   serializePublicInput,
   serializeNymAttestation,
   toTypedNymName,
+  eip712MsgHash,
+  pubToPrefixedAddress,
 } from '../utils';
 import { EIP712TypedData } from '../types';
-import { MerkleProof } from '@personaelabs/spartan-ecdsa';
+import { MerkleProof, Tree, Poseidon } from '@personaelabs/spartan-ecdsa';
+import { ecrecover, fromRpcSig } from '@ethereumjs/util';
+import { INCONSISTENT_SIGNERS, INVALID_MERKLE_PROOF } from '../errors';
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL =
@@ -38,22 +35,41 @@ export class NymProver extends Profiler {
   circuit: string;
   witnessGenWasm: string;
   circuitBin?: Uint8Array;
+  poseidon: Poseidon;
 
   constructor(options: ProverConfig) {
     super({ enabled: options?.enableProfiler });
 
     this.circuit = options.circuitUrl || CIRCUIT_URL;
     this.witnessGenWasm = options.witnessGenWasm || WITNESS_GEN_WASM_URL;
+    this.poseidon = new Poseidon();
   }
 
   async initWasm() {
     await init();
   }
 
+  async initPoseidon() {
+    await this.poseidon.initWasm();
+  }
+
   async loadCircuit() {
     if (!this.circuitBin) {
       this.circuitBin = await loadCircuit(this.circuit);
     }
+  }
+
+  private verifyMerkleProf(proof: MerkleProof, pubKeyHash: bigint) {
+    const treeDepth = 20;
+    const tree = new Tree(treeDepth, this.poseidon);
+    if (!tree.verifyProof(proof, pubKeyHash)) {
+      throw new Error(INVALID_MERKLE_PROOF);
+    }
+  }
+
+  private recoverPubKey(sigStr: string, msgHash: Buffer): Buffer {
+    const sig = fromRpcSig(sigStr);
+    return ecrecover(msgHash, sig.v, sig.r, sig.s);
   }
 
   async prove(
@@ -73,6 +89,34 @@ export class NymProver extends Profiler {
     };
 
     const contentSig = computeEffECDSASig(contentSigStr, typedContentMessage);
+
+    // Verify that the signer of the nymSig and contentSig are the same
+
+    await this.initPoseidon();
+
+    // Recover the nym signer from the signature
+    const nymSigPubKey = this.recoverPubKey(
+      nymSigStr,
+      eip712MsgHash(typedNymName.domain, typedNymName.types, typedNymName.value),
+    );
+    // Recover the content signer from the signature
+    const contentSigPubKey = this.recoverPubKey(
+      contentSigStr,
+      eip712MsgHash(
+        typedContentMessage.domain,
+        typedContentMessage.types,
+        typedContentMessage.value,
+      ),
+    );
+
+    const nymSigAddr = pubToPrefixedAddress(nymSigPubKey);
+    const contentSigAddr = pubToPrefixedAddress(contentSigPubKey);
+    if (nymSigAddr !== contentSigAddr) {
+      throw new Error(INCONSISTENT_SIGNERS(nymSigAddr, contentSigAddr));
+    }
+
+    this.verifyMerkleProf(membershipProof, this.poseidon.hashPubKey(nymSigPubKey));
+
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 
     this.time('generate witness');
