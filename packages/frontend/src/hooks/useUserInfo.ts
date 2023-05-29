@@ -39,8 +39,6 @@ const useUserInfo = ({ address }: { address?: PrefixedHex }) => {
   const [nymOptions, setNymOptions] = useState<ClientName[]>(getNymOptions(address));
   const [isValid, setIsValid] = useState(true);
 
-  console.log({ nymOptions });
-
   useEffect(() => {
     async function determineValidUser() {
       const valid = address ? await isValidMember(address) : true;
