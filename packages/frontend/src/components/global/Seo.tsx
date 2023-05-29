@@ -14,7 +14,7 @@ export function Seo(props: SeoProps) {
   return (
     <NextSeo
       // Title tbd
-      title={title}
+      title={TITLE}
       description={description}
       openGraph={{
         title,

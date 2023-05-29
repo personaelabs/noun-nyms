@@ -1,7 +1,7 @@
 import { ClientName, LocalNym, NameType } from '@/types/components';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface TempGroup {
   members: {
