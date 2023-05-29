@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPostWithReplies } from '@/types/api';
 import { PostWithRepliesProps } from '@/types/components';
@@ -25,6 +25,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const fromRoot = true;
   const { errorMsg, setError } = useError();
 
+  //array of keys for additional data queries. each key is an array of strings corresponding to the path of the data from the root
+  const [additionalDataKeys, setAdditionalDataKeys] = useState<string[][]>([]);
+
+  const baseQueryKey = ['post', postId, fromRoot];
   const {
     isLoading,
     isError,
@@ -54,20 +58,50 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     },
   });
 
+  const fetchAdditionalReplies = async (trail: string[]) => {
+    const newReplies = await getPostById(trail[trail.length - 1]);
+    return newReplies;
+  };
+
+  const additionalDataQueries = useQueries({
+    queries: additionalDataKeys.map((key) => ({
+      queryKey: [...baseQueryKey, key],
+      queryFn: () => fetchAdditionalReplies(key),
+      staleTime: Infinity, // Ensures the additional data is not re-fetched separately
+    })),
+  });
+
+  const combinedData = additionalDataQueries.reduce((acc: any, query: any, index) => {
+    const trail = additionalDataKeys[index];
+    // navigate to the replies of singlePost
+    let postToAddTo = acc;
+    for (let i = 0; i < trail.length; i++) {
+      postToAddTo = postToAddTo.replies.find((reply: IPostWithReplies) => reply.id === trail[i]);
+    }
+    if (postToAddTo) {
+      postToAddTo.replies = query.data.replies;
+    }
+    return acc;
+  }, singlePost);
+
+  console.log(`combinedData`, combinedData, singlePost);
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
       return resolveNestedReplyThreads(
-        singlePost.replies,
+        combinedData.replies,
         0,
         postsVisibilityMap,
         setPostsVisibilityMap,
         refetch,
+        [singlePost.id],
+        additionalDataKeys,
+        setAdditionalDataKeys,
         writerToShow,
       );
     } else {
       return <div></div>;
     }
-  }, [singlePost, postsVisibilityMap, refetch, writerToShow]);
+  }, [singlePost, combinedData, postsVisibilityMap, refetch, additionalDataKeys, writerToShow]);
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();

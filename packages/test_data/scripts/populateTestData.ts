@@ -287,6 +287,8 @@ const populateTestData = async () => {
     const data = testData[i];
 
     allPosts.push(...(await createPostWithReplies(null, null, 0, data, true)));
+    allPosts.push(...(await createPostWithReplies(null, null, 1, data, true)));
+    allPosts.push(...(await createPostWithReplies(null, null, 2, data, true)));
   }
   log('...done\n');
 
