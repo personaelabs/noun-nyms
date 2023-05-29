@@ -11,6 +11,7 @@ import { PostWithReplies } from './post/PostWithReplies';
 import { Header } from './Header';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
+import { useRouter } from 'next/router';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -21,6 +22,7 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
+  const router = useRouter();
 
   const {
     isLoading,
@@ -59,7 +61,13 @@ export default function Posts(props: PostsProps) {
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
       ) : null}
       {openPostId ? (
-        <PostWithReplies postId={openPostId} handleClose={() => setOpenPostId('')} />
+        <PostWithReplies
+          postId={openPostId}
+          handleClose={() => {
+            router.replace('/', undefined, { shallow: true });
+            setOpenPostId('');
+          }}
+        />
       ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
@@ -82,13 +90,23 @@ export default function Posts(props: PostsProps) {
                 <>
                   {posts.map((post) => (
                     <div className="flex gap-2" key={post.id}>
-                      <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={refetch}>
+                      <Upvote
+                        upvotes={post.upvotes}
+                        col={true}
+                        postId={post.id}
+                        onSuccess={refetch}
+                      >
                         <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                       </Upvote>
                       <PostPreview
                         {...post}
                         userId={post.userId}
-                        handleOpenPost={() => setOpenPostId(post.id)}
+                        handleOpenPost={() => {
+                          router.replace(window.location.href, `/posts/${post.id}`, {
+                            shallow: true,
+                          });
+                          setOpenPostId(post.id);
+                        }}
                         onSuccess={refetchAndScrollToPost}
                       />
                     </div>

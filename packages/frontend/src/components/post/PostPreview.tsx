@@ -3,6 +3,7 @@ import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { SingleReply } from './SingleReply';
 import useName from '@/hooks/useName';
+import { CopyLink } from './CopyLink';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -82,7 +83,10 @@ export const PostPreview = (postProps: PostProps) => {
             <span>{body}</span>
             <div className="flex justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
-              <ReplyCount count={_count.descendants} />
+              <div className="flex gap-4">
+                <ReplyCount count={_count.descendants} />
+                <CopyLink id={id} />
+              </div>
             </div>
           </>
         )}

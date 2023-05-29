@@ -65,7 +65,10 @@ export default function User() {
         <PostWithReplies
           writerToShow={writerToShow}
           postId={openPostId}
-          handleClose={() => setOpenPostId('')}
+          handleClose={() => {
+            router.replace('/', undefined, { shallow: true });
+            setOpenPostId('');
+          }}
         />
       ) : null}
       <main className="flex w-full flex-col justify-center items-center">
@@ -94,6 +97,9 @@ export default function User() {
                       key={post.id}
                       {...post}
                       handleOpenPost={(writerToShow: string) => {
+                        router.replace(window.location.href, `/posts/${post.id}`, {
+                          shallow: true,
+                        });
                         handleOpenPost(post.id, writerToShow);
                       }}
                       onSuccess={() => console.log('need to refetch here')}

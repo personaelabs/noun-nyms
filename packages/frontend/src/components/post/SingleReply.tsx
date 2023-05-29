@@ -4,6 +4,7 @@ import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { ClientUpvote } from '@/types/components';
 import { faReply } from '@fortawesome/free-solid-svg-icons';
+import { CopyLink } from './CopyLink';
 
 interface SingleReplyProps {
   id: string;
@@ -44,17 +45,18 @@ export const SingleReply = (props: SingleReplyProps) => {
           <div className="flex gap-4 justify-center items-center">
             <ReplyCount count={replyCount} />
             <div
-              className="flex gap-2 items-center cursor-pointer hoverIcon hover:underline"
+              className="flex gap-2 items-center cursor-pointer hoverIcon"
               onClick={(e) => {
                 e.stopPropagation();
                 handleReply(id);
               }}
             >
               <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
-              <p className="text-gray-700" style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}>
+              <p className="secondary" style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}>
                 Reply
               </p>
             </div>
+            <CopyLink id={id} />
           </div>
         </div>
         {children}
