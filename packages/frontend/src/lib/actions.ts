@@ -84,7 +84,7 @@ export const postPseudo = async (
 
     const merkleProof: MerkleProof = {
       pathIndices: userMerkleProof?.indices,
-      siblings: userMerkleProof?.path.map((sibling) => BigInt(sibling)),
+      siblings: userMerkleProof?.path.map((sibling) => [BigInt(sibling)]),
       root: BigInt(group.root),
     };
 
