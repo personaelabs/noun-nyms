@@ -3,7 +3,7 @@ import Posts from '@/components/Posts';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple } from '@/types/api/postSelectSimple';
 import { getSimplePost } from '../api/v1/utils';
-import { Seo } from '@/components/global/Seo';
+import { Seo, TITLE } from '@/components/global/Seo';
 
 // This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
@@ -25,10 +25,10 @@ const buildSeo = (post?: IPostSimple) => {
 export default function PostId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
-  const { title, description } = buildSeo(post);
+  const { description } = buildSeo(post);
   return (
     <>
-      <Seo title={title} description={description} />
+      <Seo title={TITLE} description={description} />
       {openPostId && <Posts initOpenPostId={openPostId} />}
     </>
   );
