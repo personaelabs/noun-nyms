@@ -59,7 +59,7 @@ export class NymProver extends Profiler {
     }
   }
 
-  private verifyMerkleProf(proof: MerkleProof, pubKeyHash: bigint) {
+  private verifyMerkleProof(proof: MerkleProof, pubKeyHash: bigint) {
     const treeDepth = 20;
     const tree = new Tree(treeDepth, this.poseidon);
     if (!tree.verifyProof(proof, pubKeyHash)) {
@@ -115,7 +115,7 @@ export class NymProver extends Profiler {
       throw new Error(INCONSISTENT_SIGNERS(nymSigAddr, contentSigAddr));
     }
 
-    this.verifyMerkleProf(membershipProof, this.poseidon.hashPubKey(nymSigPubKey));
+    this.verifyMerkleProof(membershipProof, this.poseidon.hashPubKey(nymSigPubKey));
 
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 
