@@ -6,7 +6,7 @@ import { SingleReply } from './SingleReply';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
-  innerReplies: React.ReactNode[];
+  innerReplies: React.ReactNode[] | React.ReactNode;
   proof: string;
   childrenLength: number;
   onSuccess: () => void;
@@ -15,11 +15,31 @@ interface IReplyProps extends IPostWithReplies {
 export const resolveNestedReplyThreads = (
   allPosts: IPostWithReplies[],
   depth: number,
+  postsVisibilityMap: Record<string, number> | undefined,
+  setPostsVisibility: any,
   onSuccess: () => void,
   writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
   const proof = '';
+  if (!postsVisibilityMap || (allPosts.length > 0 && !postsVisibilityMap[allPosts[0].id])) {
+    console.log(postsVisibilityMap);
+    return (
+      <div>
+        <button
+          onClick={() => {
+            const newPostsVisibility = { ...postsVisibilityMap };
+            allPosts.forEach((post) => {
+              newPostsVisibility[post.id] = 1;
+            });
+            setPostsVisibility(newPostsVisibility);
+          }}
+        >
+          Show more
+        </button>
+      </div>
+    );
+  }
   for (const post of allPosts) {
     console.log(`nest`, post.id);
     replyNodes.push(
@@ -28,7 +48,14 @@ export const resolveNestedReplyThreads = (
         key={post.id}
         showReplyWriter={writerToShow === post.id}
         depth={depth}
-        innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess, writerToShow)}
+        innerReplies={resolveNestedReplyThreads(
+          post.replies,
+          depth + 1,
+          postsVisibilityMap,
+          setPostsVisibility,
+          onSuccess,
+          writerToShow,
+        )}
         proof={proof}
         childrenLength={post.replies.length}
         onSuccess={onSuccess}

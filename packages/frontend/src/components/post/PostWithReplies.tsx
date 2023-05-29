@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
@@ -18,6 +18,9 @@ const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
+  const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number> | undefined>(
+    undefined,
+  );
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
@@ -29,7 +32,18 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     data: singlePost,
   } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId, fromRoot],
-    queryFn: () => getPostById(postId, fromRoot),
+    queryFn: async () => {
+      const posts = await getPostById(postId, fromRoot);
+      // initialize every post with value 0
+      const postsVisibilityData: Record<string, number> = {};
+      postsVisibilityData[posts.id] = 0;
+      // loop through all replies and initialize them with value 0
+      posts.replies.forEach((reply) => {
+        postsVisibilityData[reply.id] = 1;
+      });
+      setPostsVisibilityMap(postsVisibilityData);
+      return posts;
+    },
     retry: 1,
     enabled: true,
     staleTime: 5000,
@@ -42,11 +56,18 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0, refetch, writerToShow);
+      return resolveNestedReplyThreads(
+        singlePost.replies,
+        0,
+        postsVisibilityMap,
+        setPostsVisibilityMap,
+        refetch,
+        writerToShow,
+      );
     } else {
       return <div></div>;
     }
-  }, [singlePost, refetch, writerToShow]);
+  }, [singlePost, postsVisibilityMap, refetch, writerToShow]);
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
