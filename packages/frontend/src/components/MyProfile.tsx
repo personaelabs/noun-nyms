@@ -27,7 +27,7 @@ export const MyProfile = () => {
           <UserAvatar width={50} userId={address} />
           {openProfile ? (
             <div className="max-w-[150px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer p-2">
-              <p className="secondary">My identities</p>
+              <p className="secondary px-2">My identities</p>
               <div className="w-full flex justify-between gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100">
                 <div className="w-full flex justify-between items-center gap-2">
                   <div className="flex gap-2 w-full">
