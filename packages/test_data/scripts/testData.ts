@@ -21,7 +21,47 @@ const testData: TestData[] = [
           {
             title: '',
             body: "That's a great point! I've also heard of blockchain projects using energy-efficient consensus algorithms to reduce energy consumption.",
-            replies: [],
+            replies: [
+              {
+                title: '',
+                body: 'Deeper threading 1',
+                replies: [
+                  {
+                    title: '',
+                    body: 'Deeper threading 2',
+                    replies: [
+                      {
+                        title: '',
+                        body: 'Deeper threading 3',
+                        replies: [
+                          {
+                            title: '',
+                            body: 'Deeper threading 4',
+                            replies: [
+                              {
+                                title: '',
+                                body: 'Deeper threading 5',
+                                replies: [],
+                                attestationScheme: AttestationScheme.EIP712,
+                                upvotes: 10,
+                              },
+                            ],
+                            attestationScheme: AttestationScheme.EIP712,
+                            upvotes: 10,
+                          },
+                        ],
+                        attestationScheme: AttestationScheme.EIP712,
+                        upvotes: 10,
+                      },
+                    ],
+                    attestationScheme: AttestationScheme.EIP712,
+                    upvotes: 10,
+                  },
+                ],
+                attestationScheme: AttestationScheme.EIP712,
+                upvotes: 10,
+              },
+            ],
             attestationScheme: AttestationScheme.EIP712,
             upvotes: 10,
           },
