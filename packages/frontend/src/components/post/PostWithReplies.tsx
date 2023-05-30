@@ -59,11 +59,15 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   };
 
   useEffect(() => {
-    setTimeout(
-      () => document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-      500,
-    );
-  }, [postId]);
+    //if post is not the root, scroll to post
+    if (singlePost && singlePost.id !== postId) {
+      setTimeout(
+        () =>
+          document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        500,
+      );
+    }
+  }, [postId, singlePost]);
 
   return (
     <Modal startAtTop={true} handleClose={handleClose}>
