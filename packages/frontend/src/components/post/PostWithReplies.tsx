@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
+import _ from 'lodash';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -21,6 +22,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number> | undefined>(
     undefined,
   );
+  const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
+  const shouldRerenderThreads = useRef(false);
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
@@ -31,6 +34,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const baseQueryKey = ['post', postId, fromRoot];
   const {
     isLoading,
+    isSuccess,
     isError,
     refetch,
     data: singlePost,
@@ -65,30 +69,54 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const additionalDataQueries = useQueries({
     queries: additionalDataKeys.map((key) => ({
-      queryKey: [...baseQueryKey, key],
-      queryFn: () => fetchAdditionalReplies(key),
+      queryKey: [...baseQueryKey, ...key],
+      queryFn: async () => fetchAdditionalReplies(key),
       staleTime: Infinity, // Ensures the additional data is not re-fetched separately
     })),
   });
 
-  const combinedData = additionalDataQueries.reduce((acc: any, query: any, index) => {
-    const trail = additionalDataKeys[index];
-    // navigate to the replies of singlePost
-    let postToAddTo = acc;
-    for (let i = 0; i < trail.length; i++) {
-      postToAddTo = postToAddTo.replies.find((reply: IPostWithReplies) => reply.id === trail[i]);
+  useEffect(() => {
+    if (isSuccess) {
+      setCombinedData(singlePost);
     }
-    if (postToAddTo) {
-      postToAddTo.replies = query.data.replies;
-    }
-    return acc;
-  }, singlePost);
+  }, [isSuccess, singlePost]);
 
-  console.log(`combinedData`, combinedData, singlePost);
+  useEffect(() => {
+    const data = combinedData ? _.cloneDeep(combinedData) : _.cloneDeep(singlePost);
+    // check every additionalDataQueries has been fetched
+    if (
+      additionalDataQueries.length > 0 &&
+      shouldRerenderThreads.current &&
+      additionalDataQueries.every((query) => {
+        return query.isSuccess;
+      })
+    ) {
+      const testing = additionalDataQueries.reduce((acc: any, query: any, index) => {
+        const trail = additionalDataKeys[index];
+        // navigate to the replies of singlePost
+        let postToAddTo = acc;
+        for (let i = 0; i < trail.length - 1; i++) {
+          if (postToAddTo.replies) {
+            postToAddTo = postToAddTo.replies.find(
+              (reply: IPostWithReplies) => reply.id === trail[i + 1],
+            );
+          }
+        }
+        if (postToAddTo) {
+          postToAddTo.replies = query.data.replies;
+        }
+        return acc;
+      }, data);
+      console.log('new: ', testing);
+      setCombinedData(testing);
+      shouldRerenderThreads.current = false;
+    }
+  }, [additionalDataKeys, additionalDataQueries, shouldRerenderThreads]);
+
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
       return resolveNestedReplyThreads(
-        combinedData.replies,
+        combinedData ? combinedData.replies : [],
         0,
         postsVisibilityMap,
         setPostsVisibilityMap,
@@ -96,6 +124,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         [singlePost.id],
         additionalDataKeys,
         setAdditionalDataKeys,
+        shouldRerenderThreads,
         writerToShow,
       );
     } else {

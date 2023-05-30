@@ -3,6 +3,7 @@ import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
+import { all } from 'axios';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -21,37 +22,53 @@ export const resolveNestedReplyThreads = (
   trail: string[],
   additionalDataKeys: string[][],
   setAdditionalDataKeys: any,
+  shouldRerenderThreads: MutableRefObject<boolean>,
   writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
-  const proof = '';
-  if (!postsVisibilityMap || (allPosts.length > 0 && !postsVisibilityMap[allPosts[0].id])) {
+
+  if (
+    !postsVisibilityMap ||
+    !allPosts ||
+    (allPosts.length > 0 && !postsVisibilityMap[allPosts[0].id])
+  ) {
     return (
       <div>
         <button
           onClick={() => {
-            if (depth % 5 === 0 && allPosts.length === 0) {
+            if (!allPosts) {
               const newKeys = [...additionalDataKeys];
+              console.log('trail', trail);
               newKeys.push(trail);
+              shouldRerenderThreads.current = true;
               setAdditionalDataKeys(newKeys);
+            } else {
+              const newPostsVisibility = { ...postsVisibilityMap };
+              allPosts.forEach((post) => {
+                newPostsVisibility[post.id] = 1;
+              });
+              setPostsVisibility(newPostsVisibility);
             }
-
-            const newPostsVisibility = { ...postsVisibilityMap };
-            allPosts.forEach((post) => {
-              newPostsVisibility[post.id] = 1;
-            });
-            setPostsVisibility(newPostsVisibility);
           }}
         >
-          {allPosts.length} more replies
+          {allPosts ? allPosts.length : 'View'} more replies
         </button>
       </div>
     );
   }
+
   for (const post of allPosts) {
-    console.log(`nest`, post.id);
     const newTrail = [...trail];
     newTrail.push(post.id);
+
+    // TODO: fix
+    const proof = '';
+
+    // if (!post.replies) {
+    //   const newKeys = [...additionalDataKeys];
+    //   newKeys.push(trail);
+    //   setAdditionalDataKeys(newKeys);
+    // }
 
     replyNodes.push(
       <NestedReply
@@ -68,10 +85,11 @@ export const resolveNestedReplyThreads = (
           newTrail,
           additionalDataKeys,
           setAdditionalDataKeys,
+          shouldRerenderThreads,
           writerToShow,
         )}
         proof={proof}
-        childrenLength={post.replies.length}
+        childrenLength={post.replies ? post.replies.length : 0}
         onSuccess={onSuccess}
       />,
     );
