@@ -116,10 +116,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         return acc;
       }, data);
 
-      console.log('new: ', newData);
       setCombinedData(newData);
       shouldRerenderThreads.current = false;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [additionalDataKeys, additionalDataQueries, shouldRerenderThreads]);
 
   const nestedComponentThreads = useMemo(() => {

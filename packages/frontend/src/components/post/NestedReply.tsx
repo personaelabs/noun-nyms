@@ -1,9 +1,8 @@
-import { MutableRefObject, useEffect, useRef, useState } from 'react';
+import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
-import { all } from 'axios';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -17,11 +16,11 @@ export const resolveNestedReplyThreads = (
   allPosts: IPostWithReplies[],
   depth: number,
   postsVisibilityMap: Record<string, number> | undefined,
-  setPostsVisibility: any,
+  setPostsVisibility: Dispatch<SetStateAction<Record<string, number> | undefined>>,
   onSuccess: () => void,
   trail: string[],
   additionalDataKeys: string[][],
-  setAdditionalDataKeys: any,
+  setAdditionalDataKeys: Dispatch<SetStateAction<string[][]>>,
   shouldRerenderThreads: MutableRefObject<boolean>,
   writerToShow?: string,
 ) => {
@@ -38,7 +37,6 @@ export const resolveNestedReplyThreads = (
           onClick={() => {
             if (!allPosts) {
               const newKeys = [...additionalDataKeys];
-              console.log('trail', trail);
               newKeys.push(trail);
               shouldRerenderThreads.current = true;
               setAdditionalDataKeys(newKeys);
