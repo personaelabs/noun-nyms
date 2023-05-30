@@ -7,8 +7,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ipfs.io',
-        port: '',
+        hostname: '*',
       },
     ],
   },
