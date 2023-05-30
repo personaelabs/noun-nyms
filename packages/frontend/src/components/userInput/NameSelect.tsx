@@ -1,12 +1,12 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
-import { ClientName, LocalNym, NameType } from '@/types/components';
+import { ClientName, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { useAccount } from 'wagmi';
-import useUserInfo from '@/hooks/useUserInfo';
+import { UserContext } from '@/pages/_app';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -17,8 +17,8 @@ export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName } = props;
   const divRef = useRef<HTMLDivElement>(null);
   const { address } = useAccount();
-  const { nymOptions, setNymOptions } = useUserInfo({ address: address });
 
+  const { nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
   const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
@@ -33,7 +33,7 @@ export const NameSelect = (props: NameSelectProps) => {
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
-    setSelectedName(nymOptions.length > 0 ? nymOptions[0] : null);
+    setSelectedName(nymOptions.length > 0 ? nymOptions[nymOptions.length - 1] : null);
     const handleOutsideClick = (event: MouseEvent) => {
       if (divRef.current && !divRef.current.contains(event.target as Node)) {
         setOpenSelect(false);

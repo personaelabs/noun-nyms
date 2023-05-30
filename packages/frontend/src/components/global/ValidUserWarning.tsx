@@ -1,15 +1,18 @@
-import useUserInfo from '@/hooks/useUserInfo';
 import ConnectWallet from '../ConnectWallet';
 import { Modal } from './Modal';
 import { useAccount } from 'wagmi';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 export const ValidUserWarning = () => {
   const { address } = useAccount();
-  const { isValid } = useUserInfo({ address: address });
-  const [showWarning, setShowWarning] = useState<boolean>(!isValid);
+  const { isValid } = useContext(UserContext) as UserContextType;
+  const [showWarning, setShowWarning] = useState<boolean>(false);
 
-  useEffect(() => setShowWarning(!isValid), [address, isValid]);
+  // disable warning when account changes and then reset it once isValid changes
+  useEffect(() => setShowWarning(false), [address]);
+  useEffect(() => setShowWarning(!isValid), [isValid]);
 
   return (
     <>
