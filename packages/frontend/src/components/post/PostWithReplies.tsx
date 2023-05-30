@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
@@ -57,6 +57,13 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       }, 300);
     }
   };
+
+  useEffect(() => {
+    setTimeout(
+      () => document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+      500,
+    );
+  }, [postId]);
 
   return (
     <Modal startAtTop={true} handleClose={handleClose}>
