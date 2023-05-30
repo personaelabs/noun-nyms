@@ -40,7 +40,13 @@ const sortUsers = (users: UserPostCounts[] | undefined, query: string) => {
   const queryString = query as keyof UserPostCounts;
   return users
     ? users.sort((a, b) => {
-        return (b[queryString] as number) - (a[queryString] as number);
+        if (queryString === 'lastActive') {
+          const val1 = b['lastActive'] || new Date();
+          const val2 = a['lastActive'] || new Date();
+
+          return Number(new Date(val1)) - Number(new Date(val2));
+        }
+        return Number(b[queryString]) - Number(a[queryString]);
       })
     : users;
 };
@@ -74,107 +80,105 @@ export default function Users() {
 
   const sortedUsers = useMemo(() => sortUsers(filteredUsers, sort), [filteredUsers, sort]);
 
+  console.log({ sortedUsers });
+
   return (
     <main>
-      <h1>Users</h1>
-      <br></br>
       <Header />
-      <main>
-        <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-          <div className="bg-gray-50 min-h-screen w-full">
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              <div className="flex justify-between">
-                <h3>Users</h3>
-                <input
-                  className="outline-none bg-white px-2"
-                  type="text"
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(event) => {
-                    setSearchQuery(event.target.value);
-                    filterBySearch(filteredUsers, searchQuery);
-                  }}
-                />
-              </div>
-              {isLoading ? (
-                <Spinner />
-              ) : users && filteredUsers ? (
-                <>
-                  <div className="flex justify-between">
-                    <div className="flex gap-4">
-                      {Object.values(Filter).map((f) => (
-                        <button
-                          key={f}
-                          className={`${
-                            Filter[f] === filter ? 'bg-gray-200' : 'bg-transparent'
-                          } hover:bg-gray-200 px-4 py-2 rounded-xl`}
-                          onClick={() => setFilter(f)}
-                        >
-                          <p className="font-semibold text-gray-500">{f}</p>
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-1 items-center">
-                      <p className="text-gray-500">Sort by</p>
-                      <select
-                        className="outline-none bg-transparent font-semibold"
-                        value={sort}
-                        onChange={(e) => setSort(e.target.value)}
-                      >
-                        {Object.keys(sortOptions).map((s) => (
-                          <option key={s} value={s}>
-                            {sortOptions[s]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  {sortedUsers && sortedUsers.length > 0 ? (
-                    sortedUsers.map((u) => (
-                      <a
-                        href={`/users/${u.userId}`}
-                        className="outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
-                        key={u.userId}
-                      >
-                        <div className="hover:no-underline">
-                          <UserTag
-                            hideLink={true}
-                            avatarWidth={50}
-                            userId={u.userId}
-                            lastActive={u.lastActive}
-                          ></UserTag>
-                        </div>
-                        <div className="flex gap-4">
-                          <span className="m-auto">
-                            <strong>{u.numPosts}</strong>
-                            {' Posts'}
-                          </span>
-                          <span className="m-auto">
-                            <strong>{u.numReplies}</strong>
-                            {' Replies'}
-                          </span>
-                          <span className="m-auto">
-                            <strong>{u.upvotes}</strong>
-                            {' Votes'}
-                          </span>
-                        </div>
-                      </a>
-                    ))
-                  ) : (
-                    <p className="text-center">No Users Found</p>
-                  )}
-                </>
-              ) : (
-                <RetryError
-                  message="Could not fetch users."
-                  error={errorMsg}
-                  refetchHandler={refetch}
-                />
-              )}
+      <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
+        <div className="bg-gray-50 min-h-screen w-full">
+          <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+            <div className="flex justify-between">
+              <h3>Users</h3>
+              <input
+                className="outline-none bg-white px-2"
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  filterBySearch(filteredUsers, searchQuery);
+                }}
+              />
             </div>
+            {isLoading ? (
+              <Spinner />
+            ) : users && filteredUsers ? (
+              <>
+                <div className="flex justify-between">
+                  <div className="flex gap-4">
+                    {Object.values(Filter).map((f) => (
+                      <button
+                        key={f}
+                        className={`${
+                          Filter[f] === filter ? 'bg-gray-200' : 'bg-transparent'
+                        } hover:bg-gray-200 px-4 py-2 rounded-xl`}
+                        onClick={() => setFilter(f)}
+                      >
+                        <p className="font-semibold text-gray-500">{f}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-1 items-center">
+                    <p className="text-gray-500">Sort by</p>
+                    <select
+                      className="outline-none bg-transparent font-semibold"
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
+                    >
+                      {Object.keys(sortOptions).map((s) => (
+                        <option key={s} value={s}>
+                          {sortOptions[s]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                {sortedUsers && sortedUsers.length > 0 ? (
+                  sortedUsers.map((u) => (
+                    <a
+                      href={`/users/${u.userId}`}
+                      className="outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+                      key={u.userId}
+                    >
+                      <div className="hover:no-underline">
+                        <UserTag
+                          hideLink={true}
+                          avatarWidth={50}
+                          userId={u.userId}
+                          lastActive={u.lastActive}
+                        ></UserTag>
+                      </div>
+                      <div className="flex gap-4">
+                        <span className="m-auto">
+                          <strong>{u.numPosts}</strong>
+                          {' Posts'}
+                        </span>
+                        <span className="m-auto">
+                          <strong>{u.numReplies}</strong>
+                          {' Replies'}
+                        </span>
+                        <span className="m-auto">
+                          <strong>{u.upvotes}</strong>
+                          {' Votes'}
+                        </span>
+                      </div>
+                    </a>
+                  ))
+                ) : (
+                  <p className="text-center">No Users Found</p>
+                )}
+              </>
+            ) : (
+              <RetryError
+                message="Could not fetch users."
+                error={errorMsg}
+                refetchHandler={refetch}
+              />
+            )}
           </div>
         </div>
-      </main>
+      </div>
     </main>
   );
 }
