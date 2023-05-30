@@ -1,19 +1,19 @@
 import ConnectWallet from './ConnectWallet';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import logo from '../../public/logo.svg';
 import { MyProfile } from './MyProfile';
+import Image from 'next/image';
 
 export const Header = () => {
   return (
     <div className="bg-black dots w-full">
       <div className="flex flex-col gap-2 pt-8">
         <nav className="w-full px-6 flex justify-between items-center">
-          <div className="flex gap-2 items-center">
-            <a href={'/'}>
-              <FontAwesomeIcon icon={faHome} className="fa-xl" color="#ffffff" />
-            </a>
+          <a className="flex gap-2 items-center" href={'/'}>
+            <div>
+              <Image src={logo} alt="logo" />
+            </div>
             <h3 className="text-white">PseudoNym</h3>
-          </div>
+          </a>
           <div className="flex gap-2 items-center">
             <ConnectWallet />
             <MyProfile />
