@@ -59,13 +59,14 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
         if (parentId === '0x0' && !title) throw new Error('title cannot be empty');
         let result = undefined;
         if (name.type === NameType.DOXED) {
-          result = await postDoxed({ title, body, parentId }, signTypedDataAsync);
+          result = await postDoxed({ title, body, parentId }, signTypedDataAsync, signedHandler);
         } else if (name.type === NameType.PSEUDO && name.name) {
           result = await postPseudo(
             name.name,
             name.nymSig,
             { title, body, parentId },
             signTypedDataAsync,
+            signedHandler,
           );
         } else throw new Error('must select a valid identity to post');
         onSuccess(result?.data.postId);
@@ -129,7 +130,15 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
               loading={sendingPost}
               message={'Send'}
               disabled={!body || (parentId === '0x0' && !title)}
-            />
+            >
+              {hasSignedPost ? (
+                <p>
+                  Proving<span className="dot1">.</span>
+                  <span className="dot2">.</span>
+                  <span className="dot3">.</span>
+                </p>
+              ) : null}
+            </MainButton>
           </div>
         </div>
       ) : null}
