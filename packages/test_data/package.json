@@ -15,9 +15,10 @@
     "@personaelabs/nymjs": "*",
     "@personaelabs/spartan-ecdsa": "^2.1.4",
     "@prisma/client": "4.5.0",
-    "prisma": "4.5.0",
     "dotenv": "^16.0.3",
+    "prisma": "4.5.0",
     "ts-node": "10.9.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "csv-parser": "^3.0.0"
   }
 }

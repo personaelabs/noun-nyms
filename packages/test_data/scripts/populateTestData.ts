@@ -36,6 +36,29 @@ import {
   deserializeNymAttestation,
 } from '@personaelabs/nymjs';
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import * as fs from 'fs';
+import csvParser from 'csv-parser';
+
+type CachedEOA = {
+  address: string;
+  pubkey: string;
+};
+
+const readFile = (filePath: string): Promise<CachedEOA[]> =>
+  new Promise((resolve, reject) => {
+    const result: CachedEOA[] = [];
+    fs.createReadStream(filePath)
+      .pipe(csvParser())
+      .on('data', (row: any) => {
+        result.push(row);
+      })
+      .on('end', () => {
+        resolve(result);
+      })
+      .on('error', () => {
+        reject();
+      });
+  });
 
 type PostExt = {
   upvotes: number;
@@ -62,24 +85,24 @@ const log = (msg: string) => {
 
 const DEV_PUBKEYS = [
   // personaelabs.eth
-  '37c6ebdcb07fe1e007aa748a9368fd96961aeceb291c2183541d1a5b8c1ba65349000a7a69d17576f1fa65d728741f6e4b9dba9465073b1f99ec185c060a5f74',
+  //  '37c6ebdcb07fe1e007aa748a9368fd96961aeceb291c2183541d1a5b8c1ba65349000a7a69d17576f1fa65d728741f6e4b9dba9465073b1f99ec185c060a5f74',
   // cha0sg0d.eth
   '2e1869b4aa4611eff68043fb8bfecf9e58a6252cf3de6547167099a3124345c0372b2a0edc636444c0718b53c76da503e3619e82bb4f0e2e34cbc02a84ad18d3',
   // amirbolous.eth
   '3ba0d5397de63df8884014d446fd68318345f236cfe3f808ae879dedb471fdb2673e0be282cbf9a422333c36afa2b5e6dc815bbb40e9cd0dc7df5179759d1383',
   // dantehrani.eth
-  '765b012d6340fd3baf3068e3e118a68a559b832af2d9ddd05585fedcf9f9c2a95a65f71708281d9e1517e28c3643fa932d7675a233d8cc4edc3440c10684cd95',
+  //  '765b012d6340fd3baf3068e3e118a68a559b832af2d9ddd05585fedcf9f9c2a95a65f71708281d9e1517e28c3643fa932d7675a233d8cc4edc3440c10684cd95',
 ].map((pubKey) => Buffer.from(pubKey, 'hex'));
 
 const DEV_ADDRESSES = [
   // personaelabs.eth
-  '141b63D93DaF55bfb7F396eEe6114F3A5d4A90B2',
+  //  '141b63D93DaF55bfb7F396eEe6114F3A5d4A90B2',
   // cha0sg0d.eth
   '3ff4EcB0D7A01235dcCD9fc59B0d4969Cb011032',
   // amirbolous.eth
   '926B47C42Ce6BC92242c080CF8fAFEd34a164017',
   // dantehrani.eth
-  '400EA6522867456E988235675b9Cb5b1Cf5b79C8',
+  //  '400EA6522867456E988235675b9Cb5b1Cf5b79C8',
 ];
 
 // Sanity check
@@ -125,6 +148,17 @@ const populateTestData = async () => {
   // Get the public key hashes of the dev accounts
   for (let i = 0; i < DEV_PUBKEYS.length; i++) {
     pubKeyHashes.push(poseidon.hashPubKey(DEV_PUBKEYS[i]));
+  }
+
+  // Get the pub key hashes of the nouners
+  const nouners = (await readFile(path.join(__dirname, '../../../cache/cached-eoas.csv'))).filter(
+    // Some dev addresses might be cached as a nouner, so we filter them out
+    (nouner) => !DEV_ADDRESSES.includes(nouner.address.toLowerCase()),
+  );
+
+  for (let i = 0; i < nouners.length; i++) {
+    const nouner = nouners[i];
+    pubKeyHashes.push(poseidon.hashPubKey(Buffer.from(nouner.pubkey.replace('0x', ''), 'hex')));
   }
 
   // Insert all public key hashes into the tree
@@ -379,6 +413,19 @@ const populateTestData = async () => {
       return {
         address: `0x${pubToAddress(pubKey).toString('hex')}`,
         pubkey: `0x${pubKey.toString('hex')}`,
+        path: merkleProof.siblings.map((sibling) => `${sibling.toString()}`),
+        indices: merkleProof.pathIndices.map((index) => index.toString()),
+        type: GroupType.OneNoun,
+      };
+    }),
+
+    ...nouners.map((nouner, i) => {
+      const merkleProof = tree.createProof(
+        tree.indexOf(pubKeyHashes[DEV_PUBKEYS.length + PRIV_KEYS.length + i]),
+      );
+      return {
+        address: nouner.address,
+        pubkey: nouner.pubkey,
         path: merkleProof.siblings.map((sibling) => `${sibling.toString()}`),
         indices: merkleProof.pathIndices.map((index) => index.toString()),
         type: GroupType.OneNoun,
