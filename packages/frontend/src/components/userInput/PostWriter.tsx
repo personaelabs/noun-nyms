@@ -12,6 +12,7 @@ import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
+import useProver from '@/hooks/useProver';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -32,6 +33,9 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
+  const prover = useProver({
+    enableProfiler: true,
+  });
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -62,6 +66,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
           result = await postDoxed({ title, body, parentId }, signTypedDataAsync, signedHandler);
         } else if (name.type === NameType.PSEUDO && name.name) {
           result = await postPseudo(
+            prover,
             name.name,
             name.nymSig,
             { title, body, parentId },
