@@ -4,7 +4,7 @@ import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
@@ -12,6 +12,9 @@ import { Header } from './Header';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { useRouter } from 'next/router';
+import { Modal } from './global/Modal';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -23,6 +26,7 @@ export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
   const router = useRouter();
+  const { isMobile } = useContext(UserContext) as UserContextType;
 
   const {
     isLoading,
@@ -61,13 +65,15 @@ export default function Posts(props: PostsProps) {
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
       ) : null}
       {openPostId ? (
-        <PostWithReplies
-          postId={openPostId}
+        <Modal
+          startAtTop={true}
           handleClose={() => {
             router.replace('/', undefined, { shallow: true });
             setOpenPostId('');
           }}
-        />
+        >
+          <PostWithReplies postId={openPostId} />
+        </Modal>
       ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
@@ -102,10 +108,11 @@ export default function Posts(props: PostsProps) {
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => {
-                          router.replace(window.location.href, `/posts/${post.id}`, {
-                            shallow: true,
-                          });
-                          setOpenPostId(post.id);
+                          if (isMobile) router.push(`/posts/${post.id}`);
+                          else {
+                            router.replace(window.location.href, `/posts/${post.id}`);
+                            setOpenPostId(post.id);
+                          }
                         }}
                         onSuccess={refetchAndScrollToPost}
                       />

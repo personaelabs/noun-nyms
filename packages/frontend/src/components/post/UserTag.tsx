@@ -18,18 +18,18 @@ export const UserTag = (props: UserTagProps) => {
 
   return (
     // stop post modal from opening on click of user page link
-    <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
+    <div className="flex gap-2 items-center flex-wrap" onClick={(e) => e.stopPropagation()}>
       <UserAvatar
         type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
         userId={userId}
         width={avatarWidth || 30}
       />
-      <div className="flex flex-col gap-1 shrink-0">
+      <div className="flex flex-col gap-1 shrink overflow-hidden">
         {hideLink ? (
-          <p className="font-semibold">{name}</p>
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">{name}</p>
         ) : (
-          <a href={`/users/${userId}`} className="outline-none">
-            <p className="font-semibold hover:underline">{name}</p>
+          <a href={`/users/${userId}`} className="outline-none overflow-hidden">
+            <p className="text-ellipsis whitespace-nowrap font-semibold hover:underline">{name}</p>
           </a>
         )}
 

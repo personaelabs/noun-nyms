@@ -1,4 +1,5 @@
 import { Header } from '@/components/Header';
+import { Modal } from '@/components/global/Modal';
 import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
@@ -62,14 +63,15 @@ export default function User() {
     <>
       <Header />
       {openPost ? (
-        <PostWithReplies
-          writerToShow={writerToShow}
-          postId={openPostId}
+        <Modal
+          startAtTop={true}
           handleClose={() => {
             router.replace('/', undefined, { shallow: true });
             setOpenPostId('');
           }}
-        />
+        >
+          <PostWithReplies writerToShow={writerToShow} postId={openPostId} />
+        </Modal>
       ) : null}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
