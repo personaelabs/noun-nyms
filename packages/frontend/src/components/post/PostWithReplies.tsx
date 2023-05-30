@@ -91,10 +91,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         return query.isSuccess;
       })
     ) {
-      const testing = additionalDataQueries.reduce((acc: any, query: any, index) => {
+      const newData = additionalDataQueries.reduce((acc: any, query: any, index) => {
         const trail = additionalDataKeys[index];
         // navigate to the replies of singlePost
         let postToAddTo = acc;
+
         for (let i = 0; i < trail.length - 1; i++) {
           if (postToAddTo.replies) {
             postToAddTo = postToAddTo.replies.find(
@@ -102,13 +103,21 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             );
           }
         }
+
         if (postToAddTo) {
           postToAddTo.replies = query.data.replies;
+
+          const newPostsVisibility = { ...postsVisibilityMap };
+          query.data.replies.forEach((post: any) => {
+            newPostsVisibility[post.id] = 1;
+          });
+          setPostsVisibilityMap(newPostsVisibility);
         }
         return acc;
       }, data);
-      console.log('new: ', testing);
-      setCombinedData(testing);
+
+      console.log('new: ', newData);
+      setCombinedData(newData);
       shouldRerenderThreads.current = false;
     }
   }, [additionalDataKeys, additionalDataQueries, shouldRerenderThreads]);

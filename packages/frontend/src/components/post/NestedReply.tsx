@@ -64,12 +64,6 @@ export const resolveNestedReplyThreads = (
     // TODO: fix
     const proof = '';
 
-    // if (!post.replies) {
-    //   const newKeys = [...additionalDataKeys];
-    //   newKeys.push(trail);
-    //   setAdditionalDataKeys(newKeys);
-    // }
-
     replyNodes.push(
       <NestedReply
         {...post}
