@@ -4,7 +4,7 @@ import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
@@ -15,8 +15,24 @@ import { useRouter } from 'next/router';
 import { Modal } from './global/Modal';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import { Filters } from './post/Filters';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
+
+const sortPosts = (posts: IPostPreview[] | undefined, query: string) => {
+  return posts
+    ? posts.sort((a, b) => {
+        if (query === 'timestamp') {
+          const val1 = b[query] || new Date();
+          const val2 = a[query] || new Date();
+
+          return Number(new Date(val1)) - Number(new Date(val2));
+        } else if (query === 'upvotes') {
+          return Number(b[query].length) - Number(a[query].length);
+        } else return 0;
+      })
+    : posts;
+};
 
 interface PostsProps {
   initOpenPostId?: string;
@@ -59,6 +75,13 @@ export default function Posts(props: PostsProps) {
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
 
+  const filterOptions: { [key: string]: string } = {
+    timestamp: '⏳ Recent',
+    upvotes: '🔥 Top',
+  };
+  const [filter, setFilter] = useState<string>('timestamp');
+  const sortedPosts = useMemo(() => sortPosts(posts, filter), [posts, filter]);
+
   return (
     <>
       {newPostOpen ? (
@@ -80,21 +103,28 @@ export default function Posts(props: PostsProps) {
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
             <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              <div className="flex justify-end">
-                <MainButton
-                  color="#0E76FD"
-                  message="Start Discussion"
-                  loading={false}
-                  handler={() => setNewPostOpen(true)}
+              <div className="flex flex-col-reverse gap-4 sm:flex-row justify-center sm:justify-between items-center">
+                <Filters
+                  filters={filterOptions}
+                  selectedFilter={filter}
+                  setSelectedFilter={setFilter}
                 />
+                <div className="grow-0">
+                  <MainButton
+                    color="#0E76FD"
+                    message="Start Discussion"
+                    loading={false}
+                    handler={() => setNewPostOpen(true)}
+                  />
+                </div>
               </div>
               {isLoading ? (
                 <>
                   <Spinner />
                 </>
-              ) : posts ? (
+              ) : sortedPosts ? (
                 <>
-                  {posts.map((post) => (
+                  {sortedPosts.map((post) => (
                     <div className="w-full flex gap-2" key={post.id}>
                       <Upvote
                         upvotes={post.upvotes}

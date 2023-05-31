@@ -7,14 +7,15 @@ import { UserPostCounts } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useMemo, useState } from 'react';
+import { Filters } from '@/components/post/Filters';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
-enum Filter {
-  All = 'All',
-  Doxed = 'Doxed',
-  Pseudo = 'Pseudo',
-}
+const filterOptions: { [key: string]: string } = {
+  all: 'All',
+  doxed: 'Doxed',
+  pseudo: 'Pseudo',
+};
 
 const sortOptions: { [key: string]: string } = {
   lastActive: 'Last Active',
@@ -30,10 +31,10 @@ const filterBySearch = (users: UserPostCounts[] | undefined, query: string) => {
   });
 };
 
-const filterUsers = (users: UserPostCounts[] | undefined, filter: Filter, searchQuery: string) => {
+const filterUsers = (users: UserPostCounts[] | undefined, filter: string, searchQuery: string) => {
   let searchResult = searchQuery ? filterBySearch(users, searchQuery) : users;
-  if (filter === Filter.All) return searchQuery ? filterBySearch(searchResult, searchQuery) : users;
-  else return searchResult?.filter((u) => u.doxed === (filter === Filter.Doxed));
+  if (filter === 'all') return searchQuery ? filterBySearch(searchResult, searchQuery) : users;
+  else return searchResult?.filter((u) => u.doxed === (filter === 'doxed'));
 };
 
 const sortUsers = (users: UserPostCounts[] | undefined, query: string) => {
@@ -69,7 +70,7 @@ export default function Users() {
     },
   });
 
-  const [filter, setFilter] = useState<Filter>(Filter.All);
+  const [filter, setFilter] = useState<string>('all');
   const [sort, setSort] = useState<string>('lastActive');
 
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -79,8 +80,6 @@ export default function Users() {
   );
 
   const sortedUsers = useMemo(() => sortUsers(filteredUsers, sort), [filteredUsers, sort]);
-
-  console.log({ sortedUsers });
 
   return (
     <main>
@@ -106,19 +105,11 @@ export default function Users() {
             ) : users && filteredUsers ? (
               <>
                 <div className="flex flex-col sm:flex-row gap-4 justify-between">
-                  <div className="flex gap-4">
-                    {Object.values(Filter).map((f) => (
-                      <button
-                        key={f}
-                        className={`${
-                          Filter[f] === filter ? 'bg-gray-200' : 'bg-transparent'
-                        } hover:bg-gray-200 px-4 py-2 rounded-xl`}
-                        onClick={() => setFilter(f)}
-                      >
-                        <p className="font-semibold text-gray-500">{f}</p>
-                      </button>
-                    ))}
-                  </div>
+                  <Filters
+                    filters={filterOptions}
+                    selectedFilter={filter}
+                    setSelectedFilter={setFilter}
+                  />
                   <div className="flex gap-1 items-center">
                     <p className="text-gray-500">Sort by</p>
                     <select

@@ -8,6 +8,9 @@ import { UserContext } from '../_app';
 import { UserContextType } from '@/types/components';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
 import { useContext } from 'react';
+import { Header } from '@/components/Header';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 // This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
@@ -36,7 +39,14 @@ export default function PostId({ post }: { post?: IPostSimple }) {
       <Seo title={TITLE} description={description} />
       {openPostId &&
         (isMobile ? (
-          <PostWithReplies postId={openPostId} />
+          <>
+            <Header />
+            <a className="flex px-8 pt-6 gap-1 items-center underline" href={'/'}>
+              <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
+              <p>All posts</p>
+            </a>
+            <PostWithReplies postId={openPostId} />
+          </>
         ) : (
           <Posts initOpenPostId={openPostId} />
         ))}
