@@ -6,7 +6,7 @@ import Image from 'next/image';
 export const Header = () => {
   return (
     <div className="bg-black dots w-full">
-      <div className="flex flex-col gap-2 pt-8">
+      <div className="flex flex-col gap-2 pt-6">
         <nav className="w-full px-6 flex justify-between items-center">
           <a className="flex gap-2 items-center" href={'/'}>
             <div>
