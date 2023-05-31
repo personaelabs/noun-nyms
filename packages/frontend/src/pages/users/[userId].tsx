@@ -82,7 +82,7 @@ export default function User() {
                   {userId && <UserAvatar userId={userId} width={75} />}
                 </div>
               </div>
-              {name && <h2>{name}</h2>}
+              {name && <h2 className="break-words">{name}</h2>}
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
                 {isLoading ? (
                   <Spinner />

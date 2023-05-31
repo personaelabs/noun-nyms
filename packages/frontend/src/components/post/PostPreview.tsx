@@ -39,20 +39,20 @@ export const PostPreview = (postProps: PostProps) => {
         {root ? (
           <div className="flex flex-col gap-2">
             <p>
-              <a href={`/users/${userId}`} className="postDetail hover:underline">
+              <a href={`/users/${userId}`} className="postDetail hover:underline break-words">
                 {userName}
               </a>
               <span className="secondary"> commented on </span>
               <span className="postDetail hover:underline">{root.title}</span>
             </p>
-            <a href={`/users/${root.userId}`} className="w-max secondary">
+            <a href={`/users/${root.userId}`} className="breakText secondary">
               Posted by <strong className="hover:underline">{rootName}</strong>
             </a>
           </div>
         ) : (
           <>
             {showUserHeader ? (
-              <p>
+              <p className="breakText">
                 <span className="secondary">Posted by </span>
                 <a href={`/users/${userId}`} className="postDetail hover:underline">
                   {userName}
@@ -81,7 +81,7 @@ export const PostPreview = (postProps: PostProps) => {
         ) : (
           <>
             <span>{body}</span>
-            <div className="flex justify-between items-center">
+            <div className="w-full flex gap-2 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
               <div className="flex gap-4">
                 <ReplyCount count={_count.descendants} />
