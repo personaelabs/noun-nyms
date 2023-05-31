@@ -41,10 +41,13 @@ export default function PostId({ post }: { post?: IPostSimple }) {
         (isMobile ? (
           <>
             <Header />
-            <a className="flex px-8 pt-6 gap-1 items-center underline" href={'/'}>
+            <div
+              className="flex px-8 pt-6 gap-1 items-center underline"
+              onClick={() => router.push('/')}
+            >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
               <p>All posts</p>
-            </a>
+            </div>
             <PostWithReplies postId={openPostId} />
           </>
         ) : (
