@@ -34,7 +34,7 @@ export const PostPreview = (postProps: PostProps) => {
       <div
         id={id}
         onClick={() => handleOpenPost('')}
-        className="rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+        className="min-w-0 grow rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer"
       >
         {root ? (
           <div className="flex flex-col gap-2">
@@ -81,7 +81,7 @@ export const PostPreview = (postProps: PostProps) => {
         ) : (
           <>
             <span>{body}</span>
-            <div className="w-full flex gap-2 justify-between items-center">
+            <div className="min-w-0 flex gap-2 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
               <div className="flex gap-4">
                 <ReplyCount count={_count.descendants} />

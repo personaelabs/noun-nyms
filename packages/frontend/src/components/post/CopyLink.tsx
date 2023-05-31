@@ -1,9 +1,12 @@
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 import { faCheck, faLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 export const CopyLink = (props: { id: string }) => {
   const { id } = props;
+  const { isMobile } = useContext(UserContext) as UserContextType;
 
   const [linkCopied, setLinkCopied] = useState<boolean>(false);
 
@@ -21,9 +24,11 @@ export const CopyLink = (props: { id: string }) => {
       }}
     >
       <FontAwesomeIcon icon={linkCopied ? faCheck : faLink} color={linkCopied ? '#0e76fd' : ''} />
-      <p className="secondary" style={{ fontWeight: linkCopied ? 'bold' : 'normal' }}>
-        {linkCopied ? 'Copied' : 'Copy Link'}
-      </p>
+      {!isMobile && (
+        <p className="secondary" style={{ fontWeight: linkCopied ? 'bold' : 'normal' }}>
+          {linkCopied ? 'Copied' : 'Copy Link'}
+        </p>
+      )}
     </div>
   );
 };

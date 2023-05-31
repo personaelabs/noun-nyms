@@ -95,7 +95,7 @@ export default function Posts(props: PostsProps) {
               ) : posts ? (
                 <>
                   {posts.map((post) => (
-                    <div className="flex gap-2" key={post.id}>
+                    <div className="w-full flex gap-2" key={post.id}>
                       <Upvote
                         upvotes={post.upvotes}
                         col={true}
