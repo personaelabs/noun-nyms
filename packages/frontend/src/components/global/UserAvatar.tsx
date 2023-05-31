@@ -47,7 +47,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
   const { name, isEns } = useName({ userId });
 
   const { data: avatarUrl } = useEnsAvatar({
-    name: 'jxom.eth', // TODO: replace with actual name
+    name: name || `personaelabs.eth`,
     enabled: isEns,
   });
 

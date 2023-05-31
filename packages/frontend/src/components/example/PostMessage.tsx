@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { NYM_CODE_TYPE, DOMAIN, PrefixedHex, NYM_CODE_WARNING } from '@personaelabs/nymjs';
-import { useSignTypedData, useAccount } from 'wagmi';
+import { useSignTypedData } from 'wagmi';
 import { ContentUserInput } from '@/types/components';
 import { postDoxed, postPseudo } from '@/lib/actions';
+import useAccount from '@/hooks/useAccount';
+import useProver from '@/hooks/useProver';
 
 const ExamplePost = () => {
-  const { address } = useAccount();
+  const { address, valid, error } = useAccount();
+  console.log({ valid, error });
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
     setHydrated(true);
   }, []);
+  const prover = useProver();
 
   const [nymName, setnymName] = useState<string>('');
   const [doxedContentInput, setDoxedContentInput] = useState<ContentUserInput>({
@@ -106,7 +110,7 @@ const ExamplePost = () => {
           />
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-            onClick={() => postPseudo(nymName, nymSig, nymContentInput, signTypedDataAsync)}
+            onClick={() => postPseudo(prover, nymName, nymSig, nymContentInput, signTypedDataAsync)}
             disabled={!nymSig ? true : false}
           >
             Submit a pseudonymous post

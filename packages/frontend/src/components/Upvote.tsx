@@ -2,14 +2,15 @@ import { faAngleUp, faCircleUp, faSquare, faUpLong } from '@fortawesome/free-sol
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
-import { ClientUpvote } from '@/types/components';
+import { ClientUpvote, UserContextType } from '@/types/components';
 import { ReactNode } from 'react';
 import { WalletWarning } from './WalletWarning';
 import { Modal } from './global/Modal';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
+import { UserContext } from '@/pages/_app';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -22,6 +23,7 @@ interface UpvoteIconProps {
 export const Upvote = (props: UpvoteIconProps) => {
   const { upvotes, postId, col, children, onSuccess } = props;
   const { address } = useAccount();
+  const { isValid } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError, clearError, isError } = useError();
 
   const { signTypedDataAsync } = useSignTypedData();
@@ -52,7 +54,7 @@ export const Upvote = (props: UpvoteIconProps) => {
   };
 
   const handleClick = () => {
-    if (!address) {
+    if (!address || !isValid) {
       setShowWalletWarning(true);
       return;
     }
@@ -88,10 +90,10 @@ export const Upvote = (props: UpvoteIconProps) => {
         }}
         className={`flex ${
           col ? 'flex-col' : 'flex-row'
-        } gap-2 justify-center items-center cursor-pointer`}
+        } gap-1 justify-center items-center cursor-pointer`}
       >
         <div className="hoverIcon">
-          <FontAwesomeIcon icon={faUpLong} color={hasUpvoted ? '#0e76fd' : ''} />
+          <FontAwesomeIcon icon={faCircleUp} color={hasUpvoted ? '#0e76fd' : ''} />
         </div>
         {children}
       </div>

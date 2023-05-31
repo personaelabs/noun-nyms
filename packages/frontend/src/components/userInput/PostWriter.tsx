@@ -1,16 +1,18 @@
 import { Textarea } from './Textarea';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useContext } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
 import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { NameSelect } from './NameSelect';
-import { ClientName, NameType } from '@/types/components';
+import { ClientName, NameType, UserContextType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
+import { UserContext } from '@/pages/_app';
+import useProver from '@/hooks/useProver';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -27,9 +29,13 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
+  const { isValid } = useContext(UserContext) as UserContextType;
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
+  const prover = useProver({
+    enableProfiler: true,
+  });
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -44,7 +50,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   };
 
   const sendPost = async () => {
-    if (!address) {
+    if (!address || !isValid) {
       setShowWalletWarning(true);
       return;
     } else {
@@ -57,13 +63,15 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
         if (parentId === '0x0' && !title) throw new Error('title cannot be empty');
         let result = undefined;
         if (name.type === NameType.DOXED) {
-          result = await postDoxed({ title, body, parentId }, signTypedDataAsync);
+          result = await postDoxed({ title, body, parentId }, signTypedDataAsync, signedHandler);
         } else if (name.type === NameType.PSEUDO && name.name) {
           result = await postPseudo(
+            prover,
             name.name,
             name.nymSig,
             { title, body, parentId },
             signTypedDataAsync,
+            signedHandler,
           );
         } else throw new Error('must select a valid identity to post');
         onSuccess(result?.data.postId);
@@ -118,14 +126,24 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
             </div>
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
-            {address ? <NameSelect selectedName={name} setSelectedName={setName} /> : null}
+            {address && isValid ? (
+              <NameSelect selectedName={name} setSelectedName={setName} />
+            ) : null}
             <MainButton
               color="black"
               handler={sendPost}
               loading={sendingPost}
               message={'Send'}
               disabled={!body || (parentId === '0x0' && !title)}
-            />
+            >
+              {hasSignedPost ? (
+                <p>
+                  Proving<span className="dot1">.</span>
+                  <span className="dot2">.</span>
+                  <span className="dot3">.</span>
+                </p>
+              ) : null}
+            </MainButton>
           </div>
         </div>
       ) : null}

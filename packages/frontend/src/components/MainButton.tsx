@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import Spinner from './global/Spinner';
 
 export const MainButton = (props: {
@@ -6,8 +7,9 @@ export const MainButton = (props: {
   loading: boolean;
   handler: () => void;
   disabled?: boolean;
+  children?: ReactNode;
 }) => {
-  const { color, message, loading, handler, disabled } = props;
+  const { color, message, loading, handler, disabled, children } = props;
 
   return (
     <button
@@ -19,7 +21,7 @@ export const MainButton = (props: {
       }}
       onClick={handler}
     >
-      {loading ? <Spinner /> : <p>{message}</p>}
+      {children ? children : loading ? <Spinner /> : <p>{message}</p>}
     </button>
   );
 };

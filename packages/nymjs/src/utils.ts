@@ -18,7 +18,7 @@ import {
   NYM_CODE_WARNING,
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
-import { PrefixedHexString, ecrecover, fromRpcSig } from '@ethereumjs/util';
+import { PrefixedHexString, ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
 import { computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
 import { EIP712TypedData, EffECDSASig, Post, PublicInput, NymProofAuxiliary } from './types';
 import wasm, { init } from './wasm';
@@ -401,4 +401,8 @@ export const recoverUpvotePubkey = (upvote: Upvote): string => {
   const pubKey = ecrecover(msgHash, v, r, s);
 
   return `0x${pubKey.toString('hex')}`;
+};
+
+export const pubToPrefixedAddress = (pubKey: Buffer): PrefixedHex => {
+  return `0x${pubToAddress(pubKey).toString('hex')}`;
 };

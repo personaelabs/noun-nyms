@@ -19,9 +19,12 @@ const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
+  // map of post id to visibility status, to keep track of which comments on the client to display and hide
   const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number> | undefined>(
     undefined,
   );
+  // combinedData is the tree of all posts including the root post and all replies as well as any additional
+  // deeper data that needed to be fetched and has been correctly added to the tree
   const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
   const shouldRerenderThreads = useRef(false);
   const { writerToShow, handleClose, postId } = postWithRepliesProps;
@@ -42,13 +45,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     queryKey: ['post', postId, fromRoot],
     queryFn: async () => {
       const posts = await getPostById(postId, fromRoot);
-      // initialize every post with value 0
       const postsVisibilityData: Record<string, number> = {};
       postsVisibilityData[posts.id] = 0;
-      // loop through all replies and initialize them with value 0
+
+      // loop through top-level replies and set them to be visible
       posts.replies.forEach((reply) => {
         postsVisibilityData[reply.id] = 1;
       });
+
       setPostsVisibilityMap(postsVisibilityData);
       return posts;
     },
@@ -83,7 +87,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   useEffect(() => {
     const data = combinedData ? _.cloneDeep(combinedData) : _.cloneDeep(singlePost);
-    // check every additionalDataQueries has been fetched
+    // check every additionalDataQueries has been fetched successfully and that we haven't already rerendered the threads
     if (
       additionalDataQueries.length > 0 &&
       shouldRerenderThreads.current &&
@@ -96,6 +100,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         // navigate to the replies of singlePost
         let postToAddTo = acc;
 
+        // for each new additional data query, we need to add this data to the correct post in the combinedData
+        // we navigate to the thread of the post we want to add to, and then add the replies to that post
         for (let i = 0; i < trail.length - 1; i++) {
           if (postToAddTo.replies) {
             postToAddTo = postToAddTo.replies.find(
@@ -107,6 +113,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         if (postToAddTo) {
           postToAddTo.replies = query.data.replies;
 
+          // set the first level of replies to be visible
           const newPostsVisibility = { ...postsVisibilityMap };
           query.data.replies.forEach((post: any) => {
             newPostsVisibility[post.id] = 1;
@@ -150,6 +157,17 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       }, 300);
     }
   };
+
+  useEffect(() => {
+    //if post is not the root, scroll to post
+    if (singlePost && singlePost.id !== postId) {
+      setTimeout(
+        () =>
+          document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        500,
+      );
+    }
+  }, [postId, singlePost]);
 
   return (
     <Modal startAtTop={true} handleClose={handleClose}>

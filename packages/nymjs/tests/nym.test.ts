@@ -14,6 +14,7 @@ import {
   toTypedUpvote,
   toUpvote,
   bigIntToPrefixedHex,
+  PrefixedHex,
 } from '../src/lib';
 import {
   ecsign,
@@ -22,8 +23,10 @@ import {
   pubToAddress,
   privateToPublic,
   ECDSASignature,
+  privateToAddress,
 } from '@ethereumjs/util';
 import { MerkleProof, Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import { INCONSISTENT_SIGNERS, INVALID_MERKLE_PROOF } from '../src/errors';
 
 describe('nym', () => {
   const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
@@ -128,6 +131,44 @@ describe('nym', () => {
           expect(proofValid).toBe(false);
 
           post.content.groupRoot = groupRoot;
+        });
+
+        it('should throw an error with a verbose message if the singer of the nymSig and contentSig are different', async () => {
+          const privKey = proverPrivKey;
+          privKey[0] += 1;
+          let err: any;
+          try {
+            const nymSigAnotherSigner = ecsign(nymNameMsgHash, privKey);
+            await prover.prove(
+              nymName,
+              content,
+              toRpcSig(nymSigAnotherSigner.v, nymSigAnotherSigner.r, nymSigAnotherSigner.s),
+              toRpcSig(contentMessageSig.v, contentMessageSig.r, contentMessageSig.s),
+              membershipProof,
+            );
+          } catch (_err: any) {
+            err = _err;
+          }
+          const nymSigner = `0x${privateToAddress(proverPrivKey).toString('hex')}` as PrefixedHex;
+          expect(err.message).toBe(INCONSISTENT_SIGNERS(nymSigner, `0x${proverAddress}`));
+        });
+
+        it('should throw an error with a verbose message if the Merkle proof is invalid', async () => {
+          let err: any;
+          try {
+            membershipProof.siblings[0][0] += BigInt(1);
+            await prover.prove(
+              nymName,
+              content,
+              toRpcSig(nymSig.v, nymSig.r, nymSig.s),
+              toRpcSig(contentMessageSig.v, contentMessageSig.r, contentMessageSig.s),
+              membershipProof,
+            );
+            membershipProof.siblings[0][0] -= BigInt(1);
+          } catch (_err: any) {
+            err = _err;
+          }
+          expect(err.message).toBe(INVALID_MERKLE_PROOF);
         });
 
         // TODO: test invalid public input

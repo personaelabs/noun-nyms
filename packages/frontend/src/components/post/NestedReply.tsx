@@ -36,11 +36,15 @@ export const resolveNestedReplyThreads = (
         <button
           onClick={() => {
             if (!allPosts) {
+              // this means we've hit the max depth of comments already loaded on the client
+              // and we may need to fetch deeper comments. we'll do this by adding the trail
+              // to the additionalDataKeys array, which will trigger a rerender of the component
               const newKeys = [...additionalDataKeys];
               newKeys.push(trail);
               shouldRerenderThreads.current = true;
               setAdditionalDataKeys(newKeys);
             } else {
+              // set posts at this depth to be visible
               const newPostsVisibility = { ...postsVisibilityMap };
               allPosts.forEach((post) => {
                 newPostsVisibility[post.id] = 1;
@@ -49,7 +53,7 @@ export const resolveNestedReplyThreads = (
             }
           }}
         >
-          {allPosts ? allPosts.length : 'View'} more replies
+          {allPosts ? allPosts.length : 'View'} more {allPosts?.length === 1 ? 'reply' : 'replies'}
         </button>
       </div>
     );
