@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -20,9 +20,7 @@ const getPostById = async (postId: string, fromRoot = false) =>
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   // map of post id to visibility status, to keep track of which comments on the client to display and hide
-  const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number> | undefined>(
-    undefined,
-  );
+  const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number>>({});
   // combinedData is the tree of all posts including the root post and all replies as well as any additional
   // deeper data that needed to be fetched and has been correctly added to the tree
   const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
@@ -45,15 +43,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     queryKey: ['post', postId, fromRoot],
     queryFn: async () => {
       const posts = await getPostById(postId, fromRoot);
-      const postsVisibilityData: Record<string, number> = {};
-      postsVisibilityData[posts.id] = 0;
-
-      // loop through top-level replies and set them to be visible
-      posts.replies.forEach((reply) => {
-        postsVisibilityData[reply.id] = 1;
-      });
-
-      setPostsVisibilityMap(postsVisibilityData);
       return posts;
     },
     retry: 1,
@@ -65,6 +54,18 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       setError(error);
     },
   });
+
+  const onPostSubmitSuccess = useCallback(
+    async (id?: string) => {
+      if (id) {
+        const newPostsVisibility = { ...postsVisibilityMap };
+        newPostsVisibility[id] = 1;
+        setPostsVisibilityMap(newPostsVisibility);
+      }
+      await refetch();
+    },
+    [postsVisibilityMap, refetch],
+  );
 
   const fetchAdditionalReplies = async (trail: string[]) => {
     const newReplies = await getPostById(trail[trail.length - 1]);
@@ -84,6 +85,20 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       setCombinedData(singlePost);
     }
   }, [isSuccess, singlePost]);
+
+  // to make sure top-level comments always load when the component is mounted
+  useEffect(() => {
+    const newPostsVisibility = { ...postsVisibilityMap };
+    if (combinedData) {
+      newPostsVisibility[combinedData.id] = 1;
+      combinedData.replies.forEach((reply) => {
+        newPostsVisibility[reply.id] = 1;
+      });
+      console.log('set from combined data');
+      setPostsVisibilityMap(newPostsVisibility);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combinedData]);
 
   useEffect(() => {
     const data = combinedData ? _.cloneDeep(combinedData) : _.cloneDeep(singlePost);
@@ -136,7 +151,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         0,
         postsVisibilityMap,
         setPostsVisibilityMap,
-        refetch,
+        onPostSubmitSuccess,
         [singlePost.id],
         additionalDataKeys,
         setAdditionalDataKeys,
@@ -146,7 +161,15 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     } else {
       return <div></div>;
     }
-  }, [singlePost, combinedData, postsVisibilityMap, refetch, additionalDataKeys, writerToShow]);
+  }, [
+    singlePost,
+    combinedData,
+    postsVisibilityMap,
+    setPostsVisibilityMap,
+    onPostSubmitSuccess,
+    additionalDataKeys,
+    writerToShow,
+  ]);
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();

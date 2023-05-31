@@ -9,15 +9,17 @@ interface IReplyProps extends IPostWithReplies {
   innerReplies: React.ReactNode[] | React.ReactNode;
   proof: string;
   childrenLength: number;
-  onSuccess: () => void;
+  postsVisibilityMap: Record<string, number>;
+  setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>;
+  onSuccess: (id?: string) => void;
   showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
   allPosts: IPostWithReplies[],
   depth: number,
-  postsVisibilityMap: Record<string, number> | undefined,
-  setPostsVisibility: Dispatch<SetStateAction<Record<string, number> | undefined>>,
-  onSuccess: () => void,
+  postsVisibilityMap: Record<string, number>,
+  setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>,
+  onSuccess: (id?: string) => void,
   trail: string[],
   additionalDataKeys: string[][],
   setAdditionalDataKeys: Dispatch<SetStateAction<string[][]>>,
@@ -26,11 +28,9 @@ export const resolveNestedReplyThreads = (
 ) => {
   const replyNodes: React.ReactNode[] = [];
 
-  if (
-    !postsVisibilityMap ||
-    !allPosts ||
-    (allPosts.length > 0 && !postsVisibilityMap[allPosts[0].id])
-  ) {
+  const postsToShow = allPosts?.filter((post) => postsVisibilityMap[post.id]);
+
+  if (!postsVisibilityMap || !allPosts || postsToShow.length === 0) {
     return (
       <div>
         <button
@@ -72,6 +72,8 @@ export const resolveNestedReplyThreads = (
         key={post.id}
         showReplyWriter={writerToShow === post.id}
         depth={depth}
+        postsVisibilityMap={postsVisibilityMap}
+        setPostsVisibility={setPostsVisibility}
         innerReplies={resolveNestedReplyThreads(
           post.replies,
           depth + 1,
@@ -103,6 +105,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
     depth,
     innerReplies,
     childrenLength,
+    postsVisibilityMap,
+    setPostsVisibility,
     onSuccess,
     showReplyWriter,
   } = replyProps;
@@ -114,8 +118,11 @@ export const NestedReply = (replyProps: IReplyProps) => {
   useEffect(() => {
     if (divRef.current && showReplyWriter) {
       setTimeout(() => divRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+      const newPostsVisibility = { ...postsVisibilityMap };
+      newPostsVisibility[id] = 1;
+      setPostsVisibility(newPostsVisibility);
     }
-  }, [showReplyWriter]);
+  }, [id, postsVisibilityMap, setPostsVisibility, showReplyWriter]);
 
   return (
     <div
