@@ -8,7 +8,6 @@ import { PrismaClient, GroupType } from "@prisma/client";
 import alchemy from "./alchemy";
 import { FormattedHex } from "./types";
 import { formatHex } from "./utils";
-import { privateToAddress, privateToPublic } from "@ethereumjs/util";
 
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
@@ -24,20 +23,6 @@ type AccountCode = {
   address: FormattedHex;
   code: FormattedHex;
 };
-
-const DEV_ACCOUNT_PRIV_KEYS = [
-  "0000000000000000000000000000000000000000000000000000000000000001",
-  "0000000000000000000000000000000000000000000000000000000000000002",
-  "0000000000000000000000000000000000000000000000000000000000000003",
-  "0000000000000000000000000000000000000000000000000000000000000004"
-].map(privKey => Buffer.from(privKey, "hex"));
-
-const DEV_ACCOUNTS = DEV_ACCOUNT_PRIV_KEYS.map(privKey => ({
-  address: formatHex(privateToAddress(privKey).toString("hex")),
-  pubKey: formatHex(privateToPublic(privKey).toString("hex")),
-  tokenBalance: 2,
-  delegatedVotes: null
-}));
 
 let poseidonInitialized = false;
 
@@ -197,8 +182,6 @@ async function writeTree(blockHeight: number) {
       }
     }
   }
-  // Add the dev account
-  allAccounts.push(...DEV_ACCOUNTS);
 
   console.timeEnd("Get pubkeys and multisig guardians");
 
@@ -306,7 +289,7 @@ async function writeTree(blockHeight: number) {
         return {
           address: account.address,
           pubkey: account.pubKey,
-          path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
+          path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.OneNoun
         };
@@ -338,7 +321,7 @@ async function writeTree(blockHeight: number) {
         return {
           address: account.address,
           pubkey: account.pubKey,
-          path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
+          path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.ManyNouns
         };
