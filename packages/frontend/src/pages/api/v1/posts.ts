@@ -45,7 +45,7 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPre
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
 
   const posts = await selectAndCleanPosts(undefined, skip, take);
-  res.setHeader('Cache-Control', 's-maxage=21600');
+  res.setHeader('Cache-Control', 's-maxage=1, stale-while-revalidate');
   res.send(posts);
 };
 
