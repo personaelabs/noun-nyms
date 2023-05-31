@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useMemo, useState } from 'react';
 import { Filters } from '@/components/post/Filters';
+import { SortSelect } from '@/components/post/SortSelect';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
@@ -112,17 +113,11 @@ export default function Users() {
                   />
                   <div className="flex gap-1 items-center">
                     <p className="text-gray-500">Sort by</p>
-                    <select
-                      className="outline-none bg-transparent font-semibold"
-                      value={sort}
-                      onChange={(e) => setSort(e.target.value)}
-                    >
-                      {Object.keys(sortOptions).map((s) => (
-                        <option key={s} value={s}>
-                          {sortOptions[s]}
-                        </option>
-                      ))}
-                    </select>
+                    <SortSelect
+                      options={sortOptions}
+                      selectedQuery={sort}
+                      setSelectedQuery={setSort}
+                    />
                   </div>
                 </div>
                 {sortedUsers && sortedUsers.length > 0 ? (

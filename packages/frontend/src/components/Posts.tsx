@@ -16,6 +16,7 @@ import { Modal } from './global/Modal';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
+import { SortSelect } from './post/SortSelect';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -102,13 +103,21 @@ export default function Posts(props: PostsProps) {
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              <div className="flex flex-col-reverse gap-4 sm:flex-row justify-center sm:justify-between items-center">
-                <Filters
-                  filters={filterOptions}
-                  selectedFilter={filter}
-                  setSelectedFilter={setFilter}
-                />
+            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-4 md:px-0">
+              <div className="flex flex-row-reverse md:flex-row justify-between">
+                {isMobile ? (
+                  <SortSelect
+                    options={filterOptions}
+                    selectedQuery={filter}
+                    setSelectedQuery={setFilter}
+                  />
+                ) : (
+                  <Filters
+                    filters={filterOptions}
+                    selectedFilter={filter}
+                    setSelectedFilter={setFilter}
+                  />
+                )}
                 <div className="grow-0">
                   <MainButton
                     color="#0E76FD"
