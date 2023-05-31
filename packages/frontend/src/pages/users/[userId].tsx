@@ -3,6 +3,7 @@ import { Modal } from '@/components/global/Modal';
 import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
+import { Filters } from '@/components/post/Filters';
 import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
 import useError from '@/hooks/useError';
@@ -27,6 +28,12 @@ export default function User() {
   const { errorMsg, setError } = useError();
   const userId = router.query.userId as string;
   const isDoxed = userId && isAddress(userId);
+
+  const filterOptions: { [key: string]: string } = {
+    all: 'All',
+    posts: 'Posts',
+    replies: 'Replies',
+  };
 
   // determine if post creator or replied to post (does post have a parent ID)
   const {
@@ -91,6 +98,7 @@ export default function User() {
                 </a>
                 {name && <h2 className="break-words">{name}</h2>}
               </div>
+
               <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10">
                 {isLoading ? (
                   <Spinner />
@@ -101,20 +109,27 @@ export default function User() {
                     refetchHandler={refetch}
                   />
                 ) : userPosts ? (
-                  userPosts.map((post) => (
-                    <PostPreview
-                      showUserHeader={true}
-                      key={post.id}
-                      {...post}
-                      handleOpenPost={(writerToShow: string) => {
-                        router.replace(window.location.href, `/posts/${post.id}`, {
-                          shallow: true,
-                        });
-                        handleOpenPost(post.id, writerToShow);
-                      }}
-                      onSuccess={() => console.log('need to refetch here')}
+                  <>
+                    <Filters
+                      filters={filterOptions}
+                      selectedFilter={'all'}
+                      setSelectedFilter={() => console.log('select this one')}
                     />
-                  ))
+                    {userPosts.map((post) => (
+                      <PostPreview
+                        showUserHeader={true}
+                        key={post.id}
+                        {...post}
+                        handleOpenPost={(writerToShow: string) => {
+                          router.replace(window.location.href, `/posts/${post.id}`, {
+                            shallow: true,
+                          });
+                          handleOpenPost(post.id, writerToShow);
+                        }}
+                        onSuccess={() => console.log('need to refetch here')}
+                      />
+                    ))}
+                  </>
                 ) : null}
               </div>
             </div>

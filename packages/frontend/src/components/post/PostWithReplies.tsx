@@ -93,7 +93,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
+          <div className="flex flex-col gap-8 w-full bg-gray-50 px-8 py-8">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}
