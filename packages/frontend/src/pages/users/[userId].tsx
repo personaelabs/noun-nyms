@@ -8,6 +8,8 @@ import { PostWithReplies } from '@/components/post/PostWithReplies';
 import useError from '@/hooks/useError';
 import useName from '@/hooks/useName';
 import { IPostPreview, IUserUpvote } from '@/types/api';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -76,14 +78,20 @@ export default function User() {
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
-            <div className="relative max-w-3xl mx-auto py-16 px-3 md:px-0">
-              <div className="absolute top-0 left-0 -translate-y-2/4 -translate-x-2/4">
+            <div className="relative max-w-3xl mx-auto py-16 px-6 md:px-0">
+              <div className="absolute top-0 left-4 -translate-y-2/4 md:-translate-x-2/4">
                 <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
                   {userId && <UserAvatar userId={userId} width={75} />}
                 </div>
               </div>
-              {name && <h2 className="break-words">{name}</h2>}
-              <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
+              <div className="flex flex-col gap-2">
+                <a className="flex gap-1 items-center hover:underline" href={'/users'}>
+                  <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
+                  <p>All users</p>
+                </a>
+                {name && <h2 className="break-words">{name}</h2>}
+              </div>
+              <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10">
                 {isLoading ? (
                   <Spinner />
                 ) : isError ? (

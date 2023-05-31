@@ -59,7 +59,7 @@ export const PostPreview = (postProps: PostProps) => {
                 </a>
               </p>
             ) : null}
-            <h4 className="tracking-tight">{title}</h4>
+            <h4 className="hover:underline tracking-tight">{title}</h4>
           </>
         )}
         {parent ? (

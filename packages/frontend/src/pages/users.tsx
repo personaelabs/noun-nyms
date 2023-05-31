@@ -70,7 +70,7 @@ export default function Users() {
   });
 
   const [filter, setFilter] = useState<Filter>(Filter.All);
-  const [sort, setSort] = useState<string>(sortOptions.lastActive);
+  const [sort, setSort] = useState<string>('lastActive');
 
   const [searchQuery, setSearchQuery] = useState<string>('');
   const filteredUsers = useMemo(
@@ -105,7 +105,7 @@ export default function Users() {
               <Spinner />
             ) : users && filteredUsers ? (
               <>
-                <div className="flex justify-between">
+                <div className="flex flex-col sm:flex-row gap-4 justify-between">
                   <div className="flex gap-4">
                     {Object.values(Filter).map((f) => (
                       <button
@@ -138,29 +138,29 @@ export default function Users() {
                   sortedUsers.map((u) => (
                     <a
                       href={`/users/${u.userId}`}
-                      className="outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+                      className="flex gap-4 justify-between outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
                       key={u.userId}
                     >
-                      <div className="hover:no-underline">
+                      <div className="min-w-0 hover:no-underline">
                         <UserTag
                           hideLink={true}
                           avatarWidth={50}
                           userId={u.userId}
                           lastActive={u.lastActive}
-                        ></UserTag>
+                        />
                       </div>
-                      <div className="flex gap-4">
-                        <span className="m-auto">
+                      <div className="flex gap-2 sm:gap-4 text-center">
+                        <span className="my-auto">
                           <strong>{u.numPosts}</strong>
-                          {' Posts'}
+                          {u.numPosts === 1 ? ' Post' : ' Posts'}
                         </span>
-                        <span className="m-auto">
+                        <span className="my-auto">
                           <strong>{u.numReplies}</strong>
-                          {' Replies'}
+                          {u.numReplies === 1 ? ' Reply' : ' Replies'}
                         </span>
-                        <span className="m-auto">
+                        <span className="my-auto">
                           <strong>{u.upvotes}</strong>
-                          {' Votes'}
+                          {u.upvotes === 1 ? ' Vote' : ' Votes'}
                         </span>
                       </div>
                     </a>

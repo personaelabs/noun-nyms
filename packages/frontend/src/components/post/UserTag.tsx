@@ -1,8 +1,10 @@
+import { UserContext } from '@/pages/_app';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
-import { NameType } from '@/types/components';
+import { NameType, UserContextType } from '@/types/components';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useContext } from 'react';
 dayjs.extend(relativeTime);
 
 interface UserTagProps {
@@ -15,6 +17,7 @@ interface UserTagProps {
 export const UserTag = (props: UserTagProps) => {
   const { userId, avatarWidth, timestamp, lastActive, hideLink } = props;
   const { name, isDoxed } = useName({ userId });
+  const { isMobile } = useContext(UserContext) as UserContextType;
 
   return (
     // stop post modal from opening on click of user page link
@@ -38,7 +41,7 @@ export const UserTag = (props: UserTagProps) => {
 
         {lastActive && (
           <div className="flex gap-1 shrink-0 secondary">
-            <p>Last active </p>
+            {!isMobile && <p>Last active </p>}
             <p className="font-semibold">{dayjs(lastActive).fromNow()}</p>
           </div>
         )}
