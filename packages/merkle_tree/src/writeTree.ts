@@ -306,7 +306,7 @@ async function writeTree(blockHeight: number) {
         return {
           address: account.address,
           pubkey: account.pubKey,
-          path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
+          path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.OneNoun
         };
@@ -338,7 +338,7 @@ async function writeTree(blockHeight: number) {
         return {
           address: account.address,
           pubkey: account.pubKey,
-          path: merkleProof.siblings.map(s => BigInt(s).toString(16)),
+          path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
           type: GroupType.ManyNouns
         };
