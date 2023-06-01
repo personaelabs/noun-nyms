@@ -4,7 +4,7 @@ import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
@@ -17,10 +17,11 @@ const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).
 
 interface PostsProps {
   initOpenPostId?: string;
+  posts?: IPostPreview[];
 }
 
 export default function Posts(props: PostsProps) {
-  const { initOpenPostId } = props;
+  const { initOpenPostId, posts } = props;
   const { errorMsg, setError } = useError();
   const router = useRouter();
 
@@ -28,7 +29,7 @@ export default function Posts(props: PostsProps) {
     isLoading,
     isError,
     refetch,
-    data: posts,
+    data: currPosts,
   } = useQuery<IPostPreview[]>({
     queryKey: ['posts'],
     queryFn: getPosts,
@@ -41,6 +42,8 @@ export default function Posts(props: PostsProps) {
       setError(error);
     },
   });
+
+  const data = useMemo(() => currPosts || posts, [currPosts, posts]);
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
@@ -86,9 +89,9 @@ export default function Posts(props: PostsProps) {
                 <>
                   <Spinner />
                 </>
-              ) : posts ? (
+              ) : data ? (
                 <>
-                  {posts.map((post) => (
+                  {data.map((post) => (
                     <div className="flex gap-2" key={post.id}>
                       <Upvote
                         upvotes={post.upvotes}
