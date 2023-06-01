@@ -20,8 +20,7 @@ export const Header = () => {
           </div>
         </nav>
         <div className="grow flex justify-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="w-[150px]" src="/nouns.png" alt="nouns" />
+          <Image className="w-[150px]" src="/nouns.png" alt="nouns" />
         </div>
       </div>
     </div>
