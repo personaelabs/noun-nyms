@@ -20,7 +20,7 @@ export const Header = () => {
           </div>
         </nav>
         <div className="grow flex justify-center">
-          <Image className="w-[150px]" src="/nouns.png" alt="nouns" />
+          <Image src="/nouns.png" alt="nouns" width={150} height={150} />
         </div>
       </div>
     </div>
