@@ -6,10 +6,11 @@ import { UserContext } from '@/pages/_app';
 import { useAccount } from 'wagmi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faUser } from '@fortawesome/free-solid-svg-icons';
+import ConnectWallet from './ConnectWallet';
 
 export const MyProfile = () => {
   const { address } = useAccount();
-  const { nymOptions, isValid } = useContext(UserContext) as UserContextType;
+  const { isMobile, nymOptions, isValid } = useContext(UserContext) as UserContextType;
   const { name } = useName({ userId: address });
 
   const [openProfile, setOpenProfile] = useState(false);
@@ -36,6 +37,14 @@ export const MyProfile = () => {
           </div>
           {openProfile ? (
             <div className="max-w-[150px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer">
+              {isMobile && localAddress && isValid && (
+                <>
+                  <p className="secondary p-2">Wallet</p>
+                  <div className="w-full flex justify-center">
+                    <ConnectWallet />
+                  </div>
+                </>
+              )}
               <p className="secondary p-2">My identities</p>
               <div className="border-b border-dotted border-gray-300">
                 <a href={`/users/${localAddress}`}>

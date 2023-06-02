@@ -64,8 +64,8 @@ export const NameSelect = (props: NameSelectProps) => {
           setSelectedName={setSelectedName}
         />
       ) : null}
-      <p className="secondary">Posting as</p>
-      <div className="relative w-[30%]" ref={divRef}>
+      <p className="secondary shrink-0">Posting as</p>
+      <div className="relative w-auto md:w-[30%]" ref={divRef}>
         <div
           className="bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}
