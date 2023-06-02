@@ -30,7 +30,7 @@ export const MyProfile = () => {
     <>
       {localAddress && isValid ? (
         <div className="relative cursor-pointer" onClick={() => setOpenProfile(!openProfile)}>
-          <div className="flex items-center gap-2 rounded-md px-2 py-1 border border-white hover:scale-105 active:scale-100 transition-all">
+          <div className="flex items-center gap-2 rounded-xl px-2 py-1 border border-white hover:scale-105 active:scale-100 transition-all">
             <UserAvatar width={30} userId={localAddress} />
             <FontAwesomeIcon icon={faAngleDown} color="#ffffff" />
           </div>
