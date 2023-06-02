@@ -81,7 +81,7 @@ export const PostPreview = (postProps: PostProps) => {
         ) : (
           <>
             <span>{body}</span>
-            <div className="min-w-0 flex gap-2 justify-between items-center">
+            <div className="min-w-0 flex flex-wrap gap-2 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
               <div className="flex gap-4">
                 <ReplyCount count={_count.descendants} />

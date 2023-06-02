@@ -21,7 +21,10 @@ export const UserTag = (props: UserTagProps) => {
 
   return (
     // stop post modal from opening on click of user page link
-    <div className="min-w-0 shrink flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="min-w-0 shrink grow basis-2/3 max-w-full flex gap-2 items-center"
+      onClick={(e) => e.stopPropagation()}
+    >
       <UserAvatar
         type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
         userId={userId}
