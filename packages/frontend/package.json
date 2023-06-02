@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "cp -n .env.example .env || true && next dev",
+    "dev": "next dev",
     "dev:staging": "dotenv -e .env.staging -- next dev",
     "check": "tsc --noEmit --incremental",
     "lint": "next lint",
