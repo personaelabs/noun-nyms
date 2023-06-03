@@ -17,6 +17,8 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
+import usePushRoute from '@/hooks/usePushRoute';
+import { RouteLoadingSpinner } from './global/RouteLoadingSpinner';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -42,9 +44,10 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
+  const { routeLoading, pushRoute } = usePushRoute();
   const router = useRouter();
   const { isMobile } = useContext(UserContext) as UserContextType;
-  const [postLoading, setPostLoading] = useState(false);
+  // const [postLoading, setPostLoading] = useState(false);
 
   const {
     isLoading,
@@ -74,12 +77,6 @@ export default function Posts(props: PostsProps) {
     }
   };
 
-  const pushPost = async (postId: string) => {
-    setPostLoading(true);
-    await router.push(`/posts/${postId}`);
-    setPostLoading(false);
-  };
-
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
 
@@ -106,11 +103,7 @@ export default function Posts(props: PostsProps) {
           <PostWithReplies postId={openPostId} />
         </Modal>
       ) : null}
-      {postLoading ? (
-        <div className="fixed right-4 bottom-4 bg-gray-200 rounded-full p-2">
-          <Spinner />
-        </div>
-      ) : null}
+      {routeLoading && <RouteLoadingSpinner />}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -159,7 +152,7 @@ export default function Posts(props: PostsProps) {
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => {
-                          if (isMobile) pushPost(post.id);
+                          if (isMobile) pushRoute(`/posts/${post.id}`);
                           else {
                             router.replace(window.location.href, `/posts/${post.id}`);
                             setOpenPostId(post.id);

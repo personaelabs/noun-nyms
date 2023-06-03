@@ -4,6 +4,8 @@ import { UserTag } from './UserTag';
 import { SingleReply } from './SingleReply';
 import useName from '@/hooks/useName';
 import { CopyLink } from './CopyLink';
+import usePushRoute from '@/hooks/usePushRoute';
+import { RouteLoadingSpinner } from '../global/RouteLoadingSpinner';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -28,9 +30,11 @@ export const PostPreview = (postProps: PostProps) => {
   const { name: userName } = useName({ userId });
   const { name: rootName } = useName({ userId: root?.userId });
   useName({ userId: root?.userId });
+  const { routeLoading, pushRoute } = usePushRoute();
 
   return (
     <>
+      {routeLoading && <RouteLoadingSpinner />}
       <div
         id={id}
         onClick={() => handleOpenPost('')}
@@ -39,26 +43,22 @@ export const PostPreview = (postProps: PostProps) => {
         {root ? (
           <div className="flex flex-col gap-2">
             <p>
-              <a href={`/users/${userId}`} className="postDetail hover:underline break-words">
+              <div
+                className="postDetail hover:underline break-words"
+                onClick={() => pushRoute(`/users/${userId}`)}
+              >
                 {userName}
-              </a>
+              </div>
               <span className="secondary"> commented on </span>
               <span className="postDetail hover:underline">{root.title}</span>
             </p>
-            <a href={`/users/${root.userId}`} className="breakText secondary">
+            <div className="breakText secondary" onClick={() => pushRoute(`/users/${root.userId}`)}>
               Posted by <strong className="hover:underline">{rootName}</strong>
-            </a>
+            </div>
           </div>
         ) : (
           <>
-            {showUserHeader ? (
-              <p className="breakText">
-                <span className="secondary">Posted by </span>
-                <a href={`/users/${userId}`} className="postDetail hover:underline">
-                  {userName}
-                </a>
-              </p>
-            ) : null}
+            {showUserHeader ? <p className="secondary breakText">Posted by {userName}</p> : null}
             <h4 className="hover:underline tracking-tight">{title}</h4>
           </>
         )}
