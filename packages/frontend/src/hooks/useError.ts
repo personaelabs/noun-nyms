@@ -11,7 +11,7 @@ const useError = () => {
       if (error instanceof Error) {
         setErrorMsg(error.message);
       } else setErrorMsg('error unknown');
-    }
+    } else setErrorMsg('');
   };
 
   const clearError = () => {
