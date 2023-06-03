@@ -72,7 +72,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     <>
       {singlePost ? (
         <>
-          <div className="flex flex-col gap-4 py-8 px-8 md:px-12 md:py-10">
+          <div className="flex flex-col gap-4 py-6 px-6 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
                 <div className="self-start line-clamp-2">
@@ -93,7 +93,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex grow flex-col gap-8 w-full bg-gray-50 px-8 py-8">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}

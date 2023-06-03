@@ -42,7 +42,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
           <>
             <Header />
             <div
-              className="flex p-6 gap-1 items-center underline cursor-pointer"
+              className="flex pt-6 px-6 gap-1 items-center underline cursor-pointer"
               onClick={() => router.push('/')}
             >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />

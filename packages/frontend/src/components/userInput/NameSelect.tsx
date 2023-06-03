@@ -60,7 +60,7 @@ export const NameSelect = (props: NameSelectProps) => {
             <Menu.Items
               className={`${
                 openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'
-              } w-full absolute left-0 bg-white border border-gray-200 rounded-xl cursor-pointer`}
+              } w-full absolute left-0 bg-white border border-gray-200 rounded-xl cursor-pointer z-50`}
             >
               <Menu.Item
                 as={'div'}

@@ -125,7 +125,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
               ></Textarea>
             </div>
           </div>
-          <div className="w-full flex gap-2 items-center justify-end text-gray-500">
+          <div className="w-full flex-wrap flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (
               <NameSelect
                 openMenuAbove={isMobile && parentId === '0x0'}
