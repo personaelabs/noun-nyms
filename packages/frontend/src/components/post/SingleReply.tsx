@@ -38,11 +38,11 @@ export const SingleReply = (props: SingleReplyProps) => {
       <UserTag userId={userId} timestamp={timestamp} />
       <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
         <span>{body}</span>
-        <div className="flex justify-between items-center py-2 border-t border-gray-300">
+        <div className="flex flex-wrap justify-between items-center py-2 border-t border-gray-300">
           <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
             <p>{upvotes.length}</p>
           </Upvote>
-          <div className="flex gap-4 justify-center items-center">
+          <div className="flex flex-wrap gap-4 justify-center items-center">
             <ReplyCount count={replyCount} />
             <div
               className="flex gap-2 items-center cursor-pointer hoverIcon"

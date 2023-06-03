@@ -11,7 +11,6 @@ export type PostProps = IPostPreview & {
 export type PostWithRepliesProps = {
   postId: string;
   writerToShow?: string;
-  handleClose: () => void;
 };
 
 export type LocalNym = {
@@ -51,6 +50,7 @@ export type ContentUserInput = {
 };
 
 export type UserContextType = {
+  isMobile: boolean;
   nymOptions: ClientName[];
   setNymOptions: Dispatch<SetStateAction<ClientName[]>>;
   isValid: boolean;

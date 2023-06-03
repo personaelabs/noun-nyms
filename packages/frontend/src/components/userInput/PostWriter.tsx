@@ -136,7 +136,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
               message={'Send'}
               disabled={!body || (parentId === '0x0' && !title)}
             >
-              {hasSignedPost ? (
+              {hasSignedPost && sendingPost ? (
                 <p>
                   Proving<span className="dot1">.</span>
                   <span className="dot2">.</span>

@@ -10,7 +10,7 @@ import Head from 'next/head';
 import { ValidUserWarning } from '@/components/global/ValidUserWarning';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { polygon, optimism } from 'viem/chains';
-import { createContext } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '@/hooks/useUserInfo';
 import { UserContextType } from '@/types/components';
 
@@ -37,10 +37,21 @@ export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <UserContext.Provider value={{ nymOptions, setNymOptions, isValid }}>
+        <UserContext.Provider value={{ isMobile, nymOptions, setNymOptions, isValid }}>
           <Head>
             <link type="favicon" rel="icon" href="/favicon-3.ico" />
           </Head>

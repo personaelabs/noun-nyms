@@ -67,6 +67,11 @@
     box-sizing: border-box;
   }
 
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
   /* Comment Writer Styles */
   textarea,
   pre {
@@ -97,6 +102,12 @@
   }
   .hoverIcon:hover {
     color: #0e76fd;
+  }
+
+  .breakText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .dot1 {

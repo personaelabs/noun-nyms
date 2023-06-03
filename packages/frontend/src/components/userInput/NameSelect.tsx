@@ -64,8 +64,8 @@ export const NameSelect = (props: NameSelectProps) => {
           setSelectedName={setSelectedName}
         />
       ) : null}
-      <p className="secondary">Posting as</p>
-      <div className="relative w-[30%]" ref={divRef}>
+      <p className="secondary shrink-0">Posting as</p>
+      <div className="relative w-auto md:w-[30%]" ref={divRef}>
         <div
           className="bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}
@@ -78,9 +78,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 width={20}
               />
             )}
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {selectedName ? selectedName.name : 'No Nym Selected'}
-            </p>
+            <p className="breakText">{selectedName ? selectedName.name : 'No Nym Selected'}</p>
           </div>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
@@ -114,9 +112,7 @@ export const NameSelect = (props: NameSelectProps) => {
                           userId={getUserIdFromName(nym)}
                           width={20}
                         />
-                        <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
-                          {nym.name}
-                        </p>
+                        <p className="shrink breakText">{nym.name}</p>
                       </div>
                       <FontAwesomeIcon
                         icon={faCheck}
@@ -144,9 +140,7 @@ export const NameSelect = (props: NameSelectProps) => {
                   userId={getUserIdFromName(doxedName)}
                   width={20}
                 />
-                <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
-                  {doxedName.name}
-                </p>
+                <p className="shrink breakText">{doxedName.name}</p>
               </div>
               <FontAwesomeIcon
                 icon={faCheck}

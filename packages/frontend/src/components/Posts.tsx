@@ -4,7 +4,7 @@ import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { PostWithReplies } from './post/PostWithReplies';
@@ -12,8 +12,28 @@ import { Header } from './Header';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { useRouter } from 'next/router';
+import { Modal } from './global/Modal';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
+import { Filters } from './post/Filters';
+import { SortSelect } from './post/SortSelect';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
+
+const sortPosts = (posts: IPostPreview[] | undefined, query: string) => {
+  return posts
+    ? posts.sort((a, b) => {
+        if (query === 'timestamp') {
+          const val1 = b[query] || new Date();
+          const val2 = a[query] || new Date();
+
+          return Number(new Date(val1)) - Number(new Date(val2));
+        } else if (query === 'upvotes') {
+          return Number(b[query].length) - Number(a[query].length);
+        } else return 0;
+      })
+    : posts;
+};
 
 interface PostsProps {
   initOpenPostId?: string;
@@ -23,6 +43,8 @@ export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
   const router = useRouter();
+  const { isMobile } = useContext(UserContext) as UserContextType;
+  const [postLoading, setPostLoading] = useState(false);
 
   const {
     isLoading,
@@ -52,8 +74,21 @@ export default function Posts(props: PostsProps) {
     }
   };
 
+  const pushPost = async (postId: string) => {
+    setPostLoading(true);
+    await router.push(`/posts/${postId}`);
+    setPostLoading(false);
+  };
+
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
+
+  const filterOptions: { [key: string]: string } = {
+    timestamp: '⏳ Recent',
+    upvotes: '🔥 Top',
+  };
+  const [filter, setFilter] = useState<string>('timestamp');
+  const sortedPosts = useMemo(() => sortPosts(posts, filter), [posts, filter]);
 
   return (
     <>
@@ -61,35 +96,57 @@ export default function Posts(props: PostsProps) {
         <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
       ) : null}
       {openPostId ? (
-        <PostWithReplies
-          postId={openPostId}
+        <Modal
+          startAtTop={true}
           handleClose={() => {
             router.replace('/', undefined, { shallow: true });
             setOpenPostId('');
           }}
-        />
+        >
+          <PostWithReplies postId={openPostId} />
+        </Modal>
+      ) : null}
+      {postLoading ? (
+        <div className="fixed right-4 bottom-4 bg-gray-200 rounded-full p-2">
+          <Spinner />
+        </div>
       ) : null}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
-              <div className="flex justify-end">
-                <MainButton
-                  color="#0E76FD"
-                  message="Start Discussion"
-                  loading={false}
-                  handler={() => setNewPostOpen(true)}
-                />
-              </div>
+            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-4 md:px-0">
               {isLoading ? (
                 <>
                   <Spinner />
                 </>
-              ) : posts ? (
+              ) : sortedPosts ? (
                 <>
-                  {posts.map((post) => (
-                    <div className="flex gap-2" key={post.id}>
+                  <div className="flex justify-between">
+                    {isMobile ? (
+                      <SortSelect
+                        options={filterOptions}
+                        selectedQuery={filter}
+                        setSelectedQuery={setFilter}
+                      />
+                    ) : (
+                      <Filters
+                        filters={filterOptions}
+                        selectedFilter={filter}
+                        setSelectedFilter={setFilter}
+                      />
+                    )}
+                    <div className="grow-0">
+                      <MainButton
+                        color="#0E76FD"
+                        message="Start Discussion"
+                        loading={false}
+                        handler={() => setNewPostOpen(true)}
+                      />
+                    </div>
+                  </div>
+                  {sortedPosts.map((post) => (
+                    <div className="w-full flex gap-2" key={post.id}>
                       <Upvote
                         upvotes={post.upvotes}
                         col={true}
@@ -102,10 +159,11 @@ export default function Posts(props: PostsProps) {
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => {
-                          router.replace(window.location.href, `/posts/${post.id}`, {
-                            shallow: true,
-                          });
-                          setOpenPostId(post.id);
+                          if (isMobile) pushPost(post.id);
+                          else {
+                            router.replace(window.location.href, `/posts/${post.id}`);
+                            setOpenPostId(post.id);
+                          }
                         }}
                         onSuccess={refetchAndScrollToPost}
                       />
