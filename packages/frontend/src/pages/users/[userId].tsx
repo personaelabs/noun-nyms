@@ -85,7 +85,7 @@ export default function User() {
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen max-w-3xl mx-auto w-full p-6">
             <div className="flex flex-col gap-4">
-              <a className="flex gap-1 items-center underline" href={'/users'}>
+              <a className="flex gap-1 items-center underline cursor-pointer" href={'/users'}>
                 <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
                 <p>All users</p>
               </a>

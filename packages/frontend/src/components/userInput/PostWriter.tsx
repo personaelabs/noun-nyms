@@ -29,7 +29,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
-  const { isValid } = useContext(UserContext) as UserContextType;
+  const { isMobile, isValid } = useContext(UserContext) as UserContextType;
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
@@ -127,7 +127,11 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
           </div>
           <div className="w-full flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (
-              <NameSelect selectedName={name} setSelectedName={setName} />
+              <NameSelect
+                openMenuAbove={isMobile && parentId === '0x0'}
+                selectedName={name}
+                setSelectedName={setName}
+              />
             ) : null}
             <MainButton
               color="black"

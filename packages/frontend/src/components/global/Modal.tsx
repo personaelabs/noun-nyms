@@ -26,7 +26,7 @@ export const Modal = (props: ModalProps) => {
           style={{ alignItems: startAtTop ? 'top' : isMobile ? 'end' : 'center' }}
         >
           <Dialog.Panel
-            className="relative max-w-none sm:max-w-3xl bg-gray-50 m-none sm:mx-8 rounded-md rounded-b-none sm:rounded-b-md"
+            className="relative max-w-none md:max-w-3xl bg-gray-50 m-none md:mx-8 rounded-md rounded-b-none sm:rounded-b-md"
             style={{ width: width && !isMobile ? width : '100%' }}
           >
             <div className="absolute p-6 top-0 right-0 cursor-pointer">

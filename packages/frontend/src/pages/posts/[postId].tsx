@@ -41,7 +41,10 @@ export default function PostId({ post }: { post?: IPostSimple }) {
         (isMobile ? (
           <>
             <Header />
-            <div className="flex p-6 gap-1 items-center underline" onClick={() => router.push('/')}>
+            <div
+              className="flex p-6 gap-1 items-center underline cursor-pointer"
+              onClick={() => router.push('/')}
+            >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
               <p>All posts</p>
             </div>
