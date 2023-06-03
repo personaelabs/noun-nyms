@@ -35,16 +35,13 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const { description } = buildSeo(post);
   const { isMobile } = useContext(UserContext) as UserContextType;
   return (
-    <>
+    <div className="flex flex-col h-screen">
       <Seo title={TITLE} description={description} />
       {openPostId &&
         (isMobile ? (
           <>
             <Header />
-            <div
-              className="flex px-8 pt-6 gap-1 items-center underline"
-              onClick={() => router.push('/')}
-            >
+            <div className="flex p-6 gap-1 items-center underline" onClick={() => router.push('/')}>
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
               <p>All posts</p>
             </div>
@@ -53,6 +50,6 @@ export default function PostId({ post }: { post?: IPostSimple }) {
         ) : (
           <Posts initOpenPostId={openPostId} />
         ))}
-    </>
+    </div>
   );
 }

@@ -81,7 +81,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
               <p>{singlePost.body}</p>
             </div>
-            <div className="flex flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
+            <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
               <UserTag userId={singlePost.userId} timestamp={singlePost.timestamp} />
               <div className="flex gap-2">
                 <ReplyCount count={singlePost.replies.length} />
@@ -93,7 +93,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-8 w-full bg-gray-50 px-8 py-8">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 px-8 py-8">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}

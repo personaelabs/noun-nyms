@@ -30,7 +30,12 @@ export const Modal = (props: ModalProps) => {
             style={{ width: width && !isMobile ? width : '100%' }}
           >
             <div className="absolute p-6 top-0 right-0 cursor-pointer">
-              <FontAwesomeIcon icon={faXmark} color="#98A2B3" onClick={handleClose as any} />
+              <FontAwesomeIcon
+                size={'xl'}
+                icon={faXmark}
+                color="#98A2B3"
+                onClick={handleClose as any}
+              />
             </div>
             {children}
           </Dialog.Panel>

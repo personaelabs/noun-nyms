@@ -122,7 +122,7 @@ export default function Posts(props: PostsProps) {
                 </>
               ) : sortedPosts ? (
                 <>
-                  <div className="flex flex-row-reverse md:flex-row justify-between">
+                  <div className="flex justify-between">
                     {isMobile ? (
                       <SortSelect
                         options={filterOptions}

@@ -24,11 +24,6 @@ export const CopyLink = (props: { id: string }) => {
       }}
     >
       <FontAwesomeIcon icon={linkCopied ? faCheck : faLink} color={linkCopied ? '#0e76fd' : ''} />
-      {!isMobile && (
-        <p className="secondary" style={{ fontWeight: linkCopied ? 'bold' : 'normal' }}>
-          {linkCopied ? 'Copied' : 'Copy Link'}
-        </p>
-      )}
     </div>
   );
 };

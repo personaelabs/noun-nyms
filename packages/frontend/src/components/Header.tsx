@@ -5,27 +5,30 @@ import Image from 'next/image';
 import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import { useAccount } from 'wagmi';
 
 export const Header = () => {
-  const { isMobile } = useContext(UserContext) as UserContextType;
+  const { address } = useAccount();
+  const { isMobile, isValid } = useContext(UserContext) as UserContextType;
+
   return (
     <div className="bg-black dots w-full">
-      <div className="flex flex-col gap-2 py-3 md:pt-6 md:pb-0">
-        <nav className="w-full px-3 md:px-6 flex justify-between items-center">
-          <a className="flex gap-2 items-center" href={'/'}>
+      <div className="flex flex-col gap-2 py-4 md:pt-6 md:pb-0">
+        <nav className="w-full px-4 md:px-6 flex justify-between items-center">
+          <a className="min-w-0 flex shrink gap-2 items-center" href={'/'}>
             <div>
               <div className="w-[35px] md:w-auto">
                 <Image src={logo} alt="logo" />
               </div>
             </div>
-            {isMobile ? (
-              <h4 className="text-white">PseudoNym</h4>
-            ) : (
-              <h3 className="text-white">PseudoNym</h3>
-            )}
+            <p
+              className={`text-white font-semibold breakText ${isMobile ? 'text-lg' : 'text-2xl'}`}
+            >
+              PseudoNym
+            </p>
           </a>
           <div className="flex gap-2 items-center">
-            {!isMobile && <ConnectWallet />}
+            {(!isMobile || !address || !isValid) && <ConnectWallet />}
             <MyProfile />
           </div>
         </nav>

@@ -6,7 +6,7 @@ interface FilterProps {
 export const Filters = (props: FilterProps) => {
   const { filters, selectedFilter, setSelectedFilter } = props;
   return (
-    <div className="flex gap-4">
+    <div className="flex flex-wrap gap-4">
       {Object.keys(filters).map((f) => (
         <button
           key={f}
