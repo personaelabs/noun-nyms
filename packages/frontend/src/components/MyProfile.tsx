@@ -37,7 +37,7 @@ export const MyProfile = () => {
         {isMobile && localAddress && isValid && (
           <>
             <p className="secondary p-2">Wallet</p>
-            <Menu.Item as={'div'} className="w-full flex justify-center">
+            <Menu.Item disabled as={'div'} className="w-full flex justify-center">
               <ConnectWallet />
             </Menu.Item>
           </>
