@@ -41,7 +41,7 @@ export const NameSelect = (props: NameSelectProps) => {
         />
       ) : null}
       <p className="secondary shrink-0">Posting as</p>
-      <Menu as={'div'} className="min-w-0 shrink relative basis-1/2 sm:basis-auto">
+      <Menu as={'div'} className="min-w-0 max-w-min shrink grow relative basis-1/4 sm:basis-auto">
         {({ open }) => (
           <>
             <Menu.Button className="w-full bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer">

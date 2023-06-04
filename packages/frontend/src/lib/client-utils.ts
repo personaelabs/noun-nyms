@@ -7,11 +7,10 @@ export const scrollToPost = async (postId?: string) => {
       setTimeout(() => {
         postElement = document.getElementById(postId);
         if (postElement) {
-          postElement.style.setProperty('opacity', '0');
           postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         resolve(postElement);
-      }, 300),
+      }, 200),
     );
   }
 };
