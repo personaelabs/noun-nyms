@@ -17,6 +17,7 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
+import { scrollToPost } from '@/lib/client-utils';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -66,12 +67,10 @@ export default function Posts(props: PostsProps) {
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
-    if (postId) {
-      //wait for DOM to update
-      setTimeout(() => {
-        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
-    }
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
   };
 
   const [newPostOpen, setNewPostOpen] = useState(false);

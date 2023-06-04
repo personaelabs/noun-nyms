@@ -76,10 +76,11 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
         } else throw new Error('must select a valid identity to post');
         onSuccess(result?.data.postId);
         resetWriter();
-        setSendingPost(false);
       } catch (error) {
         setError(error);
+      } finally {
         setSendingPost(false);
+        setHasSignedPost(false);
       }
     }
   };

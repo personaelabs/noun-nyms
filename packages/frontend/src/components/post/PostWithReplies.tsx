@@ -12,6 +12,7 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
+import { scrollToPost } from '@/lib/client-utils';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -49,12 +50,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
-    if (postId) {
-      //wait for DOM to update
-      setTimeout(() => {
-        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
-    }
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
   };
 
   useEffect(() => {
