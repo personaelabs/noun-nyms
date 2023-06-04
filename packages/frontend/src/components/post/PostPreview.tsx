@@ -37,28 +37,28 @@ export const PostPreview = (postProps: PostProps) => {
       <div
         id={id}
         onClick={() => handleOpenPost('')}
-        className="min-w-0 grow rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer"
+        className="min-w-0 grow rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer"
       >
         {root ? (
           <div className="flex flex-col gap-2">
             <p>
               <span
-                className="postDetail hover:underline break-words"
+                className="postDetail cursor-pointer hover:underline break-words"
                 onClick={() => pushRoute(`/users/${userId}`)}
               >
                 {userName}
               </span>
               <span className="secondary"> commented on </span>
-              <span className="postDetail hover:underline">{root.title}</span>
+              <span className="postDetail cursor-pointer hover:underline">{root.title}</span>
             </p>
             <div className="breakText secondary" onClick={() => pushRoute(`/users/${root.userId}`)}>
-              Posted by <strong className="hover:underline">{rootName}</strong>
+              Posted by <strong className="cursor-pointer hover:underline">{rootName}</strong>
             </div>
           </div>
         ) : (
           <>
             {showUserHeader ? <p className="secondary breakText">Posted by {userName}</p> : null}
-            <h4 className="hover:underline tracking-tight">{title}</h4>
+            <h4 className="cursor-pointer hover:underline tracking-tight">{title}</h4>
           </>
         )}
         {parent ? (

@@ -21,6 +21,13 @@ import { UserContext } from '../_app';
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
 
+const filterPosts = (posts: IPostPreview[] | undefined, query: string) => {
+  if (posts) {
+    if (query === 'all') return posts;
+    return posts.filter((p) => (query === 'posts' ? !p.root : p.root));
+  } else return posts;
+};
+
 export default function User() {
   const router = useRouter();
   const { errorMsg, setError } = useError();
@@ -48,9 +55,12 @@ export default function User() {
     },
   });
 
-  const { pushRoute } = useContext(UserContext) as UserContextType;
+  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
   const [openPostId, setOpenPostId] = useState<string>('');
   const [writerToShow, setWriterToShow] = useState<string>('');
+
+  const [filter, setFilter] = useState<string>('all');
+  const filteredPosts = useMemo(() => filterPosts(userPosts, filter), [userPosts, filter]);
 
   const openPost = useMemo(() => {
     // If openPostId has a root, fetch that data instead.
@@ -69,7 +79,7 @@ export default function User() {
     <>
       <main className="flex h-screen w-full flex-col items-center">
         <Header />
-        {openPost ? (
+        {openPost && !isMobile ? (
           <Modal
             startAtTop={true}
             handleClose={() => {
@@ -103,7 +113,12 @@ export default function User() {
             </div>
           </div>
 
-          <div className="flex grow flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10">
+          <div className="flex grow w-full flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10">
+            <Filters
+              filters={filterOptions}
+              selectedFilter={filter}
+              setSelectedFilter={setFilter}
+            />
             {isLoading ? (
               <Spinner />
             ) : isError ? (
@@ -112,26 +127,24 @@ export default function User() {
                 error={errorMsg}
                 refetchHandler={refetch}
               />
-            ) : userPosts && userPosts.length > 0 ? (
+            ) : filteredPosts && filteredPosts.length > 0 ? (
               <>
-                <Filters
-                  filters={filterOptions}
-                  selectedFilter={'all'}
-                  setSelectedFilter={() => console.log('select this one')}
-                />
-                {userPosts.map((post) => (
-                  <PostPreview
-                    showUserHeader={true}
-                    key={post.id}
-                    {...post}
-                    handleOpenPost={(writerToShow: string) => {
-                      router.replace(window.location.href, `/posts/${post.id}`, {
-                        shallow: true,
-                      });
-                      handleOpenPost(post.id, writerToShow);
-                    }}
-                    onSuccess={() => console.log('need to refetch here')}
-                  />
+                {filteredPosts.map((post) => (
+                  <div key={post.id}>
+                    <PostPreview
+                      showUserHeader={true}
+                      {...post}
+                      handleOpenPost={(writerToShow: string) => {
+                        if (isMobile) pushRoute(`/posts/${post.id}`);
+                        else
+                          router.replace(window.location.href, `/posts/${post.id}`, {
+                            shallow: true,
+                          });
+                        handleOpenPost(post.id, writerToShow);
+                      }}
+                      onSuccess={() => console.log('need to refetch here')}
+                    />
+                  </div>
                 ))}
               </>
             ) : (

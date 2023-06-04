@@ -35,7 +35,7 @@ export const UserTag = (props: UserTagProps) => {
             <p className="font-semibold breakText">{name}</p>
           ) : (
             <div
-              className="font-semibold hover:underline breakText outline-none"
+              className="font-semibold hover:underline breakText outline-none cursor-pointer"
               onClick={() => pushRoute(`/users/${userId}`)}
             >
               {name}

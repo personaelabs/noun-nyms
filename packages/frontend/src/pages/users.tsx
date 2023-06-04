@@ -153,7 +153,9 @@ export default function Users() {
                     </div>
                   ))
                 ) : (
-                  <p className="text-center">No Users Found</p>
+                  <div className="m-auto">
+                    <p>No users found.</p>
+                  </div>
                 )}
               </>
             ) : isError ? (
