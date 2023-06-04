@@ -1,25 +1,5 @@
-import { MainButton } from '@/components/MainButton';
-import { useRouter } from 'next/router';
+import { ErrorPage } from '@/components/global/ErrorPage';
 
 export default function Custom500() {
-  const router = useRouter();
-
-  return (
-    <main className="h-screen flex flex-col justify-end items-center">
-      <div className="grow flex flex-col gap-4 justify-center items-center">
-        <div className="flex flex-col gap-1 items-center">
-          <h1 className="text-black">500</h1>
-          <h4>Internal Server Error</h4>
-        </div>
-        <MainButton
-          color={'#0e76fd'}
-          message="Return Home"
-          loading={false}
-          handler={() => router.push('/')}
-        />
-      </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="w-80" src="/nouns.png" alt="nouns" />
-    </main>
-  );
+  return <ErrorPage title={'500'} subtitle={'Internal Server Error'} />;
 }

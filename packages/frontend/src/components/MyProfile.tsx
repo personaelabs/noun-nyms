@@ -8,14 +8,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
-import usePushRoute from '@/hooks/usePushRoute';
-import { RouteLoadingSpinner } from './global/RouteLoadingSpinner';
 
 export const MyProfile = () => {
   const { address } = useAccount();
-  const { isMobile, nymOptions, isValid } = useContext(UserContext) as UserContextType;
+  const { isMobile, nymOptions, isValid, pushRoute } = useContext(UserContext) as UserContextType;
   const { name } = useName({ userId: address });
-  const { routeLoading, pushRoute } = usePushRoute();
 
   const [localAddress, setLocalAddress] = useState('');
 
@@ -32,7 +29,6 @@ export const MyProfile = () => {
 
   return (
     <>
-      {routeLoading && <RouteLoadingSpinner />}
       {localAddress && isValid ? (
         <Menu as={'div'} className="relative cursor-pointer">
           <Menu.Button className="flex items-center gap-2 rounded-xl px-2 py-1 border border-white hover:scale-105 active:scale-100 transition-all">

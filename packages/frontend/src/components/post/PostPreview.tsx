@@ -1,11 +1,11 @@
-import { PostProps } from '@/types/components';
+import { PostProps, UserContextType } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { SingleReply } from './SingleReply';
 import useName from '@/hooks/useName';
 import { CopyLink } from './CopyLink';
-import usePushRoute from '@/hooks/usePushRoute';
-import { RouteLoadingSpinner } from '../global/RouteLoadingSpinner';
+import { UserContext } from '@/pages/_app';
+import { useContext } from 'react';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -30,11 +30,10 @@ export const PostPreview = (postProps: PostProps) => {
   const { name: userName } = useName({ userId });
   const { name: rootName } = useName({ userId: root?.userId });
   useName({ userId: root?.userId });
-  const { routeLoading, pushRoute } = usePushRoute();
+  const { pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
     <>
-      {routeLoading && <RouteLoadingSpinner />}
       <div
         id={id}
         onClick={() => handleOpenPost('')}
@@ -43,12 +42,12 @@ export const PostPreview = (postProps: PostProps) => {
         {root ? (
           <div className="flex flex-col gap-2">
             <p>
-              <div
+              <span
                 className="postDetail hover:underline break-words"
                 onClick={() => pushRoute(`/users/${userId}`)}
               >
                 {userName}
-              </div>
+              </span>
               <span className="secondary"> commented on </span>
               <span className="postDetail hover:underline">{root.title}</span>
             </p>

@@ -9,13 +9,14 @@ import { PostWithReplies } from '@/components/post/PostWithReplies';
 import useError from '@/hooks/useError';
 import useName from '@/hooks/useName';
 import { IPostPreview, IUserUpvote } from '@/types/api';
-import { NameType } from '@/types/components';
+import { NameType, UserContextType } from '@/types/components';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import { UserContext } from '../_app';
 
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
@@ -51,6 +52,7 @@ export default function User() {
     },
   });
 
+  const { pushRoute } = useContext(UserContext) as UserContextType;
   const [openPostId, setOpenPostId] = useState<string>('');
   const [writerToShow, setWriterToShow] = useState<string>('');
 
@@ -85,10 +87,13 @@ export default function User() {
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen max-w-3xl mx-auto w-full p-6">
             <div className="flex flex-col gap-4">
-              <a className="flex gap-1 items-center underline cursor-pointer" href={'/users'}>
+              <div
+                className="flex gap-1 items-center underline cursor-pointer"
+                onClick={() => pushRoute('/users')}
+              >
                 <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
                 <p>All users</p>
-              </a>
+              </div>
               <div className="flex gap-2 items-center">
                 <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
                   {userId && (

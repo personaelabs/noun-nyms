@@ -17,8 +17,6 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
-import usePushRoute from '@/hooks/usePushRoute';
-import { RouteLoadingSpinner } from './global/RouteLoadingSpinner';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -44,9 +42,8 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
-  const { routeLoading, pushRoute } = usePushRoute();
   const router = useRouter();
-  const { isMobile } = useContext(UserContext) as UserContextType;
+  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
   // const [postLoading, setPostLoading] = useState(false);
 
   const {
@@ -103,7 +100,6 @@ export default function Posts(props: PostsProps) {
           <PostWithReplies postId={openPostId} />
         </Modal>
       ) : null}
-      {routeLoading && <RouteLoadingSpinner />}
       <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">

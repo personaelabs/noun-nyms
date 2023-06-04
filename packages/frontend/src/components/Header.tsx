@@ -6,21 +6,20 @@ import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
-import usePushRoute from '@/hooks/usePushRoute';
-import { RouteLoadingSpinner } from './global/RouteLoadingSpinner';
 
 export const Header = () => {
   const { address } = useAccount();
-  const { isMobile, isValid } = useContext(UserContext) as UserContextType;
-  const { routeLoading, pushRoute } = usePushRoute();
+  const { isMobile, isValid, pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
     <>
-      {routeLoading && <RouteLoadingSpinner />}
       <div className="bg-black dots w-full">
         <div className="flex flex-col gap-2 py-4 md:pt-6 md:pb-0">
           <nav className="w-full px-4 md:px-6 flex justify-between items-center">
-            <div className="min-w-0 flex shrink gap-2 items-center" onClick={() => pushRoute('/')}>
+            <div
+              className="min-w-0 flex shrink gap-2 items-center cursor-pointer"
+              onClick={() => pushRoute('/')}
+            >
               <div>
                 <div className="w-[35px] md:w-auto">
                   <Image src={logo} alt="logo" />

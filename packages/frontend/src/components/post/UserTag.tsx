@@ -5,8 +5,6 @@ import { NameType, UserContextType } from '@/types/components';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useContext } from 'react';
-import usePushRoute from '@/hooks/usePushRoute';
-import { RouteLoadingSpinner } from '../global/RouteLoadingSpinner';
 dayjs.extend(relativeTime);
 
 interface UserTagProps {
@@ -19,13 +17,10 @@ interface UserTagProps {
 export const UserTag = (props: UserTagProps) => {
   const { userId, avatarWidth, timestamp, lastActive, hideLink } = props;
   const { name, isDoxed } = useName({ userId });
-  const { isMobile } = useContext(UserContext) as UserContextType;
-  const { routeLoading, pushRoute } = usePushRoute();
+  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
-    // stop post modal from opening on click of user page link
     <>
-      {routeLoading && <RouteLoadingSpinner />}
       <div
         className="min-w-0 shrink grow basis-2/3 max-w-full flex gap-2 items-center"
         onClick={(e) => e.stopPropagation()}
