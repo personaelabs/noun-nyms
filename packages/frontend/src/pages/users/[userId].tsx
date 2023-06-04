@@ -8,7 +8,7 @@ import { PostPreview } from '@/components/post/PostPreview';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
 import useError from '@/hooks/useError';
 import useName from '@/hooks/useName';
-import { IPostPreview, IUserUpvote } from '@/types/api';
+import { IPostPreview } from '@/types/api';
 import { NameType, UserContextType } from '@/types/components';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,9 +21,6 @@ import { UserContext } from '../_app';
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
 
-const getUpvotesByUserId = async (userId: string) =>
-  (await axios.get<IUserUpvote[]>(`/api/v1/users/${userId}/upvotes`)).data;
-
 export default function User() {
   const router = useRouter();
   const { errorMsg, setError } = useError();
@@ -35,7 +32,6 @@ export default function User() {
     replies: 'Comments',
   };
 
-  // determine if post creator or replied to post (does post have a parent ID)
   const {
     isError,
     isLoading,
@@ -71,76 +67,78 @@ export default function User() {
 
   return (
     <>
-      <Header />
-      {openPost ? (
-        <Modal
-          startAtTop={true}
-          handleClose={() => {
-            router.replace('/', undefined, { shallow: true });
-            setOpenPostId('');
-          }}
-        >
-          <PostWithReplies writerToShow={writerToShow} postId={openPostId} />
-        </Modal>
-      ) : null}
-      <main className="flex w-full flex-col justify-center items-center">
-        <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-          <div className="bg-gray-50 min-h-screen max-w-3xl mx-auto w-full p-6">
-            <div className="flex flex-col gap-4">
-              <div
-                className="flex gap-1 items-center underline cursor-pointer"
-                onClick={() => pushRoute('/users')}
-              >
-                <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
-                <p>All users</p>
-              </div>
-              <div className="flex gap-2 items-center">
-                <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
-                  {userId && (
-                    <UserAvatar
-                      type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
-                      userId={userId}
-                      width={75}
-                    />
-                  )}
-                </div>
-                {name && <h2 className="break-words breakText">{name}</h2>}
-              </div>
+      <main className="flex h-screen w-full flex-col items-center">
+        <Header />
+        {openPost ? (
+          <Modal
+            startAtTop={true}
+            handleClose={() => {
+              router.replace('/', undefined, { shallow: true });
+              setOpenPostId('');
+            }}
+          >
+            <PostWithReplies writerToShow={writerToShow} postId={openPostId} />
+          </Modal>
+        ) : null}
+        <div className="h-full flex flex-col bg-gray-50 max-w-3xl mx-auto w-full p-6">
+          <div className="flex flex-col gap-4">
+            <div
+              className="flex gap-1 items-center underline cursor-pointer"
+              onClick={() => pushRoute('/users')}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
+              <p>All users</p>
             </div>
-
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10">
-              {isLoading ? (
-                <Spinner />
-              ) : isError ? (
-                <RetryError
-                  message="Could not fetch user data."
-                  error={errorMsg}
-                  refetchHandler={refetch}
-                />
-              ) : userPosts ? (
-                <>
-                  <Filters
-                    filters={filterOptions}
-                    selectedFilter={'all'}
-                    setSelectedFilter={() => console.log('select this one')}
+            <div className="flex gap-2 items-center">
+              <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
+                {userId && (
+                  <UserAvatar
+                    type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
+                    userId={userId}
+                    width={75}
                   />
-                  {userPosts.map((post) => (
-                    <PostPreview
-                      showUserHeader={true}
-                      key={post.id}
-                      {...post}
-                      handleOpenPost={(writerToShow: string) => {
-                        router.replace(window.location.href, `/posts/${post.id}`, {
-                          shallow: true,
-                        });
-                        handleOpenPost(post.id, writerToShow);
-                      }}
-                      onSuccess={() => console.log('need to refetch here')}
-                    />
-                  ))}
-                </>
-              ) : null}
+                )}
+              </div>
+              {name && <h2 className="break-words breakText">{name}</h2>}
             </div>
+          </div>
+
+          <div className="flex grow flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10">
+            {isLoading ? (
+              <Spinner />
+            ) : isError ? (
+              <RetryError
+                message="Could not fetch user data."
+                error={errorMsg}
+                refetchHandler={refetch}
+              />
+            ) : userPosts && userPosts.length > 0 ? (
+              <>
+                <Filters
+                  filters={filterOptions}
+                  selectedFilter={'all'}
+                  setSelectedFilter={() => console.log('select this one')}
+                />
+                {userPosts.map((post) => (
+                  <PostPreview
+                    showUserHeader={true}
+                    key={post.id}
+                    {...post}
+                    handleOpenPost={(writerToShow: string) => {
+                      router.replace(window.location.href, `/posts/${post.id}`, {
+                        shallow: true,
+                      });
+                      handleOpenPost(post.id, writerToShow);
+                    }}
+                    onSuccess={() => console.log('need to refetch here')}
+                  />
+                ))}
+              </>
+            ) : (
+              <div className="m-auto">
+                <p>User has no activity.</p>
+              </div>
+            )}
           </div>
         </div>
       </main>

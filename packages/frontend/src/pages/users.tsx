@@ -60,6 +60,7 @@ export default function Users() {
   const {
     isLoading,
     refetch,
+    isError,
     data: users,
   } = useQuery<UserPostCounts[]>({
     queryKey: ['users'],
@@ -155,13 +156,13 @@ export default function Users() {
                   <p className="text-center">No Users Found</p>
                 )}
               </>
-            ) : (
+            ) : isError ? (
               <RetryError
-                message="Could not fetch users."
+                message="Could not fetch users:"
                 error={errorMsg}
                 refetchHandler={refetch}
               />
-            )}
+            ) : null}
           </div>
         </div>
       </div>
