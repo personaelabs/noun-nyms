@@ -1,12 +1,10 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { INotificationFeed, IPostPreview } from '@/types/api';
+import { IPostPreview } from '@/types/api';
 import { NotificationType } from '@/types/components';
 import { Notification, MyNotification } from '@/types/components';
 import useUserInfo from './useUserInfo';
-import { useAccount, usePublicClient } from 'wagmi';
-import { getUserNameFromId } from '@/lib/user-utils';
-import { PublicClient } from 'viem';
+import { useAccount } from 'wagmi';
 import { getUserIdFromName } from '@/lib/example-utils';
 
 interface NotificationMap {
@@ -50,28 +48,6 @@ const trimText = (text: string) => {
     return text;
   }
   return `${text.slice(0, 50)}...`;
-};
-
-const mapUserIdsToNames = async (
-  publicClient: PublicClient,
-  userIds: string[],
-): Promise<{ [key: string]: string }> => {
-  const mapping: { [key: string]: string } = {};
-  const names = await Promise.all(
-    userIds.map(async (userId) => {
-      const userName = await getUserNameFromId(publicClient, userId);
-      if (userName.isDoxed) {
-        return trimAddress(userName.name);
-      }
-      return userName.name;
-    }),
-  );
-
-  for (let i = 0; i < names.length; i++) {
-    mapping[userIds[i]] = names[i];
-  }
-
-  return mapping;
 };
 
 const cleanRelevantPost = (
