@@ -106,7 +106,7 @@ const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): MyNotification
   return relevantPosts;
 };
 
-const useNotifications = () => {
+const useNotifications = (enabled = true) => {
   const { address } = useAccount();
   const { nymOptions } = useUserInfo({ address });
   const [notifications, setNotifications] = useState<MyNotification[]>();
@@ -126,12 +126,11 @@ const useNotifications = () => {
   }, [nymOptions, address]);
 
   useEffect(() => {
-    if (!address || !nymOptions) {
+    if (!address || !nymOptions || !enabled) {
       return;
     }
     const fetchData = async () => {
       const data = await axios.get('/api/v1/notifications', {
-        // For now, startTime is one day ago. 1685933217000
         params: { startTime: '', endTime: '' },
       });
 
@@ -161,7 +160,7 @@ const useNotifications = () => {
     };
 
     fetchData();
-  }, [address, nymOptions, myUserIds]);
+  }, [address, nymOptions, myUserIds, enabled]);
 
   return { notifications, isLoading };
 };

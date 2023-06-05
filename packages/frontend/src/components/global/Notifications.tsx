@@ -13,13 +13,14 @@ import { NameType, NotificationType, ReplyNotification } from '@/types/component
 import { UserAvatar } from './UserAvatar';
 import Spinner from './Spinner';
 import { fromNowDate } from '@/lib/example-utils';
+import { UserName } from './UserName';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
     case NotificationType.DirectReply:
       return { icon: faReply, text: 'Replied to you: ' };
     case NotificationType.DiscussionReply:
-      return { icon: faReplyAll, text: 'Replied: ' };
+      return { icon: faReplyAll, text: 'Replied to your post: ' };
     default:
       return { icon: faCircleUp, text: 'Upvoted: ' };
   }
@@ -71,11 +72,13 @@ export const Notifications = () => {
                       <div className="min-w-0 shrink grow flex flex-col gap-2">
                         <div className="w-full flex gap-1 items-center">
                           <p className="breakText">
-                            <span className="postDetail">{n.userId}</span>
+                            <span className="postDetail">
+                              <UserName userId={n.userId} />
+                            </span>
                             <span className="secondary"> on </span>
                             <span className="postDetail">{n.body}</span>
                           </p>
-                          <p className="shrink-0 secondary">{'- ' + fromNowDate(n.timestamp)}</p>
+                          <p className="shrink-0 secondary">{fromNowDate(n.timestamp)}</p>
                         </div>
                         <p>
                           <span>{getNotificationFromType(n.type).text}</span>

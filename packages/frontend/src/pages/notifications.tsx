@@ -5,7 +5,7 @@ import useError from '@/hooks/useError';
 import useNotifications from '@/hooks/useNotifications';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faReply, faReplyAll, faCircleUp } from '@fortawesome/free-solid-svg-icons';
-import { NotificationType, ReplyNotification } from '@/types/components';
+import { NotificationType } from '@/types/components';
 
 const getNotificationIconFromType = (type: NotificationType) => {
   switch (type) {
