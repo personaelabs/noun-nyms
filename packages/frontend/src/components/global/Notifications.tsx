@@ -11,8 +11,8 @@ import useNotifications from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
 import { NameType, NotificationType, ReplyNotification } from '@/types/components';
 import { UserAvatar } from './UserAvatar';
-import dayjs from 'dayjs';
 import Spinner from './Spinner';
+import { fromNowDate } from '@/lib/example-utils';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
@@ -75,9 +75,7 @@ export const Notifications = () => {
                             <span className="secondary"> on </span>
                             <span className="postDetail">{n.postText}</span>
                           </p>
-                          <p className="shrink-0 secondary">
-                            {'- ' + dayjs(n.timestamp).fromNow()}
-                          </p>
+                          <p className="shrink-0 secondary">{'- ' + fromNowDate(n.timestamp)}</p>
                         </div>
                         <p>
                           <span>{getNotificationFromType(n.type).text}</span>
