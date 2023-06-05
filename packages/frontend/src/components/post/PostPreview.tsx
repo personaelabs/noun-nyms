@@ -3,6 +3,7 @@ import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { SingleReply } from './SingleReply';
 import useName from '@/hooks/useName';
+import { CopyLink } from './CopyLink';
 
 /** Note: Post.tsx handles the state of the modal and formats the timestamp */
 
@@ -33,32 +34,32 @@ export const PostPreview = (postProps: PostProps) => {
       <div
         id={id}
         onClick={() => handleOpenPost('')}
-        className="rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+        className="min-w-0 grow rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 flex flex-col gap-4 justify-between border border-gray-200 hover:border-gray-300 hover:cursor-pointer"
       >
         {root ? (
           <div className="flex flex-col gap-2">
             <p>
-              <a href={`/users/${userId}`} className="postDetail hover:underline">
+              <a href={`/users/${userId}`} className="postDetail hover:underline break-words">
                 {userName}
               </a>
               <span className="secondary"> commented on </span>
               <span className="postDetail hover:underline">{root.title}</span>
             </p>
-            <a href={`/users/${root.userId}`} className="w-max secondary">
+            <a href={`/users/${root.userId}`} className="breakText secondary">
               Posted by <strong className="hover:underline">{rootName}</strong>
             </a>
           </div>
         ) : (
           <>
             {showUserHeader ? (
-              <p>
+              <p className="breakText">
                 <span className="secondary">Posted by </span>
                 <a href={`/users/${userId}`} className="postDetail hover:underline">
                   {userName}
                 </a>
               </p>
             ) : null}
-            <h4 className="tracking-tight">{title}</h4>
+            <h4 className="hover:underline tracking-tight">{title}</h4>
           </>
         )}
         {parent ? (
@@ -80,9 +81,12 @@ export const PostPreview = (postProps: PostProps) => {
         ) : (
           <>
             <span>{body}</span>
-            <div className="flex justify-between items-center">
+            <div className="min-w-0 flex flex-wrap gap-2 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
-              <ReplyCount count={_count.descendants} />
+              <div className="flex gap-4">
+                <ReplyCount count={_count.descendants} />
+                <CopyLink id={id} />
+              </div>
             </div>
           </>
         )}

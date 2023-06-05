@@ -18,7 +18,7 @@ import {
   NYM_CODE_WARNING,
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
-import { ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
+import { PrefixedHexString, ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
 import { computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
 import { EIP712TypedData, EffECDSASig, Post, PublicInput, NymProofAuxiliary } from './types';
 import wasm, { init } from './wasm';
@@ -80,7 +80,15 @@ export const bigIntToLeBytes = (n: bigint, size: number): Uint8Array => {
   return bytes.reverse();
 };
 
-export const bigIntToPrefixedHex = (val: bigint): PrefixedHex => `0x${val.toString(16)}`;
+export const bigIntToPrefixedHex = (val: bigint): PrefixedHex => {
+  const hex = val.toString(16);
+  return `0x${hex.padStart(64, '0')}`;
+};
+
+export const bigIntToHex = (val: bigint): string => {
+  const hex = val.toString(16);
+  return hex.padStart(64, '0');
+};
 
 // Borrowing from: https://github.com/personaelabs/heyanoun/blob/main/frontend/utils/utils.ts#L83
 export function eip712MsgHash(
@@ -169,9 +177,9 @@ async function poseidonHash(inputs: bigint[]): Promise<bigint> {
 }
 
 // Compute nymHash = Poseidon([nymSig.s, nymSig.s])
-export async function computeNymHash(nymSig: string): Promise<string> {
+export async function computeNymHash(nymSig: string): Promise<PrefixedHexString> {
   const nymSigS = bufferToBigInt(fromRpcSig(nymSig).s);
-  return (await poseidonHash([nymSigS, nymSigS])).toString(16);
+  return bigIntToHex(await poseidonHash([nymSigS, nymSigS]));
 }
 
 export const serializePublicInput = (publicInput: PublicInput): Buffer => {
@@ -393,4 +401,8 @@ export const recoverUpvotePubkey = (upvote: Upvote): string => {
   const pubKey = ecrecover(msgHash, v, r, s);
 
   return `0x${pubKey.toString('hex')}`;
+};
+
+export const pubToPrefixedAddress = (pubKey: Buffer): PrefixedHex => {
+  return `0x${pubToAddress(pubKey).toString('hex')}`;
 };

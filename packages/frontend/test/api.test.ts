@@ -76,7 +76,7 @@ const mockFindTreeNodeOnce = (_merkleProof: MerkleProof) => {
     type: 'OneNoun',
     createdAt: new Date(),
     indices: _merkleProof.pathIndices.map((i) => i.toString()),
-    path: _merkleProof.siblings.map((s) => `0x${s.toString(16)}`),
+    path: _merkleProof.siblings.map((s) => `0x${s[0].toString(16)}`),
   });
 };
 

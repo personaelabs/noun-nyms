@@ -3,13 +3,29 @@ import { UserPostCounts } from '@/types/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isAddress } from 'viem';
 
-interface UpvoteCount {
-  [address: string]: number;
+function countUpvotes(
+  users: {
+    userId: string;
+    _count: {
+      upvotes: number;
+    };
+  }[],
+) {
+  const upvotesCount: { [userId: string]: number } = {};
+
+  users.forEach((user) => {
+    const { userId, _count } = user;
+    const { upvotes } = _count;
+
+    if (!upvotesCount[userId]) {
+      upvotesCount[userId] = 0;
+    }
+
+    upvotesCount[userId] += upvotes;
+  });
+
+  return upvotesCount;
 }
-const getUpvoteCount = (userId: string, countObject: UpvoteCount) => {
-  if (userId in countObject) return countObject[userId];
-  else return 0;
-};
 
 const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPostCounts[]>) => {
   const postCounts = await prisma.post.groupBy({
@@ -23,33 +39,30 @@ const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPost
     },
   });
 
-  const upvoteCounts = await prisma.doxedUpvote.groupBy({
-    by: ['address'],
-    _count: { address: true },
+  const upvotesRecevied = await prisma.post.findMany({
+    select: {
+      userId: true,
+      _count: {
+        select: {
+          upvotes: true,
+        },
+      },
+    },
   });
 
-  const countsObject = upvoteCounts.reduce<UpvoteCount>((obj, item) => {
-    const address = item.address;
-    const count = item._count.address;
-    obj[address] = count;
-    return obj;
-  }, {});
+  const upvotesByUserId = countUpvotes(upvotesRecevied);
 
-  const finalCounts = postCounts.map(({ userId, _count, _max }) => ({
+  const finalCounts = postCounts.map(async ({ userId, _count, _max }) => ({
     userId,
     numPosts: _count._all - _count.parentId,
     numReplies: _count.parentId,
     totalPosts: _count._all,
     doxed: isAddress(userId),
     lastActive: _max.timestamp,
-    // Util to get human readable name for nym. Might want to get ens in the future as well.
-    // not sure if best client or server side tho.
-    name: isAddress(userId) ? userId : userId.split('-')[0],
-    // Also not sure if we need to reduce to get upvote count.
-    upvotes: isAddress(userId) ? getUpvoteCount(userId, countsObject) : 0,
+    upvotes: userId in upvotesByUserId ? upvotesByUserId[userId] : 0,
   }));
 
-  res.send(finalCounts);
+  res.send(await Promise.all(finalCounts));
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

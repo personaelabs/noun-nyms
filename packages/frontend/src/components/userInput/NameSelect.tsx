@@ -1,43 +1,28 @@
 import { faAngleDown, faAngleUp, faCheck, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
-import { ClientName, LocalNym, NameType } from '@/types/components';
+import { ClientName, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { useAccount } from 'wagmi';
+import { UserContext } from '@/pages/_app';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
   setSelectedName: (selectedName: ClientName | null) => void;
 }
 
-const getNymOptions = (address: string | undefined): ClientName[] => {
-  let nymOptions: ClientName[] = [];
-  const nymOptionsString = address && localStorage.getItem(address);
-  if (nymOptionsString) {
-    JSON.parse(nymOptionsString).forEach((nym: LocalNym) => {
-      nymOptions.push({
-        type: NameType.PSEUDO,
-        name: nym.nymName,
-        nymSig: nym.nymSig,
-        nymHash: nym.nymHash,
-      });
-    });
-  }
-  return nymOptions;
-};
-
 export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName } = props;
   const divRef = useRef<HTMLDivElement>(null);
   const { address } = useAccount();
 
+  const { nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
   const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
 
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
-  const [nymOptions, setNymOptions] = useState<ClientName[]>(getNymOptions(address));
   const [maxSelectHeight, setMaxSelectHeight] = useState<number>(0);
 
   const getUserIdFromName = (user: ClientName): string => {
@@ -48,7 +33,7 @@ export const NameSelect = (props: NameSelectProps) => {
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
-    setSelectedName(nymOptions.length > 0 ? nymOptions[0] : null);
+    setSelectedName(nymOptions.length > 0 ? nymOptions[nymOptions.length - 1] : null);
     const handleOutsideClick = (event: MouseEvent) => {
       if (divRef.current && !divRef.current.contains(event.target as Node)) {
         setOpenSelect(false);
@@ -64,7 +49,7 @@ export const NameSelect = (props: NameSelectProps) => {
     return () => {
       document.removeEventListener('click', handleOutsideClick);
     };
-  }, []);
+  }, [nymOptions, setSelectedName]);
 
   return (
     <>
@@ -79,8 +64,8 @@ export const NameSelect = (props: NameSelectProps) => {
           setSelectedName={setSelectedName}
         />
       ) : null}
-      <p className="secondary">Posting as</p>
-      <div className="relative w-[30%]" ref={divRef}>
+      <p className="secondary shrink-0">Posting as</p>
+      <div className="relative w-auto md:w-[30%]" ref={divRef}>
         <div
           className="bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
           onClick={() => setOpenSelect(!openSelect)}
@@ -93,9 +78,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 width={20}
               />
             )}
-            <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {selectedName ? selectedName.name : 'No Nym Selected'}
-            </p>
+            <p className="breakText">{selectedName ? selectedName.name : 'No Nym Selected'}</p>
           </div>
           <FontAwesomeIcon icon={openSelect ? faAngleUp : faAngleDown} />
         </div>
@@ -129,9 +112,7 @@ export const NameSelect = (props: NameSelectProps) => {
                           userId={getUserIdFromName(nym)}
                           width={20}
                         />
-                        <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
-                          {nym.name}
-                        </p>
+                        <p className="shrink breakText">{nym.name}</p>
                       </div>
                       <FontAwesomeIcon
                         icon={faCheck}
@@ -159,9 +140,7 @@ export const NameSelect = (props: NameSelectProps) => {
                   userId={getUserIdFromName(doxedName)}
                   width={20}
                 />
-                <p className="shrink overflow-hidden text-ellipsis whitespace-nowrap">
-                  {doxedName.name}
-                </p>
+                <p className="shrink breakText">{doxedName.name}</p>
               </div>
               <FontAwesomeIcon
                 icon={faCheck}

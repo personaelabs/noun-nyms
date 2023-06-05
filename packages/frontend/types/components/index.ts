@@ -1,5 +1,6 @@
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { IPostPreview } from '../api';
+import { Dispatch, SetStateAction } from 'react';
 
 export type PostProps = IPostPreview & {
   showUserHeader?: boolean;
@@ -10,7 +11,6 @@ export type PostProps = IPostPreview & {
 export type PostWithRepliesProps = {
   postId: string;
   writerToShow?: string;
-  handleClose: () => void;
 };
 
 export type LocalNym = {
@@ -47,4 +47,11 @@ export type ContentUserInput = {
   title: string;
   body: string;
   parentId: PrefixedHex;
+};
+
+export type UserContextType = {
+  isMobile: boolean;
+  nymOptions: ClientName[];
+  setNymOptions: Dispatch<SetStateAction<ClientName[]>>;
+  isValid: boolean;
 };

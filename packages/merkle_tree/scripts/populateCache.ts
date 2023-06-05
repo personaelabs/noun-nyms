@@ -34,7 +34,9 @@ const readFile = (filePath: string): Promise<CachedEOA[] | CachedCode[]> =>
 const populateCache = async () => {
   const prisma = new PrismaClient();
 
-  const cachedEOAs = await readFile(path.join(__dirname, "cached-eoas.csv"));
+  const cachedEOAs = await readFile(
+    path.join(__dirname, "../../../cache/cached-eoas.csv")
+  );
 
   await prisma.cachedEOA.deleteMany();
   await prisma.cachedEOA.createMany({
@@ -43,7 +45,9 @@ const populateCache = async () => {
       pubkey: (row as CachedEOA).pubkey
     }))
   });
-  const cachedCodes = await readFile(path.join(__dirname, "cached-codes.csv"));
+  const cachedCodes = await readFile(
+    path.join(__dirname, "../../../cache/cached-codes.csv")
+  );
 
   await prisma.cachedCode.deleteMany();
   await prisma.cachedCode.createMany({

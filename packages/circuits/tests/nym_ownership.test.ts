@@ -96,7 +96,7 @@ maybe('nym ownership', () => {
       contentSigS: bytesToBigInt(contentSig.s),
 
       // Merkle proof
-      siblings: merkleProof.siblings,
+      siblings: merkleProof.siblings.map((sibling) => sibling[0]),
       pathIndices: merkleProof.pathIndices,
       root: tree.root(),
     };

@@ -1,43 +1,43 @@
-import { motion } from 'framer-motion';
 import ConnectWallet from './ConnectWallet';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import logo from '../../public/logo.svg';
+import { MyProfile } from './MyProfile';
+import Image from 'next/image';
+import { useContext } from 'react';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
+import { useAccount } from 'wagmi';
 
 export const Header = () => {
+  const { address } = useAccount();
+  const { isMobile, isValid } = useContext(UserContext) as UserContextType;
+
   return (
     <div className="bg-black dots w-full">
-      <div className="pt-8">
-        <nav className="px-6 flex justify-between">
-          <a href={'/'}>
-            <FontAwesomeIcon icon={faHome} className="fa-xl" color="#ffffff" />
+      <div className="flex flex-col gap-2 py-4 md:pt-6 md:pb-0">
+        <nav className="w-full px-4 md:px-6 flex justify-between items-center">
+          <a className="min-w-0 flex shrink gap-2 items-center" href={'/'}>
+            <div>
+              <div className="w-[35px] md:w-auto">
+                <Image src={logo} alt="logo" />
+              </div>
+            </div>
+            <p
+              className={`text-white font-semibold breakText ${isMobile ? 'text-lg' : 'text-2xl'}`}
+            >
+              PseudoNym
+            </p>
           </a>
-          <ConnectWallet />
-        </nav>
-        <div className="max-w-7xl mx-auto pt-12 pb-8 px-4 sm:px-6 lg:px-8">
-          <div className="text-center md:text-center max-w-2xl mx-auto">
-            <motion.h1
-              initial={{ y: -12, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="leading-[40px] md:leading-14"
-            >
-              Give Feedback On Proposals Anonymously
-            </motion.h1>
-            <motion.h4
-              initial={{ y: -12, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              className="mt-4 md:leading-8 font-normal text-white"
-            >
-              Anoun allows noun-holders to give feedback on proposals while maintaining their
-              privacy using zero-knowledge proofs.{' '}
-            </motion.h4>
+          <div className="flex gap-2 items-center">
+            {(!isMobile || !address || !isValid) && <ConnectWallet />}
+            <MyProfile />
           </div>
-        </div>
-      </div>
-      <div className="flex justify-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="w-40" src="/nouns.png" alt="nouns" />
+        </nav>
+        {!isMobile && (
+          <div className="grow flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="w-[100px] md:w-[150px]" src="/nouns.png" alt="nouns" />
+          </div>
+        )}
       </div>
     </div>
   );

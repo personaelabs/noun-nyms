@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQuery } from '@tanstack/react-query';
@@ -9,16 +9,24 @@ import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
+import { RetryError } from '../global/RetryError';
+import useError from '@/hooks/useError';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { writerToShow, handleClose, postId } = postWithRepliesProps;
+  const { writerToShow, postId } = postWithRepliesProps;
   const fromRoot = true;
-  const { refetch, data: singlePost } = useQuery<IPostWithReplies>({
+  const { errorMsg, setError } = useError();
+
+  const {
+    isLoading,
+    isError,
+    refetch,
+    data: singlePost,
+  } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId, fromRoot],
     queryFn: () => getPostById(postId, fromRoot),
     retry: 1,
@@ -26,6 +34,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     staleTime: 5000,
     refetchIntervalInBackground: true,
     refetchInterval: 30000, // 30 seconds
+    onError: (error) => {
+      setError(error);
+    },
   });
 
   const nestedComponentThreads = useMemo(() => {
@@ -46,12 +57,22 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
   };
 
+  useEffect(() => {
+    //if post is not the root, scroll to post
+    if (singlePost && singlePost.id !== postId) {
+      setTimeout(
+        () =>
+          document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        500,
+      );
+    }
+  }, [postId, singlePost]);
+
   return (
-    <Modal startAtTop={true} handleClose={handleClose}>
+    <>
       {singlePost ? (
         <>
-          {' '}
-          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
+          <div className="flex flex-col gap-4 py-8 px-8 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
                 <div className="self-start line-clamp-2">
@@ -60,7 +81,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
               <p>{singlePost.body}</p>
             </div>
-            <div className="flex justify-between pt-2 border-t border-dotted border-gray-300 items-center">
+            <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
               <UserTag userId={singlePost.userId} timestamp={singlePost.timestamp} />
               <div className="flex gap-2">
                 <ReplyCount count={singlePost.replies.length} />
@@ -72,7 +93,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 px-8 py-8">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}
@@ -88,10 +109,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           </div>
         </>
       ) : (
-        <div className="h-full flex flex-col justify-center">
-          <Spinner />
+        <div className="h-screen flex flex-col justify-center">
+          {isLoading ? (
+            <Spinner />
+          ) : isError ? (
+            <RetryError message="Could not fetch post:" error={errorMsg} refetchHandler={refetch} />
+          ) : null}
         </div>
       )}
-    </Modal>
+    </>
   );
 };

@@ -42,6 +42,11 @@
     @apply text-xs;
     @apply text-gray-500;
   }
+
+  .error {
+    @apply text-xs;
+    @apply text-red-700;
+  }
 }
 
 @layer components {
@@ -60,6 +65,11 @@
 
   * {
     box-sizing: border-box;
+  }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
   }
 
   /* Comment Writer Styles */
@@ -92,5 +102,80 @@
   }
   .hoverIcon:hover {
     color: #0e76fd;
+  }
+
+  .breakText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dot1 {
+    animation: visibility 1s linear infinite;
+  }
+
+  .dot2 {
+    animation: visibility2 1s linear infinite;
+  }
+
+  .dot3 {
+    animation: visibility3 1s linear infinite;
+  }
+
+  @keyframes visibility {
+    0% {
+      opacity: 1;
+    }
+    65% {
+      opacity: 1;
+    }
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes visibility2 {
+    0% {
+      opacity: 0;
+    }
+    21% {
+      opacity: 0;
+    }
+    22% {
+      opacity: 1;
+    }
+    65% {
+      opacity: 1;
+    }
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes visibility3 {
+    0% {
+      opacity: 0;
+    }
+    43% {
+      opacity: 0;
+    }
+    44% {
+      opacity: 1;
+    }
+    65% {
+      opacity: 1;
+    }
+    66% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 }

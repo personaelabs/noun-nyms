@@ -62,6 +62,7 @@ export const postDoxed = async (
 };
 
 export const postPseudo = async (
+  nymProver: NymProver,
   nymName: string,
   nymSig: any,
   nymContentInput: ContentUserInput,
@@ -83,7 +84,7 @@ export const postPseudo = async (
 
     const merkleProof: MerkleProof = {
       pathIndices: userMerkleProof?.indices,
-      siblings: userMerkleProof?.path.map((sibling) => BigInt(sibling)),
+      siblings: userMerkleProof?.path.map((sibling) => [BigInt(sibling)]),
       root: BigInt(group.root),
     };
 
@@ -107,13 +108,6 @@ export const postPseudo = async (
 
     // Call handler once user has signed the post
     if (onSigned) onSigned();
-
-    // Setup the prover
-    const nymProver = new NymProver({
-      enableProfiler: true,
-    });
-
-    await nymProver.initWasm();
 
     // Generate the proof
     const attestation = await nymProver.prove(
