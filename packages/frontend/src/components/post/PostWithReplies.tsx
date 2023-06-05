@@ -12,6 +12,7 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
+import { scrollToPost } from '@/lib/client-utils';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -49,12 +50,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
-    if (postId) {
-      //wait for DOM to update
-      setTimeout(() => {
-        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
-    }
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
   };
 
   useEffect(() => {
@@ -72,7 +71,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     <>
       {singlePost ? (
         <>
-          <div className="flex flex-col gap-4 py-8 px-8 md:px-12 md:py-10">
+          <div className="flex flex-col gap-4 py-6 px-6 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
                 <div className="self-start line-clamp-2">
@@ -93,7 +92,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex grow flex-col gap-8 w-full bg-gray-50 px-8 py-8">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}

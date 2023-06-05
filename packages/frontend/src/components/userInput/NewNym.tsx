@@ -1,5 +1,5 @@
 import { Modal } from '../global/Modal';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { MainButton } from '../MainButton';
 import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING, computeNymHash } from '@personaelabs/nymjs';
 import { useSignTypedData } from 'wagmi';
@@ -44,8 +44,10 @@ export const NewNym = (props: NewNymProps) => {
   const [nymName, setNymName] = useState<string>('');
   const [loadingNym, setLoadingNym] = useState<boolean>(false);
   const { errorMsg, setError } = useError();
-
+  const existingNames = useMemo(() => nymOptions.map((nym) => nym.name), [nymOptions]);
   const { signTypedDataAsync } = useSignTypedData();
+
+  console.log({ errorMsg });
 
   const storeNym = async (nymSig: string, nymHash: string) => {
     const nyms = localStorage.getItem(address);
@@ -64,7 +66,8 @@ export const NewNym = (props: NewNymProps) => {
     try {
       setError('');
       setLoadingNym(true);
-      if (!nymName) throw new Error('Must submit a valid name');
+      if (!nymName) throw new Error('Must submit a valid name.');
+      if (existingNames.includes(nymName)) throw new Error('Nym already exists.');
       const nymSig = await signNym(nymName, signTypedDataAsync);
       const nymHash = await computeNymHash(nymSig);
       if (nymSig) storeNym(nymSig, nymHash);
@@ -88,19 +91,24 @@ export const NewNym = (props: NewNymProps) => {
           What does it mean to create a new nym? Any warnings the user should know beforehand?
         </p>
         {errorMsg ? <p className="error">Could not create pseudo: {errorMsg}</p> : null}
-        <div className="flex justify-start items-center gap-2">
-          <UserAvatar width={24} userId={address} />
-          <div className="relative border border-gray-200 rounded-md px-2 py-1">
-            <input
-              className="outline-none bg-transparent"
-              type="text"
-              placeholder="Name"
-              value={nymName}
-              onChange={(event) => setNymName(event.target.value)}
-            />
+        <div className="flex flex-wrap justify-start items-center gap-2">
+          <div className="flex gap-2 items-center">
+            <UserAvatar width={24} userId={address} />
+            <div className="min-w-0 shrink relative border border-gray-200 rounded-md px-2 py-1">
+              <input
+                className="outline-none bg-transparent"
+                type="text"
+                placeholder="Name"
+                value={nymName}
+                onChange={(event) => {
+                  if (errorMsg) setError('');
+                  setNymName(event.target.value);
+                }}
+              />
+            </div>
           </div>
           <button
-            className="secondary underline"
+            className="shrink-0 secondary underline"
             onClick={() => setNymName(generateRandomString(5))}
           >
             Generate random name

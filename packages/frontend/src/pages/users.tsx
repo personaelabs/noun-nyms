@@ -6,9 +6,11 @@ import useError from '@/hooks/useError';
 import { UserPostCounts } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { Filters } from '@/components/post/Filters';
 import { SortSelect } from '@/components/post/SortSelect';
+import { UserContext } from './_app';
+import { UserContextType } from '@/types/components';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
@@ -57,8 +59,8 @@ export default function Users() {
   const { errorMsg, setError } = useError();
   const {
     isLoading,
-    isError,
     refetch,
+    isError,
     data: users,
   } = useQuery<UserPostCounts[]>({
     queryKey: ['users'],
@@ -71,15 +73,14 @@ export default function Users() {
     },
   });
 
+  const { pushRoute } = useContext(UserContext) as UserContextType;
   const [filter, setFilter] = useState<string>('all');
   const [sort, setSort] = useState<string>('lastActive');
-
   const [searchQuery, setSearchQuery] = useState<string>('');
   const filteredUsers = useMemo(
     () => filterUsers(users, filter, searchQuery),
     [filter, users, searchQuery],
   );
-
   const sortedUsers = useMemo(() => sortUsers(filteredUsers, sort), [filteredUsers, sort]);
 
   return (
@@ -122,10 +123,10 @@ export default function Users() {
                 </div>
                 {sortedUsers && sortedUsers.length > 0 ? (
                   sortedUsers.map((u) => (
-                    <a
-                      href={`/users/${u.userId}`}
+                    <div
                       className="flex gap-4 justify-between outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
                       key={u.userId}
+                      onClick={() => pushRoute(`/users/${u.userId}`)}
                     >
                       <div className="min-w-0 hover:no-underline">
                         <UserTag
@@ -149,19 +150,21 @@ export default function Users() {
                           {u.upvotes === 1 ? ' Vote' : ' Votes'}
                         </span>
                       </div>
-                    </a>
+                    </div>
                   ))
                 ) : (
-                  <p className="text-center">No Users Found</p>
+                  <div className="m-auto">
+                    <p>No users found.</p>
+                  </div>
                 )}
               </>
-            ) : (
+            ) : isError ? (
               <RetryError
-                message="Could not fetch users."
+                message="Could not fetch users:"
                 error={errorMsg}
                 refetchHandler={refetch}
               />
-            )}
+            ) : null}
           </div>
         </div>
       </div>

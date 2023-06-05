@@ -21,7 +21,6 @@ export const resolveNestedReplyThreads = (
   const replyNodes: React.ReactNode[] = [];
   const proof = '';
   for (const post of allPosts) {
-    console.log(`nest`, post.id);
     replyNodes.push(
       <NestedReply
         {...post}
@@ -66,7 +65,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
     <div
       ref={divRef}
       id={id}
-      className="flex flex-col gap-2"
+      className="flex flex-col gap-2 transition-all"
       style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
     >
       <SingleReply
