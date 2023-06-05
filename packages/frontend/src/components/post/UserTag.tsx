@@ -2,10 +2,8 @@ import { UserContext } from '@/pages/_app';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { NameType, UserContextType } from '@/types/components';
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 import { useContext } from 'react';
-dayjs.extend(relativeTime);
+import { fromNowDate } from '@/lib/example-utils';
 
 interface UserTagProps {
   userId: string;
@@ -45,7 +43,7 @@ export const UserTag = (props: UserTagProps) => {
         {lastActive && (
           <div className="flex gap-1 shrink-0 secondary">
             {!isMobile && <p>Last active </p>}
-            <p className="font-semibold">{dayjs(lastActive).fromNow()}</p>
+            <p className="font-semibold">{fromNowDate(lastActive)}</p>
           </div>
         )}
       </div>
@@ -53,7 +51,7 @@ export const UserTag = (props: UserTagProps) => {
       {timestamp && (
         <div className="shrink-0 flex gap-2">
           <p className="secondary">-</p>
-          <p className="secondary">{dayjs(timestamp).fromNow()}</p>
+          <p className="secondary">{fromNowDate(timestamp)}</p>
         </div>
       )}
     </div>

@@ -1,7 +1,13 @@
 import axiosBase from 'axios';
 import { EIP712TypedData, PrefixedHex, eip712MsgHash } from '@personaelabs/nymjs';
 import { ecrecover, fromRpcSig } from '@ethereumjs/util';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime);
 
+export const fromNowDate = (date: Date) => {
+  return dayjs(date).fromNow();
+};
 export const axios = axiosBase.create({
   baseURL: `/api/v1`,
 });

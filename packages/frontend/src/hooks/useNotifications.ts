@@ -77,6 +77,7 @@ const useNotifications = () => {
       console.timeEnd('fetch notification feed');
       const feed = result.data;
 
+      console.log('feed', feed);
       const feedInLocalStorage = getNotificationsInLocalStorage(address);
 
       // Get the reply ids stored in local storage
