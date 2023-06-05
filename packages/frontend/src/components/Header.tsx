@@ -6,6 +6,7 @@ import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
+import { Notifications } from './global/Notifications';
 
 export const Header = () => {
   const { address } = useAccount();
@@ -34,6 +35,7 @@ export const Header = () => {
               </p>
             </div>
             <div className="flex gap-2 items-center">
+              <Notifications />
               {(!isMobile || !address || !isValid) && <ConnectWallet />}
               <MyProfile />
             </div>
