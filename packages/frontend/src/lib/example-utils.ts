@@ -3,11 +3,19 @@ import { EIP712TypedData, PrefixedHex, eip712MsgHash } from '@personaelabs/nymjs
 import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { ClientName, NameType } from '@/types/components';
 dayjs.extend(relativeTime);
 
 export const fromNowDate = (date: Date) => {
   return dayjs(date).fromNow();
 };
+
+export const getUserIdFromName = (user: ClientName): string => {
+  if (user.name) {
+    return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
+  } else return '';
+};
+
 export const axios = axiosBase.create({
   baseURL: `/api/v1`,
 });

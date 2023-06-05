@@ -1,19 +1,24 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { INotificationFeed } from '@/types/api';
+import { INotificationFeed, IPostPreview } from '@/types/api';
 import { NotificationType } from '@/types/components';
-import { Notification } from '@/types/components';
+import { Notification, MyNotification } from '@/types/components';
 import useUserInfo from './useUserInfo';
 import { useAccount, usePublicClient } from 'wagmi';
 import { getUserNameFromId } from '@/lib/user-utils';
 import { PublicClient } from 'viem';
+import { getUserIdFromName } from '@/lib/example-utils';
 
-const getNotificationsInLocalStorage = (address: string): Notification[] => {
+const getNotificationsInLocalStorage = (address: string): MyNotification[] => {
   const notifications = localStorage.getItem(`notifications-${address}`);
   if (notifications) {
-    return JSON.parse(notifications) as Notification[];
+    return JSON.parse(notifications) as MyNotification[];
   }
   return [];
+};
+
+const setNotificationsInLocalStorage = (address: string, notifications: MyNotification[]) => {
+  localStorage.setItem(`notifications-${address}`, JSON.stringify(notifications));
 };
 
 const trimAddress = (address: string) => {
@@ -49,12 +54,47 @@ const mapUserIdsToNames = async (
   return mapping;
 };
 
+const cleanRelevantPost = (
+  post: IPostPreview,
+  notificationType: NotificationType,
+): MyNotification => {
+  return {
+    ...post,
+    read: false,
+    type: post.depth === 1 ? NotificationType.DiscussionReply : notificationType,
+  };
+};
+
+const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): MyNotification[] => {
+  // Filter posts that have an identity of mine as the root or the parent Id.
+
+  // Using reduce here to filter and map in one function for performance.
+  const relevantPosts = posts.reduce((result: MyNotification[], p) => {
+    const rootAuthor = p.root?.userId.toLowerCase();
+    const parentAuthor = p.parent?.userId.toLowerCase();
+
+    // Post is related if root or parent author is one of my identities
+
+    // If rootAuthor is one of my ids, this is discussion reply
+    if (rootAuthor && myIds.includes(rootAuthor))
+      result.push(cleanRelevantPost(p, NotificationType.DiscussionReply));
+
+    // If parentAuthor is one of my ids, this is a direct reply
+    if (parentAuthor && myIds.includes(parentAuthor))
+      result.push(cleanRelevantPost(p, NotificationType.DirectReply));
+
+    return result;
+  }, []);
+
+  return relevantPosts;
+};
+
 const useNotifications = () => {
   const { address } = useAccount();
   const { nymOptions } = useUserInfo({ address });
-  const [notifications, setNotifications] = useState<Notification[]>();
+  const [notifications, setNotifications] = useState<MyNotification[]>();
+  const [myUserIds, setMyUserIds] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const publicClient = usePublicClient();
 
   useEffect(() => {
     if (notifications) {
@@ -63,17 +103,57 @@ const useNotifications = () => {
   }, [notifications]);
 
   useEffect(() => {
+    const myIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
+    if (address) myIds.push(address.toLowerCase());
+    setMyUserIds(myIds);
+  }, [nymOptions, address]);
+
+  useEffect(() => {
     if (!address || !nymOptions) {
       return;
     }
+    const fetchData = async () => {
+      const data = await axios.get('/api/v1/notifications', {
+        // For now, startTime is one day ago. 1685933217000
+        params: { startTime: '', endTime: '' },
+      });
 
+      const feed = data.data as IPostPreview[];
+      // Filter the list for posts with a rootId or parentId authored by my identities.
+      // Map to determine if it is a direct or discussion reply
+      const relevantPosts = getRelatedPosts(feed, myUserIds);
+      console.log(`relevantPosts`, relevantPosts);
+
+      // Write to localStorage IF timestamps are greater.
+      // First, get localStorage notifications
+      const localNotifications = getNotificationsInLocalStorage(address);
+      console.log(`local Notifications`, localNotifications);
+      if (localNotifications.length > 0) {
+        // Comparison logic
+        console.log(`splicing new data... `);
+      } else {
+        setNotificationsInLocalStorage(address, relevantPosts);
+      }
+      setNotifications(relevantPosts);
+    };
+
+    fetchData();
+  }, [address, nymOptions, myUserIds]);
+
+  return { notifications, isLoading };
+};
+
+export default useNotifications;
+
+/**
+ * 
     (async () => {
       const userIds = nymOptions
         .map((nym) => `${nym.name}-${nym.nymHash}`)
         .concat(address.toLowerCase());
 
       console.time('fetch notification feed');
-      const result = await axios.get<INotificationFeed[]>('/api/v1/notification-feed');
+      const result = await axios.get<INotificationFeed[]>('/api/v1/notifications');
       console.timeEnd('fetch notification feed');
       const feed = result.data;
 
@@ -195,8 +275,4 @@ const useNotifications = () => {
       setNotifications([...sortedNotifications, ...feedInLocalStorage]);
     })();
   }, [address, nymOptions, publicClient]);
-
-  return { notifications, isLoading };
-};
-
-export default useNotifications;
+ */

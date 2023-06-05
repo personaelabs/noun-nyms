@@ -1,12 +1,13 @@
 import { UserAvatar } from './global/UserAvatar';
 import { useContext, useEffect, useState } from 'react';
-import { ClientName, NameType, UserContextType } from '@/types/components';
+import { NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
 import { UserContext } from '@/pages/_app';
 import { useAccount } from 'wagmi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
+import { getUserIdFromName } from '@/lib/example-utils';
 
 export const MyProfile = () => {
   const { address } = useAccount();
@@ -15,12 +16,6 @@ export const MyProfile = () => {
 
   const [openProfile, setOpenProfile] = useState(false);
   const [localAddress, setLocalAddress] = useState('');
-
-  const getUserIdFromName = (user: ClientName): string => {
-    if (user.name) {
-      return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
-    } else return '';
-  };
 
   useEffect(() => {
     // Prevents server side mismatch with address. Idk why

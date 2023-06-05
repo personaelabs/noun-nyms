@@ -78,3 +78,5 @@ export type ReplyNotification = UpvoteNotification & {
 };
 
 export type Notification = ReplyNotification | UpvoteNotification;
+
+export type MyNotification = IPostPreview & { type: NotificationType; read: boolean };

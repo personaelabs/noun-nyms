@@ -71,19 +71,15 @@ export const Notifications = () => {
                       <div className="min-w-0 shrink grow flex flex-col gap-2">
                         <div className="w-full flex gap-1 items-center">
                           <p className="breakText">
-                            <span className="postDetail">{n.userName}</span>
+                            <span className="postDetail">{n.userId}</span>
                             <span className="secondary"> on </span>
-                            <span className="postDetail">{n.postText}</span>
+                            <span className="postDetail">{n.body}</span>
                           </p>
                           <p className="shrink-0 secondary">{'- ' + fromNowDate(n.timestamp)}</p>
                         </div>
                         <p>
                           <span>{getNotificationFromType(n.type).text}</span>
-                          <span>
-                            {n.type === NotificationType.Upvote
-                              ? n.postText
-                              : (n as ReplyNotification).replyText}
-                          </span>
+                          <span>{n.type === NotificationType.Upvote ? n.body : n.body}</span>
                         </p>
                       </div>
                     </Menu.Item>

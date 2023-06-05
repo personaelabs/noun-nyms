@@ -7,6 +7,7 @@ import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
+import { getUserIdFromName } from '@/lib/example-utils';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -24,12 +25,6 @@ export const NameSelect = (props: NameSelectProps) => {
   const [openSelect, setOpenSelect] = useState<boolean>(false);
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
   const [maxSelectHeight, setMaxSelectHeight] = useState<number>(0);
-
-  const getUserIdFromName = (user: ClientName): string => {
-    if (user.name) {
-      return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
-    } else return '';
-  };
 
   //TODO: make this outclick event work for nym select modal
   useEffect(() => {
