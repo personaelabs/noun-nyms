@@ -67,11 +67,6 @@
     box-sizing: border-box;
   }
 
-  select {
-    appearance: none;
-    -webkit-appearance: none;
-  }
-
   /* Comment Writer Styles */
   textarea,
   pre {
