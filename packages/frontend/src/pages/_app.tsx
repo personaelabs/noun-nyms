@@ -15,6 +15,7 @@ import useUserInfo from '@/hooks/useUserInfo';
 import { UserContextType } from '@/types/components';
 import usePushRoute from '@/hooks/usePushRoute';
 import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
+import { Header } from '@/components/Header';
 
 config.autoAddCss = false;
 
@@ -61,6 +62,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </Head>
           <Seo title={TITLE} description={HOME_DESCRIPTION} />
           {routeLoading && <RouteLoadingSpinner />}
+          <Header />
           <Component {...pageProps} />
           <ValidUserWarning />
         </UserContext.Provider>

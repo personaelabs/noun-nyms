@@ -99,7 +99,6 @@ export default function Posts(props: PostsProps) {
           <PostWithReplies postId={openPostId} />
         </Modal>
       ) : null}
-      <Header />
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">

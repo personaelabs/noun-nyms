@@ -78,7 +78,6 @@ export default function User() {
   return (
     <>
       <main className="flex h-screen w-full flex-col items-center">
-        <Header />
         {openPost && !isMobile ? (
           <Modal
             startAtTop={true}
