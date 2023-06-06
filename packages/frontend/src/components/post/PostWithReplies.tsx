@@ -87,6 +87,44 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
   }, [isSuccess, singlePost]);
 
+  // returns true if post was found or false if it was not found to query the api
+  const recursivelyFindPostId = (
+    idLookFor: string,
+    path: string[],
+    depth: number,
+    data?: IPostWithReplies,
+  ): boolean => {
+    if (data) {
+      const replies = data.replies;
+
+      if (data.id === idLookFor) {
+        // don't mess with top-level comments which we have another useEffect for loading
+        if (depth > 1) {
+          const newPostsVisibility = { ...postsVisibilityMap };
+
+          for (const element of path) {
+            newPostsVisibility[element] = 1;
+          }
+
+          newPostsVisibility[idLookFor] = 1;
+          setPostsVisibilityMap(newPostsVisibility);
+        }
+        return true;
+      }
+
+      if (data.replies) {
+        for (let i = 0; i < replies.length; i++) {
+          const reply = replies[i];
+          const newPath = [...path, reply.id];
+          return recursivelyFindPostId(idLookFor, newPath, depth + 1, reply);
+        }
+      } else {
+        return false;
+      }
+    }
+    return false;
+  };
+
   // to make sure top-level comments always load when the component is mounted
   useEffect(() => {
     const newPostsVisibility = { ...postsVisibilityMap };
@@ -95,7 +133,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       combinedData.replies.forEach((reply) => {
         newPostsVisibility[reply.id] = 1;
       });
-      console.log('set from combined data');
+
       setPostsVisibilityMap(newPostsVisibility);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -144,6 +182,31 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [additionalDataKeys, additionalDataQueries, shouldRerenderThreads]);
+
+  useEffect(() => {
+    // if postId is defined in postWithRepliesProps, navigate postsVisibilityMap and set the post to be visible
+    if (postWithRepliesProps.postId && combinedData) {
+      const foundPostWithId = recursivelyFindPostId(
+        postWithRepliesProps.postId,
+        [combinedData?.id || ''],
+        0,
+        combinedData,
+      );
+
+      // if not found query the api at api/v1/posts/postId/fetchParents
+      if (!foundPostWithId) {
+        const fetchPost = async () => {
+          const newResult = await axios.get(
+            '/api/v1/posts/' + postWithRepliesProps.postId + '/fetchParents',
+          );
+          setCombinedData(newResult.data);
+        };
+
+        fetchPost();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combinedData, postWithRepliesProps.postId]);
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {

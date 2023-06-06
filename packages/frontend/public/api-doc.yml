@@ -80,6 +80,19 @@ paths:
       responses:
         '200':
           description: OK
+  /posts/{postId}/fetchParents:
+    get:
+      description: Fetch all parent responses with the last descendant as post with {postId}
+      operationId: getPost
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
   /posts/{postId}/upvote:
     post:
       description: Get a single post and all of its children
