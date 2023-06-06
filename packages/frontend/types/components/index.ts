@@ -11,6 +11,7 @@ export type PostProps = IPostPreview & {
 export type PostWithRepliesProps = {
   postId: string;
   writerToShow?: string;
+  onData: (postInProg: string) => void;
 };
 
 export type LocalNym = {

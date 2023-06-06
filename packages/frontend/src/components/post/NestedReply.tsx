@@ -3,6 +3,7 @@ import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
+import { DiscardPostWarning } from '../DiscardPostWarning';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -54,6 +55,15 @@ export const NestedReply = (replyProps: IReplyProps) => {
   const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
   const divRef = useRef<HTMLDivElement>(null);
+  const [postInProg, setPostInProg] = useState('');
+  const handleData = (data: string) => setPostInProg(data);
+  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
+
+  const handleCloseWriterAttempt = () => {
+    if (postInProg && showPostWriter) {
+      setDiscardWarningOpen(true);
+    } else setShowPostWriter(!showPostWriter);
+  };
 
   useEffect(() => {
     if (divRef.current && showReplyWriter) {
@@ -62,28 +72,40 @@ export const NestedReply = (replyProps: IReplyProps) => {
   }, [showReplyWriter]);
 
   return (
-    <div
-      ref={divRef}
-      id={id}
-      className="flex flex-col gap-2 transition-all"
-      style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
-    >
-      <SingleReply
-        {...postInfo}
-        replyCount={childrenLength}
-        onSuccess={onSuccess}
-        replyOpen={showPostWriter}
-        handleReply={() => setShowPostWriter(!showPostWriter)}
+    <>
+      {discardWarningOpen && (
+        <DiscardPostWarning
+          handleClosePost={() => {
+            setShowPostWriter(false);
+            setDiscardWarningOpen(false);
+          }}
+          handleCloseWarning={() => setDiscardWarningOpen(false)}
+        />
+      )}
+      <div
+        ref={divRef}
+        id={id}
+        className="flex flex-col gap-2 transition-all"
+        style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
       >
-        {showPostWriter ? (
-          <PostWriter
-            parentId={id as PrefixedHex}
-            onSuccess={onSuccess}
-            handleCloseWriter={() => setShowPostWriter(false)}
-          />
-        ) : null}
-        {innerReplies}
-      </SingleReply>
-    </div>
+        <SingleReply
+          {...postInfo}
+          replyCount={childrenLength}
+          onSuccess={onSuccess}
+          replyOpen={showPostWriter}
+          handleReply={handleCloseWriterAttempt}
+        >
+          {showPostWriter ? (
+            <PostWriter
+              parentId={id as PrefixedHex}
+              onSuccess={onSuccess}
+              handleCloseWriter={handleCloseWriterAttempt}
+              onProgress={handleData}
+            />
+          ) : null}
+          {innerReplies}
+        </SingleReply>
+      </div>
+    </>
   );
 };

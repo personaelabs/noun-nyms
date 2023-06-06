@@ -7,17 +7,16 @@ import { MainButton } from './MainButton';
 import { useContext, useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
-import { PostWithReplies } from './post/PostWithReplies';
-import { Header } from './Header';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { useRouter } from 'next/router';
-import { Modal } from './global/Modal';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
 import { scrollToPost } from '@/lib/client-utils';
+import { DiscardPostWarning } from './DiscardPostWarning';
+import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -45,7 +44,6 @@ export default function Posts(props: PostsProps) {
   const { errorMsg, setError } = useError();
   const router = useRouter();
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  // const [postLoading, setPostLoading] = useState(false);
 
   const {
     isLoading,
@@ -75,6 +73,7 @@ export default function Posts(props: PostsProps) {
 
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
+  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const filterOptions: { [key: string]: string } = {
     timestamp: '⏳ Recent',
@@ -85,20 +84,25 @@ export default function Posts(props: PostsProps) {
 
   return (
     <>
-      {newPostOpen ? (
-        <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
-      ) : null}
-      {openPostId ? (
-        <Modal
-          startAtTop={true}
-          handleClose={() => {
-            router.replace('/', undefined, { shallow: true });
-            setOpenPostId('');
+      {newPostOpen && (
+        <NewPost
+          handleClose={(postInProg?: string) => {
+            if (postInProg) setDiscardWarningOpen(true);
+            else setNewPostOpen(false);
           }}
-        >
-          <PostWithReplies postId={openPostId} />
-        </Modal>
-      ) : null}
+          onSuccess={refetchAndScrollToPost}
+        />
+      )}
+      {discardWarningOpen && (
+        <DiscardPostWarning
+          handleCloseWarning={() => setDiscardWarningOpen(false)}
+          handleClosePost={() => {
+            setNewPostOpen(false);
+            setDiscardWarningOpen(false);
+          }}
+        />
+      )}
+      {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
@@ -127,7 +131,6 @@ export default function Posts(props: PostsProps) {
                       <MainButton
                         color="#0E76FD"
                         message="Start Discussion"
-                        loading={false}
                         handler={() => setNewPostOpen(true)}
                       />
                     </div>

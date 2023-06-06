@@ -1,5 +1,5 @@
 import { Textarea } from './Textarea';
-import { useState, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext, useEffect } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
 import { postDoxed, postPseudo } from '@/lib/actions';
@@ -18,9 +18,11 @@ interface IWriterProps {
   parentId: PrefixedHex;
   onSuccess: (id: string) => void;
   handleCloseWriter?: () => void;
+  onProgress: (prog: string) => void;
 }
 
-export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterProps) => {
+export const PostWriter = (props: IWriterProps) => {
+  const { parentId, handleCloseWriter, onSuccess, onProgress } = props;
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
@@ -36,6 +38,8 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const prover = useProver({
     enableProfiler: true,
   });
+
+  useEffect(() => onProgress(body), [onProgress, body]);
 
   // TODO
   const someDbQuery = useMemo(() => true, []);

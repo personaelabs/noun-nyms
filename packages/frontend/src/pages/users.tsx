@@ -1,5 +1,4 @@
 import { RetryError } from '@/components/global/RetryError';
-import { Header } from '@/components/Header';
 import Spinner from '@/components/global/Spinner';
 import { UserTag } from '@/components/post/UserTag';
 import useError from '@/hooks/useError';
