@@ -9,11 +9,11 @@ import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { Modal } from '../global/Modal';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
 import _ from 'lodash';
+import { scrollToPost } from '@/lib/client-utils';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -25,9 +25,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   // deeper data that needed to be fetched and has been correctly added to the tree
   const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
   const shouldRerenderThreads = useRef(false);
-  const { writerToShow, handleClose, postId } = postWithRepliesProps;
+  const { writerToShow, postId, onData } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
+  const handleData = (data: string) => onData(data);
 
   //array of keys for additional data queries. each key is an array of strings corresponding to the path of the data from the root
   const [additionalDataKeys, setAdditionalDataKeys] = useState<string[][]>([]);
@@ -173,12 +174,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
-    if (postId) {
-      //wait for DOM to update
-      setTimeout(() => {
-        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
-    }
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
   };
 
   useEffect(() => {
@@ -193,10 +192,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   }, [postId, singlePost]);
 
   return (
-    <Modal startAtTop={true} handleClose={handleClose}>
+    <>
       {singlePost ? (
         <>
-          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
+          <div className="flex flex-col gap-4 py-6 px-6 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
                 <div className="self-start line-clamp-2">
@@ -205,7 +204,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
               <p>{singlePost.body}</p>
             </div>
-            <div className="flex justify-between pt-2 border-t border-dotted border-gray-300 items-center">
+            <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
               <UserTag userId={singlePost.userId} timestamp={singlePost.timestamp} />
               <div className="flex gap-2">
                 <ReplyCount count={singlePost.replies.length} />
@@ -217,10 +216,11 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col gap-8 w-full bg-gray-50 px-12 py-8">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}
+              onProgress={handleData}
             />
             <>
               <h4>
@@ -233,7 +233,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           </div>
         </>
       ) : (
-        <div className="h-full flex flex-col justify-center">
+        <div className="h-screen flex flex-col justify-center">
           {isLoading ? (
             <Spinner />
           ) : isError ? (
@@ -241,6 +241,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           ) : null}
         </div>
       )}
-    </Modal>
+    </>
   );
 };

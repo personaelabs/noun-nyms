@@ -1,5 +1,5 @@
 import { Textarea } from './Textarea';
-import { useState, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext, useEffect } from 'react';
 import Spinner from '../global/Spinner';
 import { MainButton } from '../MainButton';
 import { postDoxed, postPseudo } from '@/lib/actions';
@@ -18,9 +18,11 @@ interface IWriterProps {
   parentId: PrefixedHex;
   onSuccess: (id: string) => void;
   handleCloseWriter?: () => void;
+  onProgress: (prog: string) => void;
 }
 
-export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterProps) => {
+export const PostWriter = (props: IWriterProps) => {
+  const { parentId, handleCloseWriter, onSuccess, onProgress } = props;
   const [body, setPostMsg] = useState<string>('');
   const [title, setTitleMsg] = useState<string>('');
   const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
@@ -29,13 +31,15 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
-  const { isValid } = useContext(UserContext) as UserContextType;
+  const { isMobile, isValid } = useContext(UserContext) as UserContextType;
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
   const prover = useProver({
     enableProfiler: true,
   });
+
+  useEffect(() => onProgress(body), [onProgress, body]);
 
   // TODO
   const someDbQuery = useMemo(() => true, []);
@@ -82,7 +86,9 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
         setSendingPost(false);
       } catch (error) {
         setError(error);
+      } finally {
         setSendingPost(false);
+        setHasSignedPost(false);
       }
     }
   };
@@ -128,9 +134,13 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
               ></Textarea>
             </div>
           </div>
-          <div className="w-full flex gap-2 items-center justify-end text-gray-500">
+          <div className="w-full flex-wrap flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (
-              <NameSelect selectedName={name} setSelectedName={setName} />
+              <NameSelect
+                openMenuAbove={isMobile && parentId === '0x0'}
+                selectedName={name}
+                setSelectedName={setName}
+              />
             ) : null}
             <MainButton
               color="black"
@@ -139,7 +149,7 @@ export const PostWriter = ({ parentId, handleCloseWriter, onSuccess }: IWriterPr
               message={'Send'}
               disabled={!body || (parentId === '0x0' && !title)}
             >
-              {hasSignedPost ? (
+              {hasSignedPost && sendingPost ? (
                 <p>
                   Proving<span className="dot1">.</span>
                   <span className="dot2">.</span>

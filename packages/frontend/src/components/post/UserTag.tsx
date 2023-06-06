@@ -1,8 +1,10 @@
+import { UserContext } from '@/pages/_app';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
-import { NameType } from '@/types/components';
+import { NameType, UserContextType } from '@/types/components';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useContext } from 'react';
 dayjs.extend(relativeTime);
 
 interface UserTagProps {
@@ -10,43 +12,46 @@ interface UserTagProps {
   avatarWidth?: number;
   timestamp?: Date;
   lastActive?: Date | null;
-  hideLink?: boolean;
 }
 export const UserTag = (props: UserTagProps) => {
-  const { userId, avatarWidth, timestamp, lastActive, hideLink } = props;
+  const { userId, avatarWidth, timestamp, lastActive } = props;
   const { name, isDoxed } = useName({ userId });
+  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
-    // stop post modal from opening on click of user page link
-    <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
-      <UserAvatar
-        type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
-        userId={userId}
-        width={avatarWidth || 30}
-      />
-      <div className="flex flex-col gap-1 shrink-0">
-        {hideLink ? (
-          <p className="font-semibold">{name}</p>
-        ) : (
-          <a href={`/users/${userId}`} className="outline-none">
-            <p className="font-semibold hover:underline">{name}</p>
-          </a>
-        )}
+    <>
+      <div
+        className="min-w-0 shrink grow basis-2/3 max-w-full flex gap-2 items-center"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <UserAvatar
+          type={isDoxed ? NameType.DOXED : NameType.PSEUDO}
+          userId={userId}
+          width={avatarWidth || 30}
+        />
+        <div className="min-w-0 flex flex-col gap-1">
+          <div
+            className="font-semibold hover:underline breakText outline-none cursor-pointer"
+            onClick={() => pushRoute(`/users/${userId}`)}
+          >
+            {name}
+          </div>
 
-        {lastActive && (
-          <div className="flex gap-1 shrink-0 secondary">
-            <p>Last active </p>
-            <p className="font-semibold">{dayjs(lastActive).fromNow()}</p>
+          {lastActive && (
+            <div className="flex gap-1 shrink-0 secondary">
+              {!isMobile && <p>Last active </p>}
+              <p className="font-semibold">{dayjs(lastActive).fromNow()}</p>
+            </div>
+          )}
+        </div>
+
+        {timestamp && (
+          <div className="shrink-0 flex gap-2">
+            <p className="secondary">-</p>
+            <p className="secondary">{dayjs(timestamp).fromNow()}</p>
           </div>
         )}
       </div>
-
-      {timestamp && (
-        <div className="flex gap-2 shrink-0">
-          <p className="secondary">-</p>
-          <p className="secondary">{dayjs(timestamp).fromNow()}</p>
-        </div>
-      )}
-    </div>
+    </>
   );
 };

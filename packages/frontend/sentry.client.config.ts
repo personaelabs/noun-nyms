@@ -22,4 +22,5 @@ Sentry.init({
   },
   autoSessionTracking: false,
   sendClientReports: false,
+  enabled: process.env.NODE_ENV !== 'development',
 });

@@ -4,7 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 export default function ConnectWallet() {
   return (
     <WalletProvider>
-      <ConnectButton />
+      <ConnectButton chainStatus={'none'} accountStatus={'address'} showBalance={false} />
     </WalletProvider>
   );
 }
