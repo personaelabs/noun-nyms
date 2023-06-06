@@ -1,5 +1,5 @@
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { IPostPreview, IUserUpvote } from '../api';
+import { IPostPreview } from '../api';
 import { Dispatch, SetStateAction } from 'react';
 
 export type PostProps = IPostPreview & {
