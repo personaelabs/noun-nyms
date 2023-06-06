@@ -2,16 +2,27 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { IPostPreview } from '@/types/api';
 import { NotificationType } from '@/types/components';
-import { Notification, MyNotification } from '@/types/components';
-import useUserInfo from './useUserInfo';
-import { useAccount } from 'wagmi';
+import { Notification } from '@/types/components';
+import { getNymOptions } from './useUserInfo';
 import { getUserIdFromName } from '@/lib/example-utils';
+import { useAccount } from 'wagmi';
 
 interface NotificationMap {
-  [id: string]: MyNotification;
+  [id: string]: Notification;
 }
 
-const notificationsListToMap = (notifications: MyNotification[]) => {
+export const trimAddress = (address: string) => {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+export const trimText = (text: string) => {
+  if (text.length < 50) {
+    return text;
+  }
+  return `${text.slice(0, 50)}...`;
+};
+
+const notificationsListToMap = (notifications: Notification[]) => {
   const map = notifications.reduce((result: NotificationMap, obj) => {
     result[obj.id] = obj;
     return result;
@@ -39,42 +50,63 @@ const setNotificationsInLocalStorage = (address: string, map: NotificationMap) =
   return map;
 };
 
-const trimAddress = (address: string) => {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
-
-const trimText = (text: string) => {
-  if (text.length < 50) {
-    return text;
-  }
-  return `${text.slice(0, 50)}...`;
-};
-
 const cleanRelevantPost = (
   post: IPostPreview,
   notificationType: NotificationType,
-): MyNotification => {
-  return {
-    ...post,
+  upvoteId?: string,
+): Notification => {
+  // Default is a Reply notification, where entityId is the post id.
+  const { title, userId, id, body, timestamp } = post;
+
+  const res = {
+    title,
+    body,
+    id,
+    userId,
+    timestamp,
+    entityId: post.id,
     read: false,
-    type: post.depth === 1 ? NotificationType.DiscussionReply : notificationType,
+    type: notificationType,
   };
+
+  // Set Notification title for each type
+  if (upvoteId && notificationType === NotificationType.Upvote) {
+    res.type = NotificationType.Upvote;
+    res.entityId = upvoteId;
+    if (!res.title) res.title = res.body;
+  }
+  if (post.parent && notificationType === NotificationType.DirectReply) {
+    res.title = post.parent.body;
+  }
+
+  if (post.root && notificationType === NotificationType.DiscussionReply) {
+    res.title = post.root.title;
+  }
+
+  return res;
 };
 
-const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): MyNotification[] => {
+const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): Notification[] => {
+  console.log(`my IDS?...`, myIds);
   // Filter posts that have an identity of mine as the root or the parent Id.
 
   // Using reduce here to filter and map in one function for performance.
-  const relevantPosts = posts.reduce((result: MyNotification[], p) => {
+  const relevantPosts = posts.reduce((result: Notification[], p) => {
     const rootAuthor = p.root?.userId.toLowerCase();
     const parentAuthor = p.parent?.userId.toLowerCase();
     // If rootAuthor is one of my ids, this is discussion reply
     if (rootAuthor && myIds.includes(rootAuthor))
       result.push(cleanRelevantPost(p, NotificationType.DiscussionReply));
-
     // If parentAuthor is one of my ids, this is a direct reply
-    if (parentAuthor && myIds.includes(parentAuthor))
+    else if (parentAuthor && myIds.includes(parentAuthor))
       result.push(cleanRelevantPost(p, NotificationType.DirectReply));
+    // If I am the author, this is an upvote
+    else if (myIds.includes(p.userId) && p.upvotes.length > 0) {
+      // Only push if the post has upvotes.
+      p.upvotes.map((u) => {
+        result.push(cleanRelevantPost(p, NotificationType.Upvote, u.id));
+      });
+    }
 
     return result;
   }, []);
@@ -82,11 +114,9 @@ const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): MyNotification
   return relevantPosts;
 };
 
-const useNotifications = (enabled = true) => {
+const useNotifications = ({ enabled }: { enabled: boolean }) => {
   const { address } = useAccount();
-  const { nymOptions } = useUserInfo({ address });
-  const [notifications, setNotifications] = useState<MyNotification[]>();
-  const [myUserIds, setMyUserIds] = useState<string[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -96,16 +126,17 @@ const useNotifications = (enabled = true) => {
   }, [notifications]);
 
   useEffect(() => {
-    const myIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
-    if (address) myIds.push(address.toLowerCase());
-    setMyUserIds(myIds);
-  }, [nymOptions, address]);
-
-  useEffect(() => {
+    console.log(`userAddress`, address);
+    const nymOptions = getNymOptions(address);
     if (!address || !nymOptions || !enabled) {
       return;
     }
+    console.log(`EFFECT: address: ${address}, nymOptions`, nymOptions);
+    const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
+    myUserIds.push(address.toLowerCase());
+
     const fetchData = async () => {
+      console.log(`fetching data for ${address}`);
       const data = await axios.get('/api/v1/notifications', {
         params: { startTime: '', endTime: '' },
       });
@@ -114,10 +145,13 @@ const useNotifications = (enabled = true) => {
       // Filter the list for posts with a rootId or parentId authored by my identities.
       // Map to determine if it is a direct or discussion reply
       const relevantPosts = getRelatedPosts(feed, myUserIds);
+      console.log(`relevantPosts`, relevantPosts);
 
       // Write to localStorage IF timestamps are greater.
       // First, get localStorage notifications
+      console.log(`getting notifications in local storage for ${address}`);
       let notifications = getNotificationsInLocalStorage(address);
+      console.log(`notifications...`, notifications);
       if (Object.keys(notifications).length > 0) {
         // Add new posts if they don't exist yet.
         relevantPosts.map((p) => {
@@ -126,9 +160,13 @@ const useNotifications = (enabled = true) => {
             notifications[p.id] = p;
           }
         });
+      } else {
+        // First time localStorage is used
+        notifications = notificationsListToMap(relevantPosts);
       }
 
       // Add the new notifications map to localStorage
+      console.log(`setting notifications for ${address}`);
       setNotificationsInLocalStorage(address, notifications);
 
       // Convert map to ordered list and export from hook.
@@ -136,7 +174,7 @@ const useNotifications = (enabled = true) => {
     };
 
     fetchData();
-  }, [address, nymOptions, myUserIds, enabled]);
+  }, [address, enabled]);
 
   return { notifications, isLoading };
 };

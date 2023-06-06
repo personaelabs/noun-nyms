@@ -1,5 +1,5 @@
 import { PrefixedHex } from '@personaelabs/nymjs';
-import { IPostPreview } from '../api';
+import { IPostPreview, IUserUpvote } from '../api';
 import { Dispatch, SetStateAction } from 'react';
 
 export type PostProps = IPostPreview & {
@@ -62,21 +62,23 @@ export enum NotificationType {
   DiscussionReply,
 }
 
-export type UpvoteNotification = {
-  id: string;
-  postId: string; // The post that was upvoted
-  postText: string;
-  userId: string;
-  userName: string;
-  type: NotificationType;
+export interface BaseNotification {
+  entityId: string;
   read: boolean;
+  type: NotificationType;
+  id: string;
+  userId: string;
+  title: string;
+  body: string;
   timestamp: Date;
+}
+
+export type UpvoteNotification = BaseNotification & {
+  type: NotificationType.Upvote;
 };
 
-export type ReplyNotification = UpvoteNotification & {
-  replyText: string;
+export type ReplyNotification = BaseNotification & {
+  type: NotificationType.DirectReply | NotificationType.DiscussionReply;
 };
 
 export type Notification = ReplyNotification | UpvoteNotification;
-
-export type MyNotification = IPostPreview & { type: NotificationType; read: boolean };

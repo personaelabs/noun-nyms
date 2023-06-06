@@ -9,7 +9,7 @@ interface TempGroup {
   }[];
 }
 
-const getNymOptions = (address: string | undefined): ClientName[] => {
+export const getNymOptions = (address: string | undefined): ClientName[] => {
   let nymOptions: ClientName[] = [];
   const nymOptionsString = address && localStorage.getItem(address);
   if (nymOptionsString) {
@@ -48,7 +48,7 @@ const useUserInfo = ({ address }: { address?: PrefixedHex }) => {
     determineValidUser();
   }, [address]);
 
-  return { nymOptions, setNymOptions, isValid };
+  return { nymOptions, setNymOptions, isValid, address };
 };
 
 export default useUserInfo;

@@ -1,13 +1,16 @@
 import useName from '@/hooks/useName';
+import { trimAddress } from '@/hooks/useNotifications';
 
 interface UserAvatarProps {
   userId: string;
+  trim?: boolean;
 }
 
 export const UserName = (props: UserAvatarProps) => {
-  const { userId } = props;
+  const { userId, trim } = props;
 
   // If ens + avatar exists, return image
-  const { name } = useName({ userId });
-  return name ? <span>{name}</span> : <></>;
+  const { name, isEns, isDoxed } = useName({ userId });
+  const shouldTrim = !isEns && isDoxed && trim;
+  return name ? <span>{shouldTrim ? trimAddress(name) : name}</span> : <></>;
 };

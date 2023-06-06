@@ -23,8 +23,14 @@ export const UserAvatar = (props: UserAvatarProps) => {
   // If ens + avatar exists, return image
   const { name, isEns, isDoxed } = useName({ userId });
 
+  const userType = type || isDoxed ? NameType.DOXED : NameType.PSEUDO;
+
   const strokeColor =
-    type === NameType.DOXED ? '#0E76FD' : type === NameType.PSEUDO ? '#6B21A8' : 'transparent';
+    userType === NameType.DOXED
+      ? '#0E76FD'
+      : userType === NameType.PSEUDO
+      ? '#6B21A8'
+      : 'transparent';
 
   useEffect(() => {
     const scaleSVG = () => {
