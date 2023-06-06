@@ -48,7 +48,7 @@ const useUserInfo = ({ address }: { address?: PrefixedHex }) => {
     determineValidUser();
   }, [address]);
 
-  return { nymOptions, setNymOptions, isValid, address };
+  return { nymOptions, setNymOptions, isValid };
 };
 
 export default useUserInfo;
