@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
-import { useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPostWithReplies } from '@/types/api';
 import { PostWithRepliesProps } from '@/types/components';
@@ -12,25 +12,40 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
+import _ from 'lodash';
 import { scrollToPost } from '@/lib/client-utils';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
+  // map of post id to visibility status, to keep track of which comments on the client to display and hide
+  const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number>>({});
+  // combinedData is the tree of all posts including the root post and all replies as well as any additional
+  // deeper data that needed to be fetched and has been correctly added to the tree
+  const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
+  const shouldRerenderThreads = useRef(false);
   const { writerToShow, postId, onData } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
   const handleData = (data: string) => onData(data);
 
+  //array of keys for additional data queries. each key is an array of strings corresponding to the path of the data from the root
+  const [additionalDataKeys, setAdditionalDataKeys] = useState<string[][]>([]);
+
+  const baseQueryKey = ['post', postId, fromRoot];
   const {
     isLoading,
+    isSuccess,
     isError,
     refetch,
     data: singlePost,
   } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId, fromRoot],
-    queryFn: () => getPostById(postId, fromRoot),
+    queryFn: async () => {
+      const posts = await getPostById(postId, fromRoot);
+      return posts;
+    },
     retry: 1,
     enabled: true,
     staleTime: 5000,
@@ -41,13 +56,121 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     },
   });
 
+  const onPostSubmitSuccess = useCallback(
+    async (id?: string) => {
+      if (id) {
+        const newPostsVisibility = { ...postsVisibilityMap };
+        newPostsVisibility[id] = 1;
+        setPostsVisibilityMap(newPostsVisibility);
+      }
+      await refetch();
+    },
+    [postsVisibilityMap, refetch],
+  );
+
+  const fetchAdditionalReplies = async (trail: string[]) => {
+    const newReplies = await getPostById(trail[trail.length - 1]);
+    return newReplies;
+  };
+
+  const additionalDataQueries = useQueries({
+    queries: additionalDataKeys.map((key) => ({
+      queryKey: [...baseQueryKey, ...key],
+      queryFn: async () => fetchAdditionalReplies(key),
+      staleTime: Infinity, // Ensures the additional data is not re-fetched separately
+    })),
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      setCombinedData(singlePost);
+    }
+  }, [isSuccess, singlePost]);
+
+  // to make sure top-level comments always load when the component is mounted
+  useEffect(() => {
+    const newPostsVisibility = { ...postsVisibilityMap };
+    if (combinedData) {
+      newPostsVisibility[combinedData.id] = 1;
+      combinedData.replies.forEach((reply) => {
+        newPostsVisibility[reply.id] = 1;
+      });
+      console.log('set from combined data');
+      setPostsVisibilityMap(newPostsVisibility);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combinedData]);
+
+  useEffect(() => {
+    const data = combinedData ? _.cloneDeep(combinedData) : _.cloneDeep(singlePost);
+    // check every additionalDataQueries has been fetched successfully and that we haven't already rerendered the threads
+    if (
+      additionalDataQueries.length > 0 &&
+      shouldRerenderThreads.current &&
+      additionalDataQueries.every((query) => {
+        return query.isSuccess;
+      })
+    ) {
+      const newData = additionalDataQueries.reduce((acc: any, query: any, index) => {
+        const trail = additionalDataKeys[index];
+        // navigate to the replies of singlePost
+        let postToAddTo = acc;
+
+        // for each new additional data query, we need to add this data to the correct post in the combinedData
+        // we navigate to the thread of the post we want to add to, and then add the replies to that post
+        for (let i = 0; i < trail.length - 1; i++) {
+          if (postToAddTo.replies) {
+            postToAddTo = postToAddTo.replies.find(
+              (reply: IPostWithReplies) => reply.id === trail[i + 1],
+            );
+          }
+        }
+
+        if (postToAddTo) {
+          postToAddTo.replies = query.data.replies;
+
+          // set the first level of replies to be visible
+          const newPostsVisibility = { ...postsVisibilityMap };
+          query.data.replies.forEach((post: any) => {
+            newPostsVisibility[post.id] = 1;
+          });
+          setPostsVisibilityMap(newPostsVisibility);
+        }
+        return acc;
+      }, data);
+
+      setCombinedData(newData);
+      shouldRerenderThreads.current = false;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [additionalDataKeys, additionalDataQueries, shouldRerenderThreads]);
+
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, 0, refetch, writerToShow);
+      return resolveNestedReplyThreads(
+        combinedData ? combinedData.replies : [],
+        0,
+        postsVisibilityMap,
+        setPostsVisibilityMap,
+        onPostSubmitSuccess,
+        [singlePost.id],
+        additionalDataKeys,
+        setAdditionalDataKeys,
+        shouldRerenderThreads,
+        writerToShow,
+      );
     } else {
       return <div></div>;
     }
-  }, [singlePost, refetch, writerToShow]);
+  }, [
+    singlePost,
+    combinedData,
+    postsVisibilityMap,
+    setPostsVisibilityMap,
+    onPostSubmitSuccess,
+    additionalDataKeys,
+    writerToShow,
+  ]);
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();

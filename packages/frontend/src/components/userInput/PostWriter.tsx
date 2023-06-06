@@ -60,6 +60,7 @@ export const PostWriter = (props: IWriterProps) => {
     } else {
       setShowWalletWarning(false);
       try {
+        console.log('started proving');
         clearError();
         setSendingPost(true);
         if (!name) throw new Error('must select an identity to post');
@@ -78,8 +79,11 @@ export const PostWriter = (props: IWriterProps) => {
             signedHandler,
           );
         } else throw new Error('must select a valid identity to post');
+
         onSuccess(result?.data.postId);
         resetWriter();
+
+        setSendingPost(false);
       } catch (error) {
         setError(error);
       } finally {

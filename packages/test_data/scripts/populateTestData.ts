@@ -372,7 +372,7 @@ const populateTestData = async () => {
 
   // Save all posts to the database
   const posts = allPosts.map(({ upvotes, ...post }) => post) as PrismaPost[];
-  console.log(posts[0]);
+
   await prisma.post.createMany({
     // We only store newly added posts
     data: posts,
