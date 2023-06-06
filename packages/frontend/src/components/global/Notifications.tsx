@@ -7,7 +7,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import useNotifications from '@/hooks/useNotifications';
+import useNotifications, { notificationsListToMap } from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
 import { NotificationType, UserContextType } from '@/types/components';
 import { UserAvatar } from './UserAvatar';
@@ -19,7 +19,7 @@ import {
   setNotificationsInLocalStorage,
 } from '@/hooks/useNotifications';
 import { useAccount } from 'wagmi';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { UserContext } from '@/pages/_app';
 import { Filters } from '../post/Filters';
 
@@ -37,23 +37,18 @@ const getNotificationFromType = (type: NotificationType) => {
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, isLoading } = useNotifications({ enabled: true });
+  const { notifications, setNotifications, isLoading } = useNotifications({ enabled: true });
   const [filter, setFilter] = useState('unread');
 
-  const unreadNotifications = useMemo(
-    () => (notifications ? notifications.filter((n) => n.read === false) : []),
-    [notifications],
-  );
+  const unreadNotifications = useMemo(() => {
+    console.log('unread being calculated');
+    return notifications ? notifications.filter((n) => n.read === false) : [];
+  }, [notifications]);
+
   const notificationsToShow = useMemo(
     () => (filter === 'unread' ? unreadNotifications : notifications)?.slice(0, 5),
     [filter, notifications, unreadNotifications],
   );
-
-  const [localAddress, setLocalAddress] = useState('');
-  useEffect(() => {
-    // Prevents server side mismatch with address. Idk why
-    if (address) setLocalAddress(address);
-  }, [address]);
 
   const filters = {
     unread: 'Unread',
@@ -61,16 +56,30 @@ export const Notifications = () => {
   };
 
   const setNotificationAsRead = (id: string) => {
-    const map = getNotificationsInLocalStorage(localAddress);
-    map[id].read = true;
-    setNotificationsInLocalStorage(localAddress, map);
+    if (notifications) {
+      // update notifications in memory
+      notifications.map((n) => {
+        if (n.id === id) return { ...n, read: true };
+        return n;
+      });
+      setNotifications(notifications);
+      const map = notificationsListToMap(notifications);
+      // write new map to local storage
+      setNotificationsInLocalStorage(address as string, map);
+    }
   };
 
   const MarkAllAsRead = () => {
-    notifications?.forEach((n) => (n.read = true));
-    const map = getNotificationsInLocalStorage(localAddress);
-    Object.entries(map).map(([key, _]) => (map[key].read = true));
-    setNotificationsInLocalStorage(localAddress, map);
+    if (notifications) {
+      // update notifications in memory
+      notifications.map((n) => {
+        return { ...n, read: true };
+      });
+      setNotifications(notifications);
+      const map = notificationsListToMap(notifications);
+      // write new map to local storage
+      setNotificationsInLocalStorage(address as string, map);
+    }
   };
 
   return (
@@ -124,7 +133,7 @@ export const Notifications = () => {
                           onClick={() => {
                             n.read = true;
                             setNotificationAsRead(n.id);
-                            pushRoute(`/posts/${n.id}`);
+                            // pushRoute(`/posts/${n.id}`);
                           }}
                         >
                           <div className="shrink-0 relative">

@@ -11,7 +11,7 @@ interface NotificationMap {
   [id: string]: Notification;
 }
 
-const notificationsListToMap = (notifications: Notification[]) => {
+export const notificationsListToMap = (notifications: Notification[]) => {
   const map = notifications.reduce((result: NotificationMap, obj) => {
     result[obj.id] = obj;
     return result;
@@ -19,7 +19,7 @@ const notificationsListToMap = (notifications: Notification[]) => {
   return map;
 };
 
-const notificationsMapToOrderedList = (map: NotificationMap) => {
+export const notificationsMapToOrderedList = (map: NotificationMap) => {
   const sortedList = Object.entries(map)
     // @ts-expect-error timestamp
     .sort(([keyA, objA], [keyB, objB]) => new Date(objB.timestamp) - new Date(objA.timestamp))
@@ -157,7 +157,7 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
     fetchData();
   }, [address, enabled]);
 
-  return { notifications, isLoading };
+  return { notifications, setNotifications, isLoading };
 };
 
 export default useNotifications;
