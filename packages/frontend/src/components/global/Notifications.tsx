@@ -14,10 +14,7 @@ import { UserAvatar } from './UserAvatar';
 import Spinner from './Spinner';
 import { fromNowDate, trimText } from '@/lib/example-utils';
 import { UserName } from './UserName';
-import {
-  getNotificationsInLocalStorage,
-  setNotificationsInLocalStorage,
-} from '@/hooks/useNotifications';
+import { setNotificationsInLocalStorage } from '@/hooks/useNotifications';
 import { useAccount } from 'wagmi';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from '@/pages/_app';
@@ -38,10 +35,9 @@ export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
   const { notifications, setNotifications, isLoading } = useNotifications({ enabled: true });
-  const [filter, setFilter] = useState('unread');
+  const [filter, setFilter] = useState('all');
 
   const unreadNotifications = useMemo(() => {
-    console.log('unread being calculated');
     return notifications ? notifications.filter((n) => n.read === false) : [];
   }, [notifications]);
 
@@ -51,19 +47,19 @@ export const Notifications = () => {
   );
 
   const filters = {
-    unread: 'Unread',
     all: 'All',
+    unread: 'Unread',
   };
 
   const setNotificationAsRead = (id: string) => {
     if (notifications) {
       // update notifications in memory
-      notifications.map((n) => {
+      const newNotifications = notifications.map((n) => {
         if (n.id === id) return { ...n, read: true };
         return n;
       });
-      setNotifications(notifications);
-      const map = notificationsListToMap(notifications);
+      setNotifications(newNotifications);
+      const map = notificationsListToMap(newNotifications);
       // write new map to local storage
       setNotificationsInLocalStorage(address as string, map);
     }
@@ -72,11 +68,11 @@ export const Notifications = () => {
   const MarkAllAsRead = () => {
     if (notifications) {
       // update notifications in memory
-      notifications.map((n) => {
+      const newNotifications = notifications.map((n) => {
         return { ...n, read: true };
       });
-      setNotifications(notifications);
-      const map = notificationsListToMap(notifications);
+      setNotifications(newNotifications);
+      const map = notificationsListToMap(newNotifications);
       // write new map to local storage
       setNotificationsInLocalStorage(address as string, map);
     }
@@ -131,7 +127,6 @@ export const Notifications = () => {
                             n.read ? 'bg-white' : 'bg-gray-100'
                           }`}
                           onClick={() => {
-                            n.read = true;
                             setNotificationAsRead(n.id);
                             // pushRoute(`/posts/${n.id}`);
                           }}
