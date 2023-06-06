@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { IPostPreview } from '@/types/api';
-import { NotificationType } from '@/types/components';
+import { ClientName, NotificationType } from '@/types/components';
 import { Notification } from '@/types/components';
 import { getNymOptions } from './useUserInfo';
 import { getUserIdFromName } from '@/lib/example-utils';
@@ -106,6 +106,42 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
   const [notifications, setNotifications] = useState<Notification[]>();
   const [isLoading, setIsLoading] = useState(true);
 
+  const fetchNotifications = async (address: string, nymOptions: ClientName[]) => {
+    const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
+    myUserIds.push(address.toLowerCase());
+
+    const data = await axios.get('/api/v1/notifications', {
+      params: { startTime: '', endTime: '' },
+    });
+
+    const feed = data.data as IPostPreview[];
+    // Filter the list for posts with a rootId or parentId authored by my identities.
+    // Map to determine if it is a direct or discussion reply
+    const serverNotifications = buildNotifications(feed, myUserIds);
+
+    // Write to localStorage IF timestamps are greater.
+    // First, get localStorage notifications
+    let notifications = getNotificationsInLocalStorage(address);
+    if (Object.keys(notifications).length > 0) {
+      // Add new posts if they don't exist yet.
+      serverNotifications.map((p) => {
+        if (!(p.entityId in notifications)) {
+          // Update the `notifications object`
+          notifications[p.entityId] = p;
+        }
+      });
+    } else {
+      // First time localStorage is used, we set all data to it.
+      notifications = notificationsListToMap(serverNotifications);
+    }
+
+    // Add the new notifications map to localStorage
+    setNotificationsInLocalStorage(address, notifications);
+
+    // Convert map to ordered list and export from hook.
+    setNotifications(notificationsMapToOrderedList(notifications));
+  };
+
   useEffect(() => {
     if (notifications) {
       setIsLoading(false);
@@ -118,46 +154,10 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
     if (!address || !nymOptions || !enabled) {
       return;
     }
-    const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
-    myUserIds.push(address.toLowerCase());
-
-    const fetchData = async () => {
-      const data = await axios.get('/api/v1/notifications', {
-        params: { startTime: '', endTime: '' },
-      });
-
-      const feed = data.data as IPostPreview[];
-      // Filter the list for posts with a rootId or parentId authored by my identities.
-      // Map to determine if it is a direct or discussion reply
-      const serverNotifications = buildNotifications(feed, myUserIds);
-
-      // Write to localStorage IF timestamps are greater.
-      // First, get localStorage notifications
-      let notifications = getNotificationsInLocalStorage(address);
-      if (Object.keys(notifications).length > 0) {
-        // Add new posts if they don't exist yet.
-        serverNotifications.map((p) => {
-          if (!(p.entityId in notifications)) {
-            // Update the `notifications object`
-            notifications[p.entityId] = p;
-          }
-        });
-      } else {
-        // First time localStorage is used, we set all data to it.
-        notifications = notificationsListToMap(serverNotifications);
-      }
-
-      // Add the new notifications map to localStorage
-      setNotificationsInLocalStorage(address, notifications);
-
-      // Convert map to ordered list and export from hook.
-      setNotifications(notificationsMapToOrderedList(notifications));
-    };
-
-    fetchData();
+    fetchNotifications(address, nymOptions);
   }, [address, enabled]);
 
-  return { notifications, setNotifications, isLoading };
+  return { notifications, setNotifications, fetchNotifications, isLoading };
 };
 
 export default useNotifications;

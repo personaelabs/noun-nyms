@@ -2,6 +2,7 @@ import {
   faBell,
   faCheck,
   faCircleUp,
+  faRefresh,
   faReply,
   faReplyAll,
   faXmark,
@@ -33,9 +34,12 @@ const getNotificationFromType = (type: NotificationType) => {
 
 export const Notifications = () => {
   const { address } = useAccount();
-  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, setNotifications, isLoading } = useNotifications({ enabled: true });
+  const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
+  const { notifications, setNotifications, fetchNotifications, isLoading } = useNotifications({
+    enabled: true,
+  });
   const [filter, setFilter] = useState('all');
+  const [refetching, setRefetching] = useState(false);
 
   const unreadNotifications = useMemo(() => {
     return notifications ? notifications.filter((n) => n.read === false) : [];
@@ -78,6 +82,12 @@ export const Notifications = () => {
     }
   };
 
+  const refetch = async () => {
+    setRefetching(true);
+    await fetchNotifications(address as string, nymOptions);
+    setRefetching(false);
+  };
+
   return (
     <>
       <Menu as={'div'} className="cursor-pointer static md:relative">
@@ -99,7 +109,19 @@ export const Notifications = () => {
                 <div className="flex flex-col gap-2 px-3 mb-2">
                   <div className="flex items-center justify-between mt-2">
                     <h4>Notifications</h4>
-                    <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
+                    <div className="flex gap-3">
+                      {refetching ? (
+                        <Spinner />
+                      ) : (
+                        <FontAwesomeIcon
+                          icon={faRefresh}
+                          size={'lg'}
+                          color="#98A2B3"
+                          onClick={refetch}
+                        />
+                      )}
+                      <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
+                    </div>
                   </div>
                   <div className="flex justify-between items-center">
                     <Filters
@@ -107,10 +129,7 @@ export const Notifications = () => {
                       selectedFilter={filter}
                       setSelectedFilter={setFilter}
                     />
-                    <div
-                      className="flex gap-1 justify-end items-center mb-2"
-                      onClick={MarkAllAsRead}
-                    >
+                    <div className="flex gap-1 justify-end items-center" onClick={MarkAllAsRead}>
                       <FontAwesomeIcon icon={faCheck} size={'xs'} />
                       <p className="secondary hover:underline">Mark all as read</p>
                     </div>
