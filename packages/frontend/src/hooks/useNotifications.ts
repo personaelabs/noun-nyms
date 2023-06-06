@@ -27,7 +27,7 @@ const notificationsMapToOrderedList = (map: NotificationMap) => {
   return sortedList;
 };
 
-const getNotificationsInLocalStorage = (address: string): NotificationMap => {
+export const getNotificationsInLocalStorage = (address: string): NotificationMap => {
   const notifications = localStorage.getItem(`notifications-${address}`);
   if (notifications) {
     return JSON.parse(notifications) as NotificationMap;
@@ -35,7 +35,7 @@ const getNotificationsInLocalStorage = (address: string): NotificationMap => {
   return {};
 };
 
-const setNotificationsInLocalStorage = (address: string, map: NotificationMap) => {
+export const setNotificationsInLocalStorage = (address: string, map: NotificationMap) => {
   localStorage.setItem(`notifications-${address}`, JSON.stringify(map));
   return map;
 };
