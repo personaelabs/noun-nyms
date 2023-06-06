@@ -34,8 +34,8 @@ export const Header = () => {
                 PseudoNym
               </p>
             </div>
-            <div className="flex gap-2 items-center">
-              <Notifications />
+            <div className="flex gap-4 items-center">
+              {address && isValid && <Notifications />}
               {(!isMobile || !address || !isValid) && <ConnectWallet />}
               <MyProfile />
             </div>
