@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react';
+=======
+import { useEffect, useMemo, useState } from 'react';
+>>>>>>> b2632c7 (feat: warning if post in progress)
 import { PostWriter } from '../userInput/PostWriter';
 import { resolveNestedReplyThreads } from './NestedReply';
 import { useQueries, useQuery } from '@tanstack/react-query';
@@ -19,12 +23,15 @@ const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
+<<<<<<< HEAD
   // map of post id to visibility status, to keep track of which comments on the client to display and hide
   const [postsVisibilityMap, setPostsVisibilityMap] = useState<Record<string, number>>({});
   // combinedData is the tree of all posts including the root post and all replies as well as any additional
   // deeper data that needed to be fetched and has been correctly added to the tree
   const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
   const shouldRerenderThreads = useRef(false);
+=======
+>>>>>>> b2632c7 (feat: warning if post in progress)
   const { writerToShow, postId, onData } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();

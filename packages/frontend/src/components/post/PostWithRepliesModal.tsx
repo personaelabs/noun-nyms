@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { PostWithReplies } from './PostWithReplies';
 import { Modal } from '../global/Modal';
-import { useRouter } from 'next/router';
 import { DiscardPostWarning } from '../DiscardPostWarning';
 
 interface PostWithRepliesModalProps {
