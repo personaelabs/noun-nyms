@@ -5,3 +5,5 @@ export const INVALID_SIGNATURE = 'Invalid signature!';
 export const USER_NOT_IN_LATEST_GROUP = 'Public key not in latest group';
 export const ALREADY_UPVOTED = 'Already upvoted';
 export const PARENT_NOT_FOUND = 'Parent not found';
+export const EMPTY_TITLE = 'Title cannot be empty';
+export const EMPTY_BODY = 'Body cannot be empty';

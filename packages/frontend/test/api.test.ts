@@ -29,6 +29,8 @@ import {
   ALREADY_UPVOTED,
   INVALID_TIMESTAMP,
   PARENT_NOT_FOUND,
+  EMPTY_TITLE,
+  EMPTY_BODY,
 } from '@/lib/errors';
 import { prisma } from '@prisma/client';
 
@@ -315,6 +317,64 @@ describe('POST /api/v1/posts', () => {
 
       content.parentId = validParentId;
     });
+
+    it('should return 400 if title is empty for a root post', async () => {
+      mockFindTreeNodeOnce(merkleProof);
+      mockFindTreeOnce(treeRoot);
+
+      const validTitle = content.title;
+
+      content.title = '';
+
+      const proofInvalidTitle = await prover.prove(
+        nymName,
+        content,
+        nymSigStr,
+        signContent(content),
+        merkleProof,
+      );
+
+      const response = await postsClient.post('/api/v1/posts').send({
+        attestation: proofInvalidTitle.toString('hex'),
+        attestationScheme: AttestationScheme.Nym,
+        content,
+      });
+
+      expectStatusWithObject(response, 400, {
+        error: EMPTY_TITLE,
+      });
+
+      content.title = validTitle;
+    });
+
+    it('should return 400 if body is empty', async () => {
+      mockFindTreeNodeOnce(merkleProof);
+      mockFindTreeOnce(treeRoot);
+
+      const validBody = content.body;
+
+      content.body = '';
+
+      const proofInvalidBody = await prover.prove(
+        nymName,
+        content,
+        nymSigStr,
+        signContent(content),
+        merkleProof,
+      );
+
+      const response = await postsClient.post('/api/v1/posts').send({
+        attestation: proofInvalidBody.toString('hex'),
+        attestationScheme: AttestationScheme.Nym,
+        content,
+      });
+
+      expectStatusWithObject(response, 400, {
+        error: EMPTY_BODY,
+      });
+
+      content.body = validBody;
+    });
   });
 
   describe('Doxed posts', () => {
@@ -426,6 +486,44 @@ describe('POST /api/v1/posts', () => {
       });
 
       content.parentId = validParentId;
+    });
+
+    it('should return 400 if title is empty for a root post', async () => {
+      mockFindTreeNodeOnce(merkleProof);
+      mockFindTreeOnce(treeRoot);
+
+      const validTitle = content.title;
+      content.title = '';
+
+      const response = await postsClient.post('/api/v1/posts').send({
+        attestation: signContent(content),
+        attestationScheme: AttestationScheme.EIP712,
+        content,
+      });
+      expectStatusWithObject(response, 400, {
+        error: EMPTY_TITLE,
+      });
+
+      content.title = validTitle;
+    });
+
+    it('should return 400 if body is empty', async () => {
+      mockFindTreeNodeOnce(merkleProof);
+      mockFindTreeOnce(treeRoot);
+
+      const validBody = content.body;
+      content.body = '';
+
+      const response = await postsClient.post('/api/v1/posts').send({
+        attestation: signContent(content),
+        attestationScheme: AttestationScheme.EIP712,
+        content,
+      });
+      expectStatusWithObject(response, 400, {
+        error: EMPTY_BODY,
+      });
+
+      content.body = validBody;
     });
   });
 });
