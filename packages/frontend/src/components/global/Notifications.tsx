@@ -7,14 +7,13 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import useNotifications, { trimText } from '@/hooks/useNotifications';
+import useNotifications from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
 import { NotificationType } from '@/types/components';
 import { UserAvatar } from './UserAvatar';
 import Spinner from './Spinner';
-import { fromNowDate } from '@/lib/example-utils';
+import { fromNowDate, trimText } from '@/lib/example-utils';
 import { UserName } from './UserName';
-import { useAccount } from 'wagmi';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {

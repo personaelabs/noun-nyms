@@ -46,3 +46,14 @@ export const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string):
     s,
   ).toString('hex')}`;
 };
+
+export const trimAddress = (address: string) => {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+export const trimText = (text: string) => {
+  if (text.length < 50) {
+    return text;
+  }
+  return `${text.slice(0, 50)}...`;
+};

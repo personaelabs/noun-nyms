@@ -11,17 +11,6 @@ interface NotificationMap {
   [id: string]: Notification;
 }
 
-export const trimAddress = (address: string) => {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
-
-export const trimText = (text: string) => {
-  if (text.length < 50) {
-    return text;
-  }
-  return `${text.slice(0, 50)}...`;
-};
-
 const notificationsListToMap = (notifications: Notification[]) => {
   const map = notifications.reduce((result: NotificationMap, obj) => {
     result[obj.id] = obj;
@@ -87,9 +76,7 @@ const cleanRelevantPost = (
 };
 
 const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): Notification[] => {
-  console.log(`my IDS?...`, myIds);
   // Filter posts that have an identity of mine as the root or the parent Id.
-
   // Using reduce here to filter and map in one function for performance.
   const relevantPosts = posts.reduce((result: Notification[], p) => {
     const rootAuthor = p.root?.userId.toLowerCase();
@@ -126,17 +113,15 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
   }, [notifications]);
 
   useEffect(() => {
-    console.log(`userAddress`, address);
+    // Getting nymOptions to avoid an error where sometime nymOptiosn are out of sync with the address
     const nymOptions = getNymOptions(address);
     if (!address || !nymOptions || !enabled) {
       return;
     }
-    console.log(`EFFECT: address: ${address}, nymOptions`, nymOptions);
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
 
     const fetchData = async () => {
-      console.log(`fetching data for ${address}`);
       const data = await axios.get('/api/v1/notifications', {
         params: { startTime: '', endTime: '' },
       });
@@ -145,13 +130,10 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
       // Filter the list for posts with a rootId or parentId authored by my identities.
       // Map to determine if it is a direct or discussion reply
       const relevantPosts = getRelatedPosts(feed, myUserIds);
-      console.log(`relevantPosts`, relevantPosts);
 
       // Write to localStorage IF timestamps are greater.
       // First, get localStorage notifications
-      console.log(`getting notifications in local storage for ${address}`);
       let notifications = getNotificationsInLocalStorage(address);
-      console.log(`notifications...`, notifications);
       if (Object.keys(notifications).length > 0) {
         // Add new posts if they don't exist yet.
         relevantPosts.map((p) => {
@@ -161,12 +143,11 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
           }
         });
       } else {
-        // First time localStorage is used
+        // First time localStorage is used, we set all data to it.
         notifications = notificationsListToMap(relevantPosts);
       }
 
       // Add the new notifications map to localStorage
-      console.log(`setting notifications for ${address}`);
       setNotificationsInLocalStorage(address, notifications);
 
       // Convert map to ordered list and export from hook.
