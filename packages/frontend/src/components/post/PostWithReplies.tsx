@@ -87,6 +87,32 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
   }, [isSuccess, singlePost]);
 
+  const recursivelyFindPostId = (idLookFor: string, path: string[], data?: IPostWithReplies) => {
+    if (data) {
+      const replies = data.replies;
+
+      for (let i = 0; i < replies.length; i++) {
+        const reply = replies[i];
+        const newPath = [...path, reply.id];
+
+        if (reply.id === idLookFor) {
+          const newPostsVisibility = { ...postsVisibilityMap };
+
+          for (const element of path) {
+            newPostsVisibility[element] = 1;
+          }
+
+          newPostsVisibility[idLookFor] = 1;
+          setPostsVisibilityMap(newPostsVisibility);
+        } else {
+          recursivelyFindPostId(idLookFor, newPath, reply);
+        }
+      }
+    } else {
+      //TODO: need to handle fetching deepr logic
+    }
+  };
+
   // to make sure top-level comments always load when the component is mounted
   useEffect(() => {
     const newPostsVisibility = { ...postsVisibilityMap };
@@ -100,6 +126,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinedData]);
+
+  useEffect(() => {
+    // if postId is defined in postWithRepliesProps, navigate postsVisibilityMap and set the post to be visible
+    if (postWithRepliesProps.postId) {
+      recursivelyFindPostId(postWithRepliesProps.postId, [combinedData?.id || ''], combinedData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combinedData, postWithRepliesProps.postId]);
 
   useEffect(() => {
     const data = combinedData ? _.cloneDeep(combinedData) : _.cloneDeep(singlePost);
