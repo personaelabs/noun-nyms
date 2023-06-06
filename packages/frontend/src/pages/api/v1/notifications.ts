@@ -1,13 +1,26 @@
 import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { INotificationFeed, notificationFeedSelect } from '@/types/api';
+import { postPreviewSelect, IPostPreview } from '@/types/api';
 
 const handleGetNotificationFeed = async (
   req: NextApiRequest,
-  res: NextApiResponse<INotificationFeed[]>,
+  res: NextApiResponse<IPostPreview[]>,
 ) => {
+  const startTime = req.query.startTime ? (req.query.startTime as string) : new Date(0);
+  const endTime = req.query.endTime ? (req.query.endTime as string) : new Date();
+
+  console.log({ startTime, endTime });
   const feed = await prisma.post.findMany({
-    select: notificationFeedSelect,
+    select: postPreviewSelect,
+    where: {
+      timestamp: {
+        gt: startTime,
+        lte: endTime,
+      },
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
   });
 
   res.send(feed);
