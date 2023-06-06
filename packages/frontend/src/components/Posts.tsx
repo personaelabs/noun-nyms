@@ -42,7 +42,6 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
-  const router = useRouter();
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
   const {
@@ -151,7 +150,7 @@ export default function Posts(props: PostsProps) {
                         handleOpenPost={() => {
                           if (isMobile) pushRoute(`/posts/${post.id}`);
                           else {
-                            router.replace(window.location.href, `/posts/${post.id}`);
+                            window.history.pushState(null, '', `/posts/${post.id}`);
                             setOpenPostId(post.id);
                           }
                         }}

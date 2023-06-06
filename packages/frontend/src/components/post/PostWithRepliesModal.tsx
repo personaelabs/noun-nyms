@@ -12,13 +12,12 @@ interface PostWithRepliesModalProps {
 
 export const PostWithRepliesModal = (props: PostWithRepliesModalProps) => {
   const { openPostId, setOpenPostId, writerToShow } = props;
-  const router = useRouter();
   const handlePostInProg = (post: string) => setPostInProg(post);
   const [postInProg, setPostInProg] = useState('');
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const handleCloseModal = () => {
-    router.replace('/', undefined, { shallow: true });
+    window.history.pushState(null, '', '/');
     setOpenPostId('');
   };
 

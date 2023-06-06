@@ -129,10 +129,7 @@ export default function User() {
                       {...post}
                       handleOpenPost={(writerToShow: string) => {
                         if (isMobile) pushRoute(`/posts/${post.id}`);
-                        else
-                          router.replace(window.location.href, `/posts/${post.id}`, {
-                            shallow: true,
-                          });
+                        else window.history.pushState(null, '', `/posts/${post.id}`);
                         handleOpenPost(post.id, writerToShow);
                       }}
                       onSuccess={() => console.log('need to refetch here')}
