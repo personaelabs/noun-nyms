@@ -12,10 +12,9 @@ interface UserTagProps {
   avatarWidth?: number;
   timestamp?: Date;
   lastActive?: Date | null;
-  hideLink?: boolean;
 }
 export const UserTag = (props: UserTagProps) => {
-  const { userId, avatarWidth, timestamp, lastActive, hideLink } = props;
+  const { userId, avatarWidth, timestamp, lastActive } = props;
   const { name, isDoxed } = useName({ userId });
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
@@ -31,16 +30,12 @@ export const UserTag = (props: UserTagProps) => {
           width={avatarWidth || 30}
         />
         <div className="min-w-0 flex flex-col gap-1">
-          {hideLink ? (
-            <p className="font-semibold breakText">{name}</p>
-          ) : (
-            <div
-              className="font-semibold hover:underline breakText outline-none cursor-pointer"
-              onClick={() => pushRoute(`/users/${userId}`)}
-            >
-              {name}
-            </div>
-          )}
+          <div
+            className="font-semibold hover:underline breakText outline-none cursor-pointer"
+            onClick={() => pushRoute(`/users/${userId}`)}
+          >
+            {name}
+          </div>
 
           {lastActive && (
             <div className="flex gap-1 shrink-0 secondary">

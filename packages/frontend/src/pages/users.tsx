@@ -127,12 +127,7 @@ export default function Users() {
                       onClick={() => pushRoute(`/users/${u.userId}`)}
                     >
                       <div className="min-w-0 hover:no-underline">
-                        <UserTag
-                          hideLink={true}
-                          avatarWidth={50}
-                          userId={u.userId}
-                          lastActive={u.lastActive}
-                        />
+                        <UserTag avatarWidth={50} userId={u.userId} lastActive={u.lastActive} />
                       </div>
                       <div className="flex gap-2 sm:gap-4 text-center">
                         <span className="my-auto">
