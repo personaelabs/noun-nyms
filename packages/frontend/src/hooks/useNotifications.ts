@@ -76,7 +76,7 @@ const cleanRelevantPost = (
   return res;
 };
 
-const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): Notification[] => {
+const buildNotifications = (posts: IPostPreview[], myIds: string[]): Notification[] => {
   // Filter posts that have an identity of mine as the root or the parent Id.
   // Using reduce here to filter and map in one function for performance.
   const relevantPosts = posts.reduce((result: Notification[], p) => {
@@ -129,22 +129,22 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
       const feed = data.data as IPostPreview[];
       // Filter the list for posts with a rootId or parentId authored by my identities.
       // Map to determine if it is a direct or discussion reply
-      const relevantPosts = getRelatedPosts(feed, myUserIds);
+      const serverNotifications = buildNotifications(feed, myUserIds);
 
       // Write to localStorage IF timestamps are greater.
       // First, get localStorage notifications
       let notifications = getNotificationsInLocalStorage(address);
       if (Object.keys(notifications).length > 0) {
         // Add new posts if they don't exist yet.
-        relevantPosts.map((p) => {
-          if (!(p.id in notifications)) {
+        serverNotifications.map((p) => {
+          if (!(p.entityId in notifications)) {
             // Update the `notifications object`
-            notifications[p.id] = p;
+            notifications[p.entityId] = p;
           }
         });
       } else {
         // First time localStorage is used, we set all data to it.
-        notifications = notificationsListToMap(relevantPosts);
+        notifications = notificationsListToMap(serverNotifications);
       }
 
       // Add the new notifications map to localStorage
