@@ -21,6 +21,8 @@ import {
 import { IPostPreview } from '@/types/api';
 import fs from 'fs';
 import {
+  EMPTY_BODY,
+  EMPTY_TITLE,
   INVALID_MERKLE_ROOT,
   INVALID_PROOF,
   INVALID_SIGNATURE,
@@ -202,6 +204,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(400).send({ error: PARENT_NOT_FOUND });
         return;
       }
+    }
+
+    // Check that title is not empty if the post is not a reply
+    if (req.body.content.parentId === '0x0' && req.body.content.title === '') {
+      res.status(400).send({ error: EMPTY_TITLE });
+      return;
+    }
+
+    // Check that the body is not empty
+    if (!req.body.content.body) {
+      res.status(400).send({ error: EMPTY_BODY });
+      return;
     }
 
     if (req.body.attestationScheme === AttestationScheme.Nym) {
