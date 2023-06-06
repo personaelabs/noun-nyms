@@ -1,11 +1,15 @@
 import prisma from '@/lib/prisma';
-import { all } from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Handle non-pseudonymous upvotes
 // Verify the ECDSA signature and save the upvote
 const fetchParents = async (req: NextApiRequest, res: NextApiResponse<{} | { error: string }>) => {
   const postId = req.query.postId as string;
+
+  if (!postId) {
+    res.status(400).send({ error: 'PostId is required' });
+    return;
+  }
 
   let newPost = await prisma.post.findUnique({
     where: {

@@ -133,7 +133,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       combinedData.replies.forEach((reply) => {
         newPostsVisibility[reply.id] = 1;
       });
-      console.log('set from combined data');
+
       setPostsVisibilityMap(newPostsVisibility);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -195,14 +195,13 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
       // if not found query the api at api/v1/posts/postId/fetchParents
       if (!foundPostWithId) {
-        console.log('did not find, need to query fetchParents');
-        console.log(postWithRepliesProps.postId, combinedData);
         const fetchPost = async () => {
           const newResult = await axios.get(
             '/api/v1/posts/' + postWithRepliesProps.postId + '/fetchParents',
           );
           setCombinedData(newResult.data);
         };
+
         fetchPost();
       }
     }
