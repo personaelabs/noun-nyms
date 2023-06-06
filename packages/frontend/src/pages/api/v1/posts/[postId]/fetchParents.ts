@@ -13,6 +13,7 @@ const fetchParents = async (req: NextApiRequest, res: NextApiResponse<{} | { err
     },
     include: {
       parent: true,
+      upvotes: true,
     },
   });
 
@@ -29,6 +30,7 @@ const fetchParents = async (req: NextApiRequest, res: NextApiResponse<{} | { err
           },
           include: {
             parent: true,
+            upvotes: true,
           },
         });
         if (newPost) {

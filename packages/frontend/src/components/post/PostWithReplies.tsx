@@ -97,16 +97,19 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     if (data) {
       const replies = data.replies;
 
-      // don't mess with top-level comments which we have another useEffect for loading
-      if (data.id === idLookFor && depth > 1) {
-        const newPostsVisibility = { ...postsVisibilityMap };
+      if (data.id === idLookFor) {
+        // don't mess with top-level comments which we have another useEffect for loading
+        if (depth > 1) {
+          const newPostsVisibility = { ...postsVisibilityMap };
 
-        for (const element of path) {
-          newPostsVisibility[element] = 1;
+          for (const element of path) {
+            newPostsVisibility[element] = 1;
+          }
+
+          newPostsVisibility[idLookFor] = 1;
+          setPostsVisibilityMap(newPostsVisibility);
         }
-
-        newPostsVisibility[idLookFor] = 1;
-        setPostsVisibilityMap(newPostsVisibility);
+        return true;
       }
 
       if (data.replies) {
@@ -191,17 +194,17 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       );
 
       // if not found query the api at api/v1/posts/postId/fetchParents
-      // if (!foundPostWithId) {
-      //   console.log('combined: ', combinedData);
-      //   console.log('querying post parents');
-      //   const fetchPost = async () => {
-      //     const newResult = await axios.get(
-      //       '/api/v1/posts/' + postWithRepliesProps.postId + '/fetchParents',
-      //     );
-      //     setCombinedData(newResult.data);
-      //   };
-      //   fetchPost();
-      // }
+      if (!foundPostWithId) {
+        console.log('did not find, need to query fetchParents');
+        console.log(postWithRepliesProps.postId, combinedData);
+        const fetchPost = async () => {
+          const newResult = await axios.get(
+            '/api/v1/posts/' + postWithRepliesProps.postId + '/fetchParents',
+          );
+          setCombinedData(newResult.data);
+        };
+        fetchPost();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [combinedData, postWithRepliesProps.postId]);
