@@ -26,6 +26,7 @@ const notificationsMapToOrderedList = (map: NotificationMap) => {
     .map(([key, obj]) => obj);
   return sortedList;
 };
+
 const getNotificationsInLocalStorage = (address: string): NotificationMap => {
   const notifications = localStorage.getItem(`notifications-${address}`);
   if (notifications) {
@@ -94,7 +95,6 @@ const getRelatedPosts = (posts: IPostPreview[], myIds: string[]): Notification[]
         result.push(cleanRelevantPost(p, NotificationType.Upvote, u.id));
       });
     }
-
     return result;
   }, []);
 
