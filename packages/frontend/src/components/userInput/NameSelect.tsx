@@ -9,6 +9,7 @@ import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
 import { Menu } from '@headlessui/react';
 import { NameMenuItem } from './NameMenuItem';
+import { getUserIdFromName } from '@/lib/example-utils';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -22,12 +23,6 @@ export const NameSelect = (props: NameSelectProps) => {
   const { isValid, nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
   const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
   const [openNewNym, setOpenNewNym] = useState<boolean>(false);
-
-  const getUserIdFromName = (user: ClientName): string => {
-    if (user.name) {
-      return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
-    } else return '';
-  };
 
   return (
     <>

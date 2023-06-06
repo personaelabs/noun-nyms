@@ -9,24 +9,25 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useNotifications from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
-import { NameType, NotificationType, ReplyNotification } from '@/types/components';
+import { NotificationType } from '@/types/components';
 import { UserAvatar } from './UserAvatar';
 import Spinner from './Spinner';
-import { fromNowDate } from '@/lib/example-utils';
+import { fromNowDate, trimText } from '@/lib/example-utils';
+import { UserName } from './UserName';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
     case NotificationType.DirectReply:
       return { icon: faReply, text: 'Replied to you: ' };
     case NotificationType.DiscussionReply:
-      return { icon: faReplyAll, text: 'Replied: ' };
+      return { icon: faReplyAll, text: 'Replied to your post: ' };
     default:
       return { icon: faCircleUp, text: 'Upvoted: ' };
   }
 };
 
 export const Notifications = () => {
-  const { notifications, isLoading } = useNotifications();
+  const { notifications, isLoading } = useNotifications({ enabled: true });
   return (
     <>
       <Menu as={'div'} className="cursor-pointer static md:relative">
@@ -50,43 +51,42 @@ export const Notifications = () => {
               {notifications && notifications.length > 0 ? (
                 notifications.map((n, i) => {
                   return (
-                    <Menu.Item
-                      as={'div'}
-                      key={i}
-                      className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 ${
-                        n.read ? 'bg-white' : 'bg-gray-100'
-                      }`}
-                      onClick={() => console.log('push route to notifications here')}
-                    >
-                      <div className="shrink-0 relative">
-                        <UserAvatar type={NameType.PSEUDO} userId={n.userId} width={35} />
-                        <div className="absolute bottom-0 left-full -translate-x-full flex items-center justify-center bg-[#0E76FD] rounded-full p-1 w-[15px] h-[15px]">
-                          <FontAwesomeIcon
-                            icon={getNotificationFromType(n.type).icon}
-                            size={'2xs'}
-                            color={'#ffffff'}
-                          />
+                    <a href={`/posts/${n.id}`} key={i}>
+                      <Menu.Item
+                        as={'div'}
+                        key={i}
+                        className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-100 ${
+                          n.read ? 'bg-white' : 'bg-gray-100'
+                        }`}
+                      >
+                        <div className="shrink-0 relative">
+                          <UserAvatar userId={n.userId} width={35} />
+                          <div className="absolute bottom-0 left-full -translate-x-full flex items-center justify-center bg-[#0E76FD] rounded-full p-1 w-[15px] h-[15px]">
+                            <FontAwesomeIcon
+                              icon={getNotificationFromType(n.type).icon}
+                              size={'2xs'}
+                              color={'#ffffff'}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className="min-w-0 shrink grow flex flex-col gap-2">
-                        <div className="w-full flex gap-1 items-center">
-                          <p className="breakText">
-                            <span className="postDetail">{n.userName}</span>
-                            <span className="secondary"> on </span>
-                            <span className="postDetail">{n.postText}</span>
+                        <div className="min-w-0 shrink grow flex flex-col gap-2">
+                          <div className="w-full flex gap-1 items-center">
+                            <p className="breakText">
+                              <span className="postDetail">
+                                <UserName userId={n.userId} trim={true} />
+                              </span>
+                              <span className="secondary"> on </span>
+                              <span className="postDetail">{n.title}</span>
+                            </p>
+                            <p className="shrink-0 secondary">{fromNowDate(n.timestamp)}</p>
+                          </div>
+                          <p>
+                            <span>{getNotificationFromType(n.type).text}</span>
+                            <span>{trimText(n.body)}</span>
                           </p>
-                          <p className="shrink-0 secondary">{'- ' + fromNowDate(n.timestamp)}</p>
                         </div>
-                        <p>
-                          <span>{getNotificationFromType(n.type).text}</span>
-                          <span>
-                            {n.type === NotificationType.Upvote
-                              ? n.postText
-                              : (n as ReplyNotification).replyText}
-                          </span>
-                        </p>
-                      </div>
-                    </Menu.Item>
+                      </Menu.Item>
+                    </a>
                   );
                 })
               ) : isLoading ? (

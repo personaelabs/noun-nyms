@@ -5,7 +5,7 @@ import useError from '@/hooks/useError';
 import useNotifications from '@/hooks/useNotifications';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faReply, faReplyAll, faCircleUp } from '@fortawesome/free-solid-svg-icons';
-import { NotificationType, ReplyNotification } from '@/types/components';
+import { NotificationType } from '@/types/components';
 
 const getNotificationIconFromType = (type: NotificationType) => {
   switch (type) {
@@ -21,7 +21,7 @@ const getNotificationIconFromType = (type: NotificationType) => {
 export default function Notifications() {
   const { errorMsg, setError } = useError();
 
-  const { notifications, isLoading } = useNotifications();
+  const { notifications, isLoading } = useNotifications({ enabled: true });
 
   return (
     <main>
@@ -44,20 +44,20 @@ export default function Notifications() {
                       return n.type === NotificationType.Upvote ? (
                         <div className="flex gap-4 items-center" key={i}>
                           {getNotificationIconFromType(n.type)}
-                          <a href={`/users/${n.userId}`}>{n.userName}</a>
-                          <a href={`/posts/${n.postId}`}>{n.postText}</a>
+                          <a href={`/users/${n.userId}`}>{n.userId}</a>
+                          <a href={`/posts/${n.id}`}>{n.body}</a>
                         </div>
                       ) : (
                         <div className="flex gap-4 items-center" key={i}>
                           {getNotificationIconFromType(n.type)}
-                          <a href={`/users/${n.userId}`}>{n.userName}</a>
+                          <a href={`/users/${n.userId}`}>{n.userId}</a>
                           <div className="flex-col gap-2">
                             <p>
-                              <a href={`/posts/${n.id}`}>{(n as ReplyNotification).replyText}</a>
+                              <a href={`/posts/${n.id}`}>{n.body}</a>
                             </p>
                             <p>
                               <sub>
-                                <a href={`/posts/${n.postId}`}>{n.postText}</a>
+                                <a href={`/posts/${n.id}`}>{n.title}</a>
                               </sub>
                             </p>
                           </div>
