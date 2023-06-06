@@ -18,9 +18,10 @@ const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { writerToShow, postId } = postWithRepliesProps;
+  const { writerToShow, postId, onData } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
+  const handleData = (data: string) => onData(data);
 
   const {
     isLoading,
@@ -96,6 +97,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               onSuccess={refetchAndScrollToPost}
+              onProgress={handleData}
             />
             <>
               <h4>

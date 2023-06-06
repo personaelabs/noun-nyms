@@ -1,5 +1,4 @@
 import { RetryError } from '@/components/global/RetryError';
-import { Header } from '@/components/Header';
 import Spinner from '@/components/global/Spinner';
 import { UserTag } from '@/components/post/UserTag';
 import useError from '@/hooks/useError';
@@ -85,7 +84,6 @@ export default function Users() {
 
   return (
     <main>
-      <Header />
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
         <div className="bg-gray-50 min-h-screen w-full">
           <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
@@ -129,12 +127,7 @@ export default function Users() {
                       onClick={() => pushRoute(`/users/${u.userId}`)}
                     >
                       <div className="min-w-0 hover:no-underline">
-                        <UserTag
-                          hideLink={true}
-                          avatarWidth={50}
-                          userId={u.userId}
-                          lastActive={u.lastActive}
-                        />
+                        <UserTag avatarWidth={50} userId={u.userId} lastActive={u.lastActive} />
                       </div>
                       <div className="flex gap-2 sm:gap-4 text-center">
                         <span className="my-auto">

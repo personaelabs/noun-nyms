@@ -17,12 +17,7 @@ export const ErrorPage = (props: ErrorPageProps) => {
           <h1 className="text-black">{title}</h1>
           <h4>{subtitle}</h4>
         </div>
-        <MainButton
-          color={'#0e76fd'}
-          message="Return Home"
-          loading={false}
-          handler={() => pushRoute('/')}
-        />
+        <MainButton color={'#0e76fd'} message="Return Home" handler={() => pushRoute('/')} />
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="w-80" src="/nouns.png" alt="nouns" />

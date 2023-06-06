@@ -1,11 +1,8 @@
-import { Header } from '@/components/Header';
-import { Modal } from '@/components/global/Modal';
 import { RetryError } from '@/components/global/RetryError';
 import Spinner from '@/components/global/Spinner';
 import { UserAvatar } from '@/components/global/UserAvatar';
 import { Filters } from '@/components/post/Filters';
 import { PostPreview } from '@/components/post/PostPreview';
-import { PostWithReplies } from '@/components/post/PostWithReplies';
 import useError from '@/hooks/useError';
 import useName from '@/hooks/useName';
 import { IPostPreview } from '@/types/api';
@@ -17,6 +14,7 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from '../_app';
+import { PostWithRepliesModal } from '@/components/post/PostWithRepliesModal';
 
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
@@ -78,18 +76,13 @@ export default function User() {
   return (
     <>
       <main className="flex h-screen w-full flex-col items-center">
-        <Header />
-        {openPost && !isMobile ? (
-          <Modal
-            startAtTop={true}
-            handleClose={() => {
-              router.replace('/', undefined, { shallow: true });
-              setOpenPostId('');
-            }}
-          >
-            <PostWithReplies writerToShow={writerToShow} postId={openPostId} />
-          </Modal>
-        ) : null}
+        {openPost && !isMobile && (
+          <PostWithRepliesModal
+            writerToShow={writerToShow}
+            openPostId={openPostId}
+            setOpenPostId={setOpenPostId}
+          />
+        )}
         <div className="h-full flex flex-col bg-gray-50 max-w-3xl mx-auto w-full p-6">
           <div className="flex flex-col gap-4">
             <div
@@ -136,10 +129,7 @@ export default function User() {
                       {...post}
                       handleOpenPost={(writerToShow: string) => {
                         if (isMobile) pushRoute(`/posts/${post.id}`);
-                        else
-                          router.replace(window.location.href, `/posts/${post.id}`, {
-                            shallow: true,
-                          });
+                        else window.history.pushState(null, '', `/posts/${post.id}`);
                         handleOpenPost(post.id, writerToShow);
                       }}
                       onSuccess={() => console.log('need to refetch here')}
