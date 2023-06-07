@@ -16,6 +16,8 @@ model TreeNode {
   type      GroupType
   path      String[]
   indices   String[]
+  root      String
+  tree      Tree      @relation(fields: [root], references: [root])
   createdAt DateTime  @default(now())
 
   @@unique([type, pubkey])
@@ -28,6 +30,7 @@ model Tree {
   createdAt   DateTime      @default(now())
   Post        Post[]
   DoxedUpvote DoxedUpvote[]
+  TreeNode    TreeNode[]
 }
 
 model CachedEOA {

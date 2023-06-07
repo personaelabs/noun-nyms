@@ -291,7 +291,8 @@ async function writeTree(blockHeight: number) {
           pubkey: account.pubKey,
           path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
-          type: GroupType.OneNoun
+          type: GroupType.OneNoun,
+          root: anonSet1Root
         };
       })
     });
@@ -323,7 +324,8 @@ async function writeTree(blockHeight: number) {
           pubkey: account.pubKey,
           path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
           indices: merkleProof.pathIndices.map(i => i.toString()),
-          type: GroupType.ManyNouns
+          type: GroupType.ManyNouns,
+          root: anonSet2Root
         };
       })
     });

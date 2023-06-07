@@ -13,7 +13,7 @@ type Member = {
 };
 
 export const getLatestGroup = async () => {
-  const { data } = await axios.get('/groups/latest?set=1');
+  const { data } = await axios.get('/groups/latest');
 
   const group: {
     root: PrefixedHex;

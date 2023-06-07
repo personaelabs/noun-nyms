@@ -390,6 +390,7 @@ const populateTestData = async () => {
     ...PRIV_KEYS.map((privKey, i) => {
       const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[i]));
       return {
+        root: treeRootHex,
         address: `0x${privateToAddress(privKey).toString('hex')}`,
         pubkey: `0x${privateToPublic(privKey).toString('hex')}`,
         path: merkleProof.siblings.map((sibling) => `${sibling[0].toString()}`),
@@ -401,6 +402,7 @@ const populateTestData = async () => {
     ...DEV_PUBKEYS.map((pubKey, i) => {
       const merkleProof = tree.createProof(tree.indexOf(pubKeyHashes[PRIV_KEYS.length + i]));
       return {
+        root: treeRootHex,
         address: `0x${pubToAddress(pubKey).toString('hex')}`,
         pubkey: `0x${pubKey.toString('hex')}`,
         path: merkleProof.siblings.map((sibling) => `${sibling.toString()}`),

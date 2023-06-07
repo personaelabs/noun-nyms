@@ -72,6 +72,7 @@ const expectStatusWithObject = (
 
 const mockFindTreeNodeOnce = (_merkleProof: MerkleProof) => {
   prismaMock.treeNode.findFirst.mockResolvedValueOnce({
+    root: treeRoot,
     address: `0x${privateToAddress(privKey).toString('hex')}`,
     pubkey: `0x${privateToPublic(privKey).toString('hex')}`,
     type: 'OneNoun',
