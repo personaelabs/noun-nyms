@@ -416,6 +416,7 @@ const populateTestData = async () => {
         tree.indexOf(pubKeyHashes[DEV_PUBKEYS.length + PRIV_KEYS.length + i]),
       );
       return {
+        root: treeRootHex,
         address: nouner.address,
         pubkey: nouner.pubkey,
         path: merkleProof.siblings.map((sibling) => `${sibling.toString()}`),
