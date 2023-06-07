@@ -85,3 +85,8 @@ export type ReplyNotification = BaseNotification & {
 };
 
 export type Notification = ReplyNotification | UpvoteNotification;
+
+export type NotificationsContextType = {
+  notifications: Notification[];
+  unreadNotifications: Notification[];
+};
