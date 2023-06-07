@@ -7,16 +7,16 @@ import { MainButton } from './MainButton';
 import { useContext, useMemo, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
-import { PostWithReplies } from './post/PostWithReplies';
-import { Header } from './Header';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { useRouter } from 'next/router';
-import { Modal } from './global/Modal';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
+import { scrollToPost } from '@/lib/client-utils';
+import { DiscardPostWarning } from './DiscardPostWarning';
+import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 
 const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
 
@@ -42,9 +42,7 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
-  const router = useRouter();
-  const { isMobile } = useContext(UserContext) as UserContextType;
-  const [postLoading, setPostLoading] = useState(false);
+  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
   const {
     isLoading,
@@ -66,22 +64,15 @@ export default function Posts(props: PostsProps) {
 
   const refetchAndScrollToPost = async (postId?: string) => {
     await refetch();
-    if (postId) {
-      //wait for DOM to update
-      setTimeout(() => {
-        document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
-    }
-  };
-
-  const pushPost = async (postId: string) => {
-    setPostLoading(true);
-    await router.push(`/posts/${postId}`);
-    setPostLoading(false);
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
   };
 
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
+  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const filterOptions: { [key: string]: string } = {
     timestamp: '⏳ Recent',
@@ -92,26 +83,25 @@ export default function Posts(props: PostsProps) {
 
   return (
     <>
-      {newPostOpen ? (
-        <NewPost handleClose={() => setNewPostOpen(false)} onSuccess={refetchAndScrollToPost} />
-      ) : null}
-      {openPostId ? (
-        <Modal
-          startAtTop={true}
-          handleClose={() => {
-            router.replace('/', undefined, { shallow: true });
-            setOpenPostId('');
+      {newPostOpen && (
+        <NewPost
+          handleClose={(postInProg?: string) => {
+            if (postInProg) setDiscardWarningOpen(true);
+            else setNewPostOpen(false);
           }}
-        >
-          <PostWithReplies postId={openPostId} />
-        </Modal>
-      ) : null}
-      {postLoading ? (
-        <div className="fixed right-4 bottom-4 bg-gray-200 rounded-full p-2">
-          <Spinner />
-        </div>
-      ) : null}
-      <Header />
+          onSuccess={refetchAndScrollToPost}
+        />
+      )}
+      {discardWarningOpen && (
+        <DiscardPostWarning
+          handleCloseWarning={() => setDiscardWarningOpen(false)}
+          handleClosePost={() => {
+            setNewPostOpen(false);
+            setDiscardWarningOpen(false);
+          }}
+        />
+      )}
+      {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
           <div className="bg-gray-50 min-h-screen w-full">
@@ -140,7 +130,6 @@ export default function Posts(props: PostsProps) {
                       <MainButton
                         color="#0E76FD"
                         message="Start Discussion"
-                        loading={false}
                         handler={() => setNewPostOpen(true)}
                       />
                     </div>
@@ -159,9 +148,9 @@ export default function Posts(props: PostsProps) {
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => {
-                          if (isMobile) pushPost(post.id);
+                          if (isMobile) pushRoute(`/posts/${post.id}`);
                           else {
-                            router.replace(window.location.href, `/posts/${post.id}`);
+                            window.history.pushState(null, '', `/posts/${post.id}`);
                             setOpenPostId(post.id);
                           }
                         }}

@@ -7,10 +7,10 @@ import { Seo, TITLE } from '@/components/global/Seo';
 import { UserContext } from '../_app';
 import { UserContextType } from '@/types/components';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
-import { useContext } from 'react';
-import { Header } from '@/components/Header';
+import { useContext, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { DiscardPostWarning } from '@/components/DiscardPostWarning';
 
 // This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
@@ -33,19 +33,37 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
   const { description } = buildSeo(post);
-  const { isMobile } = useContext(UserContext) as UserContextType;
+  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
+  const [postInProg, setPostInProg] = useState('');
+  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
+  const handlePostInProg = (post: string) => setPostInProg(post);
+
   return (
     <div className="flex flex-col h-screen">
       <Seo title={TITLE} description={description} />
       {openPostId &&
         (isMobile ? (
           <>
-            <Header />
-            <div className="flex p-6 gap-1 items-center underline" onClick={() => router.push('/')}>
+            {discardWarningOpen && (
+              <DiscardPostWarning
+                handleCloseWarning={() => setDiscardWarningOpen(false)}
+                handleClosePost={() => {
+                  pushRoute('/');
+                  setDiscardWarningOpen(false);
+                }}
+              />
+            )}
+            <div
+              className="flex pt-6 px-6 gap-1 items-center underline cursor-pointer"
+              onClick={() => {
+                if (postInProg) setDiscardWarningOpen(true);
+                else pushRoute('/');
+              }}
+            >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
               <p>All posts</p>
             </div>
-            <PostWithReplies postId={openPostId} />
+            <PostWithReplies postId={openPostId} onData={handlePostInProg} />
           </>
         ) : (
           <Posts initOpenPostId={openPostId} />

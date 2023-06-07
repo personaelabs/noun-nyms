@@ -13,6 +13,9 @@ import { polygon, optimism } from 'viem/chains';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '@/hooks/useUserInfo';
 import { UserContextType } from '@/types/components';
+import usePushRoute from '@/hooks/usePushRoute';
+import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
+import { Header } from '@/components/Header';
 
 config.autoAddCss = false;
 
@@ -36,8 +39,8 @@ export const UserContext = createContext<UserContextType | null>(null);
 export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
-
   const [isMobile, setIsMobile] = useState(false);
+  const { routeLoading, pushRoute } = usePushRoute();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -51,11 +54,15 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <UserContext.Provider value={{ isMobile, nymOptions, setNymOptions, isValid }}>
+        <UserContext.Provider
+          value={{ isMobile, nymOptions, setNymOptions, isValid, routeLoading, pushRoute }}
+        >
           <Head>
             <link type="favicon" rel="icon" href="/favicon-3.ico" />
           </Head>
           <Seo title={TITLE} description={HOME_DESCRIPTION} />
+          {routeLoading && <RouteLoadingSpinner />}
+          <Header />
           <Component {...pageProps} />
           <ValidUserWarning />
         </UserContext.Provider>

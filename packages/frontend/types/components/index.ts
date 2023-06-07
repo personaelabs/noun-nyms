@@ -11,6 +11,7 @@ export type PostProps = IPostPreview & {
 export type PostWithRepliesProps = {
   postId: string;
   writerToShow?: string;
+  onData: (postInProg: string) => void;
 };
 
 export type LocalNym = {
@@ -54,4 +55,6 @@ export type UserContextType = {
   nymOptions: ClientName[];
   setNymOptions: Dispatch<SetStateAction<ClientName[]>>;
   isValid: boolean;
+  routeLoading: boolean;
+  pushRoute: (route: string) => void;
 };

@@ -4,8 +4,8 @@ import Spinner from './global/Spinner';
 export const MainButton = (props: {
   color: string;
   message: string;
-  loading: boolean;
   handler: () => void;
+  loading?: boolean;
   disabled?: boolean;
   children?: ReactNode;
 }) => {
