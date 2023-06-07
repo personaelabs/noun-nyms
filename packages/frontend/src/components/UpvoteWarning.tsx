@@ -26,10 +26,6 @@ export const UpvoteWarning = (props: UpvoteWarningProps) => {
           Voting is currently only possible from a wallet, not a nym. Are you sure you want to vote
           with your wallet identity?
         </p>
-        <div className="secondary">
-          {/* TODO: add this value to local storage? */}
-          <p>Don&apos;t show this again</p>
-        </div>
         <div className="flex justify-center">
           <MainButton
             color="#0E76FD"
