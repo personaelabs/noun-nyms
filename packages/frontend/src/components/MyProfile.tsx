@@ -77,7 +77,17 @@ export const MyProfile = () => {
             </Menu.Item>
           </Menu.Items>
         </Menu>
-      ) : null}
+      ) : (
+        <div
+          className="flex items-center gap-2 rounded-xl px-2 py-1 h-10 border border-white hover:scale-105 active:scale-100 transition-all"
+          onClick={() => pushRoute('/users')}
+        >
+          <div className="flex gap-2 items-center">
+            <FontAwesomeIcon icon={faUser} color={'#ffffff'} />
+            <p className="text-white font-semibold">All Users</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };
