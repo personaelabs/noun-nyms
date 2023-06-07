@@ -26,7 +26,7 @@ const getNymOptions = (address: string | undefined): ClientName[] => {
 };
 
 const isValidMember = async (address: string | undefined): Promise<boolean> => {
-  const res = await axios.get('/api/v1/groups/latest?set=1');
+  const res = await axios.get('/api/v1/groups/latest');
   if (address && res && res.status == 200) {
     const data = res.data as TempGroup;
     const exists = data.members.find((m) => m.address.toLowerCase() === address.toLowerCase());
