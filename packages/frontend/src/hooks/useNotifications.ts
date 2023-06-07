@@ -1,12 +1,11 @@
 import axios from 'axios';
-import { useContext, useEffect, useMemo, useState } from 'react';
-import { IPostPreview } from '@/types/api';
-import { ClientName, NotificationType, NotificationsContextType } from '@/types/components';
-import { Notification } from '@/types/components';
+import { useEffect, useMemo, useState } from 'react';
+import { IPostPreview, IUserUpvote, NotificationType, RawNotifications } from '@/types/api';
+import { ClientName } from '@/types/components';
+import { Notification } from '@/types/api';
 import { getNymOptions } from './useUserInfo';
 import { getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
-import { ReactNode, createContext } from 'react';
 
 interface NotificationMap {
   [id: string]: Notification;
@@ -41,45 +40,50 @@ export const setNotificationsInLocalStorage = (address: string, map: Notificatio
   return map;
 };
 
-const cleanRelevantPost = (
-  post: IPostPreview,
-  notificationType: NotificationType,
-  upvoteId?: string,
-): Notification => {
-  // Default is a Reply notification, where entityId is the post id.
+const cleanRelevantPost = (post: IPostPreview, type: NotificationType): Notification => {
   const { title, userId, id, body, timestamp } = post;
 
   const res = {
-    title,
-    body,
     id,
+    postId: id,
+    read: false,
     userId,
     timestamp,
-    entityId: post.id,
-    read: false,
-    type: notificationType,
+    type,
+    title,
+    body,
   };
 
   // Set Notification title for each type
-  if (upvoteId && notificationType === NotificationType.Upvote) {
-    res.type = NotificationType.Upvote;
-    res.entityId = upvoteId;
-    if (!res.title) res.title = res.body;
-  }
-  if (post.parent && notificationType === NotificationType.DirectReply) {
+  if (post.parent && type === NotificationType.DirectReply) {
     res.title = post.parent.body;
   }
-
-  if (post.root && notificationType === NotificationType.DiscussionReply) {
+  if (post.root && type === NotificationType.DiscussionReply) {
     res.title = post.root.title;
   }
 
   return res;
 };
 
-const buildNotifications = (posts: IPostPreview[], myIds: string[]): Notification[] => {
-  // Filter posts that have an identity of mine as the root or the parent Id.
+const cleanRelevantUpvote = (upvote: IUserUpvote): Notification => {
+  return {
+    id: upvote.id,
+    postId: upvote.post.id,
+    read: false,
+    userId: upvote.address,
+    type: NotificationType.Upvote,
+    timestamp: upvote.timestamp,
+    title: upvote.post.title || upvote.post.root?.title || '',
+    body: upvote.post.body,
+  };
+};
+
+const buildNotifications = (raw: RawNotifications, myIds: string[]): Notification[] => {
   // Using reduce here to filter and map in one function for performance.
+
+  // First, handle posts
+  const posts = raw.posts;
+
   const relevantPosts = posts.reduce((result: Notification[], p) => {
     const rootAuthor = p.root?.userId.toLowerCase();
     const parentAuthor = p.parent?.userId.toLowerCase();
@@ -89,27 +93,25 @@ const buildNotifications = (posts: IPostPreview[], myIds: string[]): Notificatio
     // If parentAuthor is one of my ids, this is a direct reply
     else if (parentAuthor && myIds.includes(parentAuthor))
       result.push(cleanRelevantPost(p, NotificationType.DirectReply));
-    // If I am the author, this is an upvote
-    else if (myIds.includes(p.userId) && p.upvotes.length > 0) {
-      // Only push if the post has upvotes.
-      p.upvotes.map((u) => {
-        result.push(cleanRelevantPost(p, NotificationType.Upvote, u.id));
-      });
-    }
     return result;
   }, []);
 
-  return relevantPosts;
-};
+  // Next handle upvotes
+  const upvotes = raw.upvotes;
 
-export const NotificationsContext = createContext<NotificationsContextType | null>(null);
+  const relevantUpvotes = upvotes.reduce((result: Notification[], u) => {
+    // If I made the post, tell me about upvotes for that post.
+    if (myIds.includes(u.post.userId)) result.push(cleanRelevantUpvote(u));
+    return result;
+  }, []);
+
+  return relevantPosts.concat(relevantUpvotes);
+};
 
 export const useNotifications = ({ enabled }: { enabled: boolean }) => {
   const { address } = useAccount();
   const [notifications, setNotifications] = useState<Notification[]>();
   const [isLoading, setIsLoading] = useState(true);
-
-  // const unreadNotifications = useContext(NotificationsContext);
 
   const unreadNotifications = useMemo(() => {
     return notifications ? notifications.filter((n) => n.read === false) : [];
@@ -119,24 +121,23 @@ export const useNotifications = ({ enabled }: { enabled: boolean }) => {
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
 
-    const data = await axios.get('/api/v1/notifications', {
+    const raw = await axios.get<RawNotifications>('/api/v1/notifications', {
       params: { startTime: '', endTime: '' },
     });
 
-    const feed = data.data as IPostPreview[];
+    const rawNotifications = raw.data;
     // Filter the list for posts with a rootId or parentId authored by my identities.
     // Map to determine if it is a direct or discussion reply
-    const serverNotifications = buildNotifications(feed, myUserIds);
+    const serverNotifications = buildNotifications(rawNotifications, myUserIds);
 
-    // Write to localStorage IF timestamps are greater.
     // First, get localStorage notifications
     let notifications = getNotificationsInLocalStorage(address);
     if (Object.keys(notifications).length > 0) {
       // Add new posts if they don't exist yet.
-      serverNotifications.map((p) => {
-        if (!(p.entityId in notifications)) {
+      serverNotifications.map((n) => {
+        if (!(n.id in notifications)) {
           // Update the `notifications object`
-          notifications[p.entityId] = p;
+          notifications[n.id] = n;
         }
       });
     } else {
@@ -168,12 +169,3 @@ export const useNotifications = ({ enabled }: { enabled: boolean }) => {
 
   return { notifications, unreadNotifications, setNotifications, fetchNotifications, isLoading };
 };
-
-// export const NotificationsProvider = (props: { children: ReactNode }) => {
-//   const { children } = props;
-//   return (
-//     <NotificationsContext.Provider value={(notifications, unreadNotifications)}>
-//       {children}
-//     </NotificationsContext.Provider>
-//   );
-// };

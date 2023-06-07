@@ -6,7 +6,7 @@ import {
   setNotificationsInLocalStorage,
 } from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
-import { UserContextType, Notification } from '@/types/components';
+import { Notification } from '@/types/api';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
 import { useContext, useMemo, useState } from 'react';
@@ -14,6 +14,7 @@ import { UserContext } from '@/pages/_app';
 import { Filters } from '../post/Filters';
 import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
+import { UserContextType } from '@/types/components';
 
 export const setNotificationAsRead = (
   address: string,
@@ -129,7 +130,7 @@ export const Notifications = () => {
                               setNotifications,
                               n.id,
                             );
-                            pushRoute(`/posts/${n.id}`);
+                            pushRoute(`/posts/${n.postId}`);
                           }}
                         >
                           <SingleNotification n={n} />

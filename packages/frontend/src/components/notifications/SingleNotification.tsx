@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UserAvatar } from '../global/UserAvatar';
-import { NotificationType, Notification } from '@/types/components';
+import { NotificationType, Notification } from '@/types/api';
 import { faCircleUp, faReply, faReplyAll } from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
 import { fromNowDate } from '@/lib/example-utils';
