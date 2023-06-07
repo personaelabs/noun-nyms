@@ -1,4 +1,4 @@
-import useNotifications from '@/hooks/useNotifications';
+import { useNotifications } from '@/hooks/useNotifications';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
 import Spinner from '../global/Spinner';

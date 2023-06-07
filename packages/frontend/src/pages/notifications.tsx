@@ -1,6 +1,6 @@
 import Spinner from '@/components/global/Spinner';
 import useError from '@/hooks/useError';
-import useNotifications from '@/hooks/useNotifications';
+import { useNotifications } from '@/hooks/useNotifications';
 import { UserContextType } from '@/types/components';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from './_app';
@@ -21,6 +21,8 @@ export default function Notifications() {
   });
 
   const [filter, setFilter] = useState('all');
+
+  console.log({ notifications }, 'from page component');
 
   const notificationsToShow = useMemo(
     () => (filter === 'unread' ? unreadNotifications : notifications),

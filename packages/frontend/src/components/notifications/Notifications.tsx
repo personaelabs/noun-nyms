@@ -1,10 +1,13 @@
 import { faBell, faCheck, faRefresh, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import useNotifications, { notificationsListToMap } from '@/hooks/useNotifications';
+import {
+  useNotifications,
+  notificationsListToMap,
+  setNotificationsInLocalStorage,
+} from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
 import { UserContextType, Notification } from '@/types/components';
 import Spinner from '../global/Spinner';
-import { setNotificationsInLocalStorage } from '@/hooks/useNotifications';
 import { useAccount } from 'wagmi';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from '@/pages/_app';
@@ -60,9 +63,6 @@ export const Notifications = () => {
     () => (filter === 'unread' ? unreadNotifications : notifications)?.slice(0, 5),
     [filter, notifications, unreadNotifications],
   );
-
-  console.log({ unreadNotifications });
-  console.log({ notifications });
 
   const filters = {
     all: 'All',

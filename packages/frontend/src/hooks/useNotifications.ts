@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { IPostPreview } from '@/types/api';
-import { ClientName, NotificationType } from '@/types/components';
+import { ClientName, NotificationType, NotificationsContextType } from '@/types/components';
 import { Notification } from '@/types/components';
 import { getNymOptions } from './useUserInfo';
 import { getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
+import { ReactNode, createContext } from 'react';
 
 interface NotificationMap {
   [id: string]: Notification;
@@ -101,10 +102,14 @@ const buildNotifications = (posts: IPostPreview[], myIds: string[]): Notificatio
   return relevantPosts;
 };
 
-const useNotifications = ({ enabled }: { enabled: boolean }) => {
+export const NotificationsContext = createContext<NotificationsContextType | null>(null);
+
+export const useNotifications = ({ enabled }: { enabled: boolean }) => {
   const { address } = useAccount();
   const [notifications, setNotifications] = useState<Notification[]>();
   const [isLoading, setIsLoading] = useState(true);
+
+  // const unreadNotifications = useContext(NotificationsContext);
 
   const unreadNotifications = useMemo(() => {
     return notifications ? notifications.filter((n) => n.read === false) : [];
@@ -164,4 +169,11 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
   return { notifications, unreadNotifications, setNotifications, fetchNotifications, isLoading };
 };
 
-export default useNotifications;
+// export const NotificationsProvider = (props: { children: ReactNode }) => {
+//   const { children } = props;
+//   return (
+//     <NotificationsContext.Provider value={(notifications, unreadNotifications)}>
+//       {children}
+//     </NotificationsContext.Provider>
+//   );
+// };
