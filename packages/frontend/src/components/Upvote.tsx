@@ -1,4 +1,4 @@
-import { faAngleUp, faCircleUp, faSquare, faUpLong } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
@@ -27,17 +27,16 @@ export const Upvote = (props: UpvoteIconProps) => {
   const { errorMsg, setError, clearError, isError } = useError();
 
   const { signTypedDataAsync } = useSignTypedData();
-
   const getHasUpvoted = () => {
     if (!address) return false;
     return upvotes.some((v) => v.address === address.toLowerCase());
   };
-
-  const [showVoteWarning, setShowVoteWarning] = useState<boolean>(false);
-  const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
-  const [loadingUpvote, setLoadingUpvote] = useState<boolean>(false);
-
   const hasUpvoted = useMemo(getHasUpvoted, [address, upvotes]);
+
+  const [showVoteWarning, setShowVoteWarning] = useState(false);
+  const [showWalletWarning, setShowWalletWarning] = useState(false);
+  const [loadingUpvote, setLoadingUpvote] = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
 
   const upvoteHandler = async () => {
     try {
@@ -90,12 +89,31 @@ export const Upvote = (props: UpvoteIconProps) => {
         }}
         className={`flex ${
           col ? 'flex-col' : 'flex-row'
-        } gap-1 justify-center items-center cursor-pointer`}
+        } gap-1 justify-center items-center cursor-pointer h-min`}
       >
         <div className="hoverIcon">
           <FontAwesomeIcon icon={faCircleUp} color={hasUpvoted ? '#0e76fd' : ''} />
         </div>
-        {children}
+        <div
+          className="relative"
+          onPointerEnter={() => setShowUsers(true)}
+          onPointerLeave={() => setShowUsers(false)}
+        >
+          <div className="hover:font-bold">{children}</div>
+          {showUsers && (
+            <div className="absolute top-full mt-2 w-[100px] bg-gray-800 rounded-xl p-2 flex">
+              <div className="min-w-0 shrink">
+                {upvotes.map((u) => {
+                  return (
+                    <p key={u.id} className="w-full text-white breakText">
+                      {u.address}
+                    </p>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
