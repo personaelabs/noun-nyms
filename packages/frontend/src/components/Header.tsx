@@ -6,7 +6,7 @@ import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
-import { Notifications } from './global/Notifications';
+import { Notifications } from './notifications/Notifications';
 
 export const Header = () => {
   const { address } = useAccount();

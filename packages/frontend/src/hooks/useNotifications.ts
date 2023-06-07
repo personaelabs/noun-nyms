@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IPostPreview } from '@/types/api';
 import { ClientName, NotificationType } from '@/types/components';
 import { Notification } from '@/types/components';
@@ -106,6 +106,10 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
   const [notifications, setNotifications] = useState<Notification[]>();
   const [isLoading, setIsLoading] = useState(true);
 
+  const unreadNotifications = useMemo(() => {
+    return notifications ? notifications.filter((n) => n.read === false) : [];
+  }, [notifications]);
+
   const fetchNotifications = async (address: string, nymOptions: ClientName[]) => {
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
@@ -149,7 +153,7 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
   }, [notifications]);
 
   useEffect(() => {
-    // Getting nymOptions to avoid an error where sometime nymOptiosn are out of sync with the address
+    // Getting nymOptions to avoid an error where sometime nymOptions are out of sync with the address
     const nymOptions = getNymOptions(address);
     if (!address || !nymOptions || !enabled) {
       return;
@@ -157,7 +161,7 @@ const useNotifications = ({ enabled }: { enabled: boolean }) => {
     fetchNotifications(address, nymOptions);
   }, [address, enabled]);
 
-  return { notifications, setNotifications, fetchNotifications, isLoading };
+  return { notifications, unreadNotifications, setNotifications, fetchNotifications, isLoading };
 };
 
 export default useNotifications;
