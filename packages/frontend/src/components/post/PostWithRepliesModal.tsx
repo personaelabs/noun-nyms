@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { PostWithReplies } from './PostWithReplies';
 import { Modal } from '../global/Modal';
 import { DiscardPostWarning } from '../DiscardPostWarning';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 interface PostWithRepliesModalProps {
   openPostId: string;
@@ -11,9 +13,8 @@ interface PostWithRepliesModalProps {
 
 export const PostWithRepliesModal = (props: PostWithRepliesModalProps) => {
   const { openPostId, setOpenPostId, writerToShow } = props;
-  const handlePostInProg = (post: string) => setPostInProg(post);
-  const [postInProg, setPostInProg] = useState('');
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
+  const { postInProg } = useContext(UserContext) as UserContextType;
 
   const handleCloseModal = () => {
     window.history.pushState(null, '', '/');
@@ -38,11 +39,7 @@ export const PostWithRepliesModal = (props: PostWithRepliesModalProps) => {
           else handleCloseModal();
         }}
       >
-        <PostWithReplies
-          writerToShow={writerToShow}
-          postId={openPostId}
-          onData={handlePostInProg}
-        />
+        <PostWithReplies writerToShow={writerToShow} postId={openPostId} />
       </Modal>
     </>
   );

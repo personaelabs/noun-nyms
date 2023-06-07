@@ -25,10 +25,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   // deeper data that needed to be fetched and has been correctly added to the tree
   const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
   const shouldRerenderThreads = useRef(false);
-  const { writerToShow, postId, onData } = postWithRepliesProps;
+  const { writerToShow, postId } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
-  const handleData = (data: string) => onData(data);
 
   //array of keys for additional data queries. each key is an array of strings corresponding to the path of the data from the root
   const [additionalDataKeys, setAdditionalDataKeys] = useState<string[][]>([]);
@@ -274,7 +273,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
               scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}
-              onProgress={handleData}
             />
             <>
               <h4>

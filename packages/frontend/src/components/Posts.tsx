@@ -41,7 +41,10 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
-  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
+  const { isMobile, postInProg, pushRoute } = useContext(UserContext) as UserContextType;
+  const [newPostOpen, setNewPostOpen] = useState(false);
+  const [openPostId, setOpenPostId] = useState(initOpenPostId ? initOpenPostId : '');
+  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const {
     isLoading,
@@ -61,10 +64,6 @@ export default function Posts(props: PostsProps) {
     },
   });
 
-  const [newPostOpen, setNewPostOpen] = useState(false);
-  const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
-  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
-
   const filterOptions: { [key: string]: string } = {
     timestamp: '⏳ Recent',
     upvotes: '🔥 Top',
@@ -76,7 +75,7 @@ export default function Posts(props: PostsProps) {
     <>
       {newPostOpen && (
         <NewPost
-          handleClose={(postInProg?: string) => {
+          handleClose={() => {
             if (postInProg) setDiscardWarningOpen(true);
             else setNewPostOpen(false);
           }}

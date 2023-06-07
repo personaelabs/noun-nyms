@@ -42,6 +42,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
   const [isMobile, setIsMobile] = useState(false);
+  const [postInProg, setPostInProg] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
 
   useEffect(() => {
@@ -53,12 +54,21 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  const ctxValue = {
+    isMobile,
+    nymOptions,
+    setNymOptions,
+    postInProg,
+    setPostInProg,
+    isValid,
+    routeLoading,
+    pushRoute,
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <UserContext.Provider
-          value={{ isMobile, nymOptions, setNymOptions, isValid, routeLoading, pushRoute }}
-        >
+        <UserContext.Provider value={ctxValue}>
           <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
             <Head>
               <link type="favicon" rel="icon" href="/favicon-3.ico" />

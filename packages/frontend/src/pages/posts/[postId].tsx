@@ -33,10 +33,8 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
   const { description } = buildSeo(post);
-  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  const [postInProg, setPostInProg] = useState('');
+  const { isMobile, postInProg, pushRoute } = useContext(UserContext) as UserContextType;
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
-  const handlePostInProg = (post: string) => setPostInProg(post);
 
   return (
     <div className="flex flex-col h-screen">
@@ -63,7 +61,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
               <p>All posts</p>
             </div>
-            <PostWithReplies postId={openPostId} onData={handlePostInProg} />
+            <PostWithReplies postId={openPostId} />
           </>
         ) : (
           <Posts initOpenPostId={openPostId} />
