@@ -9,7 +9,6 @@ import { HOME_DESCRIPTION, Seo, TITLE } from '@/components/global/Seo';
 import Head from 'next/head';
 import { ValidUserWarning } from '@/components/global/ValidUserWarning';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { polygon, optimism } from 'viem/chains';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '@/hooks/useUserInfo';
 import { UserContextType } from '@/types/components';
@@ -19,7 +18,7 @@ import { Header } from '@/components/Header';
 
 config.autoAddCss = false;
 
-const { chains, publicClient } = configureChains([mainnet, polygon, optimism], [publicProvider()]);
+const { chains, publicClient } = configureChains([mainnet], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
   appName: 'My RainbowKit App',
