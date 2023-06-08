@@ -1,5 +1,5 @@
 import { useNotifications } from '@/hooks/useNotifications';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import Spinner from '../global/Spinner';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,13 +12,23 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   const { address } = useAccount();
   const { fetchNotifications } = useNotifications();
   const [refetching, setRefetching] = useState(false);
+  const [refreshTime, setRefreshTime] = useState(new Date());
   const [lastRefresh, setLastRefresh] = useState(fromNowDate(new Date()));
+
+  useEffect(() => {
+    setInterval(() => {
+      const fromNow = fromNowDate(refreshTime);
+      setLastRefresh(fromNow);
+    }, 5000);
+  });
+
+  console.log({ lastRefresh });
 
   const refetch = async () => {
     if (address) {
       setRefetching(true);
       await fetchNotifications(address, nymOptions);
-      setLastRefresh(fromNowDate(new Date()));
+      setRefreshTime(new Date());
       setRefetching(false);
     }
   };
