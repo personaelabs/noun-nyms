@@ -9,7 +9,7 @@ import { ClientName } from '@/types/components';
 export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   const { nymOptions } = props;
   const { address } = useAccount();
-  const { fetchNotifications } = useNotifications({ enabled: true });
+  const { fetchNotifications } = useNotifications();
   const [refetching, setRefetching] = useState(false);
 
   const refetch = async () => {

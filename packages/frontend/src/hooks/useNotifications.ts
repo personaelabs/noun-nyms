@@ -104,7 +104,7 @@ const buildNotifications = (raw: RawNotifications, myIds: string[]): Notificatio
   return relevantPosts.concat(relevantUpvotes);
 };
 
-export const useNotifications = ({ enabled }: { enabled: boolean }) => {
+export const useNotifications = () => {
   const { address } = useAccount();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unread, setUnread] = useState<Notification[]>([]);
@@ -170,11 +170,11 @@ export const useNotifications = ({ enabled }: { enabled: boolean }) => {
   useEffect(() => {
     // Getting nymOptions to avoid an error where sometime nymOptions are out of sync with the address
     const nymOptions = getNymOptions(address);
-    if (!address || !nymOptions || !enabled) {
+    if (!address || !nymOptions) {
       return;
     }
     fetchNotifications(address, nymOptions);
-  }, [address, enabled]);
+  }, [address]);
 
   return {
     notifications,

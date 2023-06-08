@@ -2,7 +2,6 @@ import { faBell, faCheck, faRefresh, faXmark } from '@fortawesome/free-solid-svg
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
-import { Notification } from '@/types/notifications';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
 import { useContext, useMemo, useState } from 'react';
@@ -15,10 +14,7 @@ import { UserContextType } from '@/types/components';
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, setNotifications, setNotificationsAsRead, isLoading } =
-    useNotifications({
-      enabled: true,
-    });
+  const { notifications, unread, isLoading, setNotificationsAsRead } = useNotifications();
   const [filter, setFilter] = useState('all');
 
   const notificationsToShow = useMemo(

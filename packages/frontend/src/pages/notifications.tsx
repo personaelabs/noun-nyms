@@ -15,10 +15,7 @@ export default function Notifications() {
   const { address } = useAccount();
   const { pushRoute, nymOptions } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError } = useError();
-  const { notifications, unread, setNotifications, setNotificationsAsRead, isLoading } =
-    useNotifications({
-      enabled: true,
-    });
+  const { notifications, unread, isLoading, setNotificationsAsRead } = useNotifications();
 
   const [filter, setFilter] = useState('all');
 
