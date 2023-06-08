@@ -43,8 +43,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const { routeLoading, pushRoute } = usePushRoute();
 
   useEffect(() => {
-    // const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    const handleResize = () => setIsMobile(false);
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => {
