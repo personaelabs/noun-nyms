@@ -14,7 +14,7 @@ import { NotificationsContextType } from '@/types/notifications';
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, isLoading, setNotificationsAsRead } = useContext(
+  const { notifications, unread, isLoading, setNotificationsAsRead, lastRefresh } = useContext(
     NotificationsContext,
   ) as NotificationsContextType;
   const [filter, setFilter] = useState('all');

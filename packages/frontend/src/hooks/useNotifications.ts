@@ -9,7 +9,7 @@ import {
   setReadArgs,
 } from '@/types/notifications';
 import { getNymOptions } from './useUserInfo';
-import { getUserIdFromName } from '@/lib/example-utils';
+import { fromNowDate, getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
 
 export const notificationsListToMap = (notifications: Notification[]) => {
@@ -114,6 +114,8 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const unread = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
+  const [refreshTime, setRefreshTime] = useState(new Date());
+  const [lastRefresh, setLastRefresh] = useState('');
 
   const setNotificationsAsRead = ({ address, id, markAll }: setReadArgs) => {
     if (notifications && address) {
@@ -129,9 +131,9 @@ export const useNotifications = () => {
     }
   };
 
-  const fetchNotifications = async (address: string, nymOptions: ClientName[]) => {
+  const fetchNotifications = async (args: { address: string; nymOptions: ClientName[] }) => {
     setIsLoading(true);
-
+    const { address, nymOptions } = args;
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
 
@@ -165,6 +167,7 @@ export const useNotifications = () => {
     // Convert map to ordered list and export from hook.
     setNotifications(notificationsMapToOrderedList(localNotifications));
     setIsLoading(false);
+    setRefreshTime(new Date());
   };
 
   useEffect(() => {
@@ -173,8 +176,15 @@ export const useNotifications = () => {
     if (!address || !nymOptions) {
       return;
     }
-    fetchNotifications(address, nymOptions);
+    fetchNotifications({ address, nymOptions });
   }, [address]);
+
+  useEffect(() => {
+    setInterval(() => {
+      const fromNow = fromNowDate(refreshTime);
+      setLastRefresh(fromNow);
+    }, 5000);
+  });
 
   return {
     notifications,
@@ -183,5 +193,6 @@ export const useNotifications = () => {
     setNotifications,
     fetchNotifications,
     isLoading,
+    lastRefresh,
   };
 };

@@ -1,3 +1,5 @@
+import { ClientName } from '../components';
+
 export enum NotificationType {
   Upvote,
   DirectReply,
@@ -34,9 +36,17 @@ export type setReadArgs = {
   id?: string;
   markAll?: boolean;
 };
+
+export type setFetchArgs = {
+  address: string;
+  nymOptions: ClientName[];
+};
+
 export type NotificationsContextType = {
   notifications: Notification[];
   unread: Notification[];
   isLoading: boolean;
   setNotificationsAsRead: (args: setReadArgs) => void;
+  fetchNotifications: (args: setFetchArgs) => Promise<void>;
+  lastRefresh: string;
 };
