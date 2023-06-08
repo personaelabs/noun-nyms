@@ -9,13 +9,15 @@ import { ClientName } from '@/types/components';
 export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   const { nymOptions } = props;
   const { address } = useAccount();
-  const { fetchNotifications } = useNotifications({ enabled: true });
+  const { fetchNotifications } = useNotifications();
   const [refetching, setRefetching] = useState(false);
 
   const refetch = async () => {
-    setRefetching(true);
-    await fetchNotifications(address as string, nymOptions);
-    setRefetching(false);
+    if (address) {
+      setRefetching(true);
+      await fetchNotifications(address, nymOptions);
+      setRefetching(false);
+    }
   };
   return (
     <div className="cursor-pointer">

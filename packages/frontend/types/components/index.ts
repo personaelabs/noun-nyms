@@ -59,33 +59,6 @@ export type UserContextType = {
   pushRoute: (route: string) => void;
 };
 
-export enum NotificationType {
-  Upvote,
-  DirectReply,
-  DiscussionReply,
-}
-
-export interface BaseNotification {
-  entityId: string;
-  read: boolean;
-  type: NotificationType;
-  id: string;
-  userId: string;
-  title: string;
-  body: string;
-  timestamp: Date;
-}
-
-export type UpvoteNotification = BaseNotification & {
-  type: NotificationType.Upvote;
-};
-
-export type ReplyNotification = BaseNotification & {
-  type: NotificationType.DirectReply | NotificationType.DiscussionReply;
-};
-
-export type Notification = ReplyNotification | UpvoteNotification;
-
 export type NotificationsContextType = {
   notifications: Notification[];
   unreadNotifications: Notification[];

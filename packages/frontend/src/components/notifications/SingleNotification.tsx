@@ -1,9 +1,9 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UserAvatar } from '../global/UserAvatar';
-import { NotificationType, Notification } from '@/types/components';
 import { faCircleUp, faReply, faReplyAll } from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
 import { fromNowDate } from '@/lib/example-utils';
+import { NotificationType, Notification } from '@/types/notifications';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {

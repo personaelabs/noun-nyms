@@ -1,12 +1,7 @@
 import { faBell, faCheck, faRefresh, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  useNotifications,
-  notificationsListToMap,
-  setNotificationsInLocalStorage,
-} from '@/hooks/useNotifications';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
-import { UserContextType, Notification } from '@/types/components';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
 import { useContext, useMemo, useState } from 'react';
@@ -14,54 +9,18 @@ import { UserContext } from '@/pages/_app';
 import { Filters } from '../post/Filters';
 import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
-
-export const setNotificationAsRead = (
-  address: string,
-  notifications: Notification[] | undefined,
-  setNotifications: (n: Notification[]) => void,
-  id: string,
-) => {
-  if (notifications) {
-    // update notifications in memory
-    const newNotifications = notifications.map((n) => {
-      if (n.id === id) return { ...n, read: true };
-      return n;
-    });
-    setNotifications(newNotifications);
-    const map = notificationsListToMap(newNotifications);
-    // write new map to local storage
-    setNotificationsInLocalStorage(address, map);
-  }
-};
-
-export const MarkAllAsRead = (
-  address: string,
-  notifications: Notification[] | undefined,
-  setNotifications: (n: Notification[]) => void,
-) => {
-  if (notifications) {
-    // update notifications in memory
-    const newNotifications = notifications.map((n) => {
-      return { ...n, read: true };
-    });
-    setNotifications(newNotifications);
-    const map = notificationsListToMap(newNotifications);
-    // write new map to local storage
-    setNotificationsInLocalStorage(address, map);
-  }
-};
+import { UserContextType } from '@/types/components';
 
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unreadNotifications, setNotifications, isLoading } = useNotifications({
-    enabled: true,
-  });
+  const { notifications, unread, isLoading, setNotificationsAsRead } = useNotifications();
   const [filter, setFilter] = useState('all');
 
   const notificationsToShow = useMemo(
-    () => (filter === 'unread' ? unreadNotifications : notifications)?.slice(0, 5),
-    [filter, notifications, unreadNotifications],
+    () =>
+      (filter === 'unread' ? notifications?.filter((n) => !n.read) : notifications)?.slice(0, 5),
+    [filter, notifications],
   );
 
   const filters = {
@@ -81,7 +40,7 @@ export const Notifications = () => {
               }}
             >
               <FontAwesomeIcon icon={faBell} size={'2xl'} color={'#ffffff'} />
-              {unreadNotifications.length > 0 && (
+              {unread.length > 0 && (
                 <div className="absolute bottom-full left-full translate-y-3/4 -translate-x-3/4 rounded-full w-4 h-4 bg-red-700" />
               )}
             </Menu.Button>
@@ -103,9 +62,7 @@ export const Notifications = () => {
                     />
                     <div
                       className="flex gap-1 justify-end items-center"
-                      onClick={() =>
-                        MarkAllAsRead(address as string, notifications, setNotifications)
-                      }
+                      onClick={() => setNotificationsAsRead(address, '', true)}
                     >
                       <FontAwesomeIcon icon={faCheck} size={'xs'} />
                       <p className="secondary hover:underline">Mark all as read</p>
@@ -123,13 +80,8 @@ export const Notifications = () => {
                             n.read ? 'bg-white' : 'bg-gray-100'
                           }`}
                           onClick={() => {
-                            setNotificationAsRead(
-                              address as string,
-                              notifications,
-                              setNotifications,
-                              n.id,
-                            );
-                            pushRoute(`/posts/${n.id}`);
+                            setNotificationsAsRead(address, n.id);
+                            pushRoute(`/posts/${n.postId}`);
                           }}
                         >
                           <SingleNotification n={n} />

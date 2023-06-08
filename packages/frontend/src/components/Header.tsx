@@ -2,7 +2,7 @@ import ConnectWallet from './ConnectWallet';
 import logo from '../../public/logo.svg';
 import { MyProfile } from './MyProfile';
 import Image from 'next/image';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
@@ -11,6 +11,13 @@ import { Notifications } from './notifications/Notifications';
 export const Header = () => {
   const { address } = useAccount();
   const { isMobile, isValid, pushRoute } = useContext(UserContext) as UserContextType;
+
+  const [localAddress, setLocalAddress] = useState('');
+
+  useEffect(() => {
+    // Prevents server side mismatch with address. Idk why
+    if (address) setLocalAddress(address);
+  }, [address]);
 
   return (
     <>
@@ -35,9 +42,9 @@ export const Header = () => {
               </p>
             </div>
             <div className="flex gap-4 items-center">
-              {address && isValid && <Notifications />}
-              {(!isMobile || !address || !isValid) && <ConnectWallet />}
-              <MyProfile />
+              {localAddress && isValid && <Notifications />}
+              {(!isMobile || !localAddress || !isValid) && <ConnectWallet />}
+              <MyProfile address={localAddress} />
             </div>
           </nav>
           {!isMobile && (
