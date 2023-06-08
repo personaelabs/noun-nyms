@@ -10,13 +10,13 @@ import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
 import { UserContextType } from '@/types/components';
 import { NotificationsContextType } from '@/types/notifications';
+import { RetryError } from '../global/RetryError';
 
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, isLoading, setNotificationsAsRead, lastRefresh } = useContext(
-    NotificationsContext,
-  ) as NotificationsContextType;
+  const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
+    useContext(NotificationsContext) as NotificationsContextType;
   const [filter, setFilter] = useState('all');
 
   const notificationsToShow = useMemo(
@@ -104,6 +104,13 @@ export const Notifications = () => {
                   <div className="p-4">
                     <Spinner />
                   </div>
+                ) : errorMsg ? (
+                  <RetryError
+                    message={'Could not fetch notifications: '}
+                    refetchHandler={() =>
+                      fetchNotifications({ address: address as string, nymOptions })
+                    }
+                  />
                 ) : (
                   <p className="p-4 text-center">No notifications</p>
                 )}

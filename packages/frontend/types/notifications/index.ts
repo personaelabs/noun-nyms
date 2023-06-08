@@ -49,4 +49,5 @@ export type NotificationsContextType = {
   setNotificationsAsRead: (args: setReadArgs) => void;
   fetchNotifications: (args: setFetchArgs) => Promise<void>;
   lastRefresh: string;
+  errorMsg: string;
 };

@@ -11,6 +11,7 @@ import {
 import { getNymOptions } from './useUserInfo';
 import { fromNowDate, getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
+import useError from './useError';
 
 export const notificationsListToMap = (notifications: Notification[]) => {
   const map = notifications.reduce((result: NotificationMap, obj) => {
@@ -116,6 +117,7 @@ export const useNotifications = () => {
   const unread = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
   const [refreshTime, setRefreshTime] = useState(new Date());
   const [lastRefresh, setLastRefresh] = useState('');
+  const { errorMsg, setError } = useError();
 
   const setNotificationsAsRead = ({ address, id, markAll }: setReadArgs) => {
     if (notifications && address) {
@@ -137,37 +139,42 @@ export const useNotifications = () => {
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
 
-    const raw = await axios.get<RawNotifications>('/api/v1/notifications', {
-      params: { startTime: '', endTime: '' },
-    });
-
-    const rawNotifications = raw.data;
-    // Filter the list for posts with a rootId or parentId authored by my identities.
-    // Map to determine if it is a direct or discussion reply
-    const serverNotifications = buildNotifications(rawNotifications, myUserIds);
-
-    // First, get localStorage notifications
-    let localNotifications = getNotificationsInLocalStorage(address);
-    if (Object.keys(localNotifications).length > 0) {
-      // Add new posts if they don't exist yet.
-      serverNotifications.map((n) => {
-        if (!(n.id in localNotifications)) {
-          // Update the `notifications object`
-          localNotifications[n.id] = n;
-        }
+    try {
+      const raw = await axios.get<RawNotifications>('/api/v1/notifications', {
+        params: { startTime: '', endTime: '' },
       });
-    } else {
-      // First time localStorage is used, we set all data to it.
-      localNotifications = notificationsListToMap(serverNotifications);
+
+      const rawNotifications = raw.data;
+      // Filter the list for posts with a rootId or parentId authored by my identities.
+      // Map to determine if it is a direct or discussion reply
+      const serverNotifications = buildNotifications(rawNotifications, myUserIds);
+
+      // First, get localStorage notifications
+      let localNotifications = getNotificationsInLocalStorage(address);
+      if (Object.keys(localNotifications).length > 0) {
+        // Add new posts if they don't exist yet.
+        serverNotifications.map((n) => {
+          if (!(n.id in localNotifications)) {
+            // Update the `notifications object`
+            localNotifications[n.id] = n;
+          }
+        });
+      } else {
+        // First time localStorage is used, we set all data to it.
+        localNotifications = notificationsListToMap(serverNotifications);
+      }
+
+      // Add the new notifications map to localStorage
+      setNotificationsInLocalStorage(address, localNotifications);
+
+      // Convert map to ordered list and export from hook.
+      setNotifications(notificationsMapToOrderedList(localNotifications));
+      setIsLoading(false);
+      setRefreshTime(new Date());
+    } catch (error) {
+      setIsLoading(false);
+      setError(error);
     }
-
-    // Add the new notifications map to localStorage
-    setNotificationsInLocalStorage(address, localNotifications);
-
-    // Convert map to ordered list and export from hook.
-    setNotifications(notificationsMapToOrderedList(localNotifications));
-    setIsLoading(false);
-    setRefreshTime(new Date());
   };
 
   useEffect(() => {
@@ -184,7 +191,7 @@ export const useNotifications = () => {
       const fromNow = fromNowDate(refreshTime);
       setLastRefresh(fromNow);
     }, 5000);
-  });
+  }, [refreshTime]);
 
   return {
     notifications,
@@ -194,5 +201,6 @@ export const useNotifications = () => {
     fetchNotifications,
     isLoading,
     lastRefresh,
+    errorMsg,
   };
 };

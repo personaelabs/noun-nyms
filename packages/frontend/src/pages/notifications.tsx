@@ -12,15 +12,14 @@ import { RefreshNotifications } from '@/components/notifications/RefreshNotifica
 import { WalletWarning } from '@/components/WalletWarning';
 import { NotificationsContextType } from '@/types/notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { RetryError } from '@/components/global/RetryError';
 
 export default function Notifications() {
   const { address } = useAccount();
   const isMounted = useIsMounted();
   const { isValid, pushRoute, nymOptions } = useContext(UserContext) as UserContextType;
-  const { errorMsg, setError } = useError();
-  const { notifications, unread, isLoading, setNotificationsAsRead } = useContext(
-    NotificationsContext,
-  ) as NotificationsContextType;
+  const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
+    useContext(NotificationsContext) as NotificationsContextType;
 
   const [filter, setFilter] = useState('all');
   const [showWalletWarning, setShowWalletWarning] = useState(!address || !isValid);
@@ -51,6 +50,13 @@ export default function Notifications() {
             </div>
             {isLoading ? (
               <Spinner />
+            ) : errorMsg ? (
+              <RetryError
+                message={'Could not fetch notifications: '}
+                refetchHandler={() =>
+                  fetchNotifications({ address: address as string, nymOptions })
+                }
+              />
             ) : notificationsToShow ? (
               <>
                 <div className="flex justify-between items-center">

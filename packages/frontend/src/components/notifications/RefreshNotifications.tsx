@@ -24,7 +24,7 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   };
   return (
     <div className="flex gap-4 items-center">
-      {lastRefresh && <p className="secondary">Last Refresh: {lastRefresh}</p>}
+      {lastRefresh && <p className="secondary">Last updated: {lastRefresh}</p>}
       <div className="cursor-pointer">
         <div className="flex items-center w-5 h-4">
           {refetching ? (

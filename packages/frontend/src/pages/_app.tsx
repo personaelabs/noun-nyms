@@ -49,6 +49,7 @@ export default function App({ Component, pageProps }: AppProps) {
     setNotificationsAsRead,
     fetchNotifications,
     lastRefresh,
+    errorMsg,
   } = useNotifications();
   const [isMobile, setIsMobile] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
@@ -81,6 +82,7 @@ export default function App({ Component, pageProps }: AppProps) {
               setNotificationsAsRead,
               fetchNotifications,
               lastRefresh,
+              errorMsg,
             }}
           >
             <Header />
