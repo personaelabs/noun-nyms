@@ -5,7 +5,6 @@ import { UserContextType } from '@/types/components';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from './_app';
 import { SingleNotification } from '@/components/notifications/SingleNotification';
-import { MarkAllAsRead, setNotificationAsRead } from '@/components/notifications/Notifications';
 import { useAccount } from 'wagmi';
 import { Filters } from '@/components/post/Filters';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -16,17 +15,18 @@ export default function Notifications() {
   const { address } = useAccount();
   const { pushRoute, nymOptions } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError } = useError();
-  const { notifications, unreadNotifications, setNotifications, isLoading } = useNotifications({
-    enabled: true,
-  });
+  const { notifications, unread, setNotifications, setNotificationsAsRead, isLoading } =
+    useNotifications({
+      enabled: true,
+    });
 
   const [filter, setFilter] = useState('all');
 
   console.log({ notifications }, 'from page component');
 
   const notificationsToShow = useMemo(
-    () => (filter === 'unread' ? unreadNotifications : notifications),
-    [filter, notifications, unreadNotifications],
+    () => (filter === 'unread' ? unread : notifications),
+    [filter, notifications, unread],
   );
 
   const filters = {
@@ -55,9 +55,7 @@ export default function Notifications() {
                   />
                   <div
                     className="flex gap-1 justify-end items-center"
-                    onClick={() =>
-                      MarkAllAsRead(address as string, notifications, setNotifications)
-                    }
+                    onClick={() => setNotificationsAsRead(address, '', true)}
                   >
                     <FontAwesomeIcon icon={faCheck} size={'xs'} />
                     <p className="secondary hover:underline">Mark all as read</p>
@@ -69,12 +67,7 @@ export default function Notifications() {
                       className="flex gap-4 justify-between outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
                       key={i}
                       onClick={() => {
-                        setNotificationAsRead(
-                          address as string,
-                          notifications,
-                          setNotifications,
-                          n.id,
-                        );
+                        setNotificationsAsRead(address, n.id);
                         pushRoute(`/posts/${n.postId}`);
                       }}
                     >

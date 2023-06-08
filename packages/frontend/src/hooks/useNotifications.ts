@@ -1,15 +1,11 @@
 import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
-import { IPostPreview, IUserUpvote, NotificationType, RawNotifications } from '@/types/api';
+import { IPostPreview, IUserUpvote, RawNotifications } from '@/types/api';
 import { ClientName } from '@/types/components';
-import { Notification } from '@/types/api';
+import { Notification, NotificationMap, NotificationType } from '@/types/notifications';
 import { getNymOptions } from './useUserInfo';
 import { getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
-
-interface NotificationMap {
-  [id: string]: Notification;
-}
 
 export const notificationsListToMap = (notifications: Notification[]) => {
   const map = notifications.reduce((result: NotificationMap, obj) => {
@@ -110,12 +106,23 @@ const buildNotifications = (raw: RawNotifications, myIds: string[]): Notificatio
 
 export const useNotifications = ({ enabled }: { enabled: boolean }) => {
   const { address } = useAccount();
-  const [notifications, setNotifications] = useState<Notification[]>();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unread, setUnread] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const unreadNotifications = useMemo(() => {
-    return notifications ? notifications.filter((n) => n.read === false) : [];
-  }, [notifications]);
+  const setNotificationsAsRead = (address: string | undefined, id: string, markAll = false) => {
+    if (notifications && address) {
+      // update notifications in memory
+      const newNotifications = notifications.map((n) => {
+        if (markAll || id === n.id) return { ...n, read: true };
+        return n;
+      });
+      setNotifications(newNotifications);
+      const map = notificationsListToMap(newNotifications);
+      // write new map to local storage
+      setNotificationsInLocalStorage(address, map);
+    }
+  };
 
   const fetchNotifications = async (address: string, nymOptions: ClientName[]) => {
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
@@ -155,6 +162,8 @@ export const useNotifications = ({ enabled }: { enabled: boolean }) => {
   useEffect(() => {
     if (notifications) {
       setIsLoading(false);
+      const unreadNotifications = notifications.filter((n) => !n.read);
+      setUnread(unreadNotifications);
     }
   }, [notifications]);
 
@@ -167,5 +176,12 @@ export const useNotifications = ({ enabled }: { enabled: boolean }) => {
     fetchNotifications(address, nymOptions);
   }, [address, enabled]);
 
-  return { notifications, unreadNotifications, setNotifications, fetchNotifications, isLoading };
+  return {
+    notifications,
+    unread,
+    setNotificationsAsRead,
+    setNotifications,
+    fetchNotifications,
+    isLoading,
+  };
 };
