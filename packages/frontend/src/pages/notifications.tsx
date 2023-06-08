@@ -60,7 +60,7 @@ export default function Notifications() {
                     setSelectedFilter={setFilter}
                   />
                   <div
-                    className="flex gap-1 justify-end items-center"
+                    className="flex gap-1 justify-end items-center cursor-pointer"
                     onClick={() => setNotificationsAsRead({ address, markAll: true })}
                   >
                     <FontAwesomeIcon icon={faCheck} size={'xs'} />

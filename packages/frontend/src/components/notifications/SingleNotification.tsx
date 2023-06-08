@@ -8,7 +8,7 @@ import {
   faReplyAll,
 } from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
-import { fromNowDate } from '@/lib/example-utils';
+import { fromNowDate, trimText } from '@/lib/example-utils';
 import { NotificationType, Notification, setReadArgs } from '@/types/notifications';
 import { useState } from 'react';
 import { useAccount } from 'wagmi';
@@ -27,9 +27,10 @@ const getNotificationFromType = (type: NotificationType) => {
 export const SingleNotification = (props: {
   n: Notification;
   setAsRead: (args: setReadArgs) => void;
+  trim?: boolean;
 }) => {
   const { address } = useAccount();
-  const { n, setAsRead } = props;
+  const { n, setAsRead, trim } = props;
   const [showOptions, setShowOptions] = useState(false);
 
   return (
@@ -61,7 +62,7 @@ export const SingleNotification = (props: {
         </div>
         <p>
           <span>{getNotificationFromType(n.type).text}</span>
-          <span>{n.body}</span>
+          <span>{trim ? trimText(n.body) : n.body}</span>
         </p>
       </div>
       <div

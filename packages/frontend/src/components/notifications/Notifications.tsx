@@ -84,13 +84,17 @@ export const Notifications = () => {
                             pushRoute(`/posts/${n.postId}`);
                           }}
                         >
-                          <SingleNotification n={n} setAsRead={setNotificationsAsRead} />
+                          <SingleNotification
+                            n={n}
+                            setAsRead={setNotificationsAsRead}
+                            trim={true}
+                          />
                         </Menu.Item>
                       );
                     })}
                     <Menu.Item
                       as={'div'}
-                      className="py-2 hover:underline"
+                      className="py-2 hover:underline hover:bg-gray-200 rounded-b-xl"
                       onClick={() => pushRoute('/notifications')}
                     >
                       <p className="text-center">See All Notifications</p>
