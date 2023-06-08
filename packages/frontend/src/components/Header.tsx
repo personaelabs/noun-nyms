@@ -7,17 +7,13 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
 import { Notifications } from './notifications/Notifications';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 export const Header = () => {
   const { address } = useAccount();
   const { isMobile, isValid, pushRoute } = useContext(UserContext) as UserContextType;
 
-  const [localAddress, setLocalAddress] = useState('');
-
-  useEffect(() => {
-    // Prevents server side mismatch with address. Idk why
-    if (address) setLocalAddress(address);
-  }, [address]);
+  const isMounted = useIsMounted();
 
   return (
     <>
@@ -42,9 +38,9 @@ export const Header = () => {
               </p>
             </div>
             <div className="flex gap-4 items-center">
-              {localAddress && isValid && <Notifications />}
-              {(!isMobile || !localAddress || !isValid) && <ConnectWallet />}
-              <MyProfile address={localAddress} />
+              {isMounted && address && isValid && <Notifications />}
+              {(!isMobile || !address || !isValid) && <ConnectWallet />}
+              {isMounted && address && <MyProfile address={address} />}
             </div>
           </nav>
           {!isMobile && (

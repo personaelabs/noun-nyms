@@ -64,7 +64,7 @@ export const Notifications = () => {
                     />
                     <div
                       className="flex gap-1 justify-end items-center"
-                      onClick={() => setNotificationsAsRead(address as string, '', true)}
+                      onClick={() => setNotificationsAsRead({ address, markAll: true })}
                     >
                       <FontAwesomeIcon icon={faCheck} size={'xs'} />
                       <p className="secondary hover:underline">Mark all as read</p>
@@ -82,7 +82,7 @@ export const Notifications = () => {
                             n.read ? 'bg-white' : 'bg-gray-100'
                           }`}
                           onClick={() => {
-                            setNotificationsAsRead(address as string, n.id);
+                            setNotificationsAsRead({ address, id: n.id });
                             pushRoute(`/posts/${n.postId}`);
                           }}
                         >

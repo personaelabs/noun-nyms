@@ -2,7 +2,12 @@ import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { IPostPreview, IUserUpvote, RawNotifications } from '@/types/api';
 import { ClientName } from '@/types/components';
-import { Notification, NotificationMap, NotificationType } from '@/types/notifications';
+import {
+  Notification,
+  NotificationMap,
+  NotificationType,
+  setReadArgs,
+} from '@/types/notifications';
 import { getNymOptions } from './useUserInfo';
 import { getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
@@ -110,7 +115,7 @@ export const useNotifications = () => {
   const [isLoading, setIsLoading] = useState(false);
   const unread = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
 
-  const setNotificationsAsRead = (address: string | undefined, id: string, markAll = false) => {
+  const setNotificationsAsRead = ({ address, id, markAll }: setReadArgs) => {
     if (notifications && address) {
       // update notifications in memory
       const newNotifications = notifications.map((n) => {

@@ -29,9 +29,14 @@ export type ReplyNotification = BaseNotification & {
 
 export type Notification = UpvoteNotification | ReplyNotification;
 
+export type setReadArgs = {
+  address: string | undefined;
+  id?: string;
+  markAll?: boolean;
+};
 export type NotificationsContextType = {
   notifications: Notification[];
   unread: Notification[];
   isLoading: boolean;
-  setNotificationsAsRead: (address: string, id: string, markAll?: boolean) => void;
+  setNotificationsAsRead: (args: setReadArgs) => void;
 };

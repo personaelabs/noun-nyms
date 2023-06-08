@@ -11,9 +11,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RefreshNotifications } from '@/components/notifications/RefreshNotifications';
 import { WalletWarning } from '@/components/WalletWarning';
 import { NotificationsContextType } from '@/types/notifications';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 export default function Notifications() {
   const { address } = useAccount();
+  const isMounted = useIsMounted();
   const { isValid, pushRoute, nymOptions } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError } = useError();
   const { notifications, unread, isLoading, setNotificationsAsRead } = useContext(
@@ -59,7 +61,7 @@ export default function Notifications() {
                   />
                   <div
                     className="flex gap-1 justify-end items-center"
-                    onClick={() => setNotificationsAsRead(address as string, '', true)}
+                    onClick={() => setNotificationsAsRead({ address, markAll: true })}
                   >
                     <FontAwesomeIcon icon={faCheck} size={'xs'} />
                     <p className="secondary hover:underline">Mark all as read</p>
@@ -71,7 +73,7 @@ export default function Notifications() {
                       className="flex gap-4 justify-between items-center outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
                       key={i}
                       onClick={() => {
-                        setNotificationsAsRead(address as string, n.id);
+                        setNotificationsAsRead({ address, id: n.id });
                         pushRoute(`/posts/${n.postId}`);
                       }}
                     >
@@ -85,7 +87,7 @@ export default function Notifications() {
             ) : (
               <p className="p-4 text-center">No notifications</p>
             )}
-            {showWalletWarning && (
+            {isMounted && showWalletWarning && (
               <WalletWarning
                 handleClose={() => setShowWalletWarning(false)}
                 action={'get notifications'}

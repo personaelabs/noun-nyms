@@ -9,7 +9,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
 import { fromNowDate } from '@/lib/example-utils';
-import { NotificationType, Notification } from '@/types/notifications';
+import { NotificationType, Notification, setReadArgs } from '@/types/notifications';
 import { useContext, useState } from 'react';
 import { NotificationsContext } from '@/pages/_app';
 import { useAccount } from 'wagmi';
@@ -27,7 +27,7 @@ const getNotificationFromType = (type: NotificationType) => {
 
 export const SingleNotification = (props: {
   n: Notification;
-  setAsRead: (address: string, id: string, markAll?: boolean) => void;
+  setAsRead: (args: setReadArgs) => void;
 }) => {
   const { address } = useAccount();
   const { n, setAsRead } = props;
@@ -73,7 +73,7 @@ export const SingleNotification = (props: {
         {showOptions && (
           <div
             className="absolute top-full right-1/2 mt-2 shadow-sm border border-gray-200 bg-white hover:bg-gray-100 rounded-xl p-2 w-max flex gap-2 items-center"
-            onClick={() => setAsRead(address as string, n.id)}
+            onClick={() => setAsRead({ address, id: n.id })}
           >
             <FontAwesomeIcon icon={faCheck} size={'sm'} />
             <p>Mark as read</p>
