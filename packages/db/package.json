@@ -4,7 +4,7 @@
   "description": "schema + tools for interacting with nym db",
   "main": "index.js",
   "scripts": {
-    "build": "prisma generate",
+    "build": "prisma generate --data-proxy",
     "down": "docker-compose down",
     "migrate:dev": "pnpm exec prisma migrate dev",
     "migrate:prod": "prisma migrate deploy",
