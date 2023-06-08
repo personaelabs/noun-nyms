@@ -107,6 +107,7 @@ export const Notifications = () => {
                 ) : errorMsg ? (
                   <RetryError
                     message={'Could not fetch notifications: '}
+                    error={errorMsg}
                     refetchHandler={() =>
                       fetchNotifications({ address: address as string, nymOptions })
                     }
