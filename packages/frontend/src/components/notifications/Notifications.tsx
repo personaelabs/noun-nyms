@@ -1,4 +1,4 @@
-import { faBell, faCheck, faRefresh, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu } from '@headlessui/react';
 import Spinner from '../global/Spinner';
@@ -51,7 +51,7 @@ export const Notifications = () => {
                 <div className="flex flex-col gap-2 px-3 mb-2">
                   <div className="flex items-center justify-between mt-2">
                     <h4>Notifications</h4>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 items-center">
                       <RefreshNotifications nymOptions={nymOptions} />
                       <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
                     </div>
@@ -78,9 +78,7 @@ export const Notifications = () => {
                         <Menu.Item
                           as={'div'}
                           key={i}
-                          className={`w-full flex items-center gap-2 px-3 py-2 ${
-                            n.read ? 'bg-white' : 'bg-gray-100'
-                          }`}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-white hover:border-gray-500"
                           onClick={() => {
                             setNotificationsAsRead({ address, id: n.id });
                             pushRoute(`/posts/${n.postId}`);

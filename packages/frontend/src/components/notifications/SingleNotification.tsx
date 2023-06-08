@@ -10,8 +10,7 @@ import {
 import { UserName } from '../global/UserName';
 import { fromNowDate } from '@/lib/example-utils';
 import { NotificationType, Notification, setReadArgs } from '@/types/notifications';
-import { useContext, useState } from 'react';
-import { NotificationsContext } from '@/pages/_app';
+import { useState } from 'react';
 import { useAccount } from 'wagmi';
 
 const getNotificationFromType = (type: NotificationType) => {
@@ -36,13 +35,16 @@ export const SingleNotification = (props: {
   return (
     <>
       <div className="shrink-0 h-min relative">
-        <UserAvatar userId={n.userId} width={35} />
-        <div className="absolute bottom-0 left-full -translate-x-full flex items-center justify-center bg-[#0E76FD] rounded-full p-1 w-[15px] h-[15px]">
-          <FontAwesomeIcon
-            icon={getNotificationFromType(n.type).icon}
-            size={'2xs'}
-            color={'#ffffff'}
-          />
+        <div className="flex gap-2 items-center">
+          <div className={`w-2.5 h-2.5 ${n.read ? 'bg-white' : 'bg-[#0E76FD]'} rounded-full`} />
+          <UserAvatar userId={n.userId} width={35} />
+          <div className="absolute bottom-0 left-full -translate-x-full flex items-center justify-center bg-[#0E76FD] rounded-full p-1 w-[15px] h-[15px]">
+            <FontAwesomeIcon
+              icon={getNotificationFromType(n.type).icon}
+              size={'2xs'}
+              color={'#ffffff'}
+            />
+          </div>
         </div>
       </div>
       <div className="min-w-0 shrink grow flex flex-col gap-2">
