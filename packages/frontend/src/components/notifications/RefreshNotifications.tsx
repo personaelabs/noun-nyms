@@ -22,8 +22,6 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
     }, 5000);
   });
 
-  console.log({ lastRefresh });
-
   const refetch = async () => {
     if (address) {
       setRefetching(true);
