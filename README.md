@@ -18,3 +18,5 @@ To run a specifc command in a workspace from the root folder:
 # Dev branch
 
 Just for using prod frontend with staging db.
+
+testing
