@@ -15,7 +15,13 @@ const selectFields = {
       timestamp: true,
     },
   },
+  depth: true,
   parentId: true,
+  _count: {
+    select: {
+      replies: true,
+    },
+  },
 };
 
 // We need to hardcode the structure of the query to let Prisma infer the return types.
@@ -39,6 +45,41 @@ export const postSelect = {
                 select: {
                   ...selectFields,
                   replies: {
+                    // Depth = 5
+                    select: {
+                      ...selectFields,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+} satisfies Prisma.PostSelect;
+
+// Selects 5 layers up the tree for a post's parent.
+export const parentSelect = {
+  ...selectFields,
+  parent: {
+    // Depth = 1
+    select: {
+      ...selectFields,
+      parent: {
+        // Depth = 2
+        select: {
+          ...selectFields,
+          parent: {
+            // Depth = 3
+            select: {
+              ...selectFields,
+              parent: {
+                // Depth = 4
+                select: {
+                  ...selectFields,
+                  parent: {
                     // Depth = 5
                     select: {
                       ...selectFields,

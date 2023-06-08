@@ -40,7 +40,7 @@ export const SingleReply = (props: SingleReplyProps) => {
         <span>{body}</span>
         <div className="flex flex-wrap justify-between items-center py-2 border-t border-gray-300">
           <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
-            <p>{upvotes.length}</p>
+            <p>{upvotes?.length}</p>
           </Upvote>
           <div className="flex flex-wrap gap-4 justify-center items-center">
             <ReplyCount count={replyCount} />
