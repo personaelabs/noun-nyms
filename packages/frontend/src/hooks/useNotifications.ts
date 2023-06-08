@@ -107,8 +107,8 @@ const buildNotifications = (raw: RawNotifications, myIds: string[]): Notificatio
 export const useNotifications = () => {
   const { address } = useAccount();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [unread, setUnread] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const unread = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
 
   const setNotificationsAsRead = (address: string | undefined, id: string, markAll = false) => {
     if (notifications && address) {
@@ -118,6 +118,7 @@ export const useNotifications = () => {
         return n;
       });
       setNotifications(newNotifications);
+      console.log({ unread }, 'inside hook');
       const map = notificationsListToMap(newNotifications);
       // write new map to local storage
       setNotificationsInLocalStorage(address, map);
@@ -125,6 +126,8 @@ export const useNotifications = () => {
   };
 
   const fetchNotifications = async (address: string, nymOptions: ClientName[]) => {
+    setIsLoading(true);
+
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
 
@@ -138,34 +141,27 @@ export const useNotifications = () => {
     const serverNotifications = buildNotifications(rawNotifications, myUserIds);
 
     // First, get localStorage notifications
-    let notifications = getNotificationsInLocalStorage(address);
-    if (Object.keys(notifications).length > 0) {
+    let localNotifications = getNotificationsInLocalStorage(address);
+    if (Object.keys(localNotifications).length > 0) {
       // Add new posts if they don't exist yet.
       serverNotifications.map((n) => {
-        if (!(n.id in notifications)) {
+        if (!(n.id in localNotifications)) {
           // Update the `notifications object`
-          notifications[n.id] = n;
+          localNotifications[n.id] = n;
         }
       });
     } else {
       // First time localStorage is used, we set all data to it.
-      notifications = notificationsListToMap(serverNotifications);
+      localNotifications = notificationsListToMap(serverNotifications);
     }
 
     // Add the new notifications map to localStorage
-    setNotificationsInLocalStorage(address, notifications);
+    setNotificationsInLocalStorage(address, localNotifications);
 
     // Convert map to ordered list and export from hook.
-    setNotifications(notificationsMapToOrderedList(notifications));
+    setNotifications(notificationsMapToOrderedList(localNotifications));
+    setIsLoading(false);
   };
-
-  useEffect(() => {
-    if (notifications) {
-      setIsLoading(false);
-      const unreadNotifications = notifications.filter((n) => !n.read);
-      setUnread(unreadNotifications);
-    }
-  }, [notifications]);
 
   useEffect(() => {
     // Getting nymOptions to avoid an error where sometime nymOptions are out of sync with the address

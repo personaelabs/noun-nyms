@@ -58,8 +58,3 @@ export type UserContextType = {
   routeLoading: boolean;
   pushRoute: (route: string) => void;
 };
-
-export type NotificationsContextType = {
-  notifications: Notification[];
-  unreadNotifications: Notification[];
-};

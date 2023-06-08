@@ -12,9 +12,11 @@ import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '@/hooks/useUserInfo';
 import { UserContextType } from '@/types/components';
+import { NotificationsContextType } from '@/types/notifications';
 import usePushRoute from '@/hooks/usePushRoute';
 import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
 import { Header } from '@/components/Header';
+import { useNotifications } from '@/hooks/useNotifications';
 
 config.autoAddCss = false;
 
@@ -33,11 +35,14 @@ const appConfig = createConfig({
 
 // React query client
 const queryClient = new QueryClient();
+
 export const UserContext = createContext<UserContextType | null>(null);
+export const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
+  const { notifications, unread, isLoading, setNotificationsAsRead } = useNotifications();
   const [isMobile, setIsMobile] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
 
@@ -61,8 +66,12 @@ export default function App({ Component, pageProps }: AppProps) {
           </Head>
           <Seo title={TITLE} description={HOME_DESCRIPTION} />
           {routeLoading && <RouteLoadingSpinner />}
-          <Header />
-          <Component {...pageProps} />
+          <NotificationsContext.Provider
+            value={{ notifications, unread, isLoading, setNotificationsAsRead }}
+          >
+            <Header />
+            <Component {...pageProps} />
+          </NotificationsContext.Provider>
           <ValidUserWarning />
         </UserContext.Provider>
       </WagmiConfig>

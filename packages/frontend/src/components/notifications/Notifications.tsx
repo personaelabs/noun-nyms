@@ -1,20 +1,22 @@
 import { faBell, faCheck, faRefresh, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useNotifications } from '@/hooks/useNotifications';
 import { Menu } from '@headlessui/react';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
 import { useContext, useMemo, useState } from 'react';
-import { UserContext } from '@/pages/_app';
+import { NotificationsContext, UserContext } from '@/pages/_app';
 import { Filters } from '../post/Filters';
 import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
 import { UserContextType } from '@/types/components';
+import { NotificationsContextType } from '@/types/notifications';
 
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, isLoading, setNotificationsAsRead } = useNotifications();
+  const { notifications, unread, isLoading, setNotificationsAsRead } = useContext(
+    NotificationsContext,
+  ) as NotificationsContextType;
   const [filter, setFilter] = useState('all');
 
   const notificationsToShow = useMemo(
@@ -62,7 +64,7 @@ export const Notifications = () => {
                     />
                     <div
                       className="flex gap-1 justify-end items-center"
-                      onClick={() => setNotificationsAsRead(address, '', true)}
+                      onClick={() => setNotificationsAsRead(address as string, '', true)}
                     >
                       <FontAwesomeIcon icon={faCheck} size={'xs'} />
                       <p className="secondary hover:underline">Mark all as read</p>
@@ -80,7 +82,7 @@ export const Notifications = () => {
                             n.read ? 'bg-white' : 'bg-gray-100'
                           }`}
                           onClick={() => {
-                            setNotificationsAsRead(address, n.id);
+                            setNotificationsAsRead(address as string, n.id);
                             pushRoute(`/posts/${n.postId}`);
                           }}
                         >
