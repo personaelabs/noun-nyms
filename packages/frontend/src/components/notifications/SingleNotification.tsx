@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UserAvatar } from '../global/UserAvatar';
-import { faCircleUp, faReply, faReplyAll } from '@fortawesome/free-solid-svg-icons';
+import { faCircleUp, faEllipsis, faReply, faReplyAll } from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
 import { fromNowDate } from '@/lib/example-utils';
 import { NotificationType, Notification } from '@/types/notifications';
@@ -31,7 +31,7 @@ export const SingleNotification = (props: { n: Notification }) => {
         </div>
       </div>
       <div className="min-w-0 shrink grow flex flex-col gap-2">
-        <div className="w-full flex gap-1 items-center">
+        <div className="w-full flex gap-2 items-center">
           <p className="breakText">
             <span className="postDetail">
               <UserName userId={n.userId} trim={true} />
@@ -39,12 +39,16 @@ export const SingleNotification = (props: { n: Notification }) => {
             <span className="secondary"> on </span>
             <span className="postDetail">{n.title}</span>
           </p>
+          <p className="secondary">-</p>
           <p className="shrink-0 secondary">{fromNowDate(n.timestamp)}</p>
         </div>
         <p>
           <span>{getNotificationFromType(n.type).text}</span>
           <span>{n.body}</span>
         </p>
+      </div>
+      <div className="px-1 hover:bg-gray-200 rounded-md">
+        <FontAwesomeIcon icon={faEllipsis} />
       </div>
     </>
   );

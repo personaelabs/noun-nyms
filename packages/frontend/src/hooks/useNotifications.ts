@@ -118,7 +118,6 @@ export const useNotifications = () => {
         return n;
       });
       setNotifications(newNotifications);
-      console.log({ unread }, 'inside hook');
       const map = notificationsListToMap(newNotifications);
       // write new map to local storage
       setNotificationsInLocalStorage(address, map);

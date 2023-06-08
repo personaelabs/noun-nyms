@@ -68,7 +68,7 @@ export default function Notifications() {
                 {notificationsToShow.length > 0 ? (
                   notificationsToShow.map((n, i) => (
                     <div
-                      className="flex gap-4 justify-between outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+                      className="flex gap-4 justify-between items-center outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
                       key={i}
                       onClick={() => {
                         setNotificationsAsRead(address as string, n.id);
