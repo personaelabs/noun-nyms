@@ -6,6 +6,7 @@ import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
 import { PostWithReplies } from './PostWithReplies';
 import axios from 'axios';
+import { scrollToPost } from '@/lib/client-utils';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -74,7 +75,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const fetchChildren = async (id: string) => {
     try {
-      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=false`);
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=fals
+    `);
       console.log(res);
       const post = res.data;
       const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, () =>
@@ -82,6 +84,14 @@ export const NestedReply = (replyProps: IReplyProps) => {
       );
       setReplies(replyComponents);
     } catch (error) {}
+  };
+
+  const refetchAndScrollToPost = async (postId?: string) => {
+    await fetchChildren(id);
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
   };
 
   return (
@@ -111,7 +121,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
           {showPostWriter ? (
             <PostWriter
               parentId={id as PrefixedHex}
-              onSuccess={() => fetchChildren(id)}
+              onSuccess={() => refetchAndScrollToPost(id)}
               handleCloseWriter={handleCloseWriterAttempt}
               onProgress={handleData}
             />
