@@ -1,9 +1,18 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UserAvatar } from '../global/UserAvatar';
-import { faCircleUp, faEllipsis, faReply, faReplyAll } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheck,
+  faCircleUp,
+  faEllipsis,
+  faReply,
+  faReplyAll,
+} from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
 import { fromNowDate } from '@/lib/example-utils';
 import { NotificationType, Notification } from '@/types/notifications';
+import { useContext, useState } from 'react';
+import { NotificationsContext } from '@/pages/_app';
+import { useAccount } from 'wagmi';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
@@ -16,8 +25,14 @@ const getNotificationFromType = (type: NotificationType) => {
   }
 };
 
-export const SingleNotification = (props: { n: Notification }) => {
-  const { n } = props;
+export const SingleNotification = (props: {
+  n: Notification;
+  setAsRead: (address: string, id: string, markAll?: boolean) => void;
+}) => {
+  const { address } = useAccount();
+  const { n, setAsRead } = props;
+  const [showOptions, setShowOptions] = useState(false);
+
   return (
     <>
       <div className="shrink-0 h-min relative">
@@ -47,8 +62,23 @@ export const SingleNotification = (props: { n: Notification }) => {
           <span>{n.body}</span>
         </p>
       </div>
-      <div className="px-1 hover:bg-gray-200 rounded-md">
+      <div
+        className="relative px-1 hover:bg-gray-200 rounded-md"
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowOptions(!showOptions);
+        }}
+      >
         <FontAwesomeIcon icon={faEllipsis} />
+        {showOptions && (
+          <div
+            className="absolute top-full right-1/2 mt-2 shadow-sm border border-gray-200 bg-white hover:bg-gray-100 rounded-xl p-2 w-max flex gap-2 items-center"
+            onClick={() => setAsRead(address as string, n.id)}
+          >
+            <FontAwesomeIcon icon={faCheck} size={'sm'} />
+            <p>Mark as read</p>
+          </div>
+        )}
       </div>
     </>
   );

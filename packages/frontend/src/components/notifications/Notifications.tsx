@@ -78,7 +78,7 @@ export const Notifications = () => {
                         <Menu.Item
                           as={'div'}
                           key={i}
-                          className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-200 ${
+                          className={`w-full flex items-center gap-2 px-3 py-2 ${
                             n.read ? 'bg-white' : 'bg-gray-100'
                           }`}
                           onClick={() => {
@@ -86,7 +86,7 @@ export const Notifications = () => {
                             pushRoute(`/posts/${n.postId}`);
                           }}
                         >
-                          <SingleNotification n={n} />
+                          <SingleNotification n={n} setAsRead={setNotificationsAsRead} />
                         </Menu.Item>
                       );
                     })}

@@ -75,7 +75,7 @@ export default function Notifications() {
                         pushRoute(`/posts/${n.postId}`);
                       }}
                     >
-                      <SingleNotification n={n} />
+                      <SingleNotification n={n} setAsRead={setNotificationsAsRead} />
                     </div>
                   ))
                 ) : (
