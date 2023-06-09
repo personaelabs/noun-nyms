@@ -115,7 +115,7 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const unread = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
-  const [refreshTime, setRefreshTime] = useState(new Date());
+  const [refreshTime, setRefreshTime] = useState<Date | null>(null);
   const [lastRefresh, setLastRefresh] = useState('');
   const { errorMsg, setError } = useError();
 
@@ -186,11 +186,16 @@ export const useNotifications = () => {
     fetchNotifications({ address, nymOptions });
   }, [address]);
 
+  const calculateLastRefresh = (refreshTime: Date) => {
+    const fromNow = fromNowDate(refreshTime);
+    setLastRefresh(fromNow);
+  };
+
   useEffect(() => {
-    setInterval(() => {
-      const fromNow = fromNowDate(refreshTime);
-      setLastRefresh(fromNow);
-    }, 5000);
+    if (refreshTime) {
+      calculateLastRefresh(refreshTime);
+      setInterval(() => calculateLastRefresh(refreshTime), 5000);
+    }
   }, [refreshTime]);
 
   return {
