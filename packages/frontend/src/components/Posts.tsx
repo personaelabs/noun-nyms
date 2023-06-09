@@ -13,7 +13,7 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
-import { scrollToPost } from '@/lib/client-utils';
+import { refetchAndScrollToPost } from '@/lib/client-utils';
 import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 
@@ -61,14 +61,6 @@ export default function Posts(props: PostsProps) {
     },
   });
 
-  const refetchAndScrollToPost = async (postId?: string) => {
-    await refetch();
-    const post = await scrollToPost(postId);
-    setTimeout(() => {
-      if (post) post.style.setProperty('opacity', '1');
-    }, 1000);
-  };
-
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
@@ -95,7 +87,7 @@ export default function Posts(props: PostsProps) {
             if (postInProg) setDiscardWarningOpen(true);
             else setNewPostOpen(false);
           }}
-          onSuccess={refetchAndScrollToPost}
+          scrollToPost={async (postId: string) => await refetchAndScrollToPost(refetch, postId)}
         />
       )}
       {discardWarningOpen && (
@@ -154,7 +146,7 @@ export default function Posts(props: PostsProps) {
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => handleOpenPost(post.id)}
-                        onSuccess={refetchAndScrollToPost}
+                        onSuccess={async () => await refetchAndScrollToPost(refetch)}
                       />
                     </div>
                   ))}

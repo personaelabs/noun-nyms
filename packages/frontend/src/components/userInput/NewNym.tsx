@@ -47,8 +47,6 @@ export const NewNym = (props: NewNymProps) => {
   const existingNames = useMemo(() => nymOptions.map((nym) => nym.name), [nymOptions]);
   const { signTypedDataAsync } = useSignTypedData();
 
-  console.log({ errorMsg });
-
   const storeNym = async (nymSig: string, nymHash: string) => {
     const nyms = localStorage.getItem(address);
     let newVal: string;

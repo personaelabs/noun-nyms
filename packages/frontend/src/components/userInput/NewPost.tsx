@@ -4,10 +4,10 @@ import { useState } from 'react';
 
 interface NewPostProps {
   handleClose: (prog?: string) => void;
-  onSuccess: () => void;
+  scrollToPost: (id: string) => Promise<void>;
 }
 export const NewPost = (props: NewPostProps) => {
-  const { handleClose, onSuccess } = props;
+  const { handleClose, scrollToPost } = props;
   const [postInProg, setPostInProg] = useState('');
   const handleData = (data: string) => setPostInProg(data);
 
@@ -19,7 +19,7 @@ export const NewPost = (props: NewPostProps) => {
         </div>
         <PostWriter
           parentId={'0x0'}
-          onSuccess={onSuccess}
+          scrollToPost={scrollToPost}
           handleCloseWriter={() => handleClose(postInProg)}
           onProgress={handleData}
         />

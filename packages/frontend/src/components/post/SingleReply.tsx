@@ -13,7 +13,7 @@ interface SingleReplyProps {
   body: string;
   replyCount: number;
   upvotes: ClientUpvote[];
-  onSuccess: () => void;
+  onSuccess: () => Promise<void>;
   handleReply: (id: string) => void;
   replyOpen: boolean;
   children?: React.ReactNode;
