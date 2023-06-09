@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction } from 'react';
 export type PostProps = IPostPreview & {
   showUserHeader?: boolean;
   handleOpenPost: (writerToShow: string) => void;
-  onSuccess: () => void;
+  onSuccess: () => Promise<void>;
 };
 
 export type PostWithRepliesProps = {

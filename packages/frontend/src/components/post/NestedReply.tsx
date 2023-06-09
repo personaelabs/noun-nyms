@@ -12,7 +12,7 @@ interface IReplyProps extends IPostWithReplies {
   childrenLength: number;
   postsVisibilityMap: Record<string, number>;
   setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>;
-  onSuccess: (id?: string) => void;
+  onSuccess: (id?: string) => Promise<void>;
   showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
@@ -20,7 +20,7 @@ export const resolveNestedReplyThreads = (
   depth: number,
   postsVisibilityMap: Record<string, number>,
   setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>,
-  onSuccess: (id?: string) => void,
+  onSuccess: (id?: string) => Promise<void>,
   trail: string[],
   additionalDataKeys: string[][],
   setAdditionalDataKeys: Dispatch<SetStateAction<string[][]>>,
@@ -161,7 +161,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
           {showPostWriter ? (
             <PostWriter
               parentId={id as PrefixedHex}
-              onSuccess={onSuccess}
+              scrollToPost={onSuccess}
               handleCloseWriter={handleCloseWriterAttempt}
               onProgress={handleData}
             />

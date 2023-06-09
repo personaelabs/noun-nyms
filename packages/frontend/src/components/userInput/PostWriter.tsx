@@ -13,21 +13,24 @@ import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
 import useProver from '@/hooks/useProver';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 interface IWriterProps {
   parentId: PrefixedHex;
-  onSuccess: (id: string) => void;
+  scrollToPost: (id: string) => Promise<void>;
   handleCloseWriter?: () => void;
   onProgress: (prog: string) => void;
 }
 
 export const PostWriter = (props: IWriterProps) => {
-  const { parentId, handleCloseWriter, onSuccess, onProgress } = props;
-  const [body, setPostMsg] = useState<string>('');
-  const [title, setTitleMsg] = useState<string>('');
-  const [showWalletWarning, setShowWalletWarning] = useState<boolean>(false);
-  const [sendingPost, setSendingPost] = useState<boolean>(false);
-  const [hasSignedPost, setHasSignedPost] = useState<boolean>(false);
+  const { parentId, handleCloseWriter, scrollToPost, onProgress } = props;
+  const [body, setPostMsg] = useState('');
+  const [title, setTitleMsg] = useState('');
+  const [showWalletWarning, setShowWalletWarning] = useState(false);
+  const [sendingPost, setSendingPost] = useState(false);
+  const [hasSignedPost, setHasSignedPost] = useState(false);
+  const [sentPost, setSentPost] = useState(false);
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
@@ -60,7 +63,6 @@ export const PostWriter = (props: IWriterProps) => {
     } else {
       setShowWalletWarning(false);
       try {
-        console.log('started proving');
         clearError();
         setSendingPost(true);
         if (!name) throw new Error('must select an identity to post');
@@ -79,14 +81,14 @@ export const PostWriter = (props: IWriterProps) => {
             signedHandler,
           );
         } else throw new Error('must select a valid identity to post');
-
-        onSuccess(result?.data.postId);
+        setSentPost(true);
+        await scrollToPost(result?.data.postId);
         resetWriter();
-
         setSendingPost(false);
       } catch (error) {
         setError(error);
       } finally {
+        setSentPost(false);
         setSendingPost(false);
         setHasSignedPost(false);
       }
@@ -149,12 +151,18 @@ export const PostWriter = (props: IWriterProps) => {
               message={'Send'}
               disabled={!body || (parentId === '0x0' && !title)}
             >
-              {hasSignedPost && sendingPost ? (
+              {/* proving only happens for pseudo posts */}
+              {hasSignedPost && sendingPost && name && name.type === NameType.PSEUDO ? (
                 <p>
                   Proving<span className="dot1">.</span>
                   <span className="dot2">.</span>
                   <span className="dot3">.</span>
                 </p>
+              ) : sentPost ? (
+                <div className="flex gap-1 items-center">
+                  <p>Sent</p>
+                  <FontAwesomeIcon icon={faCheck} />
+                </div>
               ) : null}
             </MainButton>
           </div>

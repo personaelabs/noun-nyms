@@ -15,6 +15,7 @@ import { useRouter } from 'next/router';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from '../_app';
 import { PostWithRepliesModal } from '@/components/post/PostWithRepliesModal';
+import { refetchAndScrollToPost } from '@/lib/client-utils';
 
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
@@ -132,7 +133,7 @@ export default function User() {
                         else window.history.pushState(null, '', `/posts/${post.id}`);
                         handleOpenPost(post.id, writerToShow);
                       }}
-                      onSuccess={() => console.log('need to refetch here')}
+                      onSuccess={async () => await refetchAndScrollToPost(refetch)}
                     />
                   </div>
                 ))}

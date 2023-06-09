@@ -14,3 +14,11 @@ export const scrollToPost = async (postId?: string) => {
     );
   }
 };
+
+export const refetchAndScrollToPost = async (refetch: () => Promise<any>, postId?: string) => {
+  await refetch();
+  const post = await scrollToPost(postId);
+  setTimeout(() => {
+    if (post) post.style.setProperty('opacity', '1');
+  }, 1000);
+};
