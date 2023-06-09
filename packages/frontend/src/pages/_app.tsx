@@ -17,6 +17,8 @@ import usePushRoute from '@/hooks/usePushRoute';
 import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
 import { Header } from '@/components/Header';
 import { useNotifications } from '@/hooks/useNotifications';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorPage } from '@/components/global/ErrorPage';
 
 config.autoAddCss = false;
 
@@ -69,26 +71,28 @@ export default function App({ Component, pageProps }: AppProps) {
         <UserContext.Provider
           value={{ isMobile, nymOptions, setNymOptions, isValid, routeLoading, pushRoute }}
         >
-          <Head>
-            <link type="favicon" rel="icon" href="/favicon-3.ico" />
-          </Head>
-          <Seo title={TITLE} description={HOME_DESCRIPTION} />
-          {routeLoading && <RouteLoadingSpinner />}
-          <NotificationsContext.Provider
-            value={{
-              notifications,
-              unread,
-              isLoading,
-              setNotificationsAsRead,
-              fetchNotifications,
-              lastRefresh,
-              errorMsg,
-            }}
-          >
-            <Header />
-            <Component {...pageProps} />
-          </NotificationsContext.Provider>
-          <ValidUserWarning />
+          <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
+            <Head>
+              <link type="favicon" rel="icon" href="/favicon-3.ico" />
+            </Head>
+            <Seo title={TITLE} description={HOME_DESCRIPTION} />
+            {routeLoading && <RouteLoadingSpinner />}
+            <NotificationsContext.Provider
+              value={{
+                notifications,
+                unread,
+                isLoading,
+                setNotificationsAsRead,
+                fetchNotifications,
+                lastRefresh,
+                errorMsg,
+              }}
+            >
+              <Header />
+              <Component {...pageProps} />
+            </NotificationsContext.Provider>
+            <ValidUserWarning />
+          </ErrorBoundary>
         </UserContext.Provider>
       </WagmiConfig>
     </QueryClientProvider>
