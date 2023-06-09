@@ -8,6 +8,7 @@ const postSelect = {
   body: true,
   timestamp: true,
   userId: true,
+  parentId: true,
   depth: true,
   upvotes: {
     select: {

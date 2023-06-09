@@ -2,8 +2,8 @@ import useError from '@/hooks/useError';
 import { IPostWithReplies } from '@/types/api';
 import { PostWithRepliesProps } from '@/types/components';
 import axios from 'axios';
-import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { scrollToPost } from '@/lib/client-utils';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '@/components/userInput/PostWriter';
@@ -60,24 +60,28 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
 
   return (
     <>
-      {singlePost ? (
+      {singlePost?.root ? (
         <>
           <div className="flex flex-col gap-4 py-6 px-6 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
                 <div className="self-start line-clamp-2">
-                  <h3 className="tracking-tight">{singlePost.title}</h3>
+                  <h3 className="tracking-tight">{singlePost.root.title}</h3>
                 </div>
               </div>
-              <p>{singlePost.body}</p>
+              <p>{singlePost.root.body}</p>
             </div>
             <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
-              <UserTag userId={singlePost.userId} timestamp={singlePost.timestamp} />
+              <UserTag userId={singlePost.root.userId} timestamp={singlePost.root.timestamp} />
               <div className="flex gap-2">
-                <ReplyCount count={singlePost._count.replies} />
+                <ReplyCount count={singlePost.root._count.descendants} />
                 <div className="border-l border-dotted border-gray-200 pl-2">
-                  <Upvote upvotes={singlePost.upvotes} postId={singlePost.id} onSuccess={refetch}>
-                    <p>{singlePost.upvotes.length}</p>
+                  <Upvote
+                    upvotes={singlePost.root.upvotes}
+                    postId={singlePost.root.id}
+                    onSuccess={refetch}
+                  >
+                    <p>{singlePost.root.upvotes.length}</p>
                   </Upvote>
                 </div>
               </div>
@@ -85,13 +89,14 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
           </div>
           <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
             <PostWriter
-              parentId={singlePost.id as PrefixedHex}
+              parentId={singlePost.root.id as PrefixedHex}
               onSuccess={() => console.log(`refetch and scroll`)}
               onProgress={() => console.log(`progress`)}
             />
             <>
               <h4>
-                {singlePost._count.replies} {singlePost._count.replies === 1 ? 'reply' : 'replies'}
+                {singlePost.root._count.descendants}{' '}
+                {singlePost.root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
                 {nestedComponentThreads}

@@ -9,3 +9,5 @@ export const NOUNS_AVATAR_RANGES = [
   ImageData.images.heads.length,
   ImageData.images.glasses.length,
 ];
+
+export const POST_DEPTH = 3;

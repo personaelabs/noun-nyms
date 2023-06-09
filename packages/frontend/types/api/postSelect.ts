@@ -1,6 +1,7 @@
 // Select query for the route GET /posts/{postId}
 
 import { Prisma } from '@prisma/client';
+import { IPostPreview } from './postPreviewSelect';
 
 const selectFields = {
   id: true,
@@ -44,9 +45,10 @@ export function buildPostSelect(depth: number): NestedPostSelect {
     },
   };
 }
+export type IPost = Prisma.PostGetPayload<{ select: PostSelect }>;
 
 type PostPayload = Prisma.PostGetPayload<{ select: NestedPostSelect }>;
 type NestedPostPayload = PostPayload & {
   replies?: NestedPostPayload[];
 };
-export type IPostWithReplies = NestedPostPayload;
+export type IPostWithReplies = NestedPostPayload & { root?: IPostPreview['root'] };
