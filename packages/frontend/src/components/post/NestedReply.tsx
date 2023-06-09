@@ -157,8 +157,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <div
         ref={divRef}
         id={id}
-        className="flex flex-col gap-2 transition-all"
-        style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
+        className="flex flex-col gap-2 transition-all ml-2"
+        style={{ width: 'calc(100% - 8px)' }}
       >
         <SingleReply
           {...postInfo}
