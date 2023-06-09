@@ -86,7 +86,7 @@ export const resolveNestedReplyThreads = (
         postsVisibilityMap={postsVisibilityMap}
         setPostsVisibility={setPostsVisibility}
         innerReplies={resolveNestedReplyThreads(
-          post.replies,
+          post.replies ? post.replies : [],
           depth + 1,
           postsVisibilityMap,
           setPostsVisibility,

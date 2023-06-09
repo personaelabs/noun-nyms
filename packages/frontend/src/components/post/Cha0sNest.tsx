@@ -1,10 +1,9 @@
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
-import { PostWithReplies } from './PostWithReplies';
 import axios from 'axios';
 import { scrollToPost } from '@/lib/client-utils';
 
@@ -16,7 +15,7 @@ interface IReplyProps extends IPostWithReplies {
   showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
-  postsWithReplies: IPostWithReplies[] | null,
+  postsWithReplies: IPostWithReplies[] | undefined,
   depth: number,
   onSuccess: () => void,
   writerToShow?: string,
@@ -127,7 +126,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
             />
           ) : null}
           <button onClick={() => fetchChildren(id)}>
-            {childrenLength > replies.length && <p>Show more replies </p>}
+            {childrenLength > replies.length && <p className="text-left">Show more replies </p>}
           </button>
           {replies}
         </SingleReply>

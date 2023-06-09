@@ -111,7 +111,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
         return true;
       }
 
-      if (data.replies) {
+      if (replies) {
         for (let i = 0; i < replies.length; i++) {
           const reply = replies[i];
           const newPath = [...path, reply.id];
@@ -129,7 +129,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     const newPostsVisibility = { ...postsVisibilityMap };
     if (combinedData) {
       newPostsVisibility[combinedData.id] = 1;
-      combinedData.replies.forEach((reply) => {
+      combinedData.replies?.forEach((reply) => {
         newPostsVisibility[reply.id] = 1;
       });
 
@@ -210,7 +210,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
       return resolveNestedReplyThreads(
-        combinedData ? combinedData.replies : [],
+        combinedData?.replies ? combinedData.replies : [],
         0,
         postsVisibilityMap,
         setPostsVisibilityMap,
@@ -260,7 +260,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
               <UserTag userId={singlePost.userId} timestamp={singlePost.timestamp} />
               <div className="flex gap-2">
-                <ReplyCount count={singlePost.replies.length} />
+                <ReplyCount count={singlePost._count.replies} />
                 <div className="border-l border-dotted border-gray-200 pl-2">
                   <Upvote upvotes={singlePost.upvotes} postId={singlePost.id} onSuccess={refetch}>
                     <p>{singlePost.upvotes.length}</p>
@@ -276,7 +276,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             />
             <>
               <h4>
-                {singlePost.replies.length} {singlePost.replies.length === 1 ? 'reply' : 'replies'}
+                {singlePost._count.replies} {singlePost._count.replies === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
                 {nestedComponentThreads}

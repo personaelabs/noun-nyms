@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma';
-import { postSelect, IPostWithReplies, postPreviewSelect } from '@/types/api';
+import { IPostWithReplies, postPreviewSelect, buildPostSelect } from '@/types/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Return a single post and all of its replies till depth = 5
@@ -28,9 +28,11 @@ const handleGetPost = async (
       id = topId;
     }
   }
+  const DEPTH = 3;
+  const select = buildPostSelect(DEPTH);
 
   const postWithReplies = await prisma.post.findFirst({
-    select: postSelect,
+    select: select,
     where: {
       id,
     },
