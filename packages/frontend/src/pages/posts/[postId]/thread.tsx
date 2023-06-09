@@ -2,7 +2,7 @@ import useError from '@/hooks/useError';
 import { IPostWithReplies } from '@/types/api';
 import { PostWithRepliesProps } from '@/types/components';
 import axios from 'axios';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { scrollToPost } from '@/lib/client-utils';
 import { PrefixedHex } from '@personaelabs/nymjs';
@@ -26,6 +26,8 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
   const fromRoot = true;
   const { errorMsg, setError } = useError();
 
+  const [parent, setParent] = useState<IPostWithReplies>();
+
   const {
     isLoading,
     isSuccess,
@@ -48,10 +50,14 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
     },
   });
 
-  console.log(`single post`, singlePost);
+  const topPost = useMemo(() => {
+    return parent || singlePost;
+  }, [singlePost, parent]);
 
   const nestedComponentThreads = useMemo(() => {
-    if (singlePost) {
+    if (parent) {
+      return resolveNestedReplyThreads([parent], parent.depth, refetch);
+    } else if (singlePost) {
       // If singlePost is root, pass its replies.
       // If singlePost is not root, pass it as a list
       const postToPass = !singlePost.rootId ? singlePost.replies : [singlePost];
@@ -60,7 +66,18 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
     } else {
       return <div></div>;
     }
-  }, [singlePost, refetch]);
+  }, [singlePost, parent, refetch]);
+
+  useEffect(() => {
+    //if post is not the root, scroll to post
+    if (singlePost && singlePost.id !== postId) {
+      setTimeout(
+        () =>
+          document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        500,
+      );
+    }
+  }, [postId, singlePost]);
 
   return (
     <>
@@ -103,12 +120,15 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
                 {singlePost.root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
-                {singlePost.depth > 1 ? (
+                {topPost && topPost.depth > 1 ? (
                   <button
                     className="text-left"
                     onClick={async () => {
-                      const res = await axios.get(`/api/v1/posts/${singlePost.id}/parents`);
+                      const res = await axios.get<IPostWithReplies>(
+                        `/api/v1/posts/${topPost?.id}/parents`,
+                      );
                       console.log(`parents!`, res.data);
+                      setParent(res.data);
                     }}
                   >
                     Fetch parents
