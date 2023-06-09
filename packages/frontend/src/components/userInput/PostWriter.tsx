@@ -20,11 +20,10 @@ interface IWriterProps {
   parentId: PrefixedHex;
   scrollToPost: (id: string) => Promise<void>;
   handleCloseWriter?: () => void;
-  onProgress: (prog: string) => void;
 }
 
 export const PostWriter = (props: IWriterProps) => {
-  const { parentId, handleCloseWriter, scrollToPost, onProgress } = props;
+  const { parentId, handleCloseWriter, scrollToPost } = props;
   const [body, setPostMsg] = useState('');
   const [title, setTitleMsg] = useState('');
   const [showWalletWarning, setShowWalletWarning] = useState(false);
@@ -34,7 +33,7 @@ export const PostWriter = (props: IWriterProps) => {
   const { errorMsg, isError, setError, clearError } = useError();
 
   const { address } = useAccount();
-  const { isMobile, isValid } = useContext(UserContext) as UserContextType;
+  const { isMobile, isValid, setPostInProg } = useContext(UserContext) as UserContextType;
   const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
@@ -42,7 +41,7 @@ export const PostWriter = (props: IWriterProps) => {
     enableProfiler: true,
   });
 
-  useEffect(() => onProgress(body), [onProgress, body]);
+  useEffect(() => setPostInProg(body || title ? true : false), [setPostInProg, body, title]);
 
   // TODO
   const someDbQuery = useMemo(() => true, []);

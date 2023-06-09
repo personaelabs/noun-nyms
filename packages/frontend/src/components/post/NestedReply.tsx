@@ -1,9 +1,19 @@
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+} from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -114,9 +124,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
+  const { postInProg } = useContext(UserContext) as UserContextType;
   const divRef = useRef<HTMLDivElement>(null);
-  const [postInProg, setPostInProg] = useState('');
-  const handleData = (data: string) => setPostInProg(data);
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const handleCloseWriterAttempt = () => {
@@ -163,7 +172,6 @@ export const NestedReply = (replyProps: IReplyProps) => {
               parentId={id as PrefixedHex}
               scrollToPost={onSuccess}
               handleCloseWriter={handleCloseWriterAttempt}
-              onProgress={handleData}
             />
           ) : null}
           {innerReplies}
