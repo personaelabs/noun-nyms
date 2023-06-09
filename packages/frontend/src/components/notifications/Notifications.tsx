@@ -1,4 +1,4 @@
-import { faBell, faCheck, faRefresh, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu } from '@headlessui/react';
 import Spinner from '../global/Spinner';
@@ -10,13 +10,13 @@ import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
 import { UserContextType } from '@/types/components';
 import { NotificationsContextType } from '@/types/notifications';
+import { RetryError } from '../global/RetryError';
 
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, isLoading, setNotificationsAsRead } = useContext(
-    NotificationsContext,
-  ) as NotificationsContextType;
+  const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
+    useContext(NotificationsContext) as NotificationsContextType;
   const [filter, setFilter] = useState('all');
 
   const notificationsToShow = useMemo(
@@ -51,7 +51,7 @@ export const Notifications = () => {
                 <div className="flex flex-col gap-2 px-3 mb-2">
                   <div className="flex items-center justify-between mt-2">
                     <h4>Notifications</h4>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 items-center">
                       <RefreshNotifications nymOptions={nymOptions} />
                       <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
                     </div>
@@ -64,7 +64,7 @@ export const Notifications = () => {
                     />
                     <div
                       className="flex gap-1 justify-end items-center"
-                      onClick={() => setNotificationsAsRead(address as string, '', true)}
+                      onClick={() => setNotificationsAsRead({ address, markAll: true })}
                     >
                       <FontAwesomeIcon icon={faCheck} size={'xs'} />
                       <p className="secondary hover:underline">Mark all as read</p>
@@ -78,21 +78,23 @@ export const Notifications = () => {
                         <Menu.Item
                           as={'div'}
                           key={i}
-                          className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-gray-200 ${
-                            n.read ? 'bg-white' : 'bg-gray-100'
-                          }`}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-white hover:border-gray-500"
                           onClick={() => {
-                            setNotificationsAsRead(address as string, n.id);
+                            setNotificationsAsRead({ address, id: n.id });
                             pushRoute(`/posts/${n.postId}`);
                           }}
                         >
-                          <SingleNotification n={n} />
+                          <SingleNotification
+                            n={n}
+                            setAsRead={setNotificationsAsRead}
+                            trim={true}
+                          />
                         </Menu.Item>
                       );
                     })}
                     <Menu.Item
                       as={'div'}
-                      className="py-2 hover:underline"
+                      className="py-2 hover:underline hover:bg-gray-200 rounded-b-xl"
                       onClick={() => pushRoute('/notifications')}
                     >
                       <p className="text-center">See All Notifications</p>
@@ -102,6 +104,14 @@ export const Notifications = () => {
                   <div className="p-4">
                     <Spinner />
                   </div>
+                ) : errorMsg ? (
+                  <RetryError
+                    message={'Could not fetch notifications: '}
+                    error={errorMsg}
+                    refetchHandler={() =>
+                      fetchNotifications({ address: address as string, nymOptions })
+                    }
+                  />
                 ) : (
                   <p className="p-4 text-center">No notifications</p>
                 )}

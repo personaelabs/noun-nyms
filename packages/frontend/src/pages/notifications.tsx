@@ -11,14 +11,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RefreshNotifications } from '@/components/notifications/RefreshNotifications';
 import { WalletWarning } from '@/components/WalletWarning';
 import { NotificationsContextType } from '@/types/notifications';
+import { useIsMounted } from '@/hooks/useIsMounted';
+import { RetryError } from '@/components/global/RetryError';
 
 export default function Notifications() {
   const { address } = useAccount();
+  const isMounted = useIsMounted();
   const { isValid, pushRoute, nymOptions } = useContext(UserContext) as UserContextType;
-  const { errorMsg, setError } = useError();
-  const { notifications, unread, isLoading, setNotificationsAsRead } = useContext(
-    NotificationsContext,
-  ) as NotificationsContextType;
+  const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
+    useContext(NotificationsContext) as NotificationsContextType;
 
   const [filter, setFilter] = useState('all');
   const [showWalletWarning, setShowWalletWarning] = useState(!address || !isValid);
@@ -49,6 +50,14 @@ export default function Notifications() {
             </div>
             {isLoading ? (
               <Spinner />
+            ) : errorMsg ? (
+              <RetryError
+                message={'Could not fetch notifications: '}
+                error={errorMsg}
+                refetchHandler={() =>
+                  fetchNotifications({ address: address as string, nymOptions })
+                }
+              />
             ) : notificationsToShow ? (
               <>
                 <div className="flex justify-between items-center">
@@ -58,8 +67,8 @@ export default function Notifications() {
                     setSelectedFilter={setFilter}
                   />
                   <div
-                    className="flex gap-1 justify-end items-center"
-                    onClick={() => setNotificationsAsRead(address as string, '', true)}
+                    className="flex gap-1 justify-end items-center cursor-pointer"
+                    onClick={() => setNotificationsAsRead({ address, markAll: true })}
                   >
                     <FontAwesomeIcon icon={faCheck} size={'xs'} />
                     <p className="secondary hover:underline">Mark all as read</p>
@@ -68,14 +77,14 @@ export default function Notifications() {
                 {notificationsToShow.length > 0 ? (
                   notificationsToShow.map((n, i) => (
                     <div
-                      className="flex gap-4 justify-between outline-none rounded-2xl transition-all shadow-sm bg-white p-3 md:px-5 md:py-4 border border-gray-200 hover:border-gray-300 hover:cursor-pointer w-full"
+                      className="flex gap-4 justify-between items-center outline-none rounded-2xl transition-all shadow-sm bg-white p-3 border border-gray-200 hover:border-gray-500 hover:cursor-pointer w-full"
                       key={i}
                       onClick={() => {
-                        setNotificationsAsRead(address as string, n.id);
+                        setNotificationsAsRead({ address, id: n.id });
                         pushRoute(`/posts/${n.postId}`);
                       }}
                     >
-                      <SingleNotification n={n} />
+                      <SingleNotification n={n} setAsRead={setNotificationsAsRead} />
                     </div>
                   ))
                 ) : (
@@ -85,7 +94,7 @@ export default function Notifications() {
             ) : (
               <p className="p-4 text-center">No notifications</p>
             )}
-            {showWalletWarning && (
+            {isMounted && showWalletWarning && (
               <WalletWarning
                 handleClose={() => setShowWalletWarning(false)}
                 action={'get notifications'}

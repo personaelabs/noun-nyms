@@ -2,10 +2,16 @@ import axios from 'axios';
 import { useEffect, useMemo, useState } from 'react';
 import { IPostPreview, IUserUpvote, RawNotifications } from '@/types/api';
 import { ClientName } from '@/types/components';
-import { Notification, NotificationMap, NotificationType } from '@/types/notifications';
+import {
+  Notification,
+  NotificationMap,
+  NotificationType,
+  setReadArgs,
+} from '@/types/notifications';
 import { getNymOptions } from './useUserInfo';
-import { getUserIdFromName } from '@/lib/example-utils';
+import { fromNowDate, getUserIdFromName } from '@/lib/example-utils';
 import { useAccount } from 'wagmi';
+import useError from './useError';
 
 export const notificationsListToMap = (notifications: Notification[]) => {
   const map = notifications.reduce((result: NotificationMap, obj) => {
@@ -109,8 +115,11 @@ export const useNotifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const unread = useMemo(() => notifications.filter((n) => !n.read), [notifications]);
+  const [refreshTime, setRefreshTime] = useState<Date | null>(null);
+  const [lastRefresh, setLastRefresh] = useState('');
+  const { errorMsg, setError } = useError();
 
-  const setNotificationsAsRead = (address: string | undefined, id: string, markAll = false) => {
+  const setNotificationsAsRead = ({ address, id, markAll }: setReadArgs) => {
     if (notifications && address) {
       // update notifications in memory
       const newNotifications = notifications.map((n) => {
@@ -118,49 +127,54 @@ export const useNotifications = () => {
         return n;
       });
       setNotifications(newNotifications);
-      console.log({ unread }, 'inside hook');
       const map = notificationsListToMap(newNotifications);
       // write new map to local storage
       setNotificationsInLocalStorage(address, map);
     }
   };
 
-  const fetchNotifications = async (address: string, nymOptions: ClientName[]) => {
+  const fetchNotifications = async (args: { address: string; nymOptions: ClientName[] }) => {
     setIsLoading(true);
-
+    const { address, nymOptions } = args;
     const myUserIds = nymOptions.map((n) => getUserIdFromName(n).toLowerCase());
     myUserIds.push(address.toLowerCase());
 
-    const raw = await axios.get<RawNotifications>('/api/v1/notifications', {
-      params: { startTime: '', endTime: '' },
-    });
-
-    const rawNotifications = raw.data;
-    // Filter the list for posts with a rootId or parentId authored by my identities.
-    // Map to determine if it is a direct or discussion reply
-    const serverNotifications = buildNotifications(rawNotifications, myUserIds);
-
-    // First, get localStorage notifications
-    let localNotifications = getNotificationsInLocalStorage(address);
-    if (Object.keys(localNotifications).length > 0) {
-      // Add new posts if they don't exist yet.
-      serverNotifications.map((n) => {
-        if (!(n.id in localNotifications)) {
-          // Update the `notifications object`
-          localNotifications[n.id] = n;
-        }
+    try {
+      const raw = await axios.get<RawNotifications>('/api/v1/notifications', {
+        params: { startTime: '', endTime: '' },
       });
-    } else {
-      // First time localStorage is used, we set all data to it.
-      localNotifications = notificationsListToMap(serverNotifications);
+
+      const rawNotifications = raw.data;
+      // Filter the list for posts with a rootId or parentId authored by my identities.
+      // Map to determine if it is a direct or discussion reply
+      const serverNotifications = buildNotifications(rawNotifications, myUserIds);
+
+      // First, get localStorage notifications
+      let localNotifications = getNotificationsInLocalStorage(address);
+      if (Object.keys(localNotifications).length > 0) {
+        // Add new posts if they don't exist yet.
+        serverNotifications.map((n) => {
+          if (!(n.id in localNotifications)) {
+            // Update the `notifications object`
+            localNotifications[n.id] = n;
+          }
+        });
+      } else {
+        // First time localStorage is used, we set all data to it.
+        localNotifications = notificationsListToMap(serverNotifications);
+      }
+
+      // Add the new notifications map to localStorage
+      setNotificationsInLocalStorage(address, localNotifications);
+
+      // Convert map to ordered list and export from hook.
+      setNotifications(notificationsMapToOrderedList(localNotifications));
+      setIsLoading(false);
+      setRefreshTime(new Date());
+    } catch (error) {
+      setIsLoading(false);
+      setError(error);
     }
-
-    // Add the new notifications map to localStorage
-    setNotificationsInLocalStorage(address, localNotifications);
-
-    // Convert map to ordered list and export from hook.
-    setNotifications(notificationsMapToOrderedList(localNotifications));
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -169,8 +183,20 @@ export const useNotifications = () => {
     if (!address || !nymOptions) {
       return;
     }
-    fetchNotifications(address, nymOptions);
+    fetchNotifications({ address, nymOptions });
   }, [address]);
+
+  const calculateLastRefresh = (refreshTime: Date) => {
+    const fromNow = fromNowDate(refreshTime);
+    setLastRefresh(fromNow);
+  };
+
+  useEffect(() => {
+    if (refreshTime) {
+      calculateLastRefresh(refreshTime);
+      setInterval(() => calculateLastRefresh(refreshTime), 5000);
+    }
+  }, [refreshTime]);
 
   return {
     notifications,
@@ -179,5 +205,7 @@ export const useNotifications = () => {
     setNotifications,
     fetchNotifications,
     isLoading,
+    lastRefresh,
+    errorMsg,
   };
 };
