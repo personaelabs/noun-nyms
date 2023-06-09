@@ -22,32 +22,28 @@ const handleGetPost = async (
   let rootPost: IPostPreview['root'] | undefined = undefined;
 
   // First get postPreview.
-  if (fromRoot) {
-    const postPreview = await prisma.post.findFirst({
-      select: postPreviewSelect,
-      where: {
-        id,
-      },
-    });
+  const postPreview = await prisma.post.findFirst({
+    select: postPreviewSelect,
+    where: {
+      id,
+    },
+  });
 
-    if (postPreview) {
-      // Get the root id if it exists
-      const { root, ...post } = postPreview;
-      const topContent = root || post;
-      const { id: topId } = topContent;
-      id = topId;
-      // If fromRoot is true and depth > POST_DEPTH, we return postID
-      if (postPreview.depth > POST_DEPTH) {
-        id = post.id;
-        if (root) rootPost = root;
-      }
+  // TODO: explain logic better
+  if (postPreview) {
+    const { root, ...post } = postPreview;
+    const topContent = root || post;
+    rootPost = topContent;
+    const { id: topId } = topContent;
+    id = topId;
+    // If fromRoot is true and depth > POST_DEPTH, we return postID
+    if (fromRoot && postPreview.depth > POST_DEPTH) {
+      id = post.id;
     }
+    if (!fromRoot) id = post.id;
   }
 
   const select = buildPostSelect(POST_DEPTH);
-
-  // Check the depth of the post I want to get. If > POST_DEPTH, fetch from that id.
-  // If < POST_DEPTH, fetch from root.
 
   const postWithReplies = await prisma.post.findFirst({
     select: select,

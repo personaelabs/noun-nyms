@@ -52,7 +52,11 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const nestedComponentThreads = useMemo(() => {
     if (singlePost) {
-      return resolveNestedReplyThreads(singlePost.replies, singlePost.depth, refetch);
+      // If singlePost is root, pass its replies.
+      // If singlePost is not root, pass it as a list
+      const postToPass = !singlePost.rootId ? singlePost.replies : [singlePost];
+      console.log(`single post is root?`, !singlePost.rootId);
+      return resolveNestedReplyThreads(postToPass, singlePost.depth, refetch);
     } else {
       return <div></div>;
     }
@@ -99,6 +103,7 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
                 {singlePost.root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
+                {singlePost.depth > 1 ? <h4 className="w-full">Fetch parents</h4> : <></>}
                 {nestedComponentThreads}
               </div>
             </>

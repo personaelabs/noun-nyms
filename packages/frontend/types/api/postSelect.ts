@@ -18,6 +18,7 @@ const selectFields = {
   },
   depth: true,
   parentId: true,
+  rootId: true,
   _count: {
     select: {
       replies: true,

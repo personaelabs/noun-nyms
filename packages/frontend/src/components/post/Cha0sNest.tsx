@@ -73,8 +73,9 @@ export const NestedReply = (replyProps: IReplyProps) => {
   console.log(`has ${childrenLength} children but recevied `, innerReplies.length);
 
   const fetchChildren = async (id: string) => {
+    console.log(`fetching children of post ${id}`);
     try {
-      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=fals
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=false
     `);
       console.log(res);
       const post = res.data;
