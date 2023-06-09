@@ -32,6 +32,10 @@ export type NestedPostSelect = PostSelect & {
   replies?: { select: NestedPostSelect };
 };
 
+export type NestedParentPostSelect = PostSelect & {
+  parent?: { select: NestedParentPostSelect };
+};
+
 export function buildPostSelect(depth: number): NestedPostSelect {
   if (depth === 0) {
     return { ...selectFields };
@@ -46,10 +50,30 @@ export function buildPostSelect(depth: number): NestedPostSelect {
     },
   };
 }
-export type IPost = Prisma.PostGetPayload<{ select: PostSelect }>;
+
+export function buildParentPostSelect(depth: number): NestedParentPostSelect {
+  if (depth === 0) {
+    return { ...selectFields };
+  }
+
+  const nestedReplies = buildParentPostSelect(depth - 1);
+
+  return {
+    ...selectFields,
+    parent: {
+      select: nestedReplies,
+    },
+  };
+}
 
 type PostPayload = Prisma.PostGetPayload<{ select: NestedPostSelect }>;
 type NestedPostPayload = PostPayload & {
   replies?: NestedPostPayload[];
 };
+
+type ParentPostPayload = Prisma.PostGetPayload<{ select: NestedParentPostSelect }>;
+// TODO: Fix this
+type NestedParent = ParentPostPayload & { parent?: NestedParent };
+
+export type IPostWithParents = NestedParent;
 export type IPostWithReplies = NestedPostPayload & { root?: IPostPreview['root'] };

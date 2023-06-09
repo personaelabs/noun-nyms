@@ -103,7 +103,19 @@ const Thread = (postWithRepliesProps: PostWithRepliesProps) => {
                 {singlePost.root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
-                {singlePost.depth > 1 ? <h4 className="w-full">Fetch parents</h4> : <></>}
+                {singlePost.depth > 1 ? (
+                  <button
+                    className="text-left"
+                    onClick={async () => {
+                      const res = await axios.get(`/api/v1/posts/${singlePost.id}/parents`);
+                      console.log(`parents!`, res.data);
+                    }}
+                  >
+                    Fetch parents
+                  </button>
+                ) : (
+                  <></>
+                )}
                 {nestedComponentThreads}
               </div>
             </>
