@@ -1,17 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { PostWriter } from '../userInput/PostWriter';
+import axios from 'axios';
+import { PrefixedHex } from '@personaelabs/nymjs';
+import useError from '@/hooks/useError';
+import { PostWriter } from '@/components/userInput/PostWriter';
 import { resolveNestedReplyThreads } from '@/components/post/NestedReply';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { IPostWithReplies } from '@/types/api';
 import { PostWithRepliesProps } from '@/types/components';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
 import { Upvote } from '../Upvote';
-import { PrefixedHex } from '@personaelabs/nymjs';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
-import useError from '@/hooks/useError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 
 const getPostById = async (postId: string, fromRoot = false) =>
@@ -20,9 +20,9 @@ const getPostById = async (postId: string, fromRoot = false) =>
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { postId } = postWithRepliesProps;
 
+  // When fetching our inital post and replies, we try to start from the root.
   const fromRoot = true;
   const { errorMsg, setError } = useError();
-
   const [parent, setParent] = useState<IPostWithReplies>();
 
   const {
@@ -32,10 +32,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     data: singlePost,
   } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId, fromRoot],
-    queryFn: async () => {
-      const posts = await getPostById(postId, fromRoot);
-      return posts;
-    },
+    queryFn: () => getPostById(postId, fromRoot),
     retry: 1,
     enabled: !!postId,
     staleTime: 5000,
@@ -45,27 +42,32 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       setError(error);
     },
   });
-
-  const topPost = useMemo(() => {
+  console.log(`single post`, singlePost);
+  // The top Reply is the first post below the root. It can change if parents are fetched for a reply.
+  const topReply = useMemo(() => {
     return parent || singlePost;
   }, [singlePost, parent]);
+
+  const root = useMemo(() => {
+    if (singlePost) {
+      return singlePost?.root || singlePost;
+    }
+  }, [singlePost]);
 
   const nestedComponentThreads = useMemo(() => {
     const handleSuccess = async (id?: string) => {
       await refetchAndScrollToPost(refetch, id);
     };
 
-    if (parent) {
-      return resolveNestedReplyThreads([parent], parent.depth, handleSuccess);
-    } else if (singlePost) {
-      // If singlePost is root, pass its replies.
-      // If singlePost is not root, pass it as a list
-      const postToPass = !singlePost.rootId ? singlePost.replies : [singlePost];
-      return resolveNestedReplyThreads(postToPass, singlePost.depth, handleSuccess);
+    if (topReply) {
+      // If topReply is root, pass its replies.
+      // If topReply is not root, pass it as a list
+      const postToPass = !topReply.rootId ? topReply.replies : [topReply];
+      return resolveNestedReplyThreads(postToPass, 0, handleSuccess);
     } else {
       return <div></div>;
     }
-  }, [parent, singlePost, refetch]);
+  }, [topReply, refetch]);
 
   useEffect(() => {
     //if post is not the root, scroll to post
@@ -76,28 +78,24 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   return (
     <>
-      {singlePost?.root ? (
+      {root ? (
         <>
           <div className="flex flex-col gap-4 py-6 px-6 md:px-12 md:py-10">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between item-center">
                 <div className="self-start line-clamp-2">
-                  <h3 className="tracking-tight">{singlePost.root.title}</h3>
+                  <h3 className="tracking-tight">{root.title}</h3>
                 </div>
               </div>
-              <p>{singlePost.root.body}</p>
+              <p>{root.body}</p>
             </div>
             <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
-              <UserTag userId={singlePost.root.userId} timestamp={singlePost.root.timestamp} />
+              <UserTag userId={root.userId} timestamp={root.timestamp} />
               <div className="flex gap-2">
-                <ReplyCount count={singlePost.root._count.descendants} />
+                <ReplyCount count={root._count.descendants} />
                 <div className="border-l border-dotted border-gray-200 pl-2">
-                  <Upvote
-                    upvotes={singlePost.root.upvotes}
-                    postId={singlePost.root.id}
-                    onSuccess={refetch}
-                  >
-                    <p>{singlePost.root.upvotes.length}</p>
+                  <Upvote upvotes={root.upvotes} postId={root.id} onSuccess={refetch}>
+                    <p>{root.upvotes.length}</p>
                   </Upvote>
                 </div>
               </div>
@@ -105,21 +103,20 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           </div>
           <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
             <PostWriter
-              parentId={singlePost.id as PrefixedHex}
+              parentId={root.id as PrefixedHex}
               scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}
             />
             <>
               <h4>
-                {singlePost.root._count.descendants}{' '}
-                {singlePost.root._count.descendants === 1 ? 'reply' : 'replies'}
+                {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-6 w-full justify-center items-center">
-                {topPost && topPost.depth > 1 ? (
+                {topReply && topReply.depth > 1 ? (
                   <button
                     className="text-left"
                     onClick={async () => {
                       const res = await axios.get<IPostWithReplies>(
-                        `/api/v1/posts/${topPost?.id}/parents`,
+                        `/api/v1/posts/${topReply?.id}/parents`,
                       );
                       console.log(`parents!`, res.data);
                       setParent(res.data);

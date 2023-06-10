@@ -8,7 +8,6 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import axios from 'axios';
 import { scrollToPost } from '@/lib/client-utils';
-import { on } from 'events';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;

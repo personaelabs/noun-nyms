@@ -28,7 +28,7 @@ const handleGetParents = async (
       else break;
     }
     // Now run the logic to get the posts + children of curr post.
-    const result = await getPostWithReplies(currPost.id, false);
+    const result = await getPostWithReplies(currPost.id);
     res.send(result);
   } else {
     res.status(404).send({ error: 'Parents not found' });

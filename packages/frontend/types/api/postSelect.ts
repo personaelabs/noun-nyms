@@ -3,7 +3,7 @@
 import { Prisma } from '@prisma/client';
 import { IPostPreview } from './postPreviewSelect';
 
-const selectFields = {
+export const postSelectFields = {
   id: true,
   title: true,
   body: true,
@@ -22,11 +22,23 @@ const selectFields = {
   _count: {
     select: {
       replies: true,
+      descendants: true,
     },
   },
 } satisfies Prisma.PostSelect;
 
-type PostSelect = typeof selectFields;
+export const rootSelectFields = {
+  ...postSelectFields,
+  _count: {
+    select: {
+      descendants: true,
+    },
+  },
+};
+
+type PostSelect = typeof postSelectFields;
+type IPost = Prisma.PostGetPayload<{ select: PostSelect }>;
+type IRootPost = Prisma.PostGetPayload<{ select: typeof rootSelectFields }>;
 
 export type NestedPostSelect = PostSelect & {
   replies?: { select: NestedPostSelect };
@@ -38,13 +50,13 @@ export type NestedParentPostSelect = PostSelect & {
 
 export function buildPostSelect(depth: number): NestedPostSelect {
   if (depth === 0) {
-    return { ...selectFields };
+    return { ...postSelectFields };
   }
 
   const nestedReplies = buildPostSelect(depth - 1);
 
   return {
-    ...selectFields,
+    ...postSelectFields,
     replies: {
       select: nestedReplies,
     },
@@ -53,13 +65,13 @@ export function buildPostSelect(depth: number): NestedPostSelect {
 
 export function buildParentPostSelect(depth: number): NestedParentPostSelect {
   if (depth === 0) {
-    return { ...selectFields };
+    return { ...postSelectFields };
   }
 
   const nestedReplies = buildParentPostSelect(depth - 1);
 
   return {
-    ...selectFields,
+    ...postSelectFields,
     parent: {
       select: nestedReplies,
     },
@@ -72,8 +84,7 @@ type NestedPostPayload = PostPayload & {
 };
 
 type ParentPostPayload = Prisma.PostGetPayload<{ select: NestedParentPostSelect }>;
-// TODO: Fix this
 type NestedParent = ParentPostPayload & { parent?: NestedParent };
 
 export type IPostWithParents = NestedParent;
-export type IPostWithReplies = NestedPostPayload & { root?: IPostPreview['root'] };
+export type IPostWithReplies = NestedPostPayload & { root?: IRootPost | null };
