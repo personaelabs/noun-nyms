@@ -45,8 +45,9 @@ const verifyRoot = async (root: string): Promise<boolean> =>
 const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPreview[]>) => {
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
+  const sort = req.query.sort ? (req.query.sort as string) : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
 
-  const posts = await selectAndCleanPosts(undefined, skip, take);
+  const posts = await selectAndCleanPosts(undefined, skip, take, sort);
   res.send(posts);
 };
 

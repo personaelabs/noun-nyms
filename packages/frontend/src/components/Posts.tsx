@@ -1,10 +1,10 @@
 import { PostPreview } from '@/components/post/PostPreview';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { RetryError } from './global/RetryError';
@@ -16,22 +16,21 @@ import { SortSelect } from './post/SortSelect';
 import { refetchAndScrollToPost } from '@/lib/client-utils';
 import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
+import { useEffect } from 'react';
 
-const getPosts = async () => (await axios.get<IPostPreview[]>('/api/v1/posts')).data;
+const PER_FETCH = 20;
+const getPosts = async ({ pageParam = 0 }: { pageParam?: number }, filter: String) => {
+  const data = (
+    await axios.get<IPostPreview[]>('/api/v1/posts', {
+      params: {
+        offset: pageParam,
+        limit: PER_FETCH,
+        sort: filter,
+      },
+    })
+  ).data;
 
-const sortPosts = (posts: IPostPreview[] | undefined, query: string) => {
-  return posts
-    ? posts.sort((a, b) => {
-        if (query === 'timestamp') {
-          const val1 = b[query] || new Date();
-          const val2 = a[query] || new Date();
-
-          return Number(new Date(val1)) - Number(new Date(val2));
-        } else if (query === 'upvotes') {
-          return Number(b[query].length) - Number(a[query].length);
-        } else return 0;
-      })
-    : posts;
+  return data;
 };
 
 interface PostsProps {
@@ -41,41 +40,49 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
-  const { isMobile, postInProg, pushRoute } = useContext(UserContext) as UserContextType;
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState(initOpenPostId ? initOpenPostId : '');
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
+  const { isMobile, pushRoute, postInProg } = useContext(UserContext) as UserContextType;
+  const [filter, setFilter] = useState<string>('timestamp');
 
-  const {
-    isLoading,
-    isError,
-    refetch,
-    data: posts,
-  } = useQuery<IPostPreview[]>({
-    queryKey: ['posts'],
-    queryFn: getPosts,
-    retry: 1,
-    enabled: true,
-    staleTime: 1000,
-    refetchIntervalInBackground: true,
-    refetchInterval: 30000, // 30 seconds
-    onError: (error) => {
-      setError(error);
+  const { isLoading, isFetchingNextPage, isError, refetch, fetchNextPage, data } = useInfiniteQuery(
+    {
+      queryKey: ['posts', { filter }],
+      queryFn: ({ pageParam }) => getPosts({ pageParam }, filter),
+      getNextPageParam: (_, pages) => pages.length * PER_FETCH,
+      onError: (error) => {
+        setError(error);
+      },
     },
-  });
+  );
+  const [observedElement, setObservedElement] = useState<Element | null>();
+
+  useEffect(() => {
+    const el = window.document.querySelector('#lastPost');
+    if (el && observedElement !== el) {
+      const options = {
+        root: null, // viewport,
+        rootMargin: '0px',
+        threshold: 0.1, // start fetching more as soon as 10% of the last post is visible
+      };
+
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            fetchNextPage();
+            observer.unobserve(entry.target);
+          }
+        });
+      }, options);
+      observer.observe(el as Element);
+      setObservedElement(el);
+    }
+  }, [data, fetchNextPage, observedElement]);
 
   const filterOptions: { [key: string]: string } = {
     timestamp: '⏳ Recent',
     upvotes: '🔥 Top',
-  };
-  const [filter, setFilter] = useState<string>('timestamp');
-  const sortedPosts = useMemo(() => sortPosts(posts, filter), [posts, filter]);
-  const handleOpenPost = (postId: string) => {
-    if (isMobile) pushRoute(`/posts/${postId}`);
-    else {
-      window.history.pushState(null, '', `/posts/${postId}`);
-      setOpenPostId(postId);
-    }
   };
 
   return (
@@ -107,7 +114,7 @@ export default function Posts(props: PostsProps) {
                 <>
                   <Spinner />
                 </>
-              ) : sortedPosts ? (
+              ) : data?.pages ? (
                 <>
                   <div className="flex justify-between">
                     {isMobile ? (
@@ -131,24 +138,45 @@ export default function Posts(props: PostsProps) {
                       />
                     </div>
                   </div>
-                  {sortedPosts.map((post) => (
-                    <div className="w-full flex gap-2 items-center" key={post.id}>
-                      <Upvote
-                        upvotes={post.upvotes}
-                        col={true}
-                        postId={post.id}
-                        onSuccess={refetch}
-                      >
-                        <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
-                      </Upvote>
-                      <PostPreview
-                        {...post}
-                        userId={post.userId}
-                        handleOpenPost={() => handleOpenPost(post.id)}
-                        onSuccess={async () => await refetchAndScrollToPost(refetch)}
-                      />
-                    </div>
+                  {data.pages.map((page, i) => (
+                    <>
+                      {page.map((post, j) => (
+                        <div
+                          className="w-full flex gap-2"
+                          key={post.id}
+                          id={
+                            i === data.pages.length - 1 && j === page.length - 1 ? 'lastPost' : ''
+                          }
+                        >
+                          <Upvote
+                            upvotes={post.upvotes}
+                            col={true}
+                            postId={post.id}
+                            onSuccess={refetch}
+                          >
+                            <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
+                          </Upvote>
+                          <PostPreview
+                            {...post}
+                            userId={post.userId}
+                            handleOpenPost={() => {
+                              if (isMobile) pushRoute(`/posts/${post.id}`);
+                              else {
+                                window.history.pushState(null, '', `/posts/${post.id}`);
+                                setOpenPostId(post.id);
+                              }
+                            }}
+                            onSuccess={async () => await refetchAndScrollToPost(refetch)}
+                          />
+                        </div>
+                      ))}
+                    </>
                   ))}
+                  {isFetchingNextPage && (
+                    <div className="flex justify-center my-4">
+                      <Spinner />
+                    </div>
+                  )}
                 </>
               ) : isError ? (
                 <RetryError

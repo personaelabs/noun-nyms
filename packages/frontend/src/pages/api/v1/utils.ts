@@ -89,18 +89,29 @@ export const getRootFromParent = async (parentId: string): Promise<string | null
   return rootId;
 };
 
-export const selectAndCleanPosts = async (userId?: string, skip?: number, take?: number) => {
+export const selectAndCleanPosts = async (
+  userId?: string,
+  skip?: number,
+  take?: number,
+  sort?: string,
+) => {
   const isNym = userId && !isAddress(userId);
   // Determines whether we are searching for a user's posts or all root posts.
   const where = userId ? { userId: isNym ? userId : userId.toLowerCase() } : { rootId: null };
+
   const postsRaw = await prisma.post.findMany({
     select: postPreviewSelect,
     where,
     skip,
     take,
-    orderBy: {
-      timestamp: 'desc',
-    },
+    orderBy:
+      sort === 'upvotes'
+        ? {
+            upvotes: {
+              _count: 'desc',
+            },
+          }
+        : { timestamp: 'desc' },
   });
 
   return postsRaw;
