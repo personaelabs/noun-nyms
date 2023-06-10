@@ -1,9 +1,18 @@
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
+import { useWindowSize } from '@uidotdev/usehooks';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -113,6 +122,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
   } = replyProps;
 
   const postInfo = { id, body, userId, timestamp, upvotes };
+  const { width, height } = useWindowSize();
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
   const divRef = useRef<HTMLDivElement>(null);
   const [postInProg, setPostInProg] = useState('');
@@ -124,6 +134,13 @@ export const NestedReply = (replyProps: IReplyProps) => {
       setDiscardWarningOpen(true);
     } else setShowPostWriter(!showPostWriter);
   };
+
+  const postPadding = useMemo(() => {
+    if (width && width < 600) {
+      return 4;
+    }
+    return 10;
+  }, [width]);
 
   useEffect(() => {
     if (divRef.current && showReplyWriter) {
@@ -149,7 +166,10 @@ export const NestedReply = (replyProps: IReplyProps) => {
         ref={divRef}
         id={id}
         className="flex flex-col gap-2 transition-all"
-        style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
+        style={{
+          marginLeft: `${depth * postPadding}px`,
+          width: `calc(100% - ${postPadding * 10}px)`,
+        }}
       >
         <SingleReply
           {...postInfo}
