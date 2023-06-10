@@ -7,9 +7,9 @@ import { DiscardPostWarning } from '../DiscardPostWarning';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import axios from 'axios';
-import { scrollToPost } from '@/lib/client-utils';
 
-interface IReplyProps extends IPostWithReplies {
+interface IReplyProps {
+  post: IPostWithReplies;
   depth: number;
   innerReplies: React.ReactNode[];
   childrenLength: number;
@@ -27,7 +27,7 @@ export const resolveNestedReplyThreads = (
     for (const post of postsWithReplies) {
       replyNodes.push(
         <NestedReply
-          {...post}
+          post={post}
           key={post.id}
           showReplyWriter={writerToShow === post.id}
           depth={depth}
@@ -43,25 +43,17 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const {
-    id,
-    body,
-    userId,
-    timestamp,
-    upvotes,
-    depth,
-    innerReplies,
-    childrenLength,
-    onSuccess,
-    showReplyWriter,
-  } = replyProps;
+  const { post, innerReplies, childrenLength, onSuccess, showReplyWriter } = replyProps;
 
-  const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
   const { postInProg } = useContext(UserContext) as UserContextType;
+
+  // Post data
+  const [replies, setReplies] = useState(innerReplies);
+  const [localPost, setLocalPost] = useState(post);
+
   const divRef = useRef<HTMLDivElement>(null);
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
-  const [replies, setReplies] = useState(innerReplies);
 
   const handleCloseWriterAttempt = () => {
     if (postInProg && showPostWriter) {
@@ -69,14 +61,17 @@ export const NestedReply = (replyProps: IReplyProps) => {
     } else setShowPostWriter(!showPostWriter);
   };
 
-  const fetchChildren = async (id: string) => {
+  const refreshPost = async (id: string, postOnly = false) => {
     try {
       const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=false
     `);
-      console.log(res);
       const post = res.data;
-      const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, onSuccess);
-      setReplies(replyComponents);
+      if (postOnly) {
+        setLocalPost(post);
+      } else {
+        const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, onSuccess);
+        setReplies(replyComponents);
+      }
     } catch (error) {
       // TODO: Error handling?
     }
@@ -95,25 +90,25 @@ export const NestedReply = (replyProps: IReplyProps) => {
       )}
       <div
         ref={divRef}
-        id={id}
+        id={localPost.id}
         className="flex flex-col gap-2 transition-all ml-2"
         style={{ width: 'calc(100% - 8px)' }}
       >
         <SingleReply
-          {...postInfo}
+          post={localPost}
           replyCount={childrenLength}
-          onSuccess={onSuccess}
+          onUpvote={() => refreshPost(localPost.id, true)}
           replyOpen={showPostWriter}
           handleReply={handleCloseWriterAttempt}
         >
           {showPostWriter ? (
             <PostWriter
-              parentId={id as PrefixedHex}
+              parentId={localPost.id as PrefixedHex}
               scrollToPost={onSuccess}
               handleCloseWriter={handleCloseWriterAttempt}
             />
           ) : null}
-          <button onClick={() => fetchChildren(id)}>
+          <button onClick={() => refreshPost(localPost.id)}>
             {childrenLength > replies.length && <p className="text-left">Show more replies </p>}
           </button>
           {replies}

@@ -85,6 +85,14 @@ export default function Posts(props: PostsProps) {
     upvotes: '🔥 Top',
   };
 
+  const handleOpenPost = (id: string) => {
+    if (isMobile) pushRoute(`/posts/${id}`);
+    else {
+      window.history.pushState(null, '', `/posts/${id}`);
+      setOpenPostId(id);
+    }
+  };
+
   return (
     <>
       {newPostOpen && (
@@ -157,15 +165,8 @@ export default function Posts(props: PostsProps) {
                             <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                           </Upvote>
                           <PostPreview
-                            {...post}
-                            userId={post.userId}
-                            handleOpenPost={() => {
-                              if (isMobile) pushRoute(`/posts/${post.id}`);
-                              else {
-                                window.history.pushState(null, '', `/posts/${post.id}`);
-                                setOpenPostId(post.id);
-                              }
-                            }}
+                            post={post}
+                            handleOpenPost={() => handleOpenPost(post.id)}
                             onSuccess={async () => await refetchAndScrollToPost(refetch)}
                           />
                         </div>

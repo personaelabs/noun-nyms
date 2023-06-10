@@ -2,36 +2,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Upvote } from '../Upvote';
 import { ReplyCount } from './ReplyCount';
 import { UserTag } from './UserTag';
-import { ClientUpvote } from '@/types/components';
 import { faReply } from '@fortawesome/free-solid-svg-icons';
 import { CopyLink } from './CopyLink';
+import { IPostPreview, IPostWithReplies } from '@/types/api';
 
 interface SingleReplyProps {
-  id: string;
-  userId: string;
-  timestamp: Date;
-  body: string;
+  post: IPostWithReplies | IPostPreview;
   replyCount: number;
-  upvotes: ClientUpvote[];
-  onSuccess: () => Promise<void>;
+  onUpvote: () => void;
   handleReply: (id: string) => void;
   replyOpen: boolean;
   children?: React.ReactNode;
 }
 
 export const SingleReply = (props: SingleReplyProps) => {
-  const {
-    id,
-    userId,
-    timestamp,
-    body,
-    upvotes,
-    replyCount,
-    onSuccess,
-    handleReply,
-    children,
-    replyOpen,
-  } = props;
+  const { post, replyCount, onUpvote, handleReply, children, replyOpen } = props;
+  const { id, userId, timestamp, body, upvotes } = post;
 
   return (
     <div className="flex flex-col gap-2">
@@ -39,7 +25,7 @@ export const SingleReply = (props: SingleReplyProps) => {
       <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
         <span>{body}</span>
         <div className="flex flex-wrap justify-between items-center py-2 border-t border-gray-300">
-          <Upvote upvotes={upvotes} postId={id} onSuccess={onSuccess}>
+          <Upvote upvotes={upvotes} postId={id} onSuccess={onUpvote}>
             <p>{upvotes?.length}</p>
           </Upvote>
           <div className="flex flex-wrap gap-4 justify-center items-center">

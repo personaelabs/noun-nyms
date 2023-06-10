@@ -127,7 +127,7 @@ export default function User() {
                   <div key={post.id}>
                     <PostPreview
                       showUserHeader={true}
-                      {...post}
+                      post={post}
                       handleOpenPost={(writerToShow: string) => {
                         if (isMobile) pushRoute(`/posts/${post.id}`);
                         else window.history.pushState(null, '', `/posts/${post.id}`);
