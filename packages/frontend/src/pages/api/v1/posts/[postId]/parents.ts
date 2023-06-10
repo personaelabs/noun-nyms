@@ -1,18 +1,9 @@
 import { POST_DEPTH } from '@/lib/constants';
 import prisma from '@/lib/prisma';
-import {
-  IPostWithReplies,
-  postPreviewSelect,
-  buildPostSelect,
-  IPostPreview,
-  buildParentPostSelect,
-  IPostWithParents,
-} from '@/types/api';
+import { IPostWithReplies, buildParentPostSelect, IPostWithParents } from '@/types/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getPostWithReplies } from '../[postId]';
 
-// Return a single post and all of its replies till depth = 5
-// TODO: Return all replies with a much higher depth limit
 const handleGetParents = async (
   req: NextApiRequest,
   res: NextApiResponse<IPostWithReplies | { error: string }>,
@@ -36,7 +27,6 @@ const handleGetParents = async (
       if (currPost.parent) currPost = currPost.parent;
       else break;
     }
-    console.log(`found parent at depth`, currPost.depth);
     // Now run the logic to get the posts + children of curr post.
     const result = await getPostWithReplies(currPost.id, false);
     res.send(result);
