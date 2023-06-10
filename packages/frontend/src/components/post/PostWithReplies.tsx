@@ -14,14 +14,12 @@ import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 
-const getPostById = async (postId: string, fromRoot = false) =>
-  (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
+const getPostById = async (postId: string) =>
+  (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { postId } = postWithRepliesProps;
 
-  // When fetching our inital post and replies, we try to start from the root.
-  const fromRoot = true;
   const { errorMsg, setError } = useError();
   const [parent, setParent] = useState<IPostWithReplies>();
 
@@ -31,8 +29,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     refetch,
     data: singlePost,
   } = useQuery<IPostWithReplies>({
-    queryKey: ['post', postId, fromRoot],
-    queryFn: () => getPostById(postId, fromRoot),
+    queryKey: ['post', postId],
+    queryFn: () => getPostById(postId),
     retry: 1,
     enabled: !!postId,
     staleTime: 5000,

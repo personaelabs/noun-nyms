@@ -63,7 +63,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const refreshPost = async (id: string, postOnly = false) => {
     try {
-      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=false
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}
     `);
       const post = res.data;
       if (postOnly) {

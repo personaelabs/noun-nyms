@@ -14,7 +14,7 @@ export const PostPreview = (postProps: PostProps) => {
 
   const { name: userName } = useName({ userId });
   const { name: rootName } = useName({ userId: root?.userId });
-  useName({ userId: root?.userId });
+
   const { pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
