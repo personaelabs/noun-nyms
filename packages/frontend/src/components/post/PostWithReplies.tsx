@@ -42,7 +42,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       setError(error);
     },
   });
-  console.log(`single post`, singlePost);
+
   // The top Reply is the first post below the root. It can change if parents are fetched for a reply.
   const topReply = useMemo(() => {
     return parent || singlePost;
@@ -116,9 +116,8 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                     className="text-left"
                     onClick={async () => {
                       const res = await axios.get<IPostWithReplies>(
-                        `/api/v1/posts/${topReply?.id}/parents`,
+                        `/api/v1/posts/${topReply.id}/parents`,
                       );
-                      console.log(`parents!`, res.data);
                       setParent(res.data);
                     }}
                   >
