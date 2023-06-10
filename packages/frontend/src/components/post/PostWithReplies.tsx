@@ -27,7 +27,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const {
     isLoading,
-    isSuccess,
     isError,
     refetch,
     data: singlePost,
@@ -62,7 +61,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       // If singlePost is root, pass its replies.
       // If singlePost is not root, pass it as a list
       const postToPass = !singlePost.rootId ? singlePost.replies : [singlePost];
-      console.log(`single post is root?`, !singlePost.rootId);
       return resolveNestedReplyThreads(postToPass, singlePost.depth, handleSuccess);
     } else {
       return <div></div>;
@@ -72,11 +70,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   useEffect(() => {
     //if post is not the root, scroll to post
     if (singlePost && singlePost.id !== postId) {
-      setTimeout(
-        () =>
-          document.getElementById(postId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
-        500,
-      );
+      setTimeout(async () => await scrollToPost(postId), 500);
     }
   }, [postId, singlePost]);
 

@@ -8,6 +8,7 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import axios from 'axios';
 import { scrollToPost } from '@/lib/client-utils';
+import { on } from 'events';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -23,9 +24,7 @@ export const resolveNestedReplyThreads = (
   writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
-  console.log(`Rendering ${postsWithReplies?.length} posts at depth ${depth}`);
   if (postsWithReplies && postsWithReplies.length > 0) {
-    console.log(`here?`);
     for (const post of postsWithReplies) {
       replyNodes.push(
         <NestedReply
@@ -71,20 +70,17 @@ export const NestedReply = (replyProps: IReplyProps) => {
     } else setShowPostWriter(!showPostWriter);
   };
 
-  console.log(`has ${childrenLength} children but recevied `, innerReplies.length);
-
   const fetchChildren = async (id: string) => {
-    console.log(`fetching children of post ${id}`);
     try {
       const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=false
     `);
       console.log(res);
       const post = res.data;
-      const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, () =>
-        console.log(`success?`),
-      );
+      const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, onSuccess);
       setReplies(replyComponents);
-    } catch (error) {}
+    } catch (error) {
+      // TODO: Error handling?
+    }
   };
 
   return (
