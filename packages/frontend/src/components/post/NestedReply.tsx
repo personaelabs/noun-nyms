@@ -1,12 +1,4 @@
-import {
-  Dispatch,
-  MutableRefObject,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-  useContext,
-} from 'react';
+import { useContext, useRef, useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
@@ -14,95 +6,41 @@ import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import axios from 'axios';
+import { scrollToPost } from '@/lib/client-utils';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
-  innerReplies: React.ReactNode[] | React.ReactNode;
-  proof: string;
+  innerReplies: React.ReactNode[];
   childrenLength: number;
-  postsVisibilityMap: Record<string, number>;
-  setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>;
   onSuccess: (id?: string) => Promise<void>;
   showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
-  allPosts: IPostWithReplies[],
+  postsWithReplies: IPostWithReplies[] | undefined,
   depth: number,
-  postsVisibilityMap: Record<string, number>,
-  setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>,
   onSuccess: (id?: string) => Promise<void>,
-  trail: string[],
-  additionalDataKeys: string[][],
-  setAdditionalDataKeys: Dispatch<SetStateAction<string[][]>>,
-  shouldRerenderThreads: MutableRefObject<boolean>,
   writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
-
-  const postsToShow = allPosts?.filter((post) => postsVisibilityMap[post.id]);
-
-  if (!postsVisibilityMap || !allPosts || postsToShow.length === 0) {
-    return (
-      <div>
-        <button
-          onClick={() => {
-            if (!allPosts) {
-              // this means we've hit the max depth of comments already loaded on the client
-              // and we may need to fetch deeper comments. we'll do this by adding the trail
-              // to the additionalDataKeys array, which will trigger a rerender of the component
-              const newKeys = [...additionalDataKeys];
-              newKeys.push(trail);
-              shouldRerenderThreads.current = true;
-              setAdditionalDataKeys(newKeys);
-            } else {
-              // set posts at this depth to be visible
-              const newPostsVisibility = { ...postsVisibilityMap };
-              allPosts.forEach((post) => {
-                newPostsVisibility[post.id] = 1;
-              });
-              setPostsVisibility(newPostsVisibility);
-            }
-          }}
-        >
-          {allPosts ? allPosts.length : 'View'} more {allPosts?.length === 1 ? 'reply' : 'replies'}
-        </button>
-      </div>
-    );
+  console.log(`Rendering ${postsWithReplies?.length} posts at depth ${depth}`);
+  if (postsWithReplies && postsWithReplies.length > 0) {
+    console.log(`here?`);
+    for (const post of postsWithReplies) {
+      replyNodes.push(
+        <NestedReply
+          {...post}
+          key={post.id}
+          showReplyWriter={writerToShow === post.id}
+          depth={depth}
+          innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess)}
+          childrenLength={post._count.replies ? post._count.replies : 0}
+          onSuccess={onSuccess}
+        />,
+      );
+    }
   }
 
-  for (const post of allPosts) {
-    const newTrail = [...trail];
-    newTrail.push(post.id);
-
-    // TODO: fix
-    const proof = '';
-
-    replyNodes.push(
-      <NestedReply
-        {...post}
-        key={post.id}
-        showReplyWriter={writerToShow === post.id}
-        depth={depth}
-        postsVisibilityMap={postsVisibilityMap}
-        setPostsVisibility={setPostsVisibility}
-        innerReplies={resolveNestedReplyThreads(
-          post.replies ? post.replies : [],
-          depth + 1,
-          postsVisibilityMap,
-          setPostsVisibility,
-          onSuccess,
-          newTrail,
-          additionalDataKeys,
-          setAdditionalDataKeys,
-          shouldRerenderThreads,
-          writerToShow,
-        )}
-        proof={proof}
-        childrenLength={post.replies ? post.replies.length : 0}
-        onSuccess={onSuccess}
-      />,
-    );
-  }
   return replyNodes;
 };
 
@@ -116,8 +54,6 @@ export const NestedReply = (replyProps: IReplyProps) => {
     depth,
     innerReplies,
     childrenLength,
-    postsVisibilityMap,
-    setPostsVisibility,
     onSuccess,
     showReplyWriter,
   } = replyProps;
@@ -127,6 +63,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
   const { postInProg } = useContext(UserContext) as UserContextType;
   const divRef = useRef<HTMLDivElement>(null);
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
+  const [replies, setReplies] = useState(innerReplies);
 
   const handleCloseWriterAttempt = () => {
     if (postInProg && showPostWriter) {
@@ -134,14 +71,21 @@ export const NestedReply = (replyProps: IReplyProps) => {
     } else setShowPostWriter(!showPostWriter);
   };
 
-  useEffect(() => {
-    if (divRef.current && showReplyWriter) {
-      setTimeout(() => divRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-      const newPostsVisibility = { ...postsVisibilityMap };
-      newPostsVisibility[id] = 1;
-      setPostsVisibility(newPostsVisibility);
-    }
-  }, [id, postsVisibilityMap, setPostsVisibility, showReplyWriter]);
+  console.log(`has ${childrenLength} children but recevied `, innerReplies.length);
+
+  const fetchChildren = async (id: string) => {
+    console.log(`fetching children of post ${id}`);
+    try {
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}?fromRoot=false
+    `);
+      console.log(res);
+      const post = res.data;
+      const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, () =>
+        console.log(`success?`),
+      );
+      setReplies(replyComponents);
+    } catch (error) {}
+  };
 
   return (
     <>
@@ -174,7 +118,10 @@ export const NestedReply = (replyProps: IReplyProps) => {
               handleCloseWriter={handleCloseWriterAttempt}
             />
           ) : null}
-          {innerReplies}
+          <button onClick={() => fetchChildren(id)}>
+            {childrenLength > replies.length && <p className="text-left">Show more replies </p>}
+          </button>
+          {replies}
         </SingleReply>
       </div>
     </>
