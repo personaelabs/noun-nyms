@@ -4,7 +4,7 @@ import axios from 'axios';
 import { IPostPreview } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
-import { useContext, useState } from 'react';
+import { Fragment, useContext, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { RetryError } from './global/RetryError';
@@ -139,7 +139,7 @@ export default function Posts(props: PostsProps) {
               ) : data?.pages ? (
                 <>
                   {data.pages.map((page, i) => (
-                    <>
+                    <Fragment key={i}>
                       {page.map((post, j) => (
                         <div
                           className="w-full flex gap-2"
@@ -170,7 +170,7 @@ export default function Posts(props: PostsProps) {
                           />
                         </div>
                       ))}
-                    </>
+                    </Fragment>
                   ))}
                   {isFetchingNextPage && (
                     <div className="flex justify-center my-4">
