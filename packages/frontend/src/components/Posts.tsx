@@ -150,7 +150,7 @@ export default function Posts(props: PostsProps) {
                     <Fragment key={i}>
                       {page.map((post, j) => (
                         <div
-                          className="w-full flex gap-2"
+                          className="w-full flex gap-2 items-center"
                           key={post.id}
                           id={
                             i === data.pages.length - 1 && j === page.length - 1 ? 'lastPost' : ''
