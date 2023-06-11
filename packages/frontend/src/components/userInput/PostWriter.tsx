@@ -131,10 +131,7 @@ export const PostWriter = (props: IWriterProps) => {
               value={body}
               placeholder={parentId === '0x0' ? 'Description' : 'Type your post here'}
               minHeight={100}
-              onChangeHandler={(newVal) => {
-                console.log('setting body...');
-                setBody(newVal);
-              }}
+              onChangeHandler={(newVal) => setBody(newVal)}
             ></Textarea>
           </div>
         </div>
