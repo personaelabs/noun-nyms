@@ -55,6 +55,7 @@ export const PostPreview = (postProps: PostProps) => {
                 <SingleReply
                   post={post}
                   replyCount={_count.descendants}
+                  highlight={false}
                   onUpvote={onSuccess}
                   replyOpen={false}
                   handleReply={(writerToShow: string) => handleOpenPost(writerToShow)}

@@ -18,17 +18,19 @@ const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
-  const { postId } = postWithRepliesProps;
+  const { postId, writerToShow } = postWithRepliesProps;
 
   const { errorMsg, setError } = useError();
   const [parent, setParent] = useState<IPostWithReplies>();
   const [loadingLocalFetch, setLoadingLocalFetch] = useState(false);
+  const [postToHighlight, setPostToHighlight] = useState('');
 
   const {
     isLoading,
     isError,
     refetch,
     data: singlePost,
+    isFetched,
   } = useQuery<IPostWithReplies>({
     queryKey: ['post', postId],
     queryFn: () => getPostById(postId),
@@ -41,6 +43,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       setError(error);
     },
   });
+
+  // set the initial post to highlight if singlePost is not the root
+  useEffect(() => {
+    if (isFetched && singlePost) {
+      const toHighlight = !singlePost.root ? '' : postId;
+      setPostToHighlight(toHighlight);
+    }
+  }, [isFetched, postId, singlePost]);
 
   // The top Reply is the first post below the root. It can change if parents are fetched for a reply.
   const topReply = useMemo(() => {
@@ -62,16 +72,17 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       // If topReply is root, pass its replies.
       // If topReply is not root, pass it as a list
       const postToPass = !topReply.rootId ? topReply.replies : [topReply];
-      return resolveNestedReplyThreads(postToPass, 0, handleSuccess);
+      return resolveNestedReplyThreads(postToPass, 0, handleSuccess, postToHighlight, writerToShow);
     } else {
       return <div></div>;
     }
-  }, [topReply, refetch]);
+  }, [topReply, refetch, writerToShow, postToHighlight]);
 
   const fetchParents = async (id: string) => {
     setLoadingLocalFetch(true);
     try {
       const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}/parents`);
+      setPostToHighlight(id);
       setParent(res.data);
     } catch (error) {
       //TO-DO: error handling
@@ -121,7 +132,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               <h4>
                 {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-4">
                 {topReply && topReply.depth > 1 ? (
                   <p
                     className="hover:underline font-semibold text-xs cursor-pointer"

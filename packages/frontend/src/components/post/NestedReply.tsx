@@ -15,11 +15,13 @@ interface IReplyProps {
   childrenLength: number;
   onSuccess: (id?: string) => Promise<void>;
   showReplyWriter: boolean;
+  highlight: boolean;
 }
 export const resolveNestedReplyThreads = (
   postsWithReplies: IPostWithReplies[] | undefined,
   depth: number,
   onSuccess: (id?: string) => Promise<void>,
+  postToHighlight?: string,
   writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
@@ -30,8 +32,14 @@ export const resolveNestedReplyThreads = (
           post={post}
           key={post.id}
           showReplyWriter={writerToShow === post.id}
+          highlight={postToHighlight === post.id}
           depth={depth}
-          innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, onSuccess)}
+          innerReplies={resolveNestedReplyThreads(
+            post.replies,
+            depth + 1,
+            onSuccess,
+            postToHighlight,
+          )}
           childrenLength={post._count.replies ? post._count.replies : 0}
           onSuccess={onSuccess}
         />,
@@ -43,7 +51,7 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const { post, innerReplies, childrenLength, onSuccess, showReplyWriter } = replyProps;
+  const { post, innerReplies, childrenLength, onSuccess, showReplyWriter, highlight } = replyProps;
 
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
   const { postInProg } = useContext(UserContext) as UserContextType;
@@ -100,6 +108,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
       >
         <SingleReply
           post={localPost}
+          highlight={highlight}
           replyCount={childrenLength}
           onUpvote={() => refreshPost(localPost.id, true)}
           replyOpen={showPostWriter}
@@ -112,13 +121,13 @@ export const NestedReply = (replyProps: IReplyProps) => {
               handleCloseWriter={handleCloseWriterAttempt}
             />
           ) : null}
-          <div className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
-            {childrenLength > replies.length && (
+          {childrenLength > replies.length && (
+            <div className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
               <p className="hover:underline font-semibold text-xs ">
                 {loadingLocalFetch ? 'Showing more replies...' : 'Show more replies'}
               </p>
-            )}
-          </div>
+            </div>
+          )}
           {replies}
         </SingleReply>
       </div>
