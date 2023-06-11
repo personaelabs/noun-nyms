@@ -1,42 +1,28 @@
 import { UserAvatar } from './global/UserAvatar';
 import { useContext, useEffect, useState } from 'react';
-import { ClientName, NameType, UserContextType } from '@/types/components';
+import { NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
 import { UserContext } from '@/pages/_app';
-import { useAccount } from 'wagmi';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
+import { getUserIdFromName } from '@/lib/example-utils';
 
-export const MyProfile = () => {
-  const { address } = useAccount();
+export const MyProfile = ({ address }: { address: string }) => {
   const { isMobile, nymOptions, isValid, pushRoute } = useContext(UserContext) as UserContextType;
   const { name } = useName({ userId: address });
 
-  const [localAddress, setLocalAddress] = useState('');
-
-  const getUserIdFromName = (user: ClientName): string => {
-    if (user.name) {
-      return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
-    } else return '';
-  };
-
-  useEffect(() => {
-    // Prevents server side mismatch with address. Idk why
-    if (address) setLocalAddress(address);
-  }, [address]);
-
   return (
     <>
-      {localAddress && isValid ? (
+      {address && isValid ? (
         <Menu as={'div'} className="relative cursor-pointer">
           <Menu.Button className="flex items-center gap-2 rounded-xl px-2 py-1 border border-white hover:scale-105 active:scale-100 transition-all">
-            <UserAvatar width={30} userId={localAddress} />
+            <UserAvatar width={30} userId={address} />
             <FontAwesomeIcon icon={faAngleDown} color="#ffffff" />
           </Menu.Button>
           <Menu.Items className="max-w-[150px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer">
-            {isMobile && localAddress && isValid && (
+            {isMobile && address && isValid && (
               <>
                 <p className="secondary p-2">Wallet</p>
                 <Menu.Item disabled as={'div'} className="w-full flex justify-center">
@@ -49,9 +35,9 @@ export const MyProfile = () => {
               <Menu.Item
                 as={'div'}
                 className="min-w-0 shrink w-full flex items-center gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
-                onClick={() => pushRoute(`/users/${localAddress}`)}
+                onClick={() => pushRoute(`/users/${address}`)}
               >
-                <UserAvatar type={NameType.DOXED} userId={localAddress} width={20} />
+                <UserAvatar type={NameType.DOXED} userId={address} width={20} />
                 <p className="breakText">{name}</p>
               </Menu.Item>
               {nymOptions &&

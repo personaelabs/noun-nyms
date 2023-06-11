@@ -2,14 +2,18 @@ import ConnectWallet from './ConnectWallet';
 import logo from '../../public/logo.svg';
 import { MyProfile } from './MyProfile';
 import Image from 'next/image';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
+import { Notifications } from './notifications/Notifications';
+import { useIsMounted } from '@/hooks/useIsMounted';
 
 export const Header = () => {
   const { address } = useAccount();
   const { isMobile, isValid, pushRoute } = useContext(UserContext) as UserContextType;
+
+  const isMounted = useIsMounted();
 
   return (
     <>
@@ -33,9 +37,10 @@ export const Header = () => {
                 PseudoNym
               </p>
             </div>
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-4 items-center">
+              {isMounted && address && isValid && <Notifications />}
               {(!isMobile || !address || !isValid) && <ConnectWallet />}
-              <MyProfile />
+              {isMounted && address && <MyProfile address={address} />}
             </div>
           </nav>
           {!isMobile && (

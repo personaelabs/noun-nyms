@@ -105,6 +105,21 @@
     white-space: nowrap;
   }
 
+  /* Spinner */
+  .loader {
+    animation: spinner 0.6s linear infinite;
+  }
+
+  @keyframes spinner {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Loading Ellipsis */
   .dot1 {
     animation: visibility 1s linear infinite;
   }

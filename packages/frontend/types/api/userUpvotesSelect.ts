@@ -5,6 +5,7 @@ import { postPreviewSelect } from './postPreviewSelect';
 
 export const userUpvotesSelect = {
   id: true,
+  address: true,
   timestamp: true,
   post: {
     select: { ...postPreviewSelect },

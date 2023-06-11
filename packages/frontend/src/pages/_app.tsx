@@ -9,17 +9,18 @@ import { HOME_DESCRIPTION, Seo, TITLE } from '@/components/global/Seo';
 import Head from 'next/head';
 import { ValidUserWarning } from '@/components/global/ValidUserWarning';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
-import { polygon, optimism } from 'viem/chains';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '@/hooks/useUserInfo';
 import { UserContextType } from '@/types/components';
+import { NotificationsContextType } from '@/types/notifications';
 import usePushRoute from '@/hooks/usePushRoute';
 import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
 import { Header } from '@/components/Header';
+import { useNotifications } from '@/hooks/useNotifications';
 
 config.autoAddCss = false;
 
-const { chains, publicClient } = configureChains([mainnet, polygon, optimism], [publicProvider()]);
+const { chains, publicClient } = configureChains([mainnet], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
   appName: 'My RainbowKit App',
@@ -34,11 +35,22 @@ const appConfig = createConfig({
 
 // React query client
 const queryClient = new QueryClient();
+
 export const UserContext = createContext<UserContextType | null>(null);
+export const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
+  const {
+    notifications,
+    unread,
+    isLoading,
+    setNotificationsAsRead,
+    fetchNotifications,
+    lastRefresh,
+    errorMsg,
+  } = useNotifications();
   const [isMobile, setIsMobile] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
 
@@ -62,8 +74,20 @@ export default function App({ Component, pageProps }: AppProps) {
           </Head>
           <Seo title={TITLE} description={HOME_DESCRIPTION} />
           {routeLoading && <RouteLoadingSpinner />}
-          <Header />
-          <Component {...pageProps} />
+          <NotificationsContext.Provider
+            value={{
+              notifications,
+              unread,
+              isLoading,
+              setNotificationsAsRead,
+              fetchNotifications,
+              lastRefresh,
+              errorMsg,
+            }}
+          >
+            <Header />
+            <Component {...pageProps} />
+          </NotificationsContext.Provider>
           <ValidUserWarning />
         </UserContext.Provider>
       </WagmiConfig>

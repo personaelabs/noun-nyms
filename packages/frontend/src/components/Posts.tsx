@@ -9,7 +9,6 @@ import { NewPost } from './userInput/NewPost';
 import { Upvote } from './Upvote';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
-import { useRouter } from 'next/router';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
@@ -80,6 +79,13 @@ export default function Posts(props: PostsProps) {
   };
   const [filter, setFilter] = useState<string>('timestamp');
   const sortedPosts = useMemo(() => sortPosts(posts, filter), [posts, filter]);
+  const handleOpenPost = (postId: string) => {
+    if (isMobile) pushRoute(`/posts/${postId}`);
+    else {
+      window.history.pushState(null, '', `/posts/${postId}`);
+      setOpenPostId(postId);
+    }
+  };
 
   return (
     <>
@@ -147,13 +153,7 @@ export default function Posts(props: PostsProps) {
                       <PostPreview
                         {...post}
                         userId={post.userId}
-                        handleOpenPost={() => {
-                          if (isMobile) pushRoute(`/posts/${post.id}`);
-                          else {
-                            window.history.pushState(null, '', `/posts/${post.id}`);
-                            setOpenPostId(post.id);
-                          }
-                        }}
+                        handleOpenPost={() => handleOpenPost(post.id)}
                         onSuccess={refetchAndScrollToPost}
                       />
                     </div>
