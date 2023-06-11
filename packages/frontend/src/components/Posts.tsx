@@ -56,10 +56,6 @@ export default function Posts(props: PostsProps) {
       },
     },
   );
-<<<<<<< HEAD
-=======
-
->>>>>>> 7dc9679 (chore: log)
   const [observedElement, setObservedElement] = useState<Element | null>();
 
   useEffect(() => {
