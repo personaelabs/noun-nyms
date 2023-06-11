@@ -98,7 +98,6 @@ export const selectAndCleanPosts = async (
   const isNym = userId && !isAddress(userId);
   // Determines whether we are searching for a user's posts or all root posts.
   const where = userId ? { userId: isNym ? userId : userId.toLowerCase() } : { rootId: null };
-  console.log(`sort = `, sort);
   const postsRaw = await prisma.post.findMany({
     select: postPreviewSelect,
     where,
