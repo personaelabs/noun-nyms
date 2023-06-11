@@ -90,10 +90,10 @@ export const PostWriter = (props: IWriterProps) => {
         resetWriter();
         setSendingPost(false);
       } catch (error) {
+        setSendingPost(false);
         setError(error);
       } finally {
         setSentPost(false);
-        setSendingPost(false);
         setHasSignedPost(false);
       }
     }

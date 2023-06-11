@@ -51,6 +51,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
   // Post data
   const [replies, setReplies] = useState(innerReplies);
   const [localPost, setLocalPost] = useState(post);
+  const [loadingLocalFetch, setLoadingLocalFetch] = useState(false);
 
   const divRef = useRef<HTMLDivElement>(null);
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
@@ -63,6 +64,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const refreshPost = async (id: string, postOnly = false) => {
     try {
+      setLoadingLocalFetch(true);
       const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}
     `);
       const post = res.data;
@@ -74,6 +76,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
       }
     } catch (error) {
       // TODO: Error handling?
+    } finally {
+      setLoadingLocalFetch(false);
     }
   };
 
@@ -108,9 +112,13 @@ export const NestedReply = (replyProps: IReplyProps) => {
               handleCloseWriter={handleCloseWriterAttempt}
             />
           ) : null}
-          <button onClick={() => refreshPost(localPost.id)}>
-            {childrenLength > replies.length && <p className="text-left">Show more replies </p>}
-          </button>
+          <div className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
+            {childrenLength > replies.length && (
+              <p className="hover:underline font-semibold text-xs ">
+                {loadingLocalFetch ? 'Showing more replies...' : 'Show more replies'}
+              </p>
+            )}
+          </div>
           {replies}
         </SingleReply>
       </div>

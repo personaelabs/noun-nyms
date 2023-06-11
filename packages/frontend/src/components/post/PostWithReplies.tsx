@@ -22,6 +22,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
 
   const { errorMsg, setError } = useError();
   const [parent, setParent] = useState<IPostWithReplies>();
+  const [loadingLocalFetch, setLoadingLocalFetch] = useState(false);
 
   const {
     isLoading,
@@ -67,6 +68,18 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
   }, [topReply, refetch]);
 
+  const fetchParents = async (id: string) => {
+    setLoadingLocalFetch(true);
+    try {
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}/parents`);
+      setParent(res.data);
+    } catch (error) {
+      //TO-DO: error handling
+    } finally {
+      setLoadingLocalFetch(false);
+    }
+  };
+
   useEffect(() => {
     //if post is not the root, scroll to post
     if (singlePost && singlePost.id !== postId) {
@@ -108,23 +121,20 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               <h4>
                 {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
-              <div className="flex flex-col gap-6 w-full justify-center items-center">
+              <div className="flex flex-col gap-2">
                 {topReply && topReply.depth > 1 ? (
-                  <button
-                    className="text-left"
-                    onClick={async () => {
-                      const res = await axios.get<IPostWithReplies>(
-                        `/api/v1/posts/${topReply.id}/parents`,
-                      );
-                      setParent(res.data);
-                    }}
+                  <p
+                    className="hover:underline font-semibold text-xs cursor-pointer"
+                    onClick={() => fetchParents(topReply.id)}
                   >
-                    Fetch parents
-                  </button>
+                    {loadingLocalFetch ? 'Fetching parents...' : 'Fetch parents'}
+                  </p>
                 ) : (
                   <></>
                 )}
-                {nestedComponentThreads}
+                <div className="flex flex-col gap-6 w-full justify-center items-center">
+                  {nestedComponentThreads}
+                </div>
               </div>
             </>
           </div>
