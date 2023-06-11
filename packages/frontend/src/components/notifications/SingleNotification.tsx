@@ -10,8 +10,10 @@ import {
 import { UserName } from '../global/UserName';
 import { fromNowDate, trimText } from '@/lib/example-utils';
 import { NotificationType, Notification, setReadArgs } from '@/types/notifications';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useAccount } from 'wagmi';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
@@ -32,9 +34,15 @@ export const SingleNotification = (props: {
   const { address } = useAccount();
   const { n, setAsRead, trim } = props;
   const [showOptions, setShowOptions] = useState(false);
+  const { pushRoute } = useContext(UserContext) as UserContextType;
+
+  const handleClick = () => {
+    setAsRead({ address, id: n.id });
+    pushRoute(`/posts/${n.postId}`);
+  };
 
   return (
-    <>
+    <div className="w-full flex justify-between items-center gap-2" onClick={handleClick}>
       <div className="shrink-0 h-min relative">
         <div className="flex gap-2 items-center">
           <div className={`w-2.5 h-2.5 ${n.read ? 'bg-white' : 'bg-[#0E76FD]'} rounded-full`} />
@@ -83,6 +91,6 @@ export const SingleNotification = (props: {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };

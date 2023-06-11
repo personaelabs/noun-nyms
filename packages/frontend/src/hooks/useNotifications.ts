@@ -194,7 +194,11 @@ export const useNotifications = () => {
   useEffect(() => {
     if (refreshTime) {
       calculateLastRefresh(refreshTime);
-      setInterval(() => calculateLastRefresh(refreshTime), 5000);
+      const poll = setInterval(() => calculateLastRefresh(refreshTime), 5000);
+
+      return () => {
+        clearInterval(poll);
+      };
     }
   }, [refreshTime]);
 

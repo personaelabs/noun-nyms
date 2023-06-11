@@ -1,34 +1,25 @@
-import { faBell, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu } from '@headlessui/react';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NotificationsContext, UserContext } from '@/pages/_app';
-import { Filters } from '../post/Filters';
 import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
 import { UserContextType } from '@/types/components';
-import { NotificationsContextType } from '@/types/notifications';
+import { Notification, NotificationsContextType } from '@/types/notifications';
 import { RetryError } from '../global/RetryError';
+import { NotificationsTools } from './NotificationsTools';
 
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
   const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
     useContext(NotificationsContext) as NotificationsContextType;
-  const [filter, setFilter] = useState('all');
+  const [notificationsToShow, setNotificationsToShow] = useState<Notification[]>(notifications);
 
-  const notificationsToShow = useMemo(
-    () =>
-      (filter === 'unread' ? notifications?.filter((n) => !n.read) : notifications)?.slice(0, 5),
-    [filter, notifications],
-  );
-
-  const filters = {
-    all: 'All',
-    unread: 'Unread',
-  };
+  useEffect(() => setNotificationsToShow(notifications), [notifications]);
 
   return (
     <>
@@ -56,33 +47,16 @@ export const Notifications = () => {
                       <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
                     </div>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <Filters
-                      filters={filters}
-                      selectedFilter={filter}
-                      setSelectedFilter={setFilter}
-                    />
-                    <div
-                      className="flex gap-1 justify-end items-center"
-                      onClick={() => setNotificationsAsRead({ address, markAll: true })}
-                    >
-                      <FontAwesomeIcon icon={faCheck} size={'xs'} />
-                      <p className="secondary hover:underline">Mark all as read</p>
-                    </div>
-                  </div>
+                  <NotificationsTools setFiltered={(n) => setNotificationsToShow(n)} />
                 </div>
                 {notificationsToShow && notificationsToShow.length > 0 ? (
                   <>
-                    {notificationsToShow.map((n, i) => {
+                    {notificationsToShow.slice(0, 5).map((n, i) => {
                       return (
                         <Menu.Item
                           as={'div'}
                           key={i}
-                          className="w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-white border border-white hover:border-gray-500"
-                          onClick={() => {
-                            setNotificationsAsRead({ address, id: n.id });
-                            pushRoute(`/posts/${n.postId}`);
-                          }}
+                          className="w-full px-3 py-2 rounded-xl bg-white border border-white hover:border-gray-500"
                         >
                           <SingleNotification
                             n={n}

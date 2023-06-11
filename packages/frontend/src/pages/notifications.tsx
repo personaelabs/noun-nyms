@@ -1,43 +1,31 @@
 import Spinner from '@/components/global/Spinner';
-import useError from '@/hooks/useError';
 import { UserContextType } from '@/types/components';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NotificationsContext, UserContext } from './_app';
 import { SingleNotification } from '@/components/notifications/SingleNotification';
 import { useAccount } from 'wagmi';
-import { Filters } from '@/components/post/Filters';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RefreshNotifications } from '@/components/notifications/RefreshNotifications';
 import { WalletWarning } from '@/components/WalletWarning';
-import { NotificationsContextType } from '@/types/notifications';
+import { Notification, NotificationsContextType } from '@/types/notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { RetryError } from '@/components/global/RetryError';
+import { NotificationsTools } from '@/components/notifications/NotificationsTools';
 
 export default function Notifications() {
   const { address } = useAccount();
   const isMounted = useIsMounted();
-  const { isValid, pushRoute, nymOptions } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
+  const { isValid, nymOptions } = useContext(UserContext) as UserContextType;
+  const { notifications, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
     useContext(NotificationsContext) as NotificationsContextType;
-
-  const [filter, setFilter] = useState('all');
+  const [notificationsToShow, setNotificationsToShow] = useState<Notification[]>(notifications);
   const [showWalletWarning, setShowWalletWarning] = useState(!address || !isValid);
 
-  const notificationsToShow = useMemo(
-    () => (filter === 'unread' ? unread : notifications),
-    [filter, notifications, unread],
-  );
+  useEffect(() => setNotificationsToShow(notifications), [notifications]);
 
   useEffect(() => {
     if (!address || !isValid) setShowWalletWarning(true);
     else setShowWalletWarning(false);
   }, [address, isValid]);
-
-  const filters = {
-    all: 'All',
-    unread: 'Unread',
-  };
 
   return (
     <main>
@@ -60,29 +48,12 @@ export default function Notifications() {
               />
             ) : notificationsToShow ? (
               <>
-                <div className="flex justify-between items-center">
-                  <Filters
-                    filters={filters}
-                    selectedFilter={filter}
-                    setSelectedFilter={setFilter}
-                  />
-                  <div
-                    className="flex gap-1 justify-end items-center cursor-pointer"
-                    onClick={() => setNotificationsAsRead({ address, markAll: true })}
-                  >
-                    <FontAwesomeIcon icon={faCheck} size={'xs'} />
-                    <p className="secondary hover:underline">Mark all as read</p>
-                  </div>
-                </div>
+                <NotificationsTools setFiltered={(n) => setNotificationsToShow(n)} />
                 {notificationsToShow.length > 0 ? (
                   notificationsToShow.map((n, i) => (
                     <div
-                      className="flex gap-4 justify-between items-center outline-none rounded-2xl transition-all shadow-sm bg-white p-3 border border-gray-200 hover:border-gray-500 hover:cursor-pointer w-full"
+                      className="outline-none rounded-xl transition-all shadow-sm bg-white p-3 border border-gray-200 hover:border-gray-500 hover:cursor-pointer w-full"
                       key={i}
-                      onClick={() => {
-                        setNotificationsAsRead({ address, id: n.id });
-                        pushRoute(`/posts/${n.postId}`);
-                      }}
                     >
                       <SingleNotification n={n} setAsRead={setNotificationsAsRead} />
                     </div>
