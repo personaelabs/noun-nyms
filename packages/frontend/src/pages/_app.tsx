@@ -44,15 +44,8 @@ export const NotificationsContext = createContext<NotificationsContextType | nul
 export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
-  const {
-    notifications,
-    unread,
-    isLoading,
-    setNotificationsAsRead,
-    fetchNotifications,
-    lastRefresh,
-    errorMsg,
-  } = useNotifications();
+  const { notifications, unread, isLoading, setAsRead, fetchNotifications, lastRefresh, errorMsg } =
+    useNotifications();
   const [isMobile, setIsMobile] = useState(false);
   const [postInProg, setPostInProg] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
@@ -66,7 +59,7 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  const ctxValue = {
+  const userCtxValue = {
     isMobile,
     nymOptions,
     setNymOptions,
@@ -77,27 +70,27 @@ export default function App({ Component, pageProps }: AppProps) {
     pushRoute,
   };
 
+  const notificationsCtx = {
+    notifications,
+    unread,
+    isLoading,
+    setAsRead,
+    fetchNotifications,
+    lastRefresh,
+    errorMsg,
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <UserContext.Provider value={ctxValue}>
+        <UserContext.Provider value={userCtxValue}>
+          <Head>
+            <link type="favicon" rel="icon" href="/favicon-3.ico" />
+          </Head>
+          <Seo title={TITLE} description={HOME_DESCRIPTION} />
+          {routeLoading && <RouteLoadingSpinner />}
           <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
-            <Head>
-              <link type="favicon" rel="icon" href="/favicon-3.ico" />
-            </Head>
-            <Seo title={TITLE} description={HOME_DESCRIPTION} />
-            {routeLoading && <RouteLoadingSpinner />}
-            <NotificationsContext.Provider
-              value={{
-                notifications,
-                unread,
-                isLoading,
-                setNotificationsAsRead,
-                fetchNotifications,
-                lastRefresh,
-                errorMsg,
-              }}
-            >
+            <NotificationsContext.Provider value={notificationsCtx}>
               <Header />
               <Component {...pageProps} />
             </NotificationsContext.Provider>

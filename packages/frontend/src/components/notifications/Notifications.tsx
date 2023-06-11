@@ -15,11 +15,12 @@ import { NotificationsTools } from './NotificationsTools';
 export const Notifications = () => {
   const { address } = useAccount();
   const { isMobile, nymOptions, pushRoute } = useContext(UserContext) as UserContextType;
-  const { notifications, unread, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
-    useContext(NotificationsContext) as NotificationsContextType;
-  const [notificationsToShow, setNotificationsToShow] = useState<Notification[]>(notifications);
+  const { notifications, unread, isLoading, setAsRead, fetchNotifications, errorMsg } = useContext(
+    NotificationsContext,
+  ) as NotificationsContextType;
+  const [notsToShow, setNotsToShow] = useState<Notification[]>(notifications);
 
-  useEffect(() => setNotificationsToShow(notifications), [notifications]);
+  useEffect(() => setNotsToShow(notifications), [notifications]);
 
   return (
     <>
@@ -47,22 +48,18 @@ export const Notifications = () => {
                       <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
                     </div>
                   </div>
-                  <NotificationsTools setFiltered={(n) => setNotificationsToShow(n)} />
+                  <NotificationsTools setFiltered={(n) => setNotsToShow(n)} />
                 </div>
-                {notificationsToShow && notificationsToShow.length > 0 ? (
+                {notsToShow && notsToShow.length > 0 ? (
                   <>
-                    {notificationsToShow.slice(0, 5).map((n, i) => {
+                    {notsToShow.slice(0, 5).map((n, i) => {
                       return (
                         <Menu.Item
                           as={'div'}
                           key={i}
                           className="w-full px-3 py-2 rounded-xl bg-white border border-white hover:border-gray-500"
                         >
-                          <SingleNotification
-                            n={n}
-                            setAsRead={setNotificationsAsRead}
-                            trim={true}
-                          />
+                          <SingleNotification n={n} setAsRead={setAsRead} trim={true} />
                         </Menu.Item>
                       );
                     })}

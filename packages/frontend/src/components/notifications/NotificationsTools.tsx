@@ -12,9 +12,7 @@ interface NotificationsToolsProps {
 
 export const NotificationsTools = (props: NotificationsToolsProps) => {
   const { setFiltered } = props;
-  const { notifications, setNotificationsAsRead } = useContext(
-    NotificationsContext,
-  ) as NotificationsContextType;
+  const { notifications, setAsRead } = useContext(NotificationsContext) as NotificationsContextType;
   const { address } = useAccount();
   const [filter, setFilter] = useState('all');
 
@@ -27,7 +25,7 @@ export const NotificationsTools = (props: NotificationsToolsProps) => {
     setFiltered(f === 'unread' ? notifications?.filter((n) => !n.read) : notifications);
   };
 
-  const onMarkAll = () => setNotificationsAsRead({ address, id: '', markAll: true });
+  const onMarkAll = () => setAsRead({ address, id: '', markAll: true });
 
   return (
     <div className="flex justify-between items-center">

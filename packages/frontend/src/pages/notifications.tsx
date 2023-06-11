@@ -15,8 +15,9 @@ export default function Notifications() {
   const { address } = useAccount();
   const isMounted = useIsMounted();
   const { isValid, nymOptions } = useContext(UserContext) as UserContextType;
-  const { notifications, isLoading, setNotificationsAsRead, fetchNotifications, errorMsg } =
-    useContext(NotificationsContext) as NotificationsContextType;
+  const { notifications, isLoading, setAsRead, fetchNotifications, errorMsg } = useContext(
+    NotificationsContext,
+  ) as NotificationsContextType;
   const [notificationsToShow, setNotificationsToShow] = useState<Notification[]>(notifications);
   const [showWalletWarning, setShowWalletWarning] = useState(!address || !isValid);
 
@@ -55,7 +56,7 @@ export default function Notifications() {
                       className="outline-none rounded-xl transition-all shadow-sm bg-white p-3 border border-gray-200 hover:border-gray-500 hover:cursor-pointer w-full"
                       key={i}
                     >
-                      <SingleNotification n={n} setAsRead={setNotificationsAsRead} />
+                      <SingleNotification n={n} setAsRead={setAsRead} />
                     </div>
                   ))
                 ) : (
