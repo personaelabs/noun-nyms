@@ -74,7 +74,6 @@ export const NameSelect = (props: NameSelectProps) => {
                       className="w-full flex justify-between gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
                       onClick={() => {
                         setSelectedName(nym);
-                        close();
                       }}
                     >
                       <NameMenuItem
@@ -91,7 +90,6 @@ export const NameSelect = (props: NameSelectProps) => {
                 className="w-full flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
                 onClick={() => {
                   setSelectedName(doxedName);
-                  close();
                 }}
               >
                 <NameMenuItem
