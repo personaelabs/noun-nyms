@@ -13,7 +13,7 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { Filters } from './post/Filters';
 import { SortSelect } from './post/SortSelect';
-import { scrollToPost } from '@/lib/client-utils';
+import { refetchAndScrollToPost } from '@/lib/client-utils';
 import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 
@@ -41,7 +41,10 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
-  const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
+  const { isMobile, postInProg, pushRoute } = useContext(UserContext) as UserContextType;
+  const [newPostOpen, setNewPostOpen] = useState(false);
+  const [openPostId, setOpenPostId] = useState(initOpenPostId ? initOpenPostId : '');
+  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const {
     isLoading,
@@ -61,18 +64,6 @@ export default function Posts(props: PostsProps) {
     },
   });
 
-  const refetchAndScrollToPost = async (postId?: string) => {
-    await refetch();
-    const post = await scrollToPost(postId);
-    setTimeout(() => {
-      if (post) post.style.setProperty('opacity', '1');
-    }, 1000);
-  };
-
-  const [newPostOpen, setNewPostOpen] = useState(false);
-  const [openPostId, setOpenPostId] = useState<string>(initOpenPostId ? initOpenPostId : '');
-  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
-
   const filterOptions: { [key: string]: string } = {
     timestamp: '⏳ Recent',
     upvotes: '🔥 Top',
@@ -91,11 +82,11 @@ export default function Posts(props: PostsProps) {
     <>
       {newPostOpen && (
         <NewPost
-          handleClose={(postInProg?: string) => {
+          handleClose={() => {
             if (postInProg) setDiscardWarningOpen(true);
             else setNewPostOpen(false);
           }}
-          onSuccess={refetchAndScrollToPost}
+          scrollToPost={async (postId: string) => await refetchAndScrollToPost(refetch, postId)}
         />
       )}
       {discardWarningOpen && (
@@ -141,7 +132,7 @@ export default function Posts(props: PostsProps) {
                     </div>
                   </div>
                   {sortedPosts.map((post) => (
-                    <div className="w-full flex gap-2" key={post.id}>
+                    <div className="w-full flex gap-2 items-center" key={post.id}>
                       <Upvote
                         upvotes={post.upvotes}
                         col={true}
@@ -154,7 +145,7 @@ export default function Posts(props: PostsProps) {
                         {...post}
                         userId={post.userId}
                         handleOpenPost={() => handleOpenPost(post.id)}
-                        onSuccess={refetchAndScrollToPost}
+                        onSuccess={async () => await refetchAndScrollToPost(refetch)}
                       />
                     </div>
                   ))}

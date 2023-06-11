@@ -119,7 +119,7 @@ export const useNotifications = () => {
   const [lastRefresh, setLastRefresh] = useState('');
   const { errorMsg, setError } = useError();
 
-  const setNotificationsAsRead = ({ address, id, markAll }: setReadArgs) => {
+  const setAsRead = ({ address, id, markAll }: setReadArgs) => {
     if (notifications && address) {
       // update notifications in memory
       const newNotifications = notifications.map((n) => {
@@ -205,7 +205,7 @@ export const useNotifications = () => {
   return {
     notifications,
     unread,
-    setNotificationsAsRead,
+    setAsRead,
     setNotifications,
     fetchNotifications,
     isLoading,

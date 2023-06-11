@@ -29,13 +29,7 @@ export const Header = () => {
                   <Image src={logo} alt="logo" />
                 </div>
               </div>
-              <p
-                className={`text-white font-semibold breakText ${
-                  isMobile ? 'text-lg' : 'text-2xl'
-                }`}
-              >
-                PseudoNym
-              </p>
+              {!isMobile && <p className="text-white font-semibold breakText">PseudoNym</p>}
             </div>
             <div className="flex gap-4 items-center">
               {isMounted && address && isValid && <Notifications />}

@@ -1,9 +1,19 @@
-import { Dispatch, MutableRefObject, SetStateAction, useEffect, useRef, useState } from 'react';
+import {
+  Dispatch,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+} from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
 import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 interface IReplyProps extends IPostWithReplies {
   depth: number;
@@ -12,7 +22,7 @@ interface IReplyProps extends IPostWithReplies {
   childrenLength: number;
   postsVisibilityMap: Record<string, number>;
   setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>;
-  onSuccess: (id?: string) => void;
+  onSuccess: (id?: string) => Promise<void>;
   showReplyWriter: boolean;
 }
 export const resolveNestedReplyThreads = (
@@ -20,7 +30,7 @@ export const resolveNestedReplyThreads = (
   depth: number,
   postsVisibilityMap: Record<string, number>,
   setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>,
-  onSuccess: (id?: string) => void,
+  onSuccess: (id?: string) => Promise<void>,
   trail: string[],
   additionalDataKeys: string[][],
   setAdditionalDataKeys: Dispatch<SetStateAction<string[][]>>,
@@ -114,9 +124,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
+  const { postInProg } = useContext(UserContext) as UserContextType;
   const divRef = useRef<HTMLDivElement>(null);
-  const [postInProg, setPostInProg] = useState('');
-  const handleData = (data: string) => setPostInProg(data);
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   const handleCloseWriterAttempt = () => {
@@ -148,8 +157,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <div
         ref={divRef}
         id={id}
-        className="flex flex-col gap-2 transition-all"
-        style={{ marginLeft: `${depth * 10}px`, width: `calc(100% - ${depth * 10}px)` }}
+        className="flex flex-col gap-2 transition-all ml-2"
+        style={{ width: 'calc(100% - 8px)' }}
       >
         <SingleReply
           {...postInfo}
@@ -161,9 +170,8 @@ export const NestedReply = (replyProps: IReplyProps) => {
           {showPostWriter ? (
             <PostWriter
               parentId={id as PrefixedHex}
-              onSuccess={onSuccess}
+              scrollToPost={onSuccess}
               handleCloseWriter={handleCloseWriterAttempt}
-              onProgress={handleData}
             />
           ) : null}
           {innerReplies}

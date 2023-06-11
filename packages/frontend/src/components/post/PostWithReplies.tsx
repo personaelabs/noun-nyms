@@ -13,7 +13,7 @@ import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
 import _ from 'lodash';
-import { scrollToPost } from '@/lib/client-utils';
+import { refetchAndScrollToPost } from '@/lib/client-utils';
 
 const getPostById = async (postId: string, fromRoot = false) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}?fromRoot=${fromRoot}`)).data;
@@ -25,10 +25,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   // deeper data that needed to be fetched and has been correctly added to the tree
   const [combinedData, setCombinedData] = useState<IPostWithReplies | undefined>(undefined);
   const shouldRerenderThreads = useRef(false);
-  const { writerToShow, postId, onData } = postWithRepliesProps;
+  const { writerToShow, postId } = postWithRepliesProps;
   const fromRoot = true;
   const { errorMsg, setError } = useError();
-  const handleData = (data: string) => onData(data);
 
   //array of keys for additional data queries. each key is an array of strings corresponding to the path of the data from the root
   const [additionalDataKeys, setAdditionalDataKeys] = useState<string[][]>([]);
@@ -234,15 +233,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     additionalDataKeys,
     writerToShow,
   ]);
-
-  const refetchAndScrollToPost = async (postId?: string) => {
-    await refetch();
-    const post = await scrollToPost(postId);
-    setTimeout(() => {
-      if (post) post.style.setProperty('opacity', '1');
-    }, 1000);
-  };
-
   useEffect(() => {
     //if post is not the root, scroll to post
     if (singlePost && singlePost.id !== postId) {
@@ -282,8 +272,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
             <PostWriter
               parentId={singlePost.id as PrefixedHex}
-              onSuccess={refetchAndScrollToPost}
-              onProgress={handleData}
+              scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}
             />
             <>
               <h4>

@@ -17,6 +17,8 @@ import usePushRoute from '@/hooks/usePushRoute';
 import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
 import { Header } from '@/components/Header';
 import { useNotifications } from '@/hooks/useNotifications';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorPage } from '@/components/global/ErrorPage';
 
 config.autoAddCss = false;
 
@@ -42,16 +44,10 @@ export const NotificationsContext = createContext<NotificationsContextType | nul
 export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
-  const {
-    notifications,
-    unread,
-    isLoading,
-    setNotificationsAsRead,
-    fetchNotifications,
-    lastRefresh,
-    errorMsg,
-  } = useNotifications();
+  const { notifications, unread, isLoading, setAsRead, fetchNotifications, lastRefresh, errorMsg } =
+    useNotifications();
   const [isMobile, setIsMobile] = useState(false);
+  const [postInProg, setPostInProg] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
 
   useEffect(() => {
@@ -63,32 +59,43 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
+  const userCtxValue = {
+    isMobile,
+    nymOptions,
+    setNymOptions,
+    postInProg,
+    setPostInProg,
+    isValid,
+    routeLoading,
+    pushRoute,
+  };
+
+  const notificationsCtx = {
+    notifications,
+    unread,
+    isLoading,
+    setAsRead,
+    fetchNotifications,
+    lastRefresh,
+    errorMsg,
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <UserContext.Provider
-          value={{ isMobile, nymOptions, setNymOptions, isValid, routeLoading, pushRoute }}
-        >
+        <UserContext.Provider value={userCtxValue}>
           <Head>
             <link type="favicon" rel="icon" href="/favicon-3.ico" />
           </Head>
           <Seo title={TITLE} description={HOME_DESCRIPTION} />
           {routeLoading && <RouteLoadingSpinner />}
-          <NotificationsContext.Provider
-            value={{
-              notifications,
-              unread,
-              isLoading,
-              setNotificationsAsRead,
-              fetchNotifications,
-              lastRefresh,
-              errorMsg,
-            }}
-          >
-            <Header />
-            <Component {...pageProps} />
-          </NotificationsContext.Provider>
-          <ValidUserWarning />
+          <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
+            <NotificationsContext.Provider value={notificationsCtx}>
+              <Header />
+              <Component {...pageProps} />
+            </NotificationsContext.Provider>
+            <ValidUserWarning />
+          </ErrorBoundary>
         </UserContext.Provider>
       </WagmiConfig>
     </QueryClientProvider>

@@ -46,7 +46,7 @@ export type NotificationsContextType = {
   notifications: Notification[];
   unread: Notification[];
   isLoading: boolean;
-  setNotificationsAsRead: (args: setReadArgs) => void;
+  setAsRead: (args: setReadArgs) => void;
   fetchNotifications: (args: setFetchArgs) => Promise<void>;
   lastRefresh: string;
   errorMsg: string;
