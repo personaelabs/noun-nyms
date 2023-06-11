@@ -93,6 +93,7 @@ export const selectAndCleanPosts = async (userId?: string, skip?: number, take?:
   const isNym = userId && !isAddress(userId);
   // Determines whether we are searching for a user's posts or all root posts.
   const where = userId ? { userId: isNym ? userId : userId.toLowerCase() } : { rootId: null };
+  const start = new Date();
   const postsRaw = await prisma.post.findMany({
     select: postPreviewSelect,
     where,
@@ -102,6 +103,8 @@ export const selectAndCleanPosts = async (userId?: string, skip?: number, take?:
       timestamp: 'desc',
     },
   });
+  const end = new Date();
+  console.log(`selectAndCleanPosts took ${end.getTime() - start.getTime()}ms`);
 
   return postsRaw;
 };

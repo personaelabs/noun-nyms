@@ -190,7 +190,10 @@ const handleCreatePseudoPost = async (
 
 // Entry point for the API below /api/v1/posts
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const start = Date.now();
   await prisma.$connect();
+  const end = Date.now();
+  console.log(`Prisma connected in ${end - start}ms`);
 
   if (req.method == 'POST') {
     // Check that specified parent exists
