@@ -23,7 +23,6 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
   // If ens + avatar exists, return image
   const { name, isEns, isDoxed } = useName({ userId });
-  console.log({ name }, { isEns }, { isDoxed });
 
   const userType = type || isDoxed ? NameType.DOXED : NameType.PSEUDO;
 
