@@ -17,14 +17,12 @@ interface IReplyProps {
   depth: number;
   innerReplies: React.ReactNode[];
   childrenLength: number;
-  onSuccess: (id?: string) => Promise<void>;
   showReplyWriter: boolean;
   highlight: boolean;
 }
 export const resolveNestedReplyThreads = (
   postsWithReplies: IPostWithReplies[] | undefined,
   depth: number,
-  onSuccess: (id?: string) => Promise<void>,
   postToHighlight?: string,
   writerToShow?: string,
 ) => {
@@ -38,14 +36,8 @@ export const resolveNestedReplyThreads = (
           showReplyWriter={writerToShow === post.id}
           highlight={postToHighlight === post.id}
           depth={depth}
-          innerReplies={resolveNestedReplyThreads(
-            post.replies,
-            depth + 1,
-            onSuccess,
-            postToHighlight,
-          )}
+          innerReplies={resolveNestedReplyThreads(post.replies, depth + 1, postToHighlight)}
           childrenLength={post._count.replies ? post._count.replies : 0}
-          onSuccess={onSuccess}
         />,
       );
     }
@@ -55,7 +47,7 @@ export const resolveNestedReplyThreads = (
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const { post, innerReplies, childrenLength, onSuccess, showReplyWriter, highlight } = replyProps;
+  const { post, innerReplies, childrenLength, showReplyWriter, highlight } = replyProps;
 
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
   const { isMobile, postInProg } = useContext(UserContext) as UserContextType;
@@ -85,7 +77,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
       if (postOnly) {
         setLocalPost(post);
       } else {
-        const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, onSuccess);
+        const replyComponents = resolveNestedReplyThreads(post.replies, post.depth);
         setReplies(replyComponents);
       }
     } catch (error) {
