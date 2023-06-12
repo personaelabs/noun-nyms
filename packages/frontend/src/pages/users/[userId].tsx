@@ -29,8 +29,6 @@ export default function UserId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const userId = router.query.userId as string;
   const { title, description } = buildSeo(post);
-  const { isMobile, postInProg, pushRoute } = useContext(UserContext) as UserContextType;
-  const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-screen">

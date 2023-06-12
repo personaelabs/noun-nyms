@@ -1,14 +1,11 @@
-import { UserContext } from '@/pages/_app';
-import { UserContextType } from '@/types/components';
 import { faCheck, faLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 
 export const CopyLink = (props: { id: string }) => {
   const { id } = props;
-  const { isMobile } = useContext(UserContext) as UserContextType;
 
-  const [linkCopied, setLinkCopied] = useState<boolean>(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const copyLink = async () => {
     await parent.navigator.clipboard.writeText(window.location.origin + '/posts/' + id);

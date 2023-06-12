@@ -1,5 +1,5 @@
 import { UserAvatar } from './global/UserAvatar';
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
 import { UserContext } from '@/pages/_app';
