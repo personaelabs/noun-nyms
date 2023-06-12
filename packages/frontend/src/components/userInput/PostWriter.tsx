@@ -104,7 +104,7 @@ export const PostWriter = (props: IWriterProps) => {
             signedHandler,
           );
         } else {
-          setUserError('title cannot be empty');
+          setUserError('must select a valid identity to post');
           return;
         }
         setSentPost(true);
