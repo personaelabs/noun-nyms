@@ -18,7 +18,6 @@ const useAccountLocal = () => {
       const res = await axios.get('/api/v1/groups/latest');
       if (address && res && res.status == 200) {
         const data = res.data as TempGroup;
-        console.log(data);
         const exists = data.members.find((m) => m.address.toLowerCase() === address.toLowerCase());
         if (!exists) {
           setValid(false);

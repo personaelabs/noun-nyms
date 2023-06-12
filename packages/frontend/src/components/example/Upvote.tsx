@@ -8,7 +8,6 @@ const UpvoteExample = () => {
 
   const handleUpvoteClick = useCallback(async () => {
     await submitUpvote(postId, signTypedDataAsync);
-    console.log('Upvoted post', postId);
   }, [postId, signTypedDataAsync]);
 
   return (

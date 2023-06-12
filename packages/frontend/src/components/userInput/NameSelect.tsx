@@ -63,7 +63,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 onClick={() => setOpenNewNym(true)}
               >
                 <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
-                <p>New Nym</p>
+                <p>New Pseudo Nym</p>
               </Menu.Item>
               <div className="border-b border-dotted border-gray-300">
                 {nymOptions &&
