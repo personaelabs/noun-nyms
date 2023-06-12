@@ -10,7 +10,12 @@ import {
 } from '@personaelabs/nymjs';
 import axiosBase from 'axios';
 import { getLatestGroup, getPubKeyFromEIP712Sig } from './example-utils';
-import { MerkleProof } from '@personaelabs/spartan-ecdsa';
+
+export interface MerkleProof {
+  root: bigint;
+  siblings: [bigint][];
+  pathIndices: number[];
+}
 
 const axios = axiosBase.create({
   baseURL: `/api/v1`,
