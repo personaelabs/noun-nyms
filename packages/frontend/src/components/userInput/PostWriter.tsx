@@ -54,8 +54,8 @@ export const PostWriter = (props: IWriterProps) => {
   }, [setPostInProg, body, title]);
 
   useEffect(() => {
-    if (!postInProg) clearErrors();
-  }, [postInProg, clearErrors]);
+    if (!postInProg || name) clearErrors();
+  }, [postInProg, name, clearErrors]);
 
   useEffect(() => {
     // ensure that the writer does not close until postInProg is set to false
