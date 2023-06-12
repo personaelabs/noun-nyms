@@ -7,6 +7,9 @@ import { DiscardPostWarning } from '../DiscardPostWarning';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import axios from 'axios';
+import useError from '@/hooks/useError';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface IReplyProps {
   post: IPostWithReplies;
@@ -55,6 +58,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
   const { postInProg } = useContext(UserContext) as UserContextType;
+  const { errorMsg, setError } = useError();
 
   // Post data
   const [replies, setReplies] = useState(innerReplies);
@@ -72,6 +76,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   const refreshPost = async (id: string, postOnly = false) => {
     try {
+      setError('');
       setLoadingLocalFetch(true);
       const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}
     `);
@@ -83,7 +88,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
         setReplies(replyComponents);
       }
     } catch (error) {
-      // TODO: Error handling?
+      setError(error);
     } finally {
       setLoadingLocalFetch(false);
     }
@@ -122,10 +127,19 @@ export const NestedReply = (replyProps: IReplyProps) => {
             />
           ) : null}
           {childrenLength > replies.length && (
-            <div className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
-              <p className="hover:underline font-semibold text-xs ">
-                {loadingLocalFetch ? 'Showing more replies...' : 'Show more replies'}
-              </p>
+            <div className="flex cursor-pointer">
+              {errorMsg ? (
+                <p className="error">
+                  {errorMsg + ' '}
+                  <span>
+                    <FontAwesomeIcon icon={faRefresh} onClick={() => refreshPost(localPost.id)} />
+                  </span>
+                </p>
+              ) : (
+                <p className="hover:underline font-semibold text-xs ">
+                  {loadingLocalFetch ? 'Showing more replies...' : 'Show more replies'}
+                </p>
+              )}
             </div>
           )}
           {replies}

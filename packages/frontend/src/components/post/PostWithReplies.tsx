@@ -13,6 +13,8 @@ import { Upvote } from '../Upvote';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -42,6 +44,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     onError: (error) => {
       setError(error);
     },
+    onSuccess: () => setError(''),
   });
 
   // set the initial post to highlight if singlePost is not the root
@@ -50,7 +53,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       const toHighlight = !singlePost.root ? '' : postId;
       setPostToHighlight(toHighlight);
     }
-  }, [isFetched, postId, singlePost]);
+  }, [isFetched, postId, singlePost, isError, setError]);
 
   // The top Reply is the first post below the root. It can change if parents are fetched for a reply.
   const topReply = useMemo(() => {
@@ -79,13 +82,14 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   }, [topReply, refetch, writerToShow, postToHighlight]);
 
   const fetchParents = async (id: string) => {
-    setLoadingLocalFetch(true);
     try {
+      setError('');
+      setLoadingLocalFetch(true);
       const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}/parents`);
       setPostToHighlight(id);
       setParent(res.data);
     } catch (error) {
-      //TO-DO: error handling
+      setError(error);
     } finally {
       setLoadingLocalFetch(false);
     }
@@ -133,12 +137,19 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-4">
-                {topReply && topReply.depth > 1 ? (
+                {errorMsg && topReply ? (
+                  <p className="error cursor-pointer">
+                    {errorMsg + ' '}
+                    <span>
+                      <FontAwesomeIcon icon={faRefresh} onClick={() => fetchParents(topReply.id)} />
+                    </span>
+                  </p>
+                ) : topReply && topReply.depth > 1 ? (
                   <p
                     className="hover:underline font-semibold text-xs cursor-pointer"
                     onClick={() => fetchParents(topReply.id)}
                   >
-                    {loadingLocalFetch ? 'Fetching parents...' : 'Fetch parents'}
+                    {loadingLocalFetch ? 'Showing parent comments...' : 'Show parent comments'}
                   </p>
                 ) : (
                   <></>
