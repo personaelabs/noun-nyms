@@ -3,7 +3,7 @@ import Posts from '@/components/Posts';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple } from '@/types/api/postSelectSimple';
 import { getSimplePost } from '../api/v1/utils';
-import { Seo, TITLE } from '@/components/global/Seo';
+import { Seo } from '@/components/global/Seo';
 import { UserContext } from '../_app';
 import { UserContextType } from '@/types/components';
 import { PostWithReplies } from '@/components/post/PostWithReplies';

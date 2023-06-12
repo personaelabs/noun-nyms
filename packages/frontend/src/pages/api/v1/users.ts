@@ -52,7 +52,7 @@ const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPost
 
   const upvotesByUserId = countUpvotes(upvotesRecevied);
 
-  const finalCounts = postCounts.map(async ({ userId, _count, _max }) => ({
+  const finalCounts = postCounts.map(({ userId, _count, _max }) => ({
     userId,
     numPosts: _count._all - _count.parentId,
     numReplies: _count.parentId,
@@ -62,7 +62,7 @@ const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPost
     upvotes: userId in upvotesByUserId ? upvotesByUserId[userId] : 0,
   }));
 
-  res.send(await Promise.all(finalCounts));
+  res.send(finalCounts);
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
