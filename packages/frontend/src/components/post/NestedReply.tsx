@@ -57,7 +57,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
   const { post, innerReplies, childrenLength, onSuccess, showReplyWriter, highlight } = replyProps;
 
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
-  const { postInProg } = useContext(UserContext) as UserContextType;
+  const { isMobile, postInProg } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError } = useError();
 
   // Post data
@@ -108,8 +108,9 @@ export const NestedReply = (replyProps: IReplyProps) => {
       <div
         ref={divRef}
         id={localPost.id}
-        className="flex flex-col gap-2 transition-all ml-2"
-        style={{ width: 'calc(100% - 8px)' }}
+        // extra 8px (.5rem) of margin on non-mobile screens
+        className="flex flex-col gap-2 transition-all ml-0 md:ml-2 w-full"
+        style={{ width: `calc(100% - ${isMobile ? 0 : 0.5}rem)` }}
       >
         <SingleReply
           post={localPost}
