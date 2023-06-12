@@ -10,6 +10,7 @@ import axios from 'axios';
 import useError from '@/hooks/useError';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { scrollToPost } from '@/lib/client-utils';
 
 interface IReplyProps {
   post: IPostWithReplies;
@@ -94,6 +95,14 @@ export const NestedReply = (replyProps: IReplyProps) => {
     }
   };
 
+  const refetchAndScrollToPost = async (postId: string) => {
+    await refreshPost(postId);
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
+  };
+
   return (
     <>
       {discardWarningOpen && (
@@ -123,7 +132,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
           {showPostWriter ? (
             <PostWriter
               parentId={localPost.id as PrefixedHex}
-              scrollToPost={onSuccess}
+              scrollToPost={() => refetchAndScrollToPost(localPost.id)}
               handleCloseWriter={handleCloseWriterAttempt}
             />
           ) : null}
