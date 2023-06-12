@@ -21,7 +21,6 @@
   "dependencies": {
     "@ethereumjs/util": "^8.0.5",
     "circomlibjs": "^0.1.7",
-    "ethers": "^5",
-    "snarkjs": "0.5.0"
+    "ethers": "^5"
   }
 }
