@@ -76,7 +76,7 @@ export default function User() {
 
   return (
     <>
-      <main className="flex h-screen w-full flex-col items-center">
+      <main className="flex h-screen bg-gray-50 w-full flex-col items-center">
         {openPost && !isMobile && (
           <PostWithRepliesModal
             writerToShow={writerToShow}
@@ -84,7 +84,7 @@ export default function User() {
             setOpenPostId={setOpenPostId}
           />
         )}
-        <div className="h-full flex flex-col bg-gray-50 max-w-3xl mx-auto w-full p-6">
+        <div className="h-full flex flex-col max-w-3xl mx-auto w-full p-6">
           <div className="flex flex-col gap-4">
             <div
               className="flex gap-1 items-center underline cursor-pointer"
