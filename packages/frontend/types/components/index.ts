@@ -2,7 +2,8 @@ import { PrefixedHex } from '@personaelabs/nymjs';
 import { IPostPreview } from '../api';
 import { Dispatch, SetStateAction } from 'react';
 
-export type PostProps = IPostPreview & {
+export type PostProps = {
+  post: IPostPreview;
   showUserHeader?: boolean;
   handleOpenPost: (writerToShow: string) => void;
   onSuccess: () => Promise<void>;

@@ -1,12 +1,4 @@
-import {
-  Dispatch,
-  MutableRefObject,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-  useContext,
-} from 'react';
+import { useContext, useRef, useState } from 'react';
 import { IPostWithReplies } from '@/types/api';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { PostWriter } from '../userInput/PostWriter';
@@ -14,117 +6,66 @@ import { SingleReply } from './SingleReply';
 import { DiscardPostWarning } from '../DiscardPostWarning';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import axios from 'axios';
+import useError from '@/hooks/useError';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { scrollToPost } from '@/lib/client-utils';
 
-interface IReplyProps extends IPostWithReplies {
+interface IReplyProps {
+  post: IPostWithReplies;
   depth: number;
-  innerReplies: React.ReactNode[] | React.ReactNode;
-  proof: string;
+  innerReplies: React.ReactNode[];
   childrenLength: number;
-  postsVisibilityMap: Record<string, number>;
-  setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>;
   onSuccess: (id?: string) => Promise<void>;
   showReplyWriter: boolean;
+  highlight: boolean;
 }
 export const resolveNestedReplyThreads = (
-  allPosts: IPostWithReplies[],
+  postsWithReplies: IPostWithReplies[] | undefined,
   depth: number,
-  postsVisibilityMap: Record<string, number>,
-  setPostsVisibility: Dispatch<SetStateAction<Record<string, number>>>,
   onSuccess: (id?: string) => Promise<void>,
-  trail: string[],
-  additionalDataKeys: string[][],
-  setAdditionalDataKeys: Dispatch<SetStateAction<string[][]>>,
-  shouldRerenderThreads: MutableRefObject<boolean>,
+  postToHighlight?: string,
   writerToShow?: string,
 ) => {
   const replyNodes: React.ReactNode[] = [];
-
-  const postsToShow = allPosts?.filter((post) => postsVisibilityMap[post.id]);
-
-  if (!postsVisibilityMap || !allPosts || postsToShow.length === 0) {
-    return (
-      <div>
-        <button
-          onClick={() => {
-            if (!allPosts) {
-              // this means we've hit the max depth of comments already loaded on the client
-              // and we may need to fetch deeper comments. we'll do this by adding the trail
-              // to the additionalDataKeys array, which will trigger a rerender of the component
-              const newKeys = [...additionalDataKeys];
-              newKeys.push(trail);
-              shouldRerenderThreads.current = true;
-              setAdditionalDataKeys(newKeys);
-            } else {
-              // set posts at this depth to be visible
-              const newPostsVisibility = { ...postsVisibilityMap };
-              allPosts.forEach((post) => {
-                newPostsVisibility[post.id] = 1;
-              });
-              setPostsVisibility(newPostsVisibility);
-            }
-          }}
-        >
-          {allPosts ? allPosts.length : 'View'} more {allPosts?.length === 1 ? 'reply' : 'replies'}
-        </button>
-      </div>
-    );
+  if (postsWithReplies && postsWithReplies.length > 0) {
+    for (const post of postsWithReplies) {
+      replyNodes.push(
+        <NestedReply
+          post={post}
+          key={post.id}
+          showReplyWriter={writerToShow === post.id}
+          highlight={postToHighlight === post.id}
+          depth={depth}
+          innerReplies={resolveNestedReplyThreads(
+            post.replies,
+            depth + 1,
+            onSuccess,
+            postToHighlight,
+          )}
+          childrenLength={post._count.replies ? post._count.replies : 0}
+          onSuccess={onSuccess}
+        />,
+      );
+    }
   }
 
-  for (const post of allPosts) {
-    const newTrail = [...trail];
-    newTrail.push(post.id);
-
-    // TODO: fix
-    const proof = '';
-
-    replyNodes.push(
-      <NestedReply
-        {...post}
-        key={post.id}
-        showReplyWriter={writerToShow === post.id}
-        depth={depth}
-        postsVisibilityMap={postsVisibilityMap}
-        setPostsVisibility={setPostsVisibility}
-        innerReplies={resolveNestedReplyThreads(
-          post.replies,
-          depth + 1,
-          postsVisibilityMap,
-          setPostsVisibility,
-          onSuccess,
-          newTrail,
-          additionalDataKeys,
-          setAdditionalDataKeys,
-          shouldRerenderThreads,
-          writerToShow,
-        )}
-        proof={proof}
-        childrenLength={post.replies ? post.replies.length : 0}
-        onSuccess={onSuccess}
-      />,
-    );
-  }
   return replyNodes;
 };
 
 export const NestedReply = (replyProps: IReplyProps) => {
-  const {
-    id,
-    body,
-    userId,
-    timestamp,
-    upvotes,
-    depth,
-    innerReplies,
-    childrenLength,
-    postsVisibilityMap,
-    setPostsVisibility,
-    onSuccess,
-    showReplyWriter,
-  } = replyProps;
+  const { post, innerReplies, childrenLength, onSuccess, showReplyWriter, highlight } = replyProps;
 
-  const postInfo = { id, body, userId, timestamp, upvotes };
   const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
-  const { postInProg } = useContext(UserContext) as UserContextType;
+  const { isMobile, postInProg } = useContext(UserContext) as UserContextType;
+  const { errorMsg, setError } = useError();
+
+  // Post data
+  const [replies, setReplies] = useState(innerReplies);
+  const [localPost, setLocalPost] = useState(post);
+  const [loadingLocalFetch, setLoadingLocalFetch] = useState(false);
+
   const divRef = useRef<HTMLDivElement>(null);
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
@@ -134,14 +75,33 @@ export const NestedReply = (replyProps: IReplyProps) => {
     } else setShowPostWriter(!showPostWriter);
   };
 
-  useEffect(() => {
-    if (divRef.current && showReplyWriter) {
-      setTimeout(() => divRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-      const newPostsVisibility = { ...postsVisibilityMap };
-      newPostsVisibility[id] = 1;
-      setPostsVisibility(newPostsVisibility);
+  const refreshPost = async (id: string, postOnly = false) => {
+    try {
+      setError('');
+      setLoadingLocalFetch(true);
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}
+    `);
+      const post = res.data;
+      if (postOnly) {
+        setLocalPost(post);
+      } else {
+        const replyComponents = resolveNestedReplyThreads(post.replies, post.depth, onSuccess);
+        setReplies(replyComponents);
+      }
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoadingLocalFetch(false);
     }
-  }, [id, postsVisibilityMap, setPostsVisibility, showReplyWriter]);
+  };
+
+  const refetchAndScrollToPost = async (postId: string) => {
+    await refreshPost(postId);
+    const post = await scrollToPost(postId);
+    setTimeout(() => {
+      if (post) post.style.setProperty('opacity', '1');
+    }, 1000);
+  };
 
   return (
     <>
@@ -156,25 +116,43 @@ export const NestedReply = (replyProps: IReplyProps) => {
       )}
       <div
         ref={divRef}
-        id={id}
-        className="flex flex-col gap-2 transition-all ml-2"
-        style={{ width: 'calc(100% - 8px)' }}
+        id={localPost.id}
+        // extra 8px (.5rem) of margin on non-mobile screens
+        className="flex flex-col gap-2 transition-all ml-0 md:ml-2 w-full"
+        style={{ width: `calc(100% - ${isMobile ? 0 : 0.5}rem)` }}
       >
         <SingleReply
-          {...postInfo}
+          post={localPost}
+          highlight={highlight}
           replyCount={childrenLength}
-          onSuccess={onSuccess}
+          onUpvote={() => refreshPost(localPost.id, true)}
           replyOpen={showPostWriter}
           handleReply={handleCloseWriterAttempt}
         >
           {showPostWriter ? (
             <PostWriter
-              parentId={id as PrefixedHex}
-              scrollToPost={onSuccess}
+              parentId={localPost.id as PrefixedHex}
+              scrollToPost={() => refetchAndScrollToPost(localPost.id)}
               handleCloseWriter={handleCloseWriterAttempt}
             />
           ) : null}
-          {innerReplies}
+          {childrenLength > replies.length && (
+            <button className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
+              {errorMsg ? (
+                <p className="error">
+                  {errorMsg + ' '}
+                  <span>
+                    <FontAwesomeIcon icon={faRefresh} />
+                  </span>
+                </p>
+              ) : (
+                <p className="hover:underline font-semibold text-xs ">
+                  {loadingLocalFetch ? 'Showing more replies...' : 'Show more replies'}
+                </p>
+              )}
+            </button>
+          )}
+          {replies}
         </SingleReply>
       </div>
     </>

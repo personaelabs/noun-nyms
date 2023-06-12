@@ -7,29 +7,14 @@ import { CopyLink } from './CopyLink';
 import { UserContext } from '@/pages/_app';
 import { useContext } from 'react';
 
-/** Note: Post.tsx handles the state of the modal and formats the timestamp */
-
 export const PostPreview = (postProps: PostProps) => {
-  const {
-    title,
-    id,
-    body,
-    upvotes,
-    timestamp,
-    _count,
-    userId,
-    parent,
-    root,
-    showUserHeader,
-    handleOpenPost,
-    onSuccess,
-  } = postProps;
+  const { post, showUserHeader, handleOpenPost, onSuccess } = postProps;
 
-  const postInfo = { id, body, upvotes, timestamp, userId };
+  const { id, body, timestamp, userId, parent, root, title, _count } = post;
 
   const { name: userName } = useName({ userId });
   const { name: rootName } = useName({ userId: root?.userId });
-  useName({ userId: root?.userId });
+
   const { pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
@@ -68,9 +53,10 @@ export const PostPreview = (postProps: PostProps) => {
               <span>{parent.body}</span>
               <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 10 }}>
                 <SingleReply
-                  {...postInfo}
+                  post={post}
                   replyCount={_count.descendants}
-                  onSuccess={onSuccess}
+                  highlight={false}
+                  onUpvote={onSuccess}
                   replyOpen={false}
                   handleReply={(writerToShow: string) => handleOpenPost(writerToShow)}
                 />

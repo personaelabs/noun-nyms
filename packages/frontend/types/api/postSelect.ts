@@ -2,7 +2,7 @@
 
 import { Prisma } from '@prisma/client';
 
-const selectFields = {
+export const postSelectFields = {
   id: true,
   title: true,
   body: true,
@@ -15,44 +15,74 @@ const selectFields = {
       timestamp: true,
     },
   },
+  depth: true,
   parentId: true,
-};
-
-// We need to hardcode the structure of the query to let Prisma infer the return types.
-// (i.e. we can't use recursive function calls to construct this object)
-export const postSelect = {
-  ...selectFields,
-  replies: {
-    // Depth = 1
+  rootId: true,
+  _count: {
     select: {
-      ...selectFields,
-      replies: {
-        // Depth = 2
-        select: {
-          ...selectFields,
-          replies: {
-            // Depth = 3
-            select: {
-              ...selectFields,
-              replies: {
-                // Depth = 4
-                select: {
-                  ...selectFields,
-                  replies: {
-                    // Depth = 5
-                    select: {
-                      ...selectFields,
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+      replies: true,
+      descendants: true,
     },
   },
 } satisfies Prisma.PostSelect;
 
-type PostPayload = Prisma.PostGetPayload<{ select: typeof postSelect }>;
-export type IPostWithReplies = PostPayload;
+export const rootSelectFields = {
+  ...postSelectFields,
+  _count: {
+    select: {
+      descendants: true,
+    },
+  },
+};
+
+type PostSelect = typeof postSelectFields;
+type IRootPost = Prisma.PostGetPayload<{ select: typeof rootSelectFields }>;
+
+export type NestedPostSelect = PostSelect & {
+  replies?: { select: NestedPostSelect };
+};
+
+export type NestedParentPostSelect = PostSelect & {
+  parent?: { select: NestedParentPostSelect };
+};
+
+export function buildPostSelect(depth: number): NestedPostSelect {
+  if (depth === 0) {
+    return { ...postSelectFields };
+  }
+
+  const nestedReplies = buildPostSelect(depth - 1);
+
+  return {
+    ...postSelectFields,
+    replies: {
+      select: nestedReplies,
+    },
+  };
+}
+
+export function buildParentPostSelect(depth: number): NestedParentPostSelect {
+  if (depth === 0) {
+    return { ...postSelectFields };
+  }
+
+  const nestedReplies = buildParentPostSelect(depth - 1);
+
+  return {
+    ...postSelectFields,
+    parent: {
+      select: nestedReplies,
+    },
+  };
+}
+
+type PostPayload = Prisma.PostGetPayload<{ select: NestedPostSelect }>;
+type NestedPostPayload = PostPayload & {
+  replies?: NestedPostPayload[];
+};
+
+type ParentPostPayload = Prisma.PostGetPayload<{ select: NestedParentPostSelect }>;
+type NestedParent = ParentPostPayload & { parent?: NestedParent };
+
+export type IPostWithParents = NestedParent;
+export type IPostWithReplies = NestedPostPayload & { root?: IRootPost | null };

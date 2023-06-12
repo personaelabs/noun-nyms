@@ -1,47 +1,37 @@
+import { POST_DEPTH } from '@/lib/constants';
 import prisma from '@/lib/prisma';
-import { postSelect, IPostWithReplies, postPreviewSelect } from '@/types/api';
+import { IPostWithReplies, buildPostSelect, rootSelectFields } from '@/types/api';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-// Return a single post and all of its replies till depth = 5
-// TODO: Return all replies with a much higher depth limit
-const handleGetPost = async (
-  req: NextApiRequest,
-  res: NextApiResponse<IPostWithReplies | { error: string }>,
-) => {
-  const fromRoot = !!(req.query.fromRoot && req.query.fromRoot == 'true');
-
-  // If fromRoot is true, we get the rootId of the given post
-  let id = req.query.postId as string;
-  // First get postPreview.
-  if (fromRoot) {
-    const postPreview = await prisma.post.findFirst({
-      select: postPreviewSelect,
-      where: {
-        id,
-      },
-    });
-    if (postPreview) {
-      // Get the root id if it exists
-      const { root, ...post } = postPreview;
-      const topContent = root || post;
-      const { id: topId } = topContent;
-      id = topId;
-    }
-  }
+export const getPostWithReplies = async (id: string) => {
+  const select = buildPostSelect(POST_DEPTH);
 
   const postWithReplies = await prisma.post.findFirst({
-    select: postSelect,
+    select: { ...select, root: { select: { ...rootSelectFields } } },
     where: {
       id,
     },
   });
 
-  if (!postWithReplies) {
-    res.status(404).send({ error: 'Post not found' });
+  if (!postWithReplies) throw new Error(`no post with replies found`);
+
+  const result: IPostWithReplies = { ...postWithReplies };
+
+  return result;
+};
+const handleGetPost = async (
+  req: NextApiRequest,
+  res: NextApiResponse<IPostWithReplies | { error: string }>,
+) => {
+  let id = req.query.postId as string;
+  if (!id) {
+    res.status(404).send({ error: 'Id not found' });
     return;
   }
 
-  res.send(postWithReplies);
+  const result = await getPostWithReplies(id);
+
+  res.send(result);
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

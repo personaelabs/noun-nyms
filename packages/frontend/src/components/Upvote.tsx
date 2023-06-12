@@ -11,6 +11,7 @@ import { Modal } from './global/Modal';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
+import { UserName } from './global/UserName';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -100,13 +101,13 @@ export const Upvote = (props: UpvoteIconProps) => {
           onPointerLeave={() => setShowUsers(false)}
         >
           <div className="hover:font-bold">{children}</div>
-          {showUsers && (
-            <div className="absolute top-full mt-2 w-[100px] bg-gray-800 rounded-xl p-2 flex">
+          {showUsers && upvotes.length > 0 && (
+            <div className="absolute top-full mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2 flex">
               <div className="min-w-0 shrink">
                 {upvotes.map((u) => {
                   return (
                     <p key={u.id} className="w-full text-white breakText">
-                      {u.address}
+                      <UserName userId={u.address} />
                     </p>
                   );
                 })}
