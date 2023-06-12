@@ -12,7 +12,6 @@
         <img src="https://img.shields.io/twitter/follow/personae_labs?label=personae_labs&style=flat&logo=twitter&color=1DA1F2" alt="Twitter">
     </a>
 </div>
-# Nym dev
 
 <div align="center">
     <br>
@@ -20,6 +19,8 @@
     <a href="https://nouns.nymz.xyz/api-doc"><b>Public API Docs »</b></a>
     <a href="https://discord.gg/3NQm99v3Vp"><b>Support »</b></a>
 </div>
+
+## Nym Dev
 
 ## How does it work?
 
