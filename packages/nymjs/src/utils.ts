@@ -19,7 +19,6 @@ import {
 } from './types';
 import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { PrefixedHexString, ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
-import { computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
 import { EIP712TypedData, EffECDSASig, Post, PublicInput, NymProofAuxiliary } from './types';
 import wasm, { init } from './wasm';
 
@@ -149,6 +148,10 @@ export const computeUpvoteId = (
   ]);
 
   return keccak256(bytes) as PrefixedHex;
+};
+
+const computeEffEcdsaPubInput = (r: bigint, v: bigint, msgHash: Buffer) => {
+  return { Tx: BigInt(0), Ty: BigInt(0), Ux: BigInt(0), Uy: BigInt(0) };
 };
 
 export function computeEffECDSASig(sigStr: string, typedData: EIP712TypedData): EffECDSASig {

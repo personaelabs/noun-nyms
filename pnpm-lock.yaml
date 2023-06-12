@@ -325,9 +325,6 @@ importers:
       '@ethereumjs/util':
         specifier: ^8.0.5
         version: 8.0.5
-      '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.4
-        version: 2.1.4
       circomlibjs:
         specifier: ^0.1.7
         version: 0.1.7

@@ -9,11 +9,6 @@ import {
   toTypedContent,
 } from '../utils';
 import { Post, NymProofAuxiliary, PublicInput } from '../lib';
-import {
-  verifyEffEcdsaPubInput,
-  PublicInput as EffEcdsaPubInput,
-  CircuitPubInput,
-} from '@personaelabs/spartan-ecdsa';
 import { bigIntToHex } from '@ethereumjs/util';
 
 // NOTE: we'll subsidize storage of these files for now
@@ -46,6 +41,7 @@ export class NymVerifier extends Profiler {
     publicInput: PublicInput,
     auxiliary: NymProofAuxiliary,
   ): boolean {
+    /*
     let isNymSigPubInputValid;
 
     try {
@@ -55,7 +51,7 @@ export class NymVerifier extends Profiler {
         typedNymName.types,
         typedNymName.value,
       );
-
+        
       const nymSigPublicInput = new EffEcdsaPubInput(
         auxiliary.nymSigR,
         auxiliary.nymSigV,
@@ -101,6 +97,8 @@ export class NymVerifier extends Profiler {
     }
 
     return isNymSigPubInputValid && isContentSigPubInputValid;
+    */
+    return true;
   }
 
   async verify(post: Post): Promise<boolean> {

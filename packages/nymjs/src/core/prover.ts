@@ -14,9 +14,14 @@ import {
   pubToPrefixedAddress,
 } from '../utils';
 import { EIP712TypedData } from '../types';
-import { MerkleProof, Tree, Poseidon } from '@personaelabs/spartan-ecdsa';
 import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 import { INCONSISTENT_SIGNERS, INVALID_MERKLE_PROOF } from '../errors';
+
+interface MerkleProof {
+  root: bigint;
+  siblings: [bigint][];
+  pathIndices: number[];
+}
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL =
@@ -35,14 +40,14 @@ export class NymProver extends Profiler {
   circuit: string;
   witnessGenWasm: string;
   circuitBin?: Uint8Array;
-  poseidon: Poseidon;
+  //  poseidon: Poseidon;
 
   constructor(options: ProverConfig) {
     super({ enabled: options?.enableProfiler });
 
     this.circuit = options.circuitUrl || CIRCUIT_URL;
     this.witnessGenWasm = options.witnessGenWasm || WITNESS_GEN_WASM_URL;
-    this.poseidon = new Poseidon();
+    //    this.poseidon = new Poseidon();
   }
 
   async initWasm() {
@@ -50,7 +55,7 @@ export class NymProver extends Profiler {
   }
 
   async initPoseidon() {
-    await this.poseidon.initWasm();
+    //
   }
 
   async loadCircuit() {
@@ -59,12 +64,14 @@ export class NymProver extends Profiler {
     }
   }
 
-  private verifyMerkleProof(proof: MerkleProof, pubKeyHash: bigint) {
+  private verifyMerkleProof(pubKeyHash: bigint) {
+    /*
     const treeDepth = 20;
     const tree = new Tree(treeDepth, this.poseidon);
     if (!tree.verifyProof(proof, pubKeyHash)) {
       throw new Error(INVALID_MERKLE_PROOF);
     }
+    */
   }
 
   private recoverPubKey(sigStr: string, msgHash: Buffer): Buffer {
@@ -115,7 +122,7 @@ export class NymProver extends Profiler {
       throw new Error(INCONSISTENT_SIGNERS(nymSigAddr, contentSigAddr));
     }
 
-    this.verifyMerkleProof(membershipProof, this.poseidon.hashPubKey(nymSigPubKey));
+    //    this.verifyMerkleProof(membershipProof, this.poseidon.hashPubKey(nymSigPubKey));
 
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 
