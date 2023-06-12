@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown, faUser } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
-import { getUserIdFromName } from '@/lib/example-utils';
+import { getUserIdFromName } from '@/lib/client-utils';
 
 export const MyProfile = ({ address }: { address: string }) => {
   const { isMobile, nymOptions, isValid, pushRoute } = useContext(UserContext) as UserContextType;

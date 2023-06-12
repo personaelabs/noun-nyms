@@ -1,5 +1,5 @@
 import useName from '@/hooks/useName';
-import { trimAddress } from '@/lib/example-utils';
+import { trimAddress } from '@/lib/client-utils';
 
 interface UserAvatarProps {
   userId: string;

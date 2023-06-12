@@ -9,7 +9,7 @@ import {
   setReadArgs,
 } from '@/types/notifications';
 import { getNymOptions } from './useUserInfo';
-import { fromNowDate, getUserIdFromName } from '@/lib/example-utils';
+import { fromNowDate, getUserIdFromName } from '@/lib/client-utils';
 import { useAccount } from 'wagmi';
 import useError from './useError';
 
