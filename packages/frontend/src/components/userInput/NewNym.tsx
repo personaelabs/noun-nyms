@@ -6,6 +6,7 @@ import { useSignTypedData } from 'wagmi';
 import { ClientName, LocalNym, NameType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useError from '@/hooks/useError';
+import Confetti from 'react-confetti';
 
 interface NewNymProps {
   address: string;
@@ -41,8 +42,9 @@ const generateRandomString = (length: number) => {
 
 export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
-  const [nymName, setNymName] = useState<string>('');
-  const [loadingNym, setLoadingNym] = useState<boolean>(false);
+  const [nymName, setNymName] = useState('');
+  const [loadingNym, setLoadingNym] = useState(false);
+  const [success, setSuccess] = useState(false);
   const { errorMsg, setError } = useError();
   const existingNames = useMemo(() => nymOptions.map((nym) => nym.name), [nymOptions]);
   const { signTypedDataAsync } = useSignTypedData();
@@ -72,8 +74,9 @@ export const NewNym = (props: NewNymProps) => {
       const newNym = { type: NameType.PSEUDO, name: nymName, nymSig, nymHash };
       setNymOptions([...nymOptions, newNym]);
       setSelectedName(newNym);
-      handleClose();
+      // handleClose();
       setLoadingNym(false);
+      setSuccess(true);
     } catch (error) {
       setError(error);
       setLoadingNym(false);
@@ -113,13 +116,21 @@ export const NewNym = (props: NewNymProps) => {
           </button>
         </div>
         <div className="flex justify-center">
-          <MainButton
-            color="#0E76FD"
-            message="Confirm"
-            loading={loadingNym}
-            handler={handleNewNym}
-            disabled={nymName === ''}
-          />
+          {success ? (
+            <Confetti
+              recycle={false}
+              numberOfPieces={502}
+              onConfettiComplete={() => handleClose()}
+            />
+          ) : (
+            <MainButton
+              color="#0E76FD"
+              message="Confirm"
+              loading={loadingNym}
+              handler={handleNewNym}
+              disabled={nymName === ''}
+            />
+          )}
         </div>
       </div>
     </Modal>
