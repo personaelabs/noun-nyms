@@ -8,6 +8,8 @@ import { UserContextType } from '@/types/components';
 import { useAccount } from 'wagmi';
 import { Notifications } from './notifications/Notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
 export const Header = () => {
   const { address } = useAccount();
@@ -26,16 +28,28 @@ export const Header = () => {
                 onClick={() => pushRoute('/')}
               >
                 <div>
-                  <div className="w-[35px] md:w-auto">
+                  <div className="w-[35px]">
                     <Image src={logo} alt="logo" />
                   </div>
                 </div>
-                {!isMobile && <h3 className="text-white font-semibold breakText">PseudoNym</h3>}
+                {!isMobile && <h3 className="text-white font-semibold breakText">Noun Nyms</h3>}
               </div>
               <div className="flex gap-4 items-center">
                 {isMounted && address && isValid && <Notifications />}
                 {(!isMobile || !address || !isValid) && <ConnectWallet />}
-                {isMounted && address && <MyProfile address={address} />}
+                {isMounted && address ? (
+                  <MyProfile address={address} />
+                ) : (
+                  <button
+                    className="flex items-center gap-2 rounded-xl px-2 py-1 h-10 border border-white hover:scale-105 active:scale-100 transition-all"
+                    onClick={() => pushRoute('/users')}
+                  >
+                    <div className="flex gap-2 items-center">
+                      <FontAwesomeIcon icon={faUsers} color={'#ffffff'} />
+                      <p className="text-white font-semibold">All Users</p>
+                    </div>
+                  </button>
+                )}
               </div>
             </nav>
             {!isMobile && (

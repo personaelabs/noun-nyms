@@ -4,7 +4,7 @@ import { NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
 import { UserContext } from '@/pages/_app';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDown, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faUsers } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
 import { getUserIdFromName } from '@/lib/client-utils';
@@ -58,22 +58,12 @@ export const MyProfile = ({ address }: { address: string }) => {
               className="min-w-0 shrink w-full flex items-center gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
               onClick={() => pushRoute('/users')}
             >
-              <FontAwesomeIcon className="w-6" icon={faUser} />
+              <FontAwesomeIcon className="w-6" icon={faUsers} />
               <p>All Users</p>
             </Menu.Item>
           </Menu.Items>
         </Menu>
-      ) : (
-        <div
-          className="flex items-center gap-2 rounded-xl px-2 py-1 h-10 border border-white hover:scale-105 active:scale-100 transition-all"
-          onClick={() => pushRoute('/users')}
-        >
-          <div className="flex gap-2 items-center">
-            <FontAwesomeIcon icon={faUser} color={'#ffffff'} />
-            <p className="text-white font-semibold">All Users</p>
-          </div>
-        </div>
-      )}
+      ) : null}
     </>
   );
 };

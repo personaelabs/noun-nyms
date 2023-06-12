@@ -123,7 +123,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6 pb-10">
             <PostWriter
               parentId={root.id as PrefixedHex}
               scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}

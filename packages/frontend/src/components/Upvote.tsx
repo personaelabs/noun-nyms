@@ -102,7 +102,7 @@ export const Upvote = (props: UpvoteIconProps) => {
         >
           <div className="hover:font-bold">{children}</div>
           {showUsers && upvotes.length > 0 && (
-            <div className="absolute top-full mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2 flex">
+            <div className="absolute top-full mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2 flex z-50">
               <div className="min-w-0 shrink">
                 {upvotes.map((u) => {
                   return (
