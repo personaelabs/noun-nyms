@@ -12,7 +12,12 @@ export const fromNowDate = (date: Date) => {
 
 export const getUserIdFromName = (user: ClientName): string => {
   if (user.name) {
-    return user.type === NameType.PSEUDO ? `${user.name}-${user.nymHash}` : user.name;
+    if (user.type === NameType.PSEUDO) {
+      return `${user.name}-${user.nymHash}`;
+    } else if (user.isEns && user.userId) return user.userId;
+    else {
+      return user.name;
+    }
   } else return '';
 };
 

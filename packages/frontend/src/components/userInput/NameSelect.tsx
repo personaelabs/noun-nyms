@@ -21,7 +21,13 @@ export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName, openMenuAbove } = props;
   const { address } = useAccount();
   const { isValid, nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
-  const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
+  const { name, isEns } = useName({ userId: address });
+  const doxedName = {
+    type: NameType.DOXED,
+    name,
+    userId: address,
+    isEns,
+  };
   const [openNewNym, setOpenNewNym] = useState(false);
 
   return (
