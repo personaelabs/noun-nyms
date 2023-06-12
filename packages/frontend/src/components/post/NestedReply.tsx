@@ -127,12 +127,12 @@ export const NestedReply = (replyProps: IReplyProps) => {
             />
           ) : null}
           {childrenLength > replies.length && (
-            <div className="flex cursor-pointer">
+            <button className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
               {errorMsg ? (
                 <p className="error">
                   {errorMsg + ' '}
                   <span>
-                    <FontAwesomeIcon icon={faRefresh} onClick={() => refreshPost(localPost.id)} />
+                    <FontAwesomeIcon icon={faRefresh} />
                   </span>
                 </p>
               ) : (
@@ -140,7 +140,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
                   {loadingLocalFetch ? 'Showing more replies...' : 'Show more replies'}
                 </p>
               )}
-            </div>
+            </button>
           )}
           {replies}
         </SingleReply>

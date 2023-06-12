@@ -137,22 +137,23 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-4">
-                {errorMsg && topReply ? (
-                  <p className="error cursor-pointer">
-                    {errorMsg + ' '}
-                    <span>
-                      <FontAwesomeIcon icon={faRefresh} onClick={() => fetchParents(topReply.id)} />
-                    </span>
-                  </p>
-                ) : topReply && topReply.depth > 1 ? (
-                  <p
-                    className="hover:underline font-semibold text-xs cursor-pointer"
-                    onClick={() => fetchParents(topReply.id)}
-                  >
-                    {loadingLocalFetch ? 'Showing parent comments...' : 'Show parent comments'}
-                  </p>
-                ) : (
-                  <></>
+                {topReply && (
+                  <button className="w-max" onClick={() => fetchParents(topReply.id)}>
+                    {errorMsg ? (
+                      <p className="error cursor-pointer">
+                        {errorMsg + ' '}
+                        <span>
+                          <FontAwesomeIcon icon={faRefresh} />
+                        </span>
+                      </p>
+                    ) : topReply && topReply.depth > 1 ? (
+                      <p className="hover:underline font-semibold text-xs cursor-pointer">
+                        {loadingLocalFetch ? 'Showing parent comments...' : 'Show parent comments'}
+                      </p>
+                    ) : (
+                      <></>
+                    )}
+                  </button>
                 )}
                 <div className="flex flex-col gap-6 w-full justify-center items-center">
                   {nestedComponentThreads}
