@@ -38,7 +38,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
 
   return (
     <div className="flex flex-col h-screen">
-      <Seo title={title} description={description} />
+      <Seo ogTitle={title} ogDescription={description} />
       {openPostId &&
         (isMobile ? (
           <>

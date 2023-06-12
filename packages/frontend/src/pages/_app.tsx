@@ -87,7 +87,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Head>
             <link type="favicon" rel="icon" href="/favicon-3.ico" />
           </Head>
-          <Seo title={TITLE} description={HOME_DESCRIPTION} />
+          <Seo />
           {routeLoading && <RouteLoadingSpinner />}
           <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
             <NotificationsContext.Provider value={notificationsCtx}>
