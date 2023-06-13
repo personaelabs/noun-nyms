@@ -1,5 +1,3 @@
-// @ts-ignore
-const snarkJs = require('snarkjs');
 import * as fs from 'fs';
 import { keccak256 } from 'ethers/lib/utils';
 import {
@@ -33,6 +31,9 @@ export const snarkJsWitnessGen = async (input: any, wasmFile: string) => {
   } = {
     type: 'mem',
   };
+
+  // @ts-ignore
+  const snarkJs = await import('snarkjs');
 
   await snarkJs.wtns.calculate(input, wasmFile, witness);
   return witness;
