@@ -5,8 +5,13 @@ import { createPublicClient, http, isAddress } from 'viem';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
 import { mainnet } from 'viem/chains';
-import { splitNym } from '@/lib/client-utils';
 
+// Duplicating here to avoid tests failing on Github. weird.
+const splitNym = (str: string) => {
+  const parts = str.split('-');
+  const result = parts.slice(0, parts.length - 1).join('-');
+  return { nymName: result, nymHash: parts[parts.length - 1] };
+};
 export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
   const node = await prisma.treeNode.findFirst({
     where: {
