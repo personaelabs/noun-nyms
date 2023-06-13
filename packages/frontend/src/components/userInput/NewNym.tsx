@@ -85,7 +85,14 @@ export const NewNym = (props: NewNymProps) => {
   };
   return (
     <Modal width="60%" handleClose={handleClose}>
-      {newNym && <Confetti recycle={false} numberOfPieces={502} onConfettiComplete={() => ''} />}
+      {newNym && (
+        <Confetti
+          recycle={false}
+          numberOfPieces={502}
+          width={Math.floor(window.innerWidth * 0.6)}
+          onConfettiComplete={() => ''}
+        />
+      )}
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
           <h3>{newNym ? `New pseudoynm created!` : `Create a new pseudo nym`}</h3>
