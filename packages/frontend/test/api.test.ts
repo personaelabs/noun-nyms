@@ -32,7 +32,6 @@ import {
   EMPTY_TITLE,
   EMPTY_BODY,
 } from '@/lib/errors';
-import { prisma } from '@prisma/client';
 
 // Create a supertest client from the Next.js API route handler
 const createTestClient = (handler: NextApiHandler, query: { [key: string]: string | number }) => {
