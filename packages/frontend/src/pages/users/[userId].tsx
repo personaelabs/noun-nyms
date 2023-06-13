@@ -13,7 +13,13 @@ export async function getServerSideProps(
 
 const buildSeo = (user?: IUser) => {
   const name = user?.name || '';
-  const description = `${user?.totalPosts} posts\n️${user?.upvotesReceived} upvotes received`;
+  const numPosts = user?.totalPosts || 0;
+  const upvotesReceived = user?.upvotesReceived || 0;
+  const postDescription = `${numPosts} ${numPosts === 1 ? `post` : `posts`}`;
+  const upvoteDescription = `️${upvotesReceived} ${
+    upvotesReceived === 1 ? `upvote` : `upvotes`
+  } received`;
+  const description = `${postDescription}\n${upvoteDescription}`;
   return { title: name, description };
 };
 
