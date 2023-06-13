@@ -6,6 +6,12 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { ClientName, NameType } from '@/types/components';
 dayjs.extend(relativeTime);
 
+export const splitNym = (str: string) => {
+  const parts = str.split('-');
+  const result = parts.slice(0, parts.length - 1).join('-');
+  return { nymName: result, nymHash: parts[parts.length - 1] };
+};
+
 export const fromNowDate = (date: Date) => {
   return dayjs(date).fromNow();
 };

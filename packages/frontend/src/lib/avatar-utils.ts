@@ -1,5 +1,6 @@
 import MersenneTwister from 'mersenne-twister';
 import { isAddress } from 'viem';
+import { splitNym } from './client-utils';
 
 // generate count random numbers from a hash within each respective range
 function generateRandomNumbersFromHash(hash: string, count: number, ranges: number[]): number[] {
@@ -20,7 +21,7 @@ function generateRandomNumbersFromHash(hash: string, count: number, ranges: numb
   } else {
     // if it's a nym we need to remove the nym code prefix
     seed =
-      Number(parseInt(hash.split('-')[1], 16).toString().substring(0, 12)) *
+      Number(parseInt(splitNym(hash).nymHash, 16).toString().substring(0, 12)) *
       10000000000000000000000;
   }
 

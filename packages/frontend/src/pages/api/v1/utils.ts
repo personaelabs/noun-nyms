@@ -5,6 +5,7 @@ import { createPublicClient, http, isAddress } from 'viem';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
 import { mainnet } from 'viem/chains';
+import { splitNym } from '@/lib/client-utils';
 
 export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
   const node = await prisma.treeNode.findFirst({
@@ -17,7 +18,7 @@ export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
 };
 
 export const isNymValid = (nym: string): boolean => {
-  const [nymName, nymHash] = nym.split('-');
+  const { nymHash } = splitNym(nym);
   return nymHash.length === 64;
 };
 
@@ -144,9 +145,7 @@ export const userIdToName = async (userId: string) => {
     });
     return ensName || userId;
   } else {
-    const parts = userId.split('-');
-    const extractedValue = parts.slice(0, -1).join('-');
-    return extractedValue;
+    return splitNym(userId).nymName;
   }
 };
 
