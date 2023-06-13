@@ -1,5 +1,3 @@
-// Select query for the route GET /posts/{postId}
-
 import { Prisma } from '@prisma/client';
 
 export const selectFields = {

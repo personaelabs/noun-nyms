@@ -6,7 +6,6 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { useRouter } from 'next/router';
 import { useContext, useMemo, useState } from 'react';
 import { UserContext } from '../pages/_app';
 import { PostWithRepliesModal } from '@/components/post/PostWithRepliesModal';
@@ -27,15 +26,13 @@ const filterPosts = (posts: IPostPreview[] | undefined, query: string) => {
   } else return posts;
 };
 
-export default function User() {
-  const router = useRouter();
+export default function User({ userId }: { userId: string }) {
   const { errorMsg, setError } = useError();
-  const userId = router.query.userId as string;
 
   const filterOptions: { [key: string]: string } = {
     all: 'All',
     posts: 'Posts',
-    replies: 'Comments',
+    replies: 'Replies',
   };
 
   const {

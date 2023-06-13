@@ -1,6 +1,6 @@
 import { deserializeNymAttestation } from '@personaelabs/nymjs';
 import prisma from '@/lib/prisma';
-import { postPreviewSelect } from '@/types/api';
+import { IUser, postPreviewSelect } from '@/types/api';
 import { createPublicClient, http, isAddress } from 'viem';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
@@ -161,8 +161,11 @@ export const getSimplePost = async (
       id: id as string,
     },
   });
+
+  let post: IPostSimple | null = null;
+
   if (postSimple) {
-    const post: IPostSimple = {
+    const simple: IPostSimple = {
       title: postSimple.title,
       body: postSimple.body,
       timestamp: postSimple.timestamp.getTime(),
@@ -171,16 +174,30 @@ export const getSimplePost = async (
       userId: postSimple.userId,
     };
 
-    return {
-      props: {
-        post,
-      },
-    };
-  } else {
-    return {
-      props: {
-        post: null,
-      },
-    };
+    post = simple;
   }
+  return { props: { post: post } };
+};
+
+// Count total number of
+export const getSimpleUser = async (
+  context: GetServerSidePropsContext,
+): Promise<{ props: { user: IUser | null } }> => {
+  const userId = context.query.userId as string;
+  let user: IUser | null = null;
+  if (userId) {
+    const totalPosts = await prisma.post.count({
+      where: { userId },
+    });
+    const upvotesReceived = await prisma.doxedUpvote.count({
+      where: {
+        post: {
+          userId,
+        },
+      },
+    });
+    user = { userId, totalPosts, upvotesReceived, name: await userIdToName(userId) };
+  }
+
+  return { props: { user: user } };
 };

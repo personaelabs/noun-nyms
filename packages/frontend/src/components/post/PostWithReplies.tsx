@@ -144,7 +144,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                       </p>
                     ) : topReply && topReply.depth > 1 ? (
                       <p className="hover:underline font-semibold text-xs cursor-pointer">
-                        {loadingLocalFetch ? 'Showing parent comments...' : 'Show parent comments'}
+                        {loadingLocalFetch ? 'Showing parent replies...' : 'Show parent replies'}
                       </p>
                     ) : (
                       <></>
