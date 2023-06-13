@@ -78,6 +78,7 @@ export const NestedReply = (replyProps: IReplyProps) => {
         setLocalPost(post);
       } else {
         const replyComponents = resolveNestedReplyThreads(post.replies, post.depth);
+        setLocalPost(post);
         setReplies(replyComponents);
       }
     } catch (error) {
