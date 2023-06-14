@@ -23,7 +23,7 @@
       "posts": "Posts",
       "replies": "Replies"
     },
-    "allUsers": "All users"
+    "backButtonText": "All users"
   },
   "userTag": {
     "lastActive": "Last active",
@@ -36,10 +36,11 @@
       "upvotes": "🔥 Top"
     },
     "buttonText": "Start Discussion",
+    "action": "post",
     "fetchError": "Could not fetch posts:"
   },
   "postId": {
-    "allPosts": "All posts"
+    "backButtonText": "All posts"
   },
   "upvote": {
     "fetchError": "Could not upvote:",

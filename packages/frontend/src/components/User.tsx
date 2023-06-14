@@ -90,7 +90,7 @@ export default function User({ userId }: { userId: string }) {
               onClick={() => pushRoute('/users')}
             >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
-              <p>{TEXT.allUsers}</p>
+              <p>{TEXT.backButtonText}</p>
             </div>
             <div className="flex gap-2 items-center">
               <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">

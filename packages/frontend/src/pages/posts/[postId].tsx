@@ -61,7 +61,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
               }}
             >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
-              <p>{TEXT.allPosts}</p>
+              <p>{TEXT.backButtonText}</p>
             </div>
             <PostWithReplies postId={openPostId} />
           </>

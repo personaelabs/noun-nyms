@@ -18,6 +18,8 @@ import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 import { useEffect } from 'react';
 import text from '@/lib/text.json';
+import { WalletWarning } from './WalletWarning';
+import { useAccount } from 'wagmi';
 
 const PER_FETCH = 20;
 const getPosts = async ({ pageParam = 0 }: { pageParam?: number }, filter: String) => {
@@ -42,10 +44,12 @@ export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const TEXT = text.posts;
   const { errorMsg, setError } = useError();
+  const { address } = useAccount();
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState(initOpenPostId ? initOpenPostId : '');
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
-  const { isMobile, pushRoute, postInProg } = useContext(UserContext) as UserContextType;
+  const [showWalletWarning, setShowWalletWarning] = useState(false);
+  const { isMobile, isValid, pushRoute, postInProg } = useContext(UserContext) as UserContextType;
   const [filter, setFilter] = useState<string>('timestamp');
 
   const { isLoading, isFetchingNextPage, isError, refetch, fetchNextPage, data } = useInfiniteQuery(
@@ -115,6 +119,9 @@ export default function Posts(props: PostsProps) {
           }}
         />
       )}
+      {showWalletWarning && (
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
+      )}
       {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -138,7 +145,11 @@ export default function Posts(props: PostsProps) {
                   <MainButton
                     color="#0E76FD"
                     message={TEXT.buttonText}
-                    handler={() => setNewPostOpen(true)}
+                    handler={() => {
+                      if (!address || !isValid) {
+                        setShowWalletWarning(true);
+                      } else setNewPostOpen(true);
+                    }}
                   />
                 </div>
               </div>
