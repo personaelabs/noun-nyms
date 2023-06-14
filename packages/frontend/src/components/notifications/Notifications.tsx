@@ -11,6 +11,7 @@ import { UserContextType } from '@/types/components';
 import { Notification, NotificationsContextType } from '@/types/notifications';
 import { RetryError } from '../global/RetryError';
 import { NotificationsTools } from './NotificationsTools';
+import text from '@/lib/text.json';
 
 export const Notifications = () => {
   const { address } = useAccount();
@@ -19,6 +20,7 @@ export const Notifications = () => {
     NotificationsContext,
   ) as NotificationsContextType;
   const [notsToShow, setNotsToShow] = useState<Notification[]>(notifications);
+  const TEXT = text.notifications;
 
   useEffect(() => setNotsToShow(notifications), [notifications]);
 
@@ -42,7 +44,7 @@ export const Notifications = () => {
               <Menu.Items className="absolute z-50 top-full left-1/2 -translate-x-1/2 w-[400px] bg-white mt-6 border border-gray-200 rounded-xl cursor-pointer">
                 <div className="flex flex-col gap-2 px-3 mb-2">
                   <div className="flex items-center justify-between mt-2">
-                    <h4>Notifications</h4>
+                    <h4>{TEXT.title}</h4>
                     <div className="flex gap-3 items-center">
                       <RefreshNotifications nymOptions={nymOptions} />
                       <FontAwesomeIcon icon={faXmark} size={'lg'} color="#98A2B3" onClick={close} />
@@ -68,7 +70,7 @@ export const Notifications = () => {
                       className="py-2 hover:underline hover:bg-gray-200 rounded-b-xl"
                       onClick={() => pushRoute('/notifications')}
                     >
-                      <p className="text-center">See All Notifications</p>
+                      <p className="text-center">{TEXT.seeAllNotifications}</p>
                     </Menu.Item>
                   </>
                 ) : isLoading ? (
@@ -77,14 +79,14 @@ export const Notifications = () => {
                   </div>
                 ) : errorMsg ? (
                   <RetryError
-                    message={'Could not fetch notifications: '}
+                    message={TEXT.fetchError}
                     error={errorMsg}
                     refetchHandler={() =>
                       fetchNotifications({ address: address as string, nymOptions })
                     }
                   />
                 ) : (
-                  <p className="p-4 text-center">No notifications</p>
+                  <p className="p-4 text-center">{TEXT.noNotifications}</p>
                 )}
               </Menu.Items>
             )}

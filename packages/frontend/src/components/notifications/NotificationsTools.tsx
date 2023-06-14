@@ -5,6 +5,7 @@ import { NotificationsContext } from '@/pages/_app';
 import { Notification, NotificationsContextType } from '@/types/notifications';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useAccount } from 'wagmi';
+import text from '@/lib/text.json';
 
 interface NotificationsToolsProps {
   setFiltered: (notifications: Notification[]) => void;
@@ -15,6 +16,7 @@ export const NotificationsTools = (props: NotificationsToolsProps) => {
   const { notifications, setAsRead } = useContext(NotificationsContext) as NotificationsContextType;
   const { address } = useAccount();
   const [filter, setFilter] = useState('all');
+  const TEXT = text.notifications;
 
   const filters = {
     all: 'All',
@@ -37,7 +39,7 @@ export const NotificationsTools = (props: NotificationsToolsProps) => {
       />
       <div className="flex gap-1 justify-end items-center cursor-pointer" onClick={onMarkAll}>
         <FontAwesomeIcon icon={faCheck} size={'xs'} />
-        <p className="secondary hover:underline">Mark all as read</p>
+        <p className="secondary hover:underline">{TEXT.markAllAsRead}</p>
       </div>
     </div>
   );

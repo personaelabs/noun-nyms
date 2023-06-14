@@ -8,6 +8,7 @@ import { UserAvatar } from '../global/UserAvatar';
 import useError from '@/hooks/useError';
 import Confetti from 'react-confetti';
 import { getUserIdFromName } from '@/lib/client-utils';
+import text from '@/lib/text.json';
 
 interface NewNymProps {
   address: string;
@@ -43,6 +44,7 @@ const generateRandomString = (length: number) => {
 
 export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
+  const TEXT = text.newNym;
   const [nymName, setNymName] = useState('');
   const [newNym, setNewNym] = useState<ClientName>();
   const [loadingNym, setLoadingNym] = useState(false);
@@ -95,12 +97,10 @@ export const NewNym = (props: NewNymProps) => {
       )}
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
-          <h3>{newNym ? `New pseudoynm created!` : `Create a new pseudo nym`}</h3>
+          <h3>{newNym ? `New pseudoynm created!` : TEXT.createNew}</h3>
         </div>
         <p className="text-gray-700">
-          {newNym
-            ? `Your new nym now exists in the world. Use it wisely.`
-            : `What does it mean to create a new nym? Any warnings the user should know beforehand?`}
+          {newNym ? `Your new nym now exists in the world. Use it wisely.` : TEXT.body}
         </p>
         {errorMsg ? <p className="error">Could not create pseudo: {errorMsg}</p> : null}
         <div className="flex flex-wrap justify-start items-center gap-2">

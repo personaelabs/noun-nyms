@@ -19,6 +19,7 @@ import { Header } from '@/components/Header';
 import { useNotifications } from '@/hooks/useNotifications';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from '@/components/global/ErrorPage';
+import text from '@/lib/text.json';
 
 config.autoAddCss = false;
 
@@ -42,6 +43,7 @@ export const UserContext = createContext<UserContextType | null>(null);
 export const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
+  const TEXT = text.app;
   const { address } = useAccount();
   const { nymOptions, setNymOptions, isValid } = useUserInfo({ address: address });
   const { notifications, unread, isLoading, setAsRead, fetchNotifications, lastRefresh, errorMsg } =
@@ -89,7 +91,9 @@ export default function App({ Component, pageProps }: AppProps) {
           </Head>
           <Seo />
           {routeLoading && <RouteLoadingSpinner />}
-          <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
+          <ErrorBoundary
+            fallback={<ErrorPage title={TEXT.error.title} subtitle={TEXT.error.subtitle} />}
+          >
             <NotificationsContext.Provider value={notificationsCtx}>
               <Header />
               <Component {...pageProps} />

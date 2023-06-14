@@ -10,6 +10,7 @@ import { UserContext } from '@/pages/_app';
 import { Menu } from '@headlessui/react';
 import { NameMenuItem } from './NameMenuItem';
 import { getUserIdFromName } from '@/lib/client-utils';
+import text from '@/lib/text.json';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -19,6 +20,7 @@ interface NameSelectProps {
 
 export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName, openMenuAbove } = props;
+  const TEXT = text.nameSelect;
   const { address } = useAccount();
   const { isValid, nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
   const { name, isEns } = useName({ userId: address });
@@ -41,7 +43,7 @@ export const NameSelect = (props: NameSelectProps) => {
           setSelectedName={setSelectedName}
         />
       ) : null}
-      <p className="secondary shrink-0">Posting as</p>
+      <p className="secondary shrink-0">{TEXT.postingAs}</p>
       <Menu as={'div'} className="min-w-0 max-w-min shrink grow relative basis-1/4 sm:basis-auto">
         {({ open }) => (
           <>
@@ -69,7 +71,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 onClick={() => setOpenNewNym(true)}
               >
                 <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
-                <p>New Pseudo Nym</p>
+                <p>{TEXT.newNym}</p>
               </Menu.Item>
               <div className="border-b border-dotted border-gray-300">
                 {nymOptions &&

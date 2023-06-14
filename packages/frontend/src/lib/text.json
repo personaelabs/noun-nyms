@@ -1,0 +1,93 @@
+{
+  "users": {
+    "noUsers": "No users found.",
+    "fetchError": "Could not fetch users:",
+    "filters": {
+      "all": "All",
+      "doxed": "Doxed",
+      "pseudo": "Pseudo"
+    },
+    "sort": {
+      "lastActive": "Last Active",
+      "numPosts": "Posts",
+      "numReplies": "Replies",
+      "upvotes": "Votes"
+    }
+  },
+  "userId": {
+    "noData": "User has no activity.",
+    "fetchError": "Could not fetch user data:",
+    "filters": {
+      "all": "All",
+      "posts": "Posts",
+      "replies": "Comments"
+    }
+  },
+  "userTag": {
+    "lastActive": "Last active",
+    "dash": "-"
+  },
+  "postId": {
+    "allPosts": "All posts"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "noNotifications": "No notifications.",
+    "fetchError": "Could not fetch notifications:",
+    "action": "get notifications",
+    "seeAllNotifications": "See All Notifications",
+    "markAllAsRead": "Mark all as read",
+    "markAsRead": "Mark as read",
+    "lastUpdated": "Last updated: "
+  },
+  "nestedReply": {
+    "showMoreReplies": "Show more replies",
+    "showingMoreReplies": "Showing more replies..."
+  },
+  "postPreview": {
+    "commentedOn": "commented on",
+    "postedBy": "Posted by"
+  },
+  "postWithReplies": {
+    "showingParentReplies": "Showing parent replies...",
+    "showParentReplies": "Show parent replies",
+    "fetchError": "Could not fetch post:"
+  },
+  "replyText": {
+    "reply": "reply",
+    "replies": "replies"
+  },
+  "nameSelect": {
+    "postingAs": "Posting as",
+    "newNym": "New Pseudo Nym"
+  },
+  "newNym": {
+    "createNew": "Create a new pseudo",
+    "placeholder": "Name",
+    "generateRandom": "Generate a random name",
+    "buttonText": "Confirm",
+    "body": "What does it mean to create a new nym? Any warnings the user should know beforehand?",
+    "fetchError": "Could not create pseudo:"
+  },
+  "validUserWarning": {
+    "title": "The connected wallet is not valid.",
+    "body": "If you want to post, comment, or upvote, you must connect a wallet that owns a noun or is part of a multi-sig that owns a noun. If your wallet recently became valid, allow 24 hours to see the changes reflected."
+  },
+  "error404": {
+    "title": "404",
+    "subtitle": "Page Not Found"
+  },
+  "error500": {
+    "title": "500",
+    "subtitle": "Internal Server Error"
+  },
+  "app": {
+    "error": {
+      "title": "Uh oh!",
+      "subtitle": "Error unknown."
+    }
+  },
+  "errorPage": {
+    "returnHome": "Return Home"
+  }
+}

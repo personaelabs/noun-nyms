@@ -4,6 +4,7 @@ import useName from '@/hooks/useName';
 import { NameType, UserContextType } from '@/types/components';
 import { useContext } from 'react';
 import { fromNowDate } from '@/lib/client-utils';
+import text from '@/lib/text.json';
 
 interface UserTagProps {
   userId: string;
@@ -13,6 +14,7 @@ interface UserTagProps {
 }
 export const UserTag = (props: UserTagProps) => {
   const { userId, avatarWidth, timestamp, lastActive } = props;
+  const TEXT = text.userTag;
   const { name, isDoxed } = useName({ userId });
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
@@ -36,7 +38,7 @@ export const UserTag = (props: UserTagProps) => {
 
         {lastActive && (
           <div className="flex gap-1 shrink-0 secondary">
-            {!isMobile && <p>Last active </p>}
+            {!isMobile && <p>{TEXT.lastActive} </p>}
             <p className="font-semibold">{fromNowDate(lastActive)}</p>
           </div>
         )}
@@ -44,7 +46,7 @@ export const UserTag = (props: UserTagProps) => {
 
       {timestamp && (
         <div className="shrink-0 flex gap-2">
-          <p className="secondary">-</p>
+          <p className="secondary">{TEXT.dash}</p>
           <p className="secondary">{fromNowDate(timestamp)}</p>
         </div>
       )}

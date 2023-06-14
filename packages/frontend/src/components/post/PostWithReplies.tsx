@@ -15,12 +15,14 @@ import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import text from '@/lib/text.json';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { postId, writerToShow } = postWithRepliesProps;
+  const TEXT = text.postWithReplies;
 
   const { errorMsg, setError } = useError();
   const [parent, setParent] = useState<IPostWithReplies>();
@@ -144,7 +146,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                       </p>
                     ) : topReply && topReply.depth > 1 ? (
                       <p className="hover:underline font-semibold text-xs cursor-pointer">
-                        {loadingLocalFetch ? 'Showing parent replies...' : 'Show parent replies'}
+                        {loadingLocalFetch ? TEXT.showingParentReplies : TEXT.showParentReplies}
                       </p>
                     ) : (
                       <></>
@@ -163,7 +165,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           {isLoading ? (
             <Spinner />
           ) : isError ? (
-            <RetryError message="Could not fetch post:" error={errorMsg} refetchHandler={refetch} />
+            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
           ) : null}
         </div>
       )}

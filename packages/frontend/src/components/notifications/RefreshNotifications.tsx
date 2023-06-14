@@ -6,6 +6,7 @@ import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { ClientName } from '@/types/components';
 import { NotificationsContext } from '@/pages/_app';
 import { NotificationsContextType } from '@/types/notifications';
+import text from '@/lib/text.json';
 
 export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   const { nymOptions } = props;
@@ -14,6 +15,7 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
     NotificationsContext,
   ) as NotificationsContextType;
   const [refetching, setRefetching] = useState(false);
+  const TEXT = text.notifications;
 
   const refetch = async () => {
     if (address) {
@@ -24,7 +26,11 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   };
   return (
     <div className="flex gap-4 items-center">
-      {lastRefresh && <p className="secondary">Last updated: {lastRefresh}</p>}
+      {lastRefresh && (
+        <p className="secondary">
+          {TEXT.lastUpdated} {lastRefresh}
+        </p>
+      )}
       <div className="cursor-pointer">
         <div className="flex items-center w-5 h-4">
           {refetching ? (

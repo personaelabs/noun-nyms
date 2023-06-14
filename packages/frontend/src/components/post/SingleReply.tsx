@@ -8,6 +8,7 @@ import { IPostPreview, IPostWithReplies } from '@/types/api';
 import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import TEXT from '@/lib/text.json';
 
 interface SingleReplyProps {
   post: IPostWithReplies | IPostPreview;
@@ -21,6 +22,7 @@ interface SingleReplyProps {
 
 export const SingleReply = (props: SingleReplyProps) => {
   const { post, replyCount, highlight, onUpvote, handleReply, children, replyOpen } = props;
+  const { reply } = TEXT.replyText;
   const { id, userId, timestamp, body, upvotes } = post;
   const { isMobile } = useContext(UserContext) as UserContextType;
 
@@ -49,7 +51,7 @@ export const SingleReply = (props: SingleReplyProps) => {
               >
                 <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
                 <p className="secondary" style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}>
-                  Reply
+                  {reply}
                 </p>
               </div>
               <CopyLink id={id} />
