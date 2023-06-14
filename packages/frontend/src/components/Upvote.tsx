@@ -81,7 +81,7 @@ export const Upvote = (props: UpvoteIconProps) => {
       ) : showWalletWarning ? (
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
       ) : null}
-      <div
+      <button
         onClick={(e) => {
           e.stopPropagation();
           handleClick();
@@ -113,7 +113,7 @@ export const Upvote = (props: UpvoteIconProps) => {
             </div>
           )}
         </div>
-      </div>
+      </button>
     </>
   );
 };
