@@ -12,11 +12,13 @@ import {
   toTypedNymName,
   eip712MsgHash,
   pubToPrefixedAddress,
+  poseidonHashSync,
+  poseidonHashPubKey,
 } from '../utils';
-import { EIP712TypedData } from '../types';
-import { MerkleProof, Tree, Poseidon } from '@personaelabs/spartan-ecdsa';
+import { EIP712TypedData, MerkleProof } from '../types';
 import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 import { INCONSISTENT_SIGNERS, INVALID_MERKLE_PROOF } from '../errors';
+import { IncrementalMerkleTree } from '@zk-kit/incremental-merkle-tree';
 
 // NOTE: we'll subsidize storage of these files for now
 export const CIRCUIT_URL =
@@ -35,22 +37,18 @@ export class NymProver extends Profiler {
   circuit: string;
   witnessGenWasm: string;
   circuitBin?: Uint8Array;
-  poseidon: Poseidon;
+  tree?: IncrementalMerkleTree;
 
   constructor(options: ProverConfig) {
     super({ enabled: options?.enableProfiler });
 
     this.circuit = options.circuitUrl || CIRCUIT_URL;
     this.witnessGenWasm = options.witnessGenWasm || WITNESS_GEN_WASM_URL;
-    this.poseidon = new Poseidon();
   }
 
   async initWasm() {
     await init();
-  }
-
-  async initPoseidon() {
-    await this.poseidon.initWasm();
+    this.tree = new IncrementalMerkleTree(poseidonHashSync, 20, BigInt(0));
   }
 
   async loadCircuit() {
@@ -60,10 +58,12 @@ export class NymProver extends Profiler {
   }
 
   private verifyMerkleProof(proof: MerkleProof, pubKeyHash: bigint) {
-    const treeDepth = 20;
-    const tree = new Tree(treeDepth, this.poseidon);
-    if (!tree.verifyProof(proof, pubKeyHash)) {
-      throw new Error(INVALID_MERKLE_PROOF);
+    if (!this.tree) {
+      throw new Error('Merkle tree not initialized');
+    } else {
+      if (!this.tree.verifyProof({ ...proof, leaf: pubKeyHash })) {
+        throw new Error(INVALID_MERKLE_PROOF);
+      }
     }
   }
 
@@ -79,6 +79,8 @@ export class NymProver extends Profiler {
     contentSigStr: string,
     membershipProof: MerkleProof,
   ): Promise<Buffer> {
+    await this.initWasm();
+
     const typedNymName = toTypedNymName(nymName);
     const nymSig = computeEffECDSASig(nymSigStr, typedNymName);
 
@@ -91,8 +93,6 @@ export class NymProver extends Profiler {
     const contentSig = computeEffECDSASig(contentSigStr, typedContentMessage);
 
     // Verify that the signer of the nymSig and contentSig are the same
-
-    await this.initPoseidon();
 
     // Recover the nym signer from the signature
     const nymSigPubKey = this.recoverPubKey(
@@ -115,7 +115,7 @@ export class NymProver extends Profiler {
       throw new Error(INCONSISTENT_SIGNERS(nymSigAddr, contentSigAddr));
     }
 
-    this.verifyMerkleProof(membershipProof, this.poseidon.hashPubKey(nymSigPubKey));
+    this.verifyMerkleProof(membershipProof, await poseidonHashPubKey(nymSigPubKey));
 
     const nymHash = bufferToBigInt(Buffer.from(await computeNymHash(nymSigStr), 'hex'));
 

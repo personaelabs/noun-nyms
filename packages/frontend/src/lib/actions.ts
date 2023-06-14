@@ -7,10 +7,10 @@ import {
   NymProver,
   UPVOTE_TYPES,
   toTypedNymName,
+  MerkleProof,
 } from '@personaelabs/nymjs';
 import axiosBase from 'axios';
 import { getLatestGroup, getPubKeyFromEIP712Sig } from './client-utils';
-import { MerkleProof } from '@personaelabs/spartan-ecdsa';
 
 const axios = axiosBase.create({
   baseURL: `/api/v1`,

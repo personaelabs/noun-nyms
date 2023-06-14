@@ -21,7 +21,6 @@
     "@nouns/assets": "^0.4.2",
     "@nouns/sdk": "^0.4.0",
     "@personaelabs/nymjs": "*",
-    "@personaelabs/spartan-ecdsa": "^2.1.4",
     "@prisma/client": "4.5.0",
     "@rainbow-me/rainbowkit": "1.0.0",
     "@sentry/integrations": "^7.53.1",
@@ -49,6 +48,8 @@
     "wagmi": "1.0.1"
   },
   "devDependencies": {
+    "@personaelabs/spartan-ecdsa": "^2.1.4",
+    "@next/bundle-analyzer": "^13.4.5",
     "@tanstack/eslint-plugin-query": "^4.29.4",
     "@types/mersenne-twister": "^1.1.2",
     "@types/node": "18.15.3",
