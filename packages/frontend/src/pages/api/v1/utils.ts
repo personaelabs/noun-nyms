@@ -1,11 +1,17 @@
 import { deserializeNymAttestation } from '@personaelabs/nymjs';
 import prisma from '@/lib/prisma';
-import { postPreviewSelect } from '@/types/api';
+import { IUser, postPreviewSelect } from '@/types/api';
 import { createPublicClient, http, isAddress } from 'viem';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
 import { mainnet } from 'viem/chains';
 
+// Duplicating here to avoid tests failing on Github. weird.
+const splitNym = (str: string) => {
+  const parts = str.split('-');
+  const result = parts.slice(0, parts.length - 1).join('-');
+  return { nymName: result, nymHash: parts[parts.length - 1] };
+};
 export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
   const node = await prisma.treeNode.findFirst({
     where: {
@@ -17,7 +23,7 @@ export const verifyInclusion = async (pubkey: string): Promise<boolean> => {
 };
 
 export const isNymValid = (nym: string): boolean => {
-  const [_nymName, nymHash] = nym.split('-');
+  const { nymHash } = splitNym(nym);
   return nymHash.length === 64;
 };
 
@@ -144,9 +150,7 @@ export const userIdToName = async (userId: string) => {
     });
     return ensName || userId;
   } else {
-    const parts = userId.split('-');
-    const extractedValue = parts.slice(0, -1).join('-');
-    return extractedValue;
+    return splitNym(userId).nymName;
   }
 };
 
@@ -161,8 +165,11 @@ export const getSimplePost = async (
       id: id as string,
     },
   });
+
+  let post: IPostSimple | null = null;
+
   if (postSimple) {
-    const post: IPostSimple = {
+    const simple: IPostSimple = {
       title: postSimple.title,
       body: postSimple.body,
       timestamp: postSimple.timestamp.getTime(),
@@ -171,16 +178,30 @@ export const getSimplePost = async (
       userId: postSimple.userId,
     };
 
-    return {
-      props: {
-        post,
-      },
-    };
-  } else {
-    return {
-      props: {
-        post: null,
-      },
-    };
+    post = simple;
   }
+  return { props: { post: post } };
+};
+
+// Count total number of
+export const getSimpleUser = async (
+  context: GetServerSidePropsContext,
+): Promise<{ props: { user: IUser | null } }> => {
+  const userId = context.query.userId as string;
+  let user: IUser | null = null;
+  if (userId) {
+    const totalPosts = await prisma.post.count({
+      where: { userId },
+    });
+    const upvotesReceived = await prisma.doxedUpvote.count({
+      where: {
+        post: {
+          userId,
+        },
+      },
+    });
+    user = { userId, totalPosts, upvotesReceived, name: await userIdToName(userId) };
+  }
+
+  return { props: { user: user } };
 };

@@ -33,7 +33,7 @@ export const PostPreview = (postProps: PostProps) => {
               >
                 {userName}
               </span>
-              <span className="secondary"> commented on </span>
+              <span className="secondary"> replied to </span>
               <span className="postDetail cursor-pointer hover:underline">{root.title}</span>
             </p>
             <div className="breakText secondary" onClick={() => pushRoute(`/users/${root.userId}`)}>

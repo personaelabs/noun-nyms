@@ -30,6 +30,8 @@ export type ClientName = {
   name: string | undefined;
   nymSig?: string;
   nymHash?: string;
+  userId?: string;
+  isEns?: boolean;
 };
 
 export type ClientUpvote = {

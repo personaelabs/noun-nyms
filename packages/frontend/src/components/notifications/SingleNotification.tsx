@@ -8,7 +8,7 @@ import {
   faReplyAll,
 } from '@fortawesome/free-solid-svg-icons';
 import { UserName } from '../global/UserName';
-import { fromNowDate, trimText } from '@/lib/example-utils';
+import { fromNowDate, trimText } from '@/lib/client-utils';
 import { NotificationType, Notification, setReadArgs } from '@/types/notifications';
 import { useContext, useState } from 'react';
 import { useAccount } from 'wagmi';

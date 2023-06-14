@@ -6,6 +6,8 @@ import { useSignTypedData } from 'wagmi';
 import { ClientName, LocalNym, NameType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useError from '@/hooks/useError';
+import Confetti from 'react-confetti';
+import { getUserIdFromName } from '@/lib/client-utils';
 
 interface NewNymProps {
   address: string;
@@ -41,8 +43,9 @@ const generateRandomString = (length: number) => {
 
 export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
-  const [nymName, setNymName] = useState<string>('');
-  const [loadingNym, setLoadingNym] = useState<boolean>(false);
+  const [nymName, setNymName] = useState('');
+  const [newNym, setNewNym] = useState<ClientName>();
+  const [loadingNym, setLoadingNym] = useState(false);
   const { errorMsg, setError } = useError();
   const existingNames = useMemo(() => nymOptions.map((nym) => nym.name), [nymOptions]);
   const { signTypedDataAsync } = useSignTypedData();
@@ -72,7 +75,8 @@ export const NewNym = (props: NewNymProps) => {
       const newNym = { type: NameType.PSEUDO, name: nymName, nymSig, nymHash };
       setNymOptions([...nymOptions, newNym]);
       setSelectedName(newNym);
-      handleClose();
+      setNewNym(newNym);
+      // handleClose();
       setLoadingNym(false);
     } catch (error) {
       setError(error);
@@ -81,45 +85,70 @@ export const NewNym = (props: NewNymProps) => {
   };
   return (
     <Modal width="60%" handleClose={handleClose}>
+      {newNym && (
+        <Confetti
+          recycle={false}
+          numberOfPieces={502}
+          width={Math.floor(window.innerWidth * 0.6)}
+          onConfettiComplete={() => ''}
+        />
+      )}
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
-          <h3>Create a new pseudo</h3>
+          <h3>{newNym ? `New pseudoynm created!` : `Create a new pseudo nym`}</h3>
         </div>
         <p className="text-gray-700">
-          What does it mean to create a new nym? Any warnings the user should know beforehand?
+          {newNym
+            ? `Your new nym now exists in the world. Use it wisely.`
+            : `What does it mean to create a new nym? Any warnings the user should know beforehand?`}
         </p>
         {errorMsg ? <p className="error">Could not create pseudo: {errorMsg}</p> : null}
         <div className="flex flex-wrap justify-start items-center gap-2">
           <div className="flex gap-2 items-center">
-            <UserAvatar width={24} userId={address} />
+            <UserAvatar width={30} userId={newNym ? getUserIdFromName(newNym) : address} />
             <div className="min-w-0 shrink relative border border-gray-200 rounded-md px-2 py-1">
-              <input
-                className="outline-none bg-transparent"
-                type="text"
-                placeholder="Name"
-                value={nymName}
-                onChange={(event) => {
-                  if (errorMsg) setError('');
-                  setNymName(event.target.value);
-                }}
-              />
+              {newNym ? (
+                <p>{newNym.name}</p>
+              ) : (
+                <input
+                  className="outline-none bg-transparent"
+                  type="text"
+                  placeholder="Name"
+                  value={nymName}
+                  onChange={(event) => {
+                    if (errorMsg) setError('');
+                    setNymName(event.target.value);
+                  }}
+                />
+              )}
             </div>
           </div>
-          <button
-            className="shrink-0 secondary underline"
-            onClick={() => setNymName(generateRandomString(5))}
-          >
-            Generate random name
-          </button>
+          {!newNym && (
+            <button
+              className="shrink-0 secondary underline"
+              onClick={() => setNymName(generateRandomString(5))}
+            >
+              Generate random name
+            </button>
+          )}
         </div>
         <div className="flex justify-center">
-          <MainButton
-            color="#0E76FD"
-            message="Confirm"
-            loading={loadingNym}
-            handler={handleNewNym}
-            disabled={nymName === ''}
-          />
+          {newNym ? (
+            <MainButton
+              color="#0E76FD"
+              message="Enter"
+              handler={handleClose}
+              disabled={nymName === ''}
+            />
+          ) : (
+            <MainButton
+              color="#0E76FD"
+              message="Confirm"
+              loading={loadingNym}
+              handler={handleNewNym}
+              disabled={nymName === ''}
+            />
+          )}
         </div>
       </div>
     </Modal>

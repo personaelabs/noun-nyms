@@ -3,7 +3,7 @@ import Posts from '@/components/Posts';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple } from '@/types/api/postSelectSimple';
 import { getSimplePost } from '../api/v1/utils';
-import { Seo, TITLE } from '@/components/global/Seo';
+import { Seo } from '@/components/global/Seo';
 import { UserContext } from '../_app';
 import { UserContextType } from '@/types/components';
 import { PostWithReplies } from '@/components/post/PostWithReplies';
@@ -32,13 +32,13 @@ const buildSeo = (post?: IPostSimple) => {
 export default function PostId({ post }: { post?: IPostSimple }) {
   const router = useRouter();
   const openPostId = router.query.postId as string;
-  const { description } = buildSeo(post);
+  const { title, description } = buildSeo(post);
   const { isMobile, postInProg, pushRoute } = useContext(UserContext) as UserContextType;
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-screen">
-      <Seo title={TITLE} description={description} />
+      <Seo ogTitle={title} ogDescription={description} />
       {openPostId &&
         (isMobile ? (
           <>

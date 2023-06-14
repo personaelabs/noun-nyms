@@ -5,7 +5,7 @@ import '@fortawesome/fontawesome-svg-core/styles.css';
 import { WagmiConfig, configureChains, createConfig, mainnet, useAccount } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { HOME_DESCRIPTION, Seo, TITLE } from '@/components/global/Seo';
+import { Seo } from '@/components/global/Seo';
 import Head from 'next/head';
 import { ValidUserWarning } from '@/components/global/ValidUserWarning';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
@@ -87,7 +87,7 @@ export default function App({ Component, pageProps }: AppProps) {
           <Head>
             <link type="favicon" rel="icon" href="/favicon-3.ico" />
           </Head>
-          <Seo title={TITLE} description={HOME_DESCRIPTION} />
+          <Seo />
           {routeLoading && <RouteLoadingSpinner />}
           <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
             <NotificationsContext.Provider value={notificationsCtx}>

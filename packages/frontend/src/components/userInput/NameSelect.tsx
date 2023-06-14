@@ -9,7 +9,7 @@ import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
 import { Menu } from '@headlessui/react';
 import { NameMenuItem } from './NameMenuItem';
-import { getUserIdFromName } from '@/lib/example-utils';
+import { getUserIdFromName } from '@/lib/client-utils';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -21,8 +21,14 @@ export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName, openMenuAbove } = props;
   const { address } = useAccount();
   const { isValid, nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
-  const doxedName = { type: NameType.DOXED, name: useName({ userId: address }).name };
-  const [openNewNym, setOpenNewNym] = useState<boolean>(false);
+  const { name, isEns } = useName({ userId: address });
+  const doxedName = {
+    type: NameType.DOXED,
+    name,
+    userId: address,
+    isEns,
+  };
+  const [openNewNym, setOpenNewNym] = useState(false);
 
   return (
     <>
@@ -63,7 +69,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 onClick={() => setOpenNewNym(true)}
               >
                 <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
-                <p>New Nym</p>
+                <p>New Pseudo Nym</p>
               </Menu.Item>
               <div className="border-b border-dotted border-gray-300">
                 {nymOptions &&
@@ -88,12 +94,14 @@ export const NameSelect = (props: NameSelectProps) => {
                 className="w-full flex justify-between gap-2 items-center px-2 py-2.5 rounded-xl hover:bg-gray-100"
                 onClick={() => setSelectedName(doxedName)}
               >
-                <NameMenuItem
-                  type={NameType.DOXED}
-                  userId={getUserIdFromName(doxedName)}
-                  name={doxedName.name}
-                  selected={doxedName.name === selectedName?.name}
-                />
+                {address && (
+                  <NameMenuItem
+                    type={NameType.DOXED}
+                    userId={address}
+                    name={doxedName.name}
+                    selected={doxedName.name === selectedName?.name}
+                  />
+                )}
               </Menu.Item>
             </Menu.Items>
           </>

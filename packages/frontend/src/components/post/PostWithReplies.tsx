@@ -67,19 +67,15 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   }, [singlePost]);
 
   const nestedComponentThreads = useMemo(() => {
-    const handleSuccess = async (id?: string) => {
-      await refetchAndScrollToPost(refetch, id);
-    };
-
     if (topReply) {
       // If topReply is root, pass its replies.
       // If topReply is not root, pass it as a list
       const postToPass = !topReply.rootId ? topReply.replies : [topReply];
-      return resolveNestedReplyThreads(postToPass, 0, handleSuccess, postToHighlight, writerToShow);
+      return resolveNestedReplyThreads(postToPass, 0, postToHighlight, writerToShow);
     } else {
       return <div></div>;
     }
-  }, [topReply, refetch, writerToShow, postToHighlight]);
+  }, [topReply, writerToShow, postToHighlight]);
 
   const fetchParents = async (id: string) => {
     try {
@@ -148,7 +144,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                       </p>
                     ) : topReply && topReply.depth > 1 ? (
                       <p className="hover:underline font-semibold text-xs cursor-pointer">
-                        {loadingLocalFetch ? 'Showing parent comments...' : 'Show parent comments'}
+                        {loadingLocalFetch ? 'Showing parent replies...' : 'Show parent replies'}
                       </p>
                     ) : (
                       <></>

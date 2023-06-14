@@ -3,7 +3,7 @@ import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { NameType, UserContextType } from '@/types/components';
 import { useContext } from 'react';
-import { fromNowDate } from '@/lib/example-utils';
+import { fromNowDate } from '@/lib/client-utils';
 
 interface UserTagProps {
   userId: string;
