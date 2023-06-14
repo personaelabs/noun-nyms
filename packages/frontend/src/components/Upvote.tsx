@@ -12,6 +12,7 @@ import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
 import { UserName } from './global/UserName';
+import text from '@/lib/text.json';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -23,6 +24,7 @@ interface UpvoteIconProps {
 
 export const Upvote = (props: UpvoteIconProps) => {
   const { upvotes, postId, col, children, onSuccess } = props;
+  const TEXT = text.upvote;
   const { address } = useAccount();
   const { isValid } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError, clearError, isError } = useError();
@@ -67,11 +69,7 @@ export const Upvote = (props: UpvoteIconProps) => {
       {errorMsg && isError ? (
         <Modal width="50%" handleClose={clearError}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-            <RetryError
-              message="Could not upvote:"
-              error={errorMsg}
-              refetchHandler={upvoteHandler}
-            />
+            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
           </div>
         </Modal>
       ) : showVoteWarning ? (
@@ -81,7 +79,7 @@ export const Upvote = (props: UpvoteIconProps) => {
           loadingUpvote={loadingUpvote}
         />
       ) : showWalletWarning ? (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="upvote" />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
       ) : null}
       <div
         onClick={(e) => {

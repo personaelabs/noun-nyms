@@ -69,8 +69,8 @@ export const NewNym = (props: NewNymProps) => {
     try {
       setError('');
       setLoadingNym(true);
-      if (!nymName) throw new Error('Must submit a valid name.');
-      if (existingNames.includes(nymName)) throw new Error('Nym already exists.');
+      if (!nymName) throw new Error(TEXT.inputError.noName);
+      if (existingNames.includes(nymName)) throw new Error(TEXT.inputError.duplicate);
       const nymSig = await signNym(nymName, signTypedDataAsync);
       const nymHash = await computeNymHash(nymSig);
       if (nymSig) storeNym(nymSig, nymHash);
@@ -97,12 +97,14 @@ export const NewNym = (props: NewNymProps) => {
       )}
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
-          <h3>{newNym ? `New pseudoynm created!` : TEXT.createNew}</h3>
+          <h3>{newNym ? TEXT.afterTitle : TEXT.beforeTitle}</h3>
         </div>
-        <p className="text-gray-700">
-          {newNym ? `Your new nym now exists in the world. Use it wisely.` : TEXT.body}
-        </p>
-        {errorMsg ? <p className="error">Could not create pseudo: {errorMsg}</p> : null}
+        <p className="text-gray-700">{newNym ? TEXT.afterBody : TEXT.beforeBody}</p>
+        {errorMsg && (
+          <p className="error">
+            {TEXT.fetchError} {errorMsg}
+          </p>
+        )}
         <div className="flex flex-wrap justify-start items-center gap-2">
           <div className="flex gap-2 items-center">
             <UserAvatar width={30} userId={newNym ? getUserIdFromName(newNym) : address} />
@@ -128,7 +130,7 @@ export const NewNym = (props: NewNymProps) => {
               className="shrink-0 secondary underline"
               onClick={() => setNymName(generateRandomString(5))}
             >
-              Generate random name
+              {TEXT.generateRandom}
             </button>
           )}
         </div>
@@ -136,14 +138,14 @@ export const NewNym = (props: NewNymProps) => {
           {newNym ? (
             <MainButton
               color="#0E76FD"
-              message="Enter"
+              message={TEXT.afterButtonText}
               handler={handleClose}
               disabled={nymName === ''}
             />
           ) : (
             <MainButton
               color="#0E76FD"
-              message="Confirm"
+              message={TEXT.beforeButtonText}
               loading={loadingNym}
               handler={handleNewNym}
               disabled={nymName === ''}

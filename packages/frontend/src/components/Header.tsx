@@ -10,8 +10,10 @@ import { Notifications } from './notifications/Notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import text from '@/lib/text.json';
 
 export const Header = () => {
+  const TEXT = text.app.header;
   const { address } = useAccount();
   const { isMobile, isValid, pushRoute } = useContext(UserContext) as UserContextType;
 
@@ -32,7 +34,7 @@ export const Header = () => {
                     <Image src={logo} alt="logo" />
                   </div>
                 </div>
-                {!isMobile && <h3 className="text-white font-semibold breakText">Noun Nyms</h3>}
+                {!isMobile && <h3 className="text-white font-semibold breakText">{TEXT.title}</h3>}
               </div>
               <div className="flex gap-4 items-center">
                 {isMounted && address && isValid && <Notifications />}
@@ -46,7 +48,7 @@ export const Header = () => {
                   >
                     <div className="flex gap-2 items-center">
                       <FontAwesomeIcon icon={faUsers} color={'#ffffff'} />
-                      <p className="text-white font-semibold">All Users</p>
+                      <p className="text-white font-semibold">{TEXT.allUsers}</p>
                     </div>
                   </button>
                 )}

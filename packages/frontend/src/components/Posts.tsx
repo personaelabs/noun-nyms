@@ -17,6 +17,7 @@ import { refetchAndScrollToPost } from '@/lib/client-utils';
 import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 import { useEffect } from 'react';
+import text from '@/lib/text.json';
 
 const PER_FETCH = 20;
 const getPosts = async ({ pageParam = 0 }: { pageParam?: number }, filter: String) => {
@@ -39,6 +40,7 @@ interface PostsProps {
 
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
+  const TEXT = text.posts;
   const { errorMsg, setError } = useError();
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState(initOpenPostId ? initOpenPostId : '');
@@ -81,8 +83,8 @@ export default function Posts(props: PostsProps) {
   }, [data, fetchNextPage, observedElement]);
 
   const filterOptions: { [key: string]: string } = {
-    timestamp: '⏳ Recent',
-    upvotes: '🔥 Top',
+    timestamp: TEXT.filters.timestamp,
+    upvotes: TEXT.filters.upvotes,
   };
 
   const handleOpenPost = (id: string) => {
@@ -135,7 +137,7 @@ export default function Posts(props: PostsProps) {
                 <div className="grow-0">
                   <MainButton
                     color="#0E76FD"
-                    message="Start Discussion"
+                    message={TEXT.buttonText}
                     handler={() => setNewPostOpen(true)}
                   />
                 </div>
@@ -180,11 +182,7 @@ export default function Posts(props: PostsProps) {
                   )}
                 </>
               ) : isError ? (
-                <RetryError
-                  message={'Could not fetch posts:'}
-                  error={errorMsg}
-                  refetchHandler={refetch}
-                />
+                <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
               ) : null}
             </div>
           </div>

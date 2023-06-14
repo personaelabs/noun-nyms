@@ -1,5 +1,6 @@
 {
   "users": {
+    "title": "Users",
     "noUsers": "No users found.",
     "fetchError": "Could not fetch users:",
     "filters": {
@@ -14,21 +15,40 @@
       "upvotes": "Votes"
     }
   },
-  "userId": {
+  "user": {
     "noData": "User has no activity.",
     "fetchError": "Could not fetch user data:",
     "filters": {
       "all": "All",
       "posts": "Posts",
-      "replies": "Comments"
-    }
+      "replies": "Replies"
+    },
+    "allUsers": "All users"
   },
   "userTag": {
     "lastActive": "Last active",
     "dash": "-"
   },
+  "posts": {
+    "title": "Posts",
+    "filters": {
+      "timestamp": "⏳ Recent",
+      "upvotes": "🔥 Top"
+    },
+    "buttonText": "Start Discussion",
+    "fetchError": "Could not fetch posts:"
+  },
   "postId": {
     "allPosts": "All posts"
+  },
+  "upvote": {
+    "fetchError": "Could not upvote:",
+    "action": "upvote",
+    "warning": {
+      "title": "You're voting as",
+      "body": "Voting is currently only possible from a wallet, not a nym. Are you sure you want to vote with your wallet identity?",
+      "buttonText": "Vote"
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -45,7 +65,7 @@
     "showingMoreReplies": "Showing more replies..."
   },
   "postPreview": {
-    "commentedOn": "commented on",
+    "repliedTo": "replied to",
     "postedBy": "Posted by"
   },
   "postWithReplies": {
@@ -62,16 +82,58 @@
     "newNym": "New Pseudo Nym"
   },
   "newNym": {
-    "createNew": "Create a new pseudo",
+    "beforeTitle": "Create a new pseudo",
+    "afterTitle": "New pseudoynm created!",
+    "beforeBody": "What does it mean to create a new nym? Any warnings the user should know beforehand?",
+    "afterBody": "Your new nym now exists in the world. Use it wisely.",
+    "beforeButtonText": "Confirm",
+    "afterButtonText": "Say something",
     "placeholder": "Name",
     "generateRandom": "Generate a random name",
-    "buttonText": "Confirm",
-    "body": "What does it mean to create a new nym? Any warnings the user should know beforehand?",
-    "fetchError": "Could not create pseudo:"
+    "fetchError": "Could not create pseudo:",
+    "inputError": {
+      "noName": "Must submit a valid name.",
+      "duplicate": "Nym already exists."
+    }
+  },
+  "newPost": {
+    "title": "Start a discussion here"
+  },
+  "postWriter": {
+    "inputError": {
+      "noTitle": "title cannot be empty",
+      "noBody": "post cannot be empty",
+      "noName": "must select an identity to post",
+      "invalidName": "must select a valid identity to post"
+    },
+    "action": "reply",
+    "fetchError": "Coult not submit post:",
+    "userError": "Error:",
+    "placeholder": {
+      "title": "Add title",
+      "newBody": "Description",
+      "replyBody": "Type your post here"
+    },
+    "buttonText": {
+      "before": "Send",
+      "loading": "Proving",
+      "after": "Sent"
+    }
+  },
+  "discardPostWarning": {
+    "body": "You have a post in progress, are you sure you want to discard it?",
+    "buttonText": {
+      "okay": "Okay",
+      "cancel": "Cancel"
+    }
+  },
+  "walletWarning": {
+    "title": "Connect a valid wallet to",
+    "body": "If you want to post, reply, or upvote, you must connect a wallet that owns a noun or is part of a multi-sig that owns a noun. If your wallet recently became valid, allow 24 hours to see the changes reflected."
   },
   "validUserWarning": {
     "title": "The connected wallet is not valid.",
-    "body": "If you want to post, comment, or upvote, you must connect a wallet that owns a noun or is part of a multi-sig that owns a noun. If your wallet recently became valid, allow 24 hours to see the changes reflected."
+    "body": "If you want to post, reply, or upvote, you must connect a wallet that owns a noun or is part of a multi-sig that owns a noun. If your wallet recently became valid, allow 24 hours to see the changes reflected."
   },
   "error404": {
     "title": "404",
@@ -82,6 +144,12 @@
     "subtitle": "Internal Server Error"
   },
   "app": {
+    "header": {
+      "title": "Noun Nyms",
+      "allUsers": "All users",
+      "myIdentities": "My identities",
+      "wallet": "My wallet"
+    },
     "error": {
       "title": "Uh oh!",
       "subtitle": "Error unknown."

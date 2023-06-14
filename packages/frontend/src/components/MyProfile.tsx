@@ -8,8 +8,10 @@ import { faAngleDown, faUsers } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
 import { getUserIdFromName } from '@/lib/client-utils';
+import text from '@/lib/text.json';
 
 export const MyProfile = ({ address }: { address: string }) => {
+  const TEXT = text.app.header;
   const { isMobile, nymOptions, isValid, pushRoute } = useContext(UserContext) as UserContextType;
   const { name } = useName({ userId: address });
 
@@ -24,13 +26,13 @@ export const MyProfile = ({ address }: { address: string }) => {
           <Menu.Items className="max-w-[150px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer">
             {isMobile && address && isValid && (
               <>
-                <p className="secondary p-2">Wallet</p>
+                <p className="secondary p-2">{TEXT.wallet}</p>
                 <Menu.Item disabled as={'div'} className="w-full flex justify-center">
                   <ConnectWallet />
                 </Menu.Item>
               </>
             )}
-            <p className="secondary p-2">My identities</p>
+            <p className="secondary p-2">{TEXT.myIdentities}</p>
             <div className="border-b border-dotted border-gray-300">
               <Menu.Item
                 as={'div'}
@@ -59,7 +61,7 @@ export const MyProfile = ({ address }: { address: string }) => {
               onClick={() => pushRoute('/users')}
             >
               <FontAwesomeIcon className="w-6" icon={faUsers} />
-              <p>All Users</p>
+              <p>{TEXT.allUsers}</p>
             </Menu.Item>
           </Menu.Items>
         </Menu>

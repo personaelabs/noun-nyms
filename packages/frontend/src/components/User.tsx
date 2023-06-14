@@ -15,7 +15,9 @@ import { Filters } from './post/Filters';
 import Spinner from './global/Spinner';
 import { RetryError } from './global/RetryError';
 import { PostPreview } from './post/PostPreview';
+import text from '@/lib/text.json';
 
+const TEXT = text.user;
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
 
@@ -30,9 +32,9 @@ export default function User({ userId }: { userId: string }) {
   const { errorMsg, setError } = useError();
 
   const filterOptions: { [key: string]: string } = {
-    all: 'All',
-    posts: 'Posts',
-    replies: 'Replies',
+    all: TEXT.filters.all,
+    posts: TEXT.filters.posts,
+    replies: TEXT.filters.replies,
   };
 
   const {
@@ -88,7 +90,7 @@ export default function User({ userId }: { userId: string }) {
               onClick={() => pushRoute('/users')}
             >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
-              <p>All users</p>
+              <p>{TEXT.allUsers}</p>
             </div>
             <div className="flex gap-2 items-center">
               <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
@@ -113,11 +115,7 @@ export default function User({ userId }: { userId: string }) {
             {isLoading ? (
               <Spinner />
             ) : isError ? (
-              <RetryError
-                message="Could not fetch user data."
-                error={errorMsg}
-                refetchHandler={refetch}
-              />
+              <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
             ) : filteredPosts && filteredPosts.length > 0 ? (
               <>
                 {filteredPosts.map((post) => (
@@ -137,7 +135,7 @@ export default function User({ userId }: { userId: string }) {
               </>
             ) : (
               <div className="m-auto">
-                <p>User has no activity.</p>
+                <p>{TEXT.noData}</p>
               </div>
             )}
           </div>
