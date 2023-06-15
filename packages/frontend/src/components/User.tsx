@@ -53,8 +53,8 @@ export default function User({ userId }: { userId: string }) {
   });
 
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  const [openPostId, setOpenPostId] = useState<string>('');
-  const [writerToShow, setWriterToShow] = useState<string>('');
+  const [openPostId, setOpenPostId] = useState('');
+  const [writerToShow, setWriterToShow] = useState('');
 
   const [filter, setFilter] = useState<string>('all');
   const filteredPosts = useMemo(() => filterPosts(userPosts, filter), [userPosts, filter]);

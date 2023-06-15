@@ -49,7 +49,7 @@ export default function Posts(props: PostsProps) {
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
   const [showWalletWarning, setShowWalletWarning] = useState(false);
   const { isMobile, isValid, pushRoute, postInProg } = useContext(UserContext) as UserContextType;
-  const [filter, setFilter] = useState<string>('timestamp');
+  const [filter, setFilter] = useState('timestamp');
 
   const { isLoading, isFetchingNextPage, isError, refetch, fetchNextPage, data } = useInfiniteQuery(
     {

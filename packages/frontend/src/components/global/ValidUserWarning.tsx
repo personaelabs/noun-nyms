@@ -9,7 +9,7 @@ import { validUserWarning as TEXT } from '@/lib/text';
 export const ValidUserWarning = () => {
   const { address } = useAccount();
   const { isValid } = useContext(UserContext) as UserContextType;
-  const [showWarning, setShowWarning] = useState<boolean>(false);
+  const [showWarning, setShowWarning] = useState(false);
 
   // disable warning when account changes and then reset it once isValid changes
   useEffect(() => setShowWarning(false), [address]);

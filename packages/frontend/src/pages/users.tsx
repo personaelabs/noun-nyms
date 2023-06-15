@@ -74,9 +74,9 @@ export default function Users() {
   });
 
   const { pushRoute } = useContext(UserContext) as UserContextType;
-  const [filter, setFilter] = useState<string>('all');
-  const [sort, setSort] = useState<string>('lastActive');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filter, setFilter] = useState('all');
+  const [sort, setSort] = useState('lastActive');
+  const [searchQuery, setSearchQuery] = useState('');
   const filteredUsers = useMemo(
     () => filterUsers(users, filter, searchQuery),
     [filter, users, searchQuery],

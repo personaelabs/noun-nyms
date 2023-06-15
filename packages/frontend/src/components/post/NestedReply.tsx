@@ -49,7 +49,7 @@ export const resolveNestedReplyThreads = (
 
 export const NestedReply = (replyProps: IReplyProps) => {
   const { post, innerReplies, childrenLength, showReplyWriter, highlight } = replyProps;
-  const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
+  const [showPostWriter, setShowPostWriter] = useState(showReplyWriter);
   const { isMobile, postInProg } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError } = useError();
 
