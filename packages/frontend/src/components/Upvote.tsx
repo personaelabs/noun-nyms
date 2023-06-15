@@ -2,7 +2,7 @@ import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
-import { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useMemo, useRef, useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
 import { ClientUpvote, UserContextType } from '@/types/components';
 import { ReactNode } from 'react';
@@ -65,10 +65,10 @@ export const Upvote = (props: UpvoteIconProps) => {
     setShowVoteWarning(true);
   };
 
-  useEffect(() => {
-    if (buttonRef.current && (!showVoteWarning || !showWalletWarning)) buttonRef.current.focus();
-  }, [buttonRef, showVoteWarning, showWalletWarning]);
-
+  const handleModalClose = (handler: (val: boolean) => void) => {
+    handler(false);
+    if (buttonRef.current) buttonRef.current.focus();
+  };
   return (
     <>
       {errorMsg && isError ? (
@@ -79,12 +79,15 @@ export const Upvote = (props: UpvoteIconProps) => {
         </Modal>
       ) : showVoteWarning ? (
         <UpvoteWarning
-          handleClose={() => setShowVoteWarning(false)}
+          handleClose={() => handleModalClose(setShowVoteWarning)}
           upvoteHandler={upvoteHandler}
           loadingUpvote={loadingUpvote}
         />
       ) : showWalletWarning ? (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
+        <WalletWarning
+          handleClose={() => handleModalClose(setShowWalletWarning)}
+          action={TEXT.action}
+        />
       ) : null}
       <button
         ref={buttonRef}
