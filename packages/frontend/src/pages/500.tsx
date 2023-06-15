@@ -1,7 +1,6 @@
 import { ErrorPage } from '@/components/global/ErrorPage';
-import text from '@/lib/text.json';
+import { error500 as TEXT } from '@/lib/text';
 
 export default function Custom500() {
-  const TEXT = text.error500;
   return <ErrorPage title={TEXT.title} subtitle={TEXT.subtitle} />;
 }

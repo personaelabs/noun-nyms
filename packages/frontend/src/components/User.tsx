@@ -15,9 +15,8 @@ import { Filters } from './post/Filters';
 import Spinner from './global/Spinner';
 import { RetryError } from './global/RetryError';
 import { PostPreview } from './post/PostPreview';
-import text from '@/lib/text.json';
+import { user as TEXT } from '@/lib/text';
 
-const TEXT = text.user;
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
 

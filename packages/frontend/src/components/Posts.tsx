@@ -17,7 +17,7 @@ import { refetchAndScrollToPost } from '@/lib/client-utils';
 import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 import { useEffect } from 'react';
-import text from '@/lib/text.json';
+import { posts as TEXT } from '@/lib/text';
 import { WalletWarning } from './WalletWarning';
 import { useAccount } from 'wagmi';
 
@@ -42,7 +42,6 @@ interface PostsProps {
 
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
-  const TEXT = text.posts;
   const { errorMsg, setError } = useError();
   const { address } = useAccount();
   const [newPostOpen, setNewPostOpen] = useState(false);

@@ -11,7 +11,7 @@ import { UserContextType } from '@/types/components';
 import { Notification, NotificationsContextType } from '@/types/notifications';
 import { RetryError } from '../global/RetryError';
 import { NotificationsTools } from './NotificationsTools';
-import text from '@/lib/text.json';
+import { notifications as TEXT } from '@/lib/text';
 
 export const Notifications = () => {
   const { address } = useAccount();
@@ -20,7 +20,6 @@ export const Notifications = () => {
     NotificationsContext,
   ) as NotificationsContextType;
   const [notsToShow, setNotsToShow] = useState<Notification[]>(notifications);
-  const TEXT = text.notifications;
 
   useEffect(() => setNotsToShow(notifications), [notifications]);
 

@@ -1,6 +1,6 @@
 import { PostWriter } from './PostWriter';
 import { Modal } from '../global/Modal';
-import text from '@/lib/text.json';
+import { newPost as TEXT } from '@/lib/text';
 
 interface NewPostProps {
   handleClose: () => void;
@@ -8,7 +8,6 @@ interface NewPostProps {
 }
 export const NewPost = (props: NewPostProps) => {
   const { handleClose, scrollToPost } = props;
-  const TEXT = text.newPost;
 
   return (
     <Modal handleClose={handleClose}>

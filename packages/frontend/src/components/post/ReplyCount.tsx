@@ -1,7 +1,7 @@
-import text from '@/lib/text.json';
+import { replyText as TEXT } from '@/lib/text';
+
 export const ReplyCount = (replyCountProps: { count: number }) => {
   const { count } = replyCountProps;
-  const TEXT = text.replyText;
 
   return (
     <div className="flex gap-1 items-center hover:underline">

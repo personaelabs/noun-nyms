@@ -4,7 +4,7 @@ import { useAccount } from 'wagmi';
 import { UserName } from './global/UserName';
 import { UserAvatar } from './global/UserAvatar';
 import { NameType } from '@/types/components';
-import text from '@/lib/text.json';
+import { upvoteWarning as TEXT } from '@/lib/text';
 
 interface UpvoteWarningProps {
   handleClose: () => void;
@@ -14,7 +14,6 @@ interface UpvoteWarningProps {
 
 export const UpvoteWarning = (props: UpvoteWarningProps) => {
   const { handleClose, upvoteHandler, loadingUpvote } = props;
-  const TEXT = text.upvote.warning;
 
   const { address } = useAccount();
 

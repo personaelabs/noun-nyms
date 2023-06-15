@@ -10,10 +10,9 @@ import { Notifications } from './notifications/Notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import text from '@/lib/text.json';
+import { header as TEXT } from '@/lib/text';
 
 export const Header = () => {
-  const TEXT = text.app.header;
   const { address } = useAccount();
   const { isMobile, isValid, pushRoute } = useContext(UserContext) as UserContextType;
 

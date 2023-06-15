@@ -8,7 +8,7 @@ import { UserAvatar } from '../global/UserAvatar';
 import useError from '@/hooks/useError';
 import Confetti from 'react-confetti';
 import { getUserIdFromName } from '@/lib/client-utils';
-import text from '@/lib/text.json';
+import { newNym as TEXT } from '@/lib/text';
 import useWindowDimensions from '@/hooks/useWindow';
 import { UserContext } from '@/pages/_app';
 
@@ -46,7 +46,6 @@ const generateRandomString = (length: number) => {
 
 export const NewNym = (props: NewNymProps) => {
   const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
-  const TEXT = text.newNym;
   const [nymName, setNymName] = useState('');
   const [newNym, setNewNym] = useState<ClientName>();
   const [loadingNym, setLoadingNym] = useState(false);

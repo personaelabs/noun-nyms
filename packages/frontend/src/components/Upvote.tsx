@@ -12,7 +12,7 @@ import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
 import { UserName } from './global/UserName';
-import text from '@/lib/text.json';
+import { upvote as TEXT } from '@/lib/text';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -24,7 +24,6 @@ interface UpvoteIconProps {
 
 export const Upvote = (props: UpvoteIconProps) => {
   const { upvotes, postId, col, children, onSuccess } = props;
-  const TEXT = text.upvote;
   const { address } = useAccount();
   const { isValid } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError, clearError, isError } = useError();

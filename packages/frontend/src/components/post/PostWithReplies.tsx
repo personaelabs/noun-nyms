@@ -15,14 +15,13 @@ import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
-import text from '@/lib/text.json';
+import { postWithReplies as TEXT } from '@/lib/text';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
 
 export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const { postId, writerToShow } = postWithRepliesProps;
-  const TEXT = text.postWithReplies;
 
   const { errorMsg, setError } = useError();
   const [parent, setParent] = useState<IPostWithReplies>();

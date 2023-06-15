@@ -1,7 +1,6 @@
 import { ErrorPage } from '@/components/global/ErrorPage';
-import text from '@/lib/text.json';
+import { error404 as TEXT } from '@/lib/text';
 
 export default function Custom404() {
-  const TEXT = text.error404;
   return <ErrorPage title={TEXT.title} subtitle={TEXT.subtitle} />;
 }

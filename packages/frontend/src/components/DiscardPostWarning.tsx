@@ -1,6 +1,6 @@
 import { MainButton } from './MainButton';
 import { Modal } from './global/Modal';
-import text from '@/lib/text.json';
+import { discardPostWarning as TEXT } from '@/lib/text';
 
 interface DiscardPostWarningProps {
   handleClosePost: () => void;
@@ -9,7 +9,6 @@ interface DiscardPostWarningProps {
 
 export const DiscardPostWarning = (props: DiscardPostWarningProps) => {
   const { handleCloseWarning, handleClosePost } = props;
-  const TEXT = text.discardPostWarning;
   return (
     <Modal handleClose={handleCloseWarning} width={'50%'}>
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10 items-center">

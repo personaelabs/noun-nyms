@@ -1,6 +1,6 @@
 import ConnectWallet from './ConnectWallet';
 import { Modal } from './global/Modal';
-import text from '@/lib/text.json';
+import { walletWarning as TEXT } from '@/lib/text';
 
 interface WalletWarningProps {
   handleClose: () => void;
@@ -9,7 +9,6 @@ interface WalletWarningProps {
 
 export const WalletWarning = (props: WalletWarningProps) => {
   const { handleClose, action } = props;
-  const TEXT = text.walletWarning;
 
   return (
     <>
