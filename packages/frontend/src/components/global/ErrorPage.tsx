@@ -2,7 +2,7 @@ import { UserContext } from '@/pages/_app';
 import { MainButton } from '../MainButton';
 import { useContext } from 'react';
 import { UserContextType } from '@/types/components';
-import text from '@/lib/text.json';
+import { errorPage as TEXT } from '@/lib/text';
 
 interface ErrorPageProps {
   title: string;
@@ -10,7 +10,6 @@ interface ErrorPageProps {
 }
 export const ErrorPage = (props: ErrorPageProps) => {
   const { title, subtitle } = props;
-  const TEXT = text.errorPage;
   const { pushRoute } = useContext(UserContext) as UserContextType;
   return (
     <main className="h-screen flex flex-col justify-end items-center">

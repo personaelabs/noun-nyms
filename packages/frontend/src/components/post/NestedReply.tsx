@@ -11,7 +11,7 @@ import useError from '@/hooks/useError';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { scrollToPost } from '@/lib/client-utils';
-import text from '@/lib/text.json';
+import { nestedReply as TEXT } from '@/lib/text';
 
 interface IReplyProps {
   post: IPostWithReplies;
@@ -49,8 +49,7 @@ export const resolveNestedReplyThreads = (
 
 export const NestedReply = (replyProps: IReplyProps) => {
   const { post, innerReplies, childrenLength, showReplyWriter, highlight } = replyProps;
-  const TEXT = text.nestedReply;
-  const [showPostWriter, setShowPostWriter] = useState<boolean>(showReplyWriter);
+  const [showPostWriter, setShowPostWriter] = useState(showReplyWriter);
   const { isMobile, postInProg } = useContext(UserContext) as UserContextType;
   const { errorMsg, setError } = useError();
 

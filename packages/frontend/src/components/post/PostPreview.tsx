@@ -6,12 +6,10 @@ import useName from '@/hooks/useName';
 import { CopyLink } from './CopyLink';
 import { UserContext } from '@/pages/_app';
 import { useContext } from 'react';
-import text from '@/lib/text.json';
+import { postPreview as TEXT } from '@/lib/text';
 
 export const PostPreview = (postProps: PostProps) => {
   const { post, showUserHeader, handleOpenPost, onSuccess } = postProps;
-  const TEXT = text.postPreview;
-
   const { id, body, timestamp, userId, parent, root, title, _count } = post;
 
   const { name: userName } = useName({ userId });

@@ -10,10 +10,9 @@ import { Notification, NotificationsContextType } from '@/types/notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { RetryError } from '@/components/global/RetryError';
 import { NotificationsTools } from '@/components/notifications/NotificationsTools';
-import text from '@/lib/text.json';
+import { notifications as TEXT } from '@/lib/text';
 
 export default function Notifications() {
-  const TEXT = text.notifications;
   const { address } = useAccount();
   const isMounted = useIsMounted();
   const { isValid, nymOptions } = useContext(UserContext) as UserContextType;

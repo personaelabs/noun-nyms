@@ -15,9 +15,8 @@ import { Filters } from './post/Filters';
 import Spinner from './global/Spinner';
 import { RetryError } from './global/RetryError';
 import { PostPreview } from './post/PostPreview';
-import text from '@/lib/text.json';
+import { user as TEXT } from '@/lib/text';
 
-const TEXT = text.user;
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
 
@@ -54,8 +53,8 @@ export default function User({ userId }: { userId: string }) {
   });
 
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  const [openPostId, setOpenPostId] = useState<string>('');
-  const [writerToShow, setWriterToShow] = useState<string>('');
+  const [openPostId, setOpenPostId] = useState('');
+  const [writerToShow, setWriterToShow] = useState('');
 
   const [filter, setFilter] = useState<string>('all');
   const filteredPosts = useMemo(() => filterPosts(userPosts, filter), [userPosts, filter]);

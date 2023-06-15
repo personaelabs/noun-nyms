@@ -11,7 +11,7 @@ import { useContext, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { DiscardPostWarning } from '@/components/DiscardPostWarning';
-import text from '@/lib/text.json';
+import { postId as TEXT } from '@/lib/text';
 
 // This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
@@ -31,7 +31,6 @@ const buildSeo = (post?: IPostSimple) => {
 };
 
 export default function PostId({ post }: { post?: IPostSimple }) {
-  const TEXT = text.postId;
   const router = useRouter();
   const openPostId = router.query.postId as string;
   const { title, description } = buildSeo(post);

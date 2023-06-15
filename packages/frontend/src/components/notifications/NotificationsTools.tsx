@@ -5,7 +5,7 @@ import { NotificationsContext } from '@/pages/_app';
 import { Notification, NotificationsContextType } from '@/types/notifications';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useAccount } from 'wagmi';
-import text from '@/lib/text.json';
+import { notifications as TEXT } from '@/lib/text';
 
 interface NotificationsToolsProps {
   setFiltered: (notifications: Notification[]) => void;
@@ -13,7 +13,6 @@ interface NotificationsToolsProps {
 
 export const NotificationsTools = (props: NotificationsToolsProps) => {
   const { setFiltered } = props;
-  const TEXT = text.notifications;
   const { notifications, setAsRead } = useContext(NotificationsContext) as NotificationsContextType;
   const { address } = useAccount();
   const [filter, setFilter] = useState('all');

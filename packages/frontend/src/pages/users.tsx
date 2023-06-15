@@ -10,9 +10,8 @@ import { Filters } from '@/components/post/Filters';
 import { SortSelect } from '@/components/post/SortSelect';
 import { UserContext } from './_app';
 import { UserContextType } from '@/types/components';
-import text from '@/lib/text.json';
+import { users as TEXT } from '@/lib/text';
 
-const TEXT = text.users;
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
 const filterOptions: { [key: string]: string } = {
@@ -75,9 +74,9 @@ export default function Users() {
   });
 
   const { pushRoute } = useContext(UserContext) as UserContextType;
-  const [filter, setFilter] = useState<string>('all');
-  const [sort, setSort] = useState<string>('lastActive');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filter, setFilter] = useState('all');
+  const [sort, setSort] = useState('lastActive');
+  const [searchQuery, setSearchQuery] = useState('');
   const filteredUsers = useMemo(
     () => filterUsers(users, filter, searchQuery),
     [filter, users, searchQuery],

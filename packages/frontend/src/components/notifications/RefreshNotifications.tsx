@@ -6,7 +6,7 @@ import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { ClientName } from '@/types/components';
 import { NotificationsContext } from '@/pages/_app';
 import { NotificationsContextType } from '@/types/notifications';
-import text from '@/lib/text.json';
+import { notifications as TEXT } from '@/lib/text';
 
 export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
   const { nymOptions } = props;
@@ -15,7 +15,6 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
     NotificationsContext,
   ) as NotificationsContextType;
   const [refetching, setRefetching] = useState(false);
-  const TEXT = text.notifications;
 
   const refetch = async () => {
     if (address) {

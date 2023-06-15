@@ -10,7 +10,7 @@ import { UserContext } from '@/pages/_app';
 import { Menu } from '@headlessui/react';
 import { NameMenuItem } from './NameMenuItem';
 import { getUserIdFromName } from '@/lib/client-utils';
-import text from '@/lib/text.json';
+import { nameSelect as TEXT } from '@/lib/text';
 import MenuItem from './MenuItem';
 
 interface NameSelectProps {
@@ -21,7 +21,6 @@ interface NameSelectProps {
 
 export const NameSelect = (props: NameSelectProps) => {
   const { selectedName, setSelectedName, openMenuAbove } = props;
-  const TEXT = text.nameSelect;
   const { address } = useAccount();
   const { isValid, nymOptions, setNymOptions } = useContext(UserContext) as UserContextType;
   const { name, isEns } = useName({ userId: address });

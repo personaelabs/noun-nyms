@@ -4,7 +4,7 @@ import useName from '@/hooks/useName';
 import { NameType, UserContextType } from '@/types/components';
 import { useContext } from 'react';
 import { fromNowDate } from '@/lib/client-utils';
-import text from '@/lib/text.json';
+import { userTag as TEXT } from '@/lib/text';
 
 interface UserTagProps {
   userId: string;
@@ -14,7 +14,6 @@ interface UserTagProps {
 }
 export const UserTag = (props: UserTagProps) => {
   const { userId, avatarWidth, timestamp, lastActive } = props;
-  const TEXT = text.userTag;
   const { name, isDoxed } = useName({ userId });
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 

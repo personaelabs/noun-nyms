@@ -4,13 +4,12 @@ import { useAccount } from 'wagmi';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
-import text from '@/lib/text.json';
+import { validUserWarning as TEXT } from '@/lib/text';
 
 export const ValidUserWarning = () => {
   const { address } = useAccount();
   const { isValid } = useContext(UserContext) as UserContextType;
-  const [showWarning, setShowWarning] = useState<boolean>(false);
-  const TEXT = text.validUserWarning;
+  const [showWarning, setShowWarning] = useState(false);
 
   // disable warning when account changes and then reset it once isValid changes
   useEffect(() => setShowWarning(false), [address]);

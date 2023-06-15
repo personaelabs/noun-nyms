@@ -8,10 +8,9 @@ import { faAngleDown, faUsers } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
 import { getUserIdFromName } from '@/lib/client-utils';
-import text from '@/lib/text.json';
+import { header as TEXT } from '@/lib/text';
 
 export const MyProfile = ({ address }: { address: string }) => {
-  const TEXT = text.app.header;
   const { isMobile, nymOptions, isValid, pushRoute } = useContext(UserContext) as UserContextType;
   const { name } = useName({ userId: address });
 

@@ -14,7 +14,7 @@ import { UserContext } from '@/pages/_app';
 import useProver from '@/hooks/useProver';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import text from '@/lib/text.json';
+import { postWriter as TEXT } from '@/lib/text';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -24,7 +24,6 @@ interface IWriterProps {
 
 export const PostWriter = (props: IWriterProps) => {
   const { parentId, handleCloseWriter, scrollToPost } = props;
-  const TEXT = text.postWriter;
   const [body, setBody] = useState('');
   const [title, setTitle] = useState('');
   const [closeWriter, setCloseWriter] = useState(false);

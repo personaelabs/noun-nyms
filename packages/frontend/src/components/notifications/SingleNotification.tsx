@@ -14,7 +14,7 @@ import { useContext, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
-import text from '@/lib/text.json';
+import { notifications as TEXT } from '@/lib/text';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
@@ -36,7 +36,6 @@ export const SingleNotification = (props: {
   const { n, setAsRead, trim } = props;
   const [showOptions, setShowOptions] = useState(false);
   const { pushRoute } = useContext(UserContext) as UserContextType;
-  const TEXT = text.notifications;
 
   const handleClick = () => {
     setAsRead({ address, id: n.id });
