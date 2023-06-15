@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { UserPostCounts } from '@/types/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { isAddress } from 'viem';
+import { userIdToName } from './utils';
 
 function countUpvotes(
   users: {
@@ -52,17 +53,18 @@ const handleGetUsers = async (req: NextApiRequest, res: NextApiResponse<UserPost
 
   const upvotesByUserId = countUpvotes(upvotesRecevied);
 
-  const finalCounts = postCounts.map(({ userId, _count, _max }) => ({
+  const finalCounts = postCounts.map(async ({ userId, _count, _max }) => ({
     userId,
     numPosts: _count._all - _count.parentId,
     numReplies: _count.parentId,
     totalPosts: _count._all,
     doxed: isAddress(userId),
+    name: await userIdToName(userId),
     lastActive: _max.timestamp,
     upvotes: userId in upvotesByUserId ? upvotesByUserId[userId] : 0,
   }));
 
-  res.send(finalCounts);
+  res.send(await Promise.all(finalCounts));
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
