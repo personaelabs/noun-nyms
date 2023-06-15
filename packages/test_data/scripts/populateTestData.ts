@@ -341,7 +341,6 @@ const populateTestData = async () => {
   // ##############################
   log('Saving to database...');
 
-  // Save the dummy tree to the database
   const treeExists = await prisma.tree.findFirst({
     where: {
       root: treeRootHex,
@@ -369,10 +368,6 @@ const populateTestData = async () => {
   await prisma.doxedUpvote.createMany({
     data: upvotes,
   });
-
-  // Only the tree nodes of a single tree can exist in our database,
-  // so we delete all existing trees nodes to store a new set of tree nodes.
-  await prisma.treeNode.deleteMany({});
 
   const treeNodes = [
     ...PRIV_KEYS.map((privKey, i) => {
@@ -416,6 +411,7 @@ const populateTestData = async () => {
 
   await prisma.treeNode.createMany({
     data: treeNodes,
+    skipDuplicates: true,
   });
 
   log('...done!\n\n');
