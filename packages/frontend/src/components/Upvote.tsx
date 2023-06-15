@@ -2,7 +2,7 @@ import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
 import { ClientUpvote, UserContextType } from '@/types/components';
 import { ReactNode } from 'react';
@@ -12,6 +12,7 @@ import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
 import { UserName } from './global/UserName';
+import { upvote as TEXT } from '@/lib/text';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -38,6 +39,7 @@ export const Upvote = (props: UpvoteIconProps) => {
   const [showWalletWarning, setShowWalletWarning] = useState(false);
   const [loadingUpvote, setLoadingUpvote] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const upvoteHandler = async () => {
     try {
@@ -53,7 +55,8 @@ export const Upvote = (props: UpvoteIconProps) => {
     }
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
     if (!address || !isValid) {
       setShowWalletWarning(true);
       return;
@@ -62,16 +65,16 @@ export const Upvote = (props: UpvoteIconProps) => {
     setShowVoteWarning(true);
   };
 
+  useEffect(() => {
+    if (buttonRef.current && (!showVoteWarning || !showWalletWarning)) buttonRef.current.focus();
+  }, [buttonRef, showVoteWarning, showWalletWarning]);
+
   return (
     <>
       {errorMsg && isError ? (
         <Modal width="50%" handleClose={clearError}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-            <RetryError
-              message="Could not upvote:"
-              error={errorMsg}
-              refetchHandler={upvoteHandler}
-            />
+            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
           </div>
         </Modal>
       ) : showVoteWarning ? (
@@ -81,13 +84,11 @@ export const Upvote = (props: UpvoteIconProps) => {
           loadingUpvote={loadingUpvote}
         />
       ) : showWalletWarning ? (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="upvote" />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
       ) : null}
-      <div
-        onClick={(e) => {
-          e.stopPropagation();
-          handleClick();
-        }}
+      <button
+        ref={buttonRef}
+        onClick={handleClick}
         className={`flex ${
           col ? 'flex-col' : 'flex-row'
         } gap-1 justify-center items-center cursor-pointer h-min`}
@@ -102,7 +103,7 @@ export const Upvote = (props: UpvoteIconProps) => {
         >
           <div className="hover:font-bold">{children}</div>
           {showUsers && upvotes.length > 0 && (
-            <div className="absolute top-full mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2 flex">
+            <div className="absolute top-full mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2 flex z-50">
               <div className="min-w-0 shrink">
                 {upvotes.map((u) => {
                   return (
@@ -115,7 +116,7 @@ export const Upvote = (props: UpvoteIconProps) => {
             </div>
           )}
         </div>
-      </div>
+      </button>
     </>
   );
 };

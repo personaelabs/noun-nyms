@@ -10,20 +10,21 @@ import { Filters } from '@/components/post/Filters';
 import { SortSelect } from '@/components/post/SortSelect';
 import { UserContext } from './_app';
 import { UserContextType } from '@/types/components';
+import { users as TEXT } from '@/lib/text';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
 const filterOptions: { [key: string]: string } = {
-  all: 'All',
-  doxed: 'Doxed',
-  pseudo: 'Pseudo',
+  all: TEXT.filters.all,
+  doxed: TEXT.filters.doxed,
+  pseudo: TEXT.filters.pseudo,
 };
 
 const sortOptions: { [key: string]: string } = {
-  lastActive: 'Last Active',
-  numPosts: 'Posts',
-  numReplies: 'Replies',
-  upvotes: 'Votes',
+  lastActive: TEXT.sort.lastActive,
+  numPosts: TEXT.sort.numPosts,
+  numReplies: TEXT.sort.numReplies,
+  upvotes: TEXT.sort.upvotes,
 };
 
 const filterBySearch = (users: UserPostCounts[] | undefined, query: string) => {
@@ -44,8 +45,8 @@ const sortUsers = (users: UserPostCounts[] | undefined, query: string) => {
   return users
     ? users.sort((a, b) => {
         if (queryString === 'lastActive') {
-          const val1 = b['lastActive'] || new Date();
-          const val2 = a['lastActive'] || new Date();
+          const val1 = b.lastActive || new Date();
+          const val2 = a.lastActive || new Date();
 
           return Number(new Date(val1)) - Number(new Date(val2));
         }
@@ -73,9 +74,9 @@ export default function Users() {
   });
 
   const { pushRoute } = useContext(UserContext) as UserContextType;
-  const [filter, setFilter] = useState<string>('all');
-  const [sort, setSort] = useState<string>('lastActive');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filter, setFilter] = useState('all');
+  const [sort, setSort] = useState('lastActive');
+  const [searchQuery, setSearchQuery] = useState('');
   const filteredUsers = useMemo(
     () => filterUsers(users, filter, searchQuery),
     [filter, users, searchQuery],
@@ -147,16 +148,12 @@ export default function Users() {
                   ))
                 ) : (
                   <div className="m-auto">
-                    <p>No users found.</p>
+                    <p>{TEXT.noUsers}</p>
                   </div>
                 )}
               </>
             ) : isError ? (
-              <RetryError
-                message="Could not fetch users:"
-                error={errorMsg}
-                refetchHandler={refetch}
-              />
+              <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
             ) : null}
           </div>
         </div>

@@ -11,6 +11,7 @@ import { useContext, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { DiscardPostWarning } from '@/components/DiscardPostWarning';
+import { postId as TEXT } from '@/lib/text';
 
 // This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
@@ -59,7 +60,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
               }}
             >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
-              <p>All posts</p>
+              <p>{TEXT.backButtonText}</p>
             </div>
             <PostWithReplies postId={openPostId} />
           </>

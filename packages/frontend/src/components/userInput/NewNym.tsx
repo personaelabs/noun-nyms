@@ -1,13 +1,16 @@
 import { Modal } from '../global/Modal';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { MainButton } from '../MainButton';
 import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING, computeNymHash } from '@personaelabs/nymjs';
 import { useSignTypedData } from 'wagmi';
-import { ClientName, LocalNym, NameType } from '@/types/components';
+import { ClientName, LocalNym, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useError from '@/hooks/useError';
 import Confetti from 'react-confetti';
 import { getUserIdFromName } from '@/lib/client-utils';
+import { newNym as TEXT } from '@/lib/text';
+import useWindowDimensions from '@/hooks/useWindow';
+import { UserContext } from '@/pages/_app';
 
 interface NewNymProps {
   address: string;
@@ -49,6 +52,8 @@ export const NewNym = (props: NewNymProps) => {
   const { errorMsg, setError } = useError();
   const existingNames = useMemo(() => nymOptions.map((nym) => nym.name), [nymOptions]);
   const { signTypedDataAsync } = useSignTypedData();
+  const { width, height } = useWindowDimensions();
+  const { isMobile } = useContext(UserContext) as UserContextType;
 
   const storeNym = async (nymSig: string, nymHash: string) => {
     const nyms = localStorage.getItem(address);
@@ -67,8 +72,8 @@ export const NewNym = (props: NewNymProps) => {
     try {
       setError('');
       setLoadingNym(true);
-      if (!nymName) throw new Error('Must submit a valid name.');
-      if (existingNames.includes(nymName)) throw new Error('Nym already exists.');
+      if (!nymName) throw new Error(TEXT.inputError.noName);
+      if (existingNames.includes(nymName)) throw new Error(TEXT.inputError.duplicate);
       const nymSig = await signNym(nymName, signTypedDataAsync);
       const nymHash = await computeNymHash(nymSig);
       if (nymSig) storeNym(nymSig, nymHash);
@@ -89,20 +94,20 @@ export const NewNym = (props: NewNymProps) => {
         <Confetti
           recycle={false}
           numberOfPieces={502}
-          width={Math.floor(window.innerWidth * 0.6)}
-          onConfettiComplete={() => ''}
+          width={isMobile ? width : Math.floor(width * 0.55)}
+          height={height}
         />
       )}
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
         <div className="flex justify-start">
-          <h3>{newNym ? `New pseudoynm created!` : `Create a new pseudo nym`}</h3>
+          <h3>{newNym ? TEXT.afterTitle : TEXT.beforeTitle}</h3>
         </div>
-        <p className="text-gray-700">
-          {newNym
-            ? `Your new nym now exists in the world. Use it wisely.`
-            : `What does it mean to create a new nym? Any warnings the user should know beforehand?`}
-        </p>
-        {errorMsg ? <p className="error">Could not create pseudo: {errorMsg}</p> : null}
+        <p className="text-gray-700">{newNym ? TEXT.afterBody : TEXT.beforeBody}</p>
+        {errorMsg && (
+          <p className="error">
+            {TEXT.fetchError} {errorMsg}
+          </p>
+        )}
         <div className="flex flex-wrap justify-start items-center gap-2">
           <div className="flex gap-2 items-center">
             <UserAvatar width={30} userId={newNym ? getUserIdFromName(newNym) : address} />
@@ -128,7 +133,7 @@ export const NewNym = (props: NewNymProps) => {
               className="shrink-0 secondary underline"
               onClick={() => setNymName(generateRandomString(5))}
             >
-              Generate random name
+              {TEXT.generateRandom}
             </button>
           )}
         </div>
@@ -136,14 +141,14 @@ export const NewNym = (props: NewNymProps) => {
           {newNym ? (
             <MainButton
               color="#0E76FD"
-              message="Enter"
+              message={TEXT.afterButtonText}
               handler={handleClose}
               disabled={nymName === ''}
             />
           ) : (
             <MainButton
               color="#0E76FD"
-              message="Confirm"
+              message={TEXT.beforeButtonText}
               loading={loadingNym}
               handler={handleNewNym}
               disabled={nymName === ''}

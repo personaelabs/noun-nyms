@@ -17,6 +17,9 @@ import { refetchAndScrollToPost } from '@/lib/client-utils';
 import { DiscardPostWarning } from './DiscardPostWarning';
 import { PostWithRepliesModal } from './post/PostWithRepliesModal';
 import { useEffect } from 'react';
+import { posts as TEXT } from '@/lib/text';
+import { WalletWarning } from './WalletWarning';
+import { useAccount } from 'wagmi';
 
 const PER_FETCH = 20;
 const getPosts = async ({ pageParam = 0 }: { pageParam?: number }, filter: String) => {
@@ -40,11 +43,13 @@ interface PostsProps {
 export default function Posts(props: PostsProps) {
   const { initOpenPostId } = props;
   const { errorMsg, setError } = useError();
+  const { address } = useAccount();
   const [newPostOpen, setNewPostOpen] = useState(false);
   const [openPostId, setOpenPostId] = useState(initOpenPostId ? initOpenPostId : '');
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
-  const { isMobile, pushRoute, postInProg } = useContext(UserContext) as UserContextType;
-  const [filter, setFilter] = useState<string>('timestamp');
+  const [showWalletWarning, setShowWalletWarning] = useState(false);
+  const { isMobile, isValid, pushRoute, postInProg } = useContext(UserContext) as UserContextType;
+  const [filter, setFilter] = useState('timestamp');
 
   const { isLoading, isFetchingNextPage, isError, refetch, fetchNextPage, data } = useInfiniteQuery(
     {
@@ -81,8 +86,8 @@ export default function Posts(props: PostsProps) {
   }, [data, fetchNextPage, observedElement]);
 
   const filterOptions: { [key: string]: string } = {
-    timestamp: '⏳ Recent',
-    upvotes: '🔥 Top',
+    timestamp: TEXT.filters.timestamp,
+    upvotes: TEXT.filters.upvotes,
   };
 
   const handleOpenPost = (id: string) => {
@@ -113,6 +118,9 @@ export default function Posts(props: PostsProps) {
           }}
         />
       )}
+      {showWalletWarning && (
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
+      )}
       {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
       <main className="flex w-full flex-col justify-center items-center">
         <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -135,8 +143,12 @@ export default function Posts(props: PostsProps) {
                 <div className="grow-0">
                   <MainButton
                     color="#0E76FD"
-                    message="Start Discussion"
-                    handler={() => setNewPostOpen(true)}
+                    message={TEXT.buttonText}
+                    handler={() => {
+                      if (!address || !isValid) {
+                        setShowWalletWarning(true);
+                      } else setNewPostOpen(true);
+                    }}
                   />
                 </div>
               </div>
@@ -180,11 +192,7 @@ export default function Posts(props: PostsProps) {
                   )}
                 </>
               ) : isError ? (
-                <RetryError
-                  message={'Could not fetch posts:'}
-                  error={errorMsg}
-                  refetchHandler={refetch}
-                />
+                <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
               ) : null}
             </div>
           </div>

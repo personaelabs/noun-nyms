@@ -19,6 +19,7 @@ import { Header } from '@/components/Header';
 import { useNotifications } from '@/hooks/useNotifications';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from '@/components/global/ErrorPage';
+import { error as TEXT } from '@/lib/text';
 
 config.autoAddCss = false;
 
@@ -89,7 +90,7 @@ export default function App({ Component, pageProps }: AppProps) {
           </Head>
           <Seo />
           {routeLoading && <RouteLoadingSpinner />}
-          <ErrorBoundary fallback={<ErrorPage title={'Uh Oh!'} subtitle={'Error Unknown'} />}>
+          <ErrorBoundary fallback={<ErrorPage title={TEXT.title} subtitle={TEXT.subtitle} />}>
             <NotificationsContext.Provider value={notificationsCtx}>
               <Header />
               <Component {...pageProps} />

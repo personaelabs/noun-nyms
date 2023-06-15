@@ -15,6 +15,7 @@ import { Filters } from './post/Filters';
 import Spinner from './global/Spinner';
 import { RetryError } from './global/RetryError';
 import { PostPreview } from './post/PostPreview';
+import { user as TEXT } from '@/lib/text';
 
 const getPostsByUserId = async (userId: string) =>
   (await axios.get<IPostPreview[]>(`/api/v1/users/${userId}/posts`)).data;
@@ -30,9 +31,9 @@ export default function User({ userId }: { userId: string }) {
   const { errorMsg, setError } = useError();
 
   const filterOptions: { [key: string]: string } = {
-    all: 'All',
-    posts: 'Posts',
-    replies: 'Replies',
+    all: TEXT.filters.all,
+    posts: TEXT.filters.posts,
+    replies: TEXT.filters.replies,
   };
 
   const {
@@ -52,8 +53,8 @@ export default function User({ userId }: { userId: string }) {
   });
 
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
-  const [openPostId, setOpenPostId] = useState<string>('');
-  const [writerToShow, setWriterToShow] = useState<string>('');
+  const [openPostId, setOpenPostId] = useState('');
+  const [writerToShow, setWriterToShow] = useState('');
 
   const [filter, setFilter] = useState<string>('all');
   const filteredPosts = useMemo(() => filterPosts(userPosts, filter), [userPosts, filter]);
@@ -88,7 +89,7 @@ export default function User({ userId }: { userId: string }) {
               onClick={() => pushRoute('/users')}
             >
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
-              <p>All users</p>
+              <p>{TEXT.backButtonText}</p>
             </div>
             <div className="flex gap-2 items-center">
               <div className="rounded-full w-[85px] h-[85px] bg-white flex items-center justify-center">
@@ -113,11 +114,7 @@ export default function User({ userId }: { userId: string }) {
             {isLoading ? (
               <Spinner />
             ) : isError ? (
-              <RetryError
-                message="Could not fetch user data."
-                error={errorMsg}
-                refetchHandler={refetch}
-              />
+              <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
             ) : filteredPosts && filteredPosts.length > 0 ? (
               <>
                 {filteredPosts.map((post) => (
@@ -137,7 +134,7 @@ export default function User({ userId }: { userId: string }) {
               </>
             ) : (
               <div className="m-auto">
-                <p>User has no activity.</p>
+                <p>{TEXT.noData}</p>
               </div>
             )}
           </div>

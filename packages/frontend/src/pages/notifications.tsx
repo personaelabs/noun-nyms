@@ -10,6 +10,7 @@ import { Notification, NotificationsContextType } from '@/types/notifications';
 import { useIsMounted } from '@/hooks/useIsMounted';
 import { RetryError } from '@/components/global/RetryError';
 import { NotificationsTools } from '@/components/notifications/NotificationsTools';
+import { notifications as TEXT } from '@/lib/text';
 
 export default function Notifications() {
   const { address } = useAccount();
@@ -34,14 +35,14 @@ export default function Notifications() {
         <div className="bg-gray-50 min-h-screen w-full">
           <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-3 md:px-0">
             <div className="flex justify-between items-center">
-              <h3>Notifications</h3>
+              <h3>{TEXT.title}</h3>
               <RefreshNotifications nymOptions={nymOptions} />
             </div>
             {isLoading ? (
               <Spinner />
             ) : errorMsg ? (
               <RetryError
-                message={'Could not fetch notifications: '}
+                message={TEXT.fetchError}
                 error={errorMsg}
                 refetchHandler={() =>
                   fetchNotifications({ address: address as string, nymOptions })
@@ -60,17 +61,14 @@ export default function Notifications() {
                     </div>
                   ))
                 ) : (
-                  <p className="p-4 text-center">No notifications</p>
+                  <p className="p-4 text-center">{TEXT.noNotifications}</p>
                 )}
               </>
             ) : (
-              <p className="p-4 text-center">No notifications</p>
+              <p className="p-4 text-center">{TEXT.noNotifications}</p>
             )}
             {isMounted && showWalletWarning && (
-              <WalletWarning
-                handleClose={() => setShowWalletWarning(false)}
-                action={'get notifications'}
-              />
+              <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
             )}
           </div>
         </div>

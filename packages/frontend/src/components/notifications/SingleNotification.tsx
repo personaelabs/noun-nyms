@@ -14,6 +14,7 @@ import { useContext, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import { notifications as TEXT } from '@/lib/text';
 
 const getNotificationFromType = (type: NotificationType) => {
   switch (type) {
@@ -87,7 +88,7 @@ export const SingleNotification = (props: {
             onClick={() => setAsRead({ address, id: n.id })}
           >
             <FontAwesomeIcon icon={faCheck} size={'sm'} />
-            <p>Mark as read</p>
+            <p>{TEXT.markAsRead}</p>
           </div>
         )}
       </div>

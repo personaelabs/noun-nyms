@@ -15,6 +15,7 @@ import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { postWithReplies as TEXT } from '@/lib/text';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -123,7 +124,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               </div>
             </div>
           </div>
-          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6 pb-10">
             <PostWriter
               parentId={root.id as PrefixedHex}
               scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}
@@ -144,7 +145,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                       </p>
                     ) : topReply && topReply.depth > 1 ? (
                       <p className="hover:underline font-semibold text-xs cursor-pointer">
-                        {loadingLocalFetch ? 'Showing parent replies...' : 'Show parent replies'}
+                        {loadingLocalFetch ? TEXT.showingParentReplies : TEXT.showParentReplies}
                       </p>
                     ) : (
                       <></>
@@ -163,7 +164,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
           {isLoading ? (
             <Spinner />
           ) : isError ? (
-            <RetryError message="Could not fetch post:" error={errorMsg} refetchHandler={refetch} />
+            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
           ) : null}
         </div>
       )}

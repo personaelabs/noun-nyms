@@ -6,10 +6,10 @@ import useName from '@/hooks/useName';
 import { CopyLink } from './CopyLink';
 import { UserContext } from '@/pages/_app';
 import { useContext } from 'react';
+import { postPreview as TEXT } from '@/lib/text';
 
 export const PostPreview = (postProps: PostProps) => {
   const { post, showUserHeader, handleOpenPost, onSuccess } = postProps;
-
   const { id, body, timestamp, userId, parent, root, title, _count } = post;
 
   const { name: userName } = useName({ userId });
@@ -33,7 +33,7 @@ export const PostPreview = (postProps: PostProps) => {
               >
                 {userName}
               </span>
-              <span className="secondary"> replied to </span>
+              <span className="secondary"> {TEXT.repliedTo} </span>
               <span className="postDetail cursor-pointer hover:underline">{root.title}</span>
             </p>
             <div className="breakText secondary" onClick={() => pushRoute(`/users/${root.userId}`)}>
@@ -42,7 +42,11 @@ export const PostPreview = (postProps: PostProps) => {
           </div>
         ) : (
           <>
-            {showUserHeader ? <p className="secondary breakText">Posted by {userName}</p> : null}
+            {showUserHeader ? (
+              <p className="secondary breakText">
+                {TEXT.postedBy} {userName}
+              </p>
+            ) : null}
             <h4 className="cursor-pointer hover:underline tracking-tight">{title}</h4>
           </>
         )}

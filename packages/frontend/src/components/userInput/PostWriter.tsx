@@ -14,6 +14,7 @@ import { UserContext } from '@/pages/_app';
 import useProver from '@/hooks/useProver';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { postWriter as TEXT } from '@/lib/text';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -54,8 +55,8 @@ export const PostWriter = (props: IWriterProps) => {
   }, [setPostInProg, body, title]);
 
   useEffect(() => {
-    if (!postInProg) clearErrors();
-  }, [postInProg, clearErrors]);
+    if (!postInProg || name) clearErrors();
+  }, [postInProg, name, clearErrors]);
 
   useEffect(() => {
     // ensure that the writer does not close until postInProg is set to false
@@ -80,15 +81,15 @@ export const PostWriter = (props: IWriterProps) => {
         clearErrors();
         setSendingPost(true);
         if (!name) {
-          setUserError('must select an identity to post');
+          setUserError(TEXT.inputError.noName);
           return;
         }
         if (!body) {
-          setUserError('post cannot be empty');
+          setUserError(TEXT.inputError.noBody);
           return;
         }
         if (parentId === '0x0' && !title) {
-          setUserError('title cannot be empty');
+          setUserError(TEXT.inputError.noTitle);
           return;
         }
         let result = undefined;
@@ -104,7 +105,7 @@ export const PostWriter = (props: IWriterProps) => {
             signedHandler,
           );
         } else {
-          setUserError('must select a valid identity to post');
+          setUserError(TEXT.inputError.invalidName);
           return;
         }
         setSentPost(true);
@@ -123,27 +124,27 @@ export const PostWriter = (props: IWriterProps) => {
   return (
     <>
       {showWalletWarning ? (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action="comment" />
+        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
       ) : errorMsg && isError ? (
         <Modal width="50%" handleClose={clearErrors}>
           <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-            <RetryError
-              message="Could not submit post:"
-              error={errorMsg}
-              refetchHandler={sendPost}
-            />
+            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={sendPost} />
           </div>
         </Modal>
       ) : null}
       <div className="flex flex-col gap-2">
-        {userError && <p className="error">Error: {userError}</p>}
+        {userError && (
+          <p className="error">
+            {TEXT.userError} {userError}
+          </p>
+        )}
         <div className="w-full flex flex-col gap-6 justify-center items-center">
           <div className="w-full flex flex-col gap-4">
             {parentId === '0x0' ? (
               <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
                 <Textarea
                   value={title}
-                  placeholder="Add title"
+                  placeholder={TEXT.placeholder.title}
                   minHeight={50}
                   onChangeHandler={(newVal) => setTitle(newVal)}
                 ></Textarea>
@@ -152,7 +153,9 @@ export const PostWriter = (props: IWriterProps) => {
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
               <Textarea
                 value={body}
-                placeholder={parentId === '0x0' ? 'Description' : 'Type your post here'}
+                placeholder={
+                  parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody
+                }
                 minHeight={100}
                 onChangeHandler={(newVal) => setBody(newVal)}
               ></Textarea>
@@ -170,19 +173,20 @@ export const PostWriter = (props: IWriterProps) => {
               color="black"
               handler={sendPost}
               loading={sendingPost}
-              message={'Send'}
+              message={TEXT.buttonText.before}
               disabled={!body || (parentId === '0x0' && !title)}
             >
               {/* proving only happens for pseudo posts */}
               {hasSignedPost && sendingPost && name && name.type === NameType.PSEUDO ? (
                 <p>
-                  Proving<span className="dot1">.</span>
+                  {TEXT.buttonText.loading}
+                  <span className="dot1">.</span>
                   <span className="dot2">.</span>
                   <span className="dot3">.</span>
                 </p>
               ) : sentPost ? (
                 <div className="flex gap-1 items-center">
-                  <p>Sent</p>
+                  <p>{TEXT.buttonText.after}</p>
                   <FontAwesomeIcon icon={faCheck} />
                 </div>
               ) : null}

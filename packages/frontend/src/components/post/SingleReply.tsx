@@ -8,6 +8,7 @@ import { IPostPreview, IPostWithReplies } from '@/types/api';
 import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
+import { replyText as TEXT } from '@/lib/text';
 
 interface SingleReplyProps {
   post: IPostWithReplies | IPostPreview;
@@ -26,15 +27,15 @@ export const SingleReply = (props: SingleReplyProps) => {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="z-10">
+      <div className={`${highlight ? 'z-20' : 'z-auto'}`}>
         <UserTag userId={userId} timestamp={timestamp} />
       </div>
       {/* extra 8px (.5rem) of margin on non-mobile screens */}
       <div className="relative flex flex-col gap-2 ml-2 md:ml-4 pl-2">
         <div className="absolute top-0 left-0 h-full w-[1px] p-2 border-l border-dotted border-gray-300 hover:border-gray-500" />
-        <div className="relative z-0">
+        <div className="relative z-10">
           <span>{body}</span>
-          <div className="flex flex-wrap justify-between items-center py-2 border-t border-gray-300">
+          <div className="flex flex-wrap justify-between items-center py-2 border-t border-gray-300 z-30">
             <Upvote upvotes={upvotes} postId={id} onSuccess={onUpvote}>
               <p>{upvotes?.length}</p>
             </Upvote>
@@ -49,7 +50,7 @@ export const SingleReply = (props: SingleReplyProps) => {
               >
                 <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
                 <p className="secondary" style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}>
-                  Reply
+                  {TEXT.reply}
                 </p>
               </div>
               <CopyLink id={id} />
