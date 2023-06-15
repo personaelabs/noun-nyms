@@ -20,7 +20,7 @@ export const NotificationsTools = (props: NotificationsToolsProps) => {
 
   const filters = {
     all: TEXT.filters.all,
-    unread: TEXT.filters.unread + '(' + numUnread + ')',
+    unread: TEXT.filters.unread + ' (' + numUnread + ')',
   };
 
   const onFilterChange = (f: string) => {

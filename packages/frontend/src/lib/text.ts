@@ -1,7 +1,7 @@
 export const users = {
-  title: 'Users',
-  noUsers: 'No users found.',
-  fetchError: 'Could not fetch users:',
+  title: 'Nyms',
+  noUsers: 'No nyms found.',
+  fetchError: 'Could not fetch nyms:',
   filters: {
     all: 'All',
     doxed: 'Doxed',
@@ -22,7 +22,7 @@ export const user = {
     posts: 'Posts',
     replies: 'Replies',
   },
-  backButtonText: 'All users',
+  backButtonText: 'All nyms',
 };
 export const userTag = {
   lastActive: 'Last active',
@@ -150,7 +150,7 @@ export const error500 = {
 };
 export const header = {
   title: 'Noun Nyms',
-  allUsers: 'All users',
+  allUsers: 'All nyms',
   myIdentities: 'My identities',
   wallet: 'My wallet',
 };

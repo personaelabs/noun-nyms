@@ -25,7 +25,7 @@ export const SortSelect = (props: SortSelectProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+          <Listbox.Options className="absolute left-full -translate-x-full mt-1 max-h-60 max-w-[100px] min-w-full w-max overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
             {Object.keys(options).map((s) => (
               <Listbox.Option
                 className="relative rounded-lg cursor-default select-none py-2 px-3 hover:bg-gray-100"

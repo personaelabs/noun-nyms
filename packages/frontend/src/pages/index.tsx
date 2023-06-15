@@ -1,14 +1,25 @@
 import Posts from '@/components/Posts';
-import Users from './users';
+import Users from '@/components/Users';
 import { useState } from 'react';
+import { Tab } from '@headlessui/react';
 
-enum Views {
-  POSTS = 'Posts',
-  USERS = 'Users',
+export enum Views {
+  POSTS = 'Discussion',
+  USERS = 'Nyms',
 }
 
-export default function Home() {
-  const [view, setView] = useState('Posts');
+interface HomeProps {
+  defaultView?: Views;
+}
+
+export default function Home(props: HomeProps) {
+  const { defaultView } = props;
+  const [view, setView] = useState(defaultView ? defaultView : Views.POSTS);
+
+  const changeView = (v: Views) => {
+    window.history.pushState(null, '', `${v === Views.USERS ? '/users' : '/'}`);
+    setView(v);
+  };
   return (
     <main className="flex w-full flex-col justify-center items-center">
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
@@ -18,12 +29,33 @@ export default function Home() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="w-[50px] md:w-[100px]" src="/nouns.png" alt="nouns" />
             </div>
-            <select value={view} onChange={(e) => setView(e.target.value)}>
-              <option value={Views.POSTS}>Discussion</option>
-              <option value={Views.USERS}>Nyms</option>
-            </select>
+            <div className="flex justify-center">
+              <Tab.Group
+                as={'div'}
+                defaultIndex={Object.values(Views).indexOf(view)}
+                className="bg-white rounded-full border border-gray-200 p-1"
+              >
+                <Tab.List>
+                  {Object.values(Views).map((v) => (
+                    <Tab key={v} onClick={() => changeView(v)}>
+                      {({ selected }) => (
+                        <button
+                          className={`py-1 px-3 rounded-full ${
+                            selected ? 'bg-gray-100 font-semibold' : 'bg-white'
+                          }`}
+                        >
+                          {v}
+                        </button>
+                      )}
+                    </Tab>
+                  ))}
+                </Tab.List>
+              </Tab.Group>
+            </div>
           </div>
-          {view === Views.POSTS ? <Posts /> : <Users />}
+          <div className="flex flex-col gap-8 max-w-3xl mx-auto py-3 md:py-6 px-4 md:px-0">
+            {view === Views.POSTS ? <Posts /> : <Users />}
+          </div>
         </div>
       </div>
     </main>

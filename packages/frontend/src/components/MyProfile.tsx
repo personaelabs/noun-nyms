@@ -4,7 +4,7 @@ import { NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
 import { UserContext } from '@/pages/_app';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAngleDown, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
 import { Menu } from '@headlessui/react';
 import { getUserIdFromName } from '@/lib/client-utils';
@@ -17,7 +17,7 @@ export const MyProfile = ({ address }: { address: string }) => {
   return (
     <>
       {address && isValid ? (
-        <Menu as={'div'} className="relative cursor-pointer">
+        <Menu as={'div'} className="relative cursor-pointer z-50">
           <Menu.Button className="flex items-center gap-2 rounded-xl px-2 py-1 border border-white hover:scale-105 active:scale-100 transition-all">
             <UserAvatar width={30} userId={address} />
             <FontAwesomeIcon icon={faAngleDown} color="#ffffff" />
@@ -32,36 +32,26 @@ export const MyProfile = ({ address }: { address: string }) => {
               </>
             )}
             <p className="secondary p-2">{TEXT.myIdentities}</p>
-            <div className="border-b border-dotted border-gray-300">
-              <Menu.Item
-                as={'div'}
-                className="min-w-0 shrink w-full flex items-center gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
-                onClick={() => pushRoute(`/users/${address}`)}
-              >
-                <UserAvatar type={NameType.DOXED} userId={address} width={20} />
-                <p className="breakText">{name}</p>
-              </Menu.Item>
-              {nymOptions &&
-                nymOptions.map((nym) => (
-                  <Menu.Item
-                    as={'div'}
-                    key={nym.nymSig}
-                    className="min-w-0 shrink w-full flex items-center gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
-                    onClick={() => pushRoute(`/users/${getUserIdFromName(nym)}`)}
-                  >
-                    <UserAvatar type={NameType.PSEUDO} userId={getUserIdFromName(nym)} width={20} />
-                    <p className="breakText">{nym.name}</p>
-                  </Menu.Item>
-                ))}
-            </div>
             <Menu.Item
               as={'div'}
               className="min-w-0 shrink w-full flex items-center gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
-              onClick={() => pushRoute('/users')}
+              onClick={() => pushRoute(`/users/${address}`)}
             >
-              <FontAwesomeIcon className="w-6" icon={faUsers} />
-              <p>{TEXT.allUsers}</p>
+              <UserAvatar type={NameType.DOXED} userId={address} width={20} />
+              <p className="breakText">{name}</p>
             </Menu.Item>
+            {nymOptions &&
+              nymOptions.map((nym) => (
+                <Menu.Item
+                  as={'div'}
+                  key={nym.nymSig}
+                  className="min-w-0 shrink w-full flex items-center gap-2 px-2 py-2.5 rounded-xl hover:bg-gray-100"
+                  onClick={() => pushRoute(`/users/${getUserIdFromName(nym)}`)}
+                >
+                  <UserAvatar type={NameType.PSEUDO} userId={getUserIdFromName(nym)} width={20} />
+                  <p className="breakText">{nym.name}</p>
+                </Menu.Item>
+              ))}
           </Menu.Items>
         </Menu>
       ) : null}

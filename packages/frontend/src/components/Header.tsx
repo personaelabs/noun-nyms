@@ -22,7 +22,7 @@ export const Header = () => {
     <>
       {isMobile !== null && (
         <div className="bg-black dots w-full">
-          <div className="flex flex-col gap-2 py-4">
+          <div className="flex flex-col gap-2 py-3">
             <nav className="w-full px-4 md:px-6 flex justify-between items-center">
               <div
                 className="min-w-0 flex shrink gap-2 items-center cursor-pointer"
@@ -33,7 +33,7 @@ export const Header = () => {
                     <Image src={logo} alt="logo" />
                   </div>
                 </div>
-                {!isMobile && <h3 className="text-white font-semibold breakText">{TEXT.title}</h3>}
+                {!isMobile && <h4 className="text-white font-semibold breakText">{TEXT.title}</h4>}
               </div>
               <div className="flex gap-4 items-center">
                 {isMounted && address && isValid && <Notifications />}
