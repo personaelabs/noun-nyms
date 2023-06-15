@@ -2,7 +2,7 @@ import { faCircleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { submitUpvote } from '@/lib/actions';
-import { useContext, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { UpvoteWarning } from './UpvoteWarning';
 import { ClientUpvote, UserContextType } from '@/types/components';
 import { ReactNode } from 'react';
@@ -40,6 +40,7 @@ export const Upvote = (props: UpvoteIconProps) => {
   const [showWalletWarning, setShowWalletWarning] = useState(false);
   const [loadingUpvote, setLoadingUpvote] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const upvoteHandler = async () => {
     try {
@@ -55,7 +56,8 @@ export const Upvote = (props: UpvoteIconProps) => {
     }
   };
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
     if (!address || !isValid) {
       setShowWalletWarning(true);
       return;
@@ -63,6 +65,10 @@ export const Upvote = (props: UpvoteIconProps) => {
     if (hasUpvoted) return;
     setShowVoteWarning(true);
   };
+
+  useEffect(() => {
+    if (buttonRef.current && (!showVoteWarning || !showWalletWarning)) buttonRef.current.focus();
+  }, [buttonRef, showVoteWarning, showWalletWarning]);
 
   return (
     <>
@@ -82,10 +88,8 @@ export const Upvote = (props: UpvoteIconProps) => {
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
       ) : null}
       <button
-        onClick={(e) => {
-          e.stopPropagation();
-          handleClick();
-        }}
+        ref={buttonRef}
+        onClick={handleClick}
         className={`flex ${
           col ? 'flex-col' : 'flex-row'
         } gap-1 justify-center items-center cursor-pointer h-min`}

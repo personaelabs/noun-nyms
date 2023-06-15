@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Filters } from '../post/Filters';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { NotificationsContext } from '@/pages/_app';
 import { Notification, NotificationsContextType } from '@/types/notifications';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -13,14 +13,15 @@ interface NotificationsToolsProps {
 
 export const NotificationsTools = (props: NotificationsToolsProps) => {
   const { setFiltered } = props;
+  const TEXT = text.notifications;
   const { notifications, setAsRead } = useContext(NotificationsContext) as NotificationsContextType;
   const { address } = useAccount();
   const [filter, setFilter] = useState('all');
-  const TEXT = text.notifications;
+  const numUnread = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   const filters = {
     all: 'All',
-    unread: 'Unread',
+    unread: 'Unread (' + numUnread + ')',
   };
 
   const onFilterChange = (f: string) => {

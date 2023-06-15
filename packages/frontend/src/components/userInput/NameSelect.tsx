@@ -1,6 +1,6 @@
 import { faAngleDown, faAngleUp, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientName, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
@@ -32,7 +32,12 @@ export const NameSelect = (props: NameSelectProps) => {
     isEns,
   };
   const [openNewNym, setOpenNewNym] = useState(false);
-  const menuItemRef = useRef(null);
+  const menuItemRef = useRef<HTMLButtonElement>(null);
+  const nameSelectRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (nameSelectRef.current && !openNewNym) nameSelectRef.current.focus();
+  }, [nameSelectRef, openNewNym]);
 
   return (
     <>
@@ -49,7 +54,10 @@ export const NameSelect = (props: NameSelectProps) => {
       <Menu as={'div'} className="min-w-0 max-w-min shrink grow relative basis-1/4 sm:basis-auto">
         {({ open }) => (
           <>
-            <Menu.Button className="w-full bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer">
+            <Menu.Button
+              ref={nameSelectRef}
+              className="w-full bg-white flex gap-2 justify-between border items-center border-gray-200 rounded-xl px-2 py-2.5 cursor-pointer"
+            >
               <div className="min-w-0 shrink flex gap-2 items-center">
                 {selectedName && (
                   <UserAvatar
