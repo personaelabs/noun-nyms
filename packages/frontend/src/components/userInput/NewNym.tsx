@@ -1,14 +1,16 @@
 import { Modal } from '../global/Modal';
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { MainButton } from '../MainButton';
 import { NYM_CODE_TYPE, DOMAIN, NYM_CODE_WARNING, computeNymHash } from '@personaelabs/nymjs';
 import { useSignTypedData } from 'wagmi';
-import { ClientName, LocalNym, NameType } from '@/types/components';
+import { ClientName, LocalNym, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useError from '@/hooks/useError';
 import Confetti from 'react-confetti';
 import { getUserIdFromName } from '@/lib/client-utils';
 import text from '@/lib/text.json';
+import useWindowDimensions from '@/hooks/useWindow';
+import { UserContext } from '@/pages/_app';
 
 interface NewNymProps {
   address: string;
@@ -51,6 +53,8 @@ export const NewNym = (props: NewNymProps) => {
   const { errorMsg, setError } = useError();
   const existingNames = useMemo(() => nymOptions.map((nym) => nym.name), [nymOptions]);
   const { signTypedDataAsync } = useSignTypedData();
+  const { width, height } = useWindowDimensions();
+  const { isMobile } = useContext(UserContext) as UserContextType;
 
   const storeNym = async (nymSig: string, nymHash: string) => {
     const nyms = localStorage.getItem(address);
@@ -91,8 +95,8 @@ export const NewNym = (props: NewNymProps) => {
         <Confetti
           recycle={false}
           numberOfPieces={502}
-          width={Math.floor(window.innerWidth * 0.6)}
-          onConfettiComplete={() => ''}
+          width={isMobile ? width : Math.floor(width * 0.55)}
+          height={height}
         />
       )}
       <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
