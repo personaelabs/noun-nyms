@@ -13,7 +13,7 @@ const handleGetLatestGroup = async (req: NextApiRequest, res: NextApiResponse) =
       type: GroupType.OneNoun,
     },
     orderBy: {
-      createdAt: 'desc',
+      blockHeight: 'desc',
     },
   });
 
