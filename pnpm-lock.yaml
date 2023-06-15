@@ -98,9 +98,6 @@ importers:
       '@personaelabs/nymjs':
         specifier: '*'
         version: link:../nymjs
-      '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.4
-        version: 2.1.4
       '@prisma/client':
         specifier: 4.5.0
         version: 4.5.0(prisma@4.5.0)
@@ -201,6 +198,9 @@ importers:
       '@types/swagger-ui-react':
         specifier: ^4.18.0
         version: 4.18.0
+      '@zk-kit/incremental-merkle-tree':
+        specifier: ^1.0.0
+        version: 1.0.0
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.14(postcss@8.4.23)

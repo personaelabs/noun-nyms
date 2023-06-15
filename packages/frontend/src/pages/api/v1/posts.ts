@@ -113,6 +113,7 @@ const handleCreateDoxedPost = async (
 
 let verifierInitialized = false;
 let verifier: NymVerifier;
+let circuitBin: Buffer;
 
 // Handle pseudonymous post creation
 // Verify the proof and save the post
@@ -126,12 +127,17 @@ const handleCreatePseudoPost = async (
   const post = toPost(content, attestation, AttestationScheme.Nym);
 
   if (!verifierInitialized) {
-    // Load the circuit from the JSON file
-    const circuitJson = fs.readFileSync(path.join(process.cwd(), 'circuit.json'));
+    // Fetch circuit and load to memory if not already loaded
+    if (!circuitBin) {
+      const data = await fetch(
+        'https://storage.googleapis.com/personae-proving-keys/nym/nym_ownership.circuit',
+      );
+      circuitBin = Buffer.from(await data.arrayBuffer());
+    }
 
     // Initialize the verifier
     verifier = new NymVerifier({
-      circuitBin: Buffer.from(JSON.parse(circuitJson.toString()).circuit, 'hex'),
+      circuitBin,
       enableProfiler: true,
     });
 
