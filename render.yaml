@@ -1,12 +1,11 @@
-previewsEnabled: true
 services:
   - type: cron
     name: nouns250-merkle-cron
-    plan: starter
-    previewPlan: starter
+    plan: standard
     env: node
     region: oregon
     rootDir: ./
+    branch: main
     schedule: "0 * * * *"
     buildCommand: ./scripts/setup_merkle_cron.sh
     startCommand: pnpm -F merkle_tree run writeTree
@@ -20,9 +19,34 @@ services:
           name: nouns250
           property: connectionString
       - fromGroup: nouns250
+  - type: cron
+    name: nouns250-merkle-cron-staging
+    plan: standard
+    env: node
+    region: oregon
+    rootDir: ./
+    branch: dev
+    schedule: "0 * * * *"
+    buildCommand: ./scripts/setup_merkle_cron.sh
+    startCommand: pnpm -F merkle_tree run writeTree:dev
+    buildFilter:
+      paths:
+      - packages/merkle_tree/**
+      - packages/db/**
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nouns250-staging
+          property: connectionString
+      - fromGroup: nouns250-staging
 
 databases:
   - name: nouns250
+    databaseName: nym
+    region: oregon
+    plan: pro
+    postgresMajorVersion: 15
+  - name: nouns250-staging
     databaseName: nym
     region: oregon
     plan: starter
