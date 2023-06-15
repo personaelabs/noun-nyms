@@ -87,7 +87,7 @@ export default function Users() {
     <>
       <div className="flex flex-col gap-4">
         <div className="flex justify-between">
-          <h3>Users</h3>
+          <h3>{TEXT.title}</h3>
           <input
             className="outline-none bg-white px-2"
             type="text"
