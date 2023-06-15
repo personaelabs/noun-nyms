@@ -40,7 +40,7 @@ export const Notifications = () => {
               )}
             </Menu.Button>
             {!isMobile && (
-              <Menu.Items className="absolute z-50 top-full left-1/2 -translate-x-1/2 w-[400px] bg-white mt-6 border border-gray-200 rounded-xl cursor-pointer">
+              <Menu.Items className="absolute z-50 top-full left-1/2 -translate-x-1/2 w-[400px] bg-white mt-4 border border-gray-200 rounded-xl cursor-pointer">
                 <div className="flex flex-col gap-2 px-3 mb-2">
                   <div className="flex items-center justify-between mt-2">
                     <h4>{TEXT.title}</h4>

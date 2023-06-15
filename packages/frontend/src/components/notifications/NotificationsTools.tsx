@@ -19,8 +19,8 @@ export const NotificationsTools = (props: NotificationsToolsProps) => {
   const numUnread = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
   const filters = {
-    all: 'All',
-    unread: 'Unread (' + numUnread + ')',
+    all: TEXT.filters.all,
+    unread: TEXT.filters.unread + '(' + numUnread + ')',
   };
 
   const onFilterChange = (f: string) => {

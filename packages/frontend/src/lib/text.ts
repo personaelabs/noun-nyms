@@ -29,7 +29,7 @@ export const userTag = {
   dash: '-',
 };
 export const posts = {
-  title: 'Posts',
+  title: 'Discussion',
   filters: {
     timestamp: '⏳ Recent',
     upvotes: '🔥 Top',
@@ -59,6 +59,10 @@ export const notifications = {
   markAllAsRead: 'Mark all as read',
   markAsRead: 'Mark as read',
   lastUpdated: 'Last updated: ',
+  filters: {
+    all: 'All',
+    unread: 'Unread',
+  },
 };
 export const nestedReply = {
   showMoreReplies: 'Show more replies',

@@ -64,11 +64,6 @@ export const Upvote = (props: UpvoteIconProps) => {
     if (hasUpvoted) return;
     setShowVoteWarning(true);
   };
-
-  useEffect(() => {
-    if (buttonRef.current && (!showVoteWarning || !showWalletWarning)) buttonRef.current.focus();
-  }, [buttonRef, showVoteWarning, showWalletWarning]);
-
   return (
     <>
       {errorMsg && isError ? (
@@ -79,12 +74,21 @@ export const Upvote = (props: UpvoteIconProps) => {
         </Modal>
       ) : showVoteWarning ? (
         <UpvoteWarning
-          handleClose={() => setShowVoteWarning(false)}
+          handleClose={() => {
+            setShowVoteWarning(false);
+            if (buttonRef.current) buttonRef.current.focus();
+          }}
           upvoteHandler={upvoteHandler}
           loadingUpvote={loadingUpvote}
         />
       ) : showWalletWarning ? (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
+        <WalletWarning
+          handleClose={() => {
+            setShowWalletWarning(false);
+            if (buttonRef.current) buttonRef.current.focus();
+          }}
+          action={TEXT.action}
+        />
       ) : null}
       <button
         ref={buttonRef}
