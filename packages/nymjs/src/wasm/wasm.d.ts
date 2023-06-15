@@ -61,12 +61,9 @@ export type SyncInitInput = BufferSource | WebAssembly.Module;
  * Instantiates the given `module`, which can either be bytes or
  * a precompiled `WebAssembly.Module`.
  *
- * @param {SyncInitInput} module
- * @param {WebAssembly.Memory} maybe_memory
- *
  * @returns {InitOutput}
  */
-export function initSync(module: SyncInitInput, maybe_memory?: WebAssembly.Memory): InitOutput;
+export function initSync(): InitOutput;
 
 /**
  * If `module_or_path` is {RequestInfo} or {URL}, makes a request and

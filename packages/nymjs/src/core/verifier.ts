@@ -9,11 +9,7 @@ import {
   toTypedContent,
 } from '../utils';
 import { Post, NymProofAuxiliary, PublicInput } from '../lib';
-import {
-  verifyEffEcdsaPubInput,
-  PublicInput as EffEcdsaPubInput,
-  CircuitPubInput,
-} from '@personaelabs/spartan-ecdsa';
+import { computeEffEcdsaPubInput } from '../eff_ecdsa';
 import { bigIntToHex } from '@ethereumjs/util';
 
 // NOTE: we'll subsidize storage of these files for now
@@ -56,19 +52,17 @@ export class NymVerifier extends Profiler {
         typedNymName.value,
       );
 
-      const nymSigPublicInput = new EffEcdsaPubInput(
+      const expectedCircuitInput = computeEffEcdsaPubInput(
         auxiliary.nymSigR,
         auxiliary.nymSigV,
         typedNymNameHash,
-        new CircuitPubInput(
-          publicInput.root,
-          publicInput.nymSigTx,
-          publicInput.nymSigTy,
-          publicInput.nymSigUx,
-          publicInput.nymSigUy,
-        ),
       );
-      isNymSigPubInputValid = verifyEffEcdsaPubInput(nymSigPublicInput);
+
+      isNymSigPubInputValid =
+        expectedCircuitInput.Tx === publicInput.nymSigTx &&
+        expectedCircuitInput.Ty === publicInput.nymSigTy &&
+        expectedCircuitInput.Ux === publicInput.nymSigUx &&
+        expectedCircuitInput.Uy === publicInput.nymSigUy;
     } catch (_e) {
       isNymSigPubInputValid = false;
     }
@@ -83,19 +77,17 @@ export class NymVerifier extends Profiler {
         typedContentMessage.value,
       );
 
-      const contentMessageSigPublicInput = new EffEcdsaPubInput(
+      const expectedCircuitInput = computeEffEcdsaPubInput(
         auxiliary.contentSigR,
         auxiliary.contentSigV,
         typedContentMessageHash,
-        new CircuitPubInput(
-          publicInput.root,
-          publicInput.contentSigTx,
-          publicInput.contentSigTy,
-          publicInput.contentSigUx,
-          publicInput.contentSigUy,
-        ),
       );
-      isContentSigPubInputValid = verifyEffEcdsaPubInput(contentMessageSigPublicInput);
+
+      isContentSigPubInputValid =
+        expectedCircuitInput.Tx === publicInput.contentSigTx &&
+        expectedCircuitInput.Ty === publicInput.contentSigTy &&
+        expectedCircuitInput.Ux === publicInput.contentSigUx &&
+        expectedCircuitInput.Uy === publicInput.contentSigUy;
     } catch (_e) {
       isContentSigPubInputValid = false;
     }

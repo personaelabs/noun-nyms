@@ -458,11 +458,12 @@ async function initSync(module, maybe_memory) {
         module = new WebAssembly.Module(module);
     }
     */
-  const compiled = WebAssembly.compile(module);
+  const instance = await WebAssembly.instantiateStreaming(
+    fetch('https://storage.googleapis.com/personae-proving-keys/spartan_wasm.wasm'),
+    imports,
+  );
 
-  const instance = await WebAssembly.instantiate(await compiled, imports);
-
-  return __wbg_finalize_init(instance, module);
+  return __wbg_finalize_init(instance.instance, instance.module);
 }
 
 async function __wbg_init(input, maybe_memory) {

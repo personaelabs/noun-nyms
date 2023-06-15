@@ -15,6 +15,7 @@ import {
   toUpvote,
   bigIntToPrefixedHex,
   PrefixedHex,
+  MerkleProof,
 } from '../src/lib';
 import {
   ecsign,
@@ -25,8 +26,10 @@ import {
   ECDSASignature,
   privateToAddress,
 } from '@ethereumjs/util';
-import { MerkleProof, Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import { IncrementalMerkleTree } from '@zk-kit/incremental-merkle-tree';
 import { INCONSISTENT_SIGNERS, INVALID_MERKLE_PROOF } from '../src/errors';
+import { poseidonHashPubKey, poseidonHashSync } from '../src/utils';
+import { init } from '../src/wasm';
 
 describe('nym', () => {
   const proverPrivKey = Buffer.from('da'.padStart(64, '0'), 'hex');
@@ -36,15 +39,13 @@ describe('nym', () => {
   let contentMessageSig: ECDSASignature;
   let proverPubKeyHash: bigint;
   let membershipProof: MerkleProof;
-  const poseidon = new Poseidon();
 
   beforeAll(async () => {
-    await poseidon.initWasm();
-
+    await init();
     // Create a Merkle tree with a single leaf,
     // and create a proof for that leaf
-    proverPubKeyHash = poseidon.hashPubKey(proverPubKey);
-    const tree = new Tree(20, poseidon);
+    proverPubKeyHash = await poseidonHashPubKey(proverPubKey);
+    const tree = new IncrementalMerkleTree(poseidonHashSync, 20, BigInt(0));
     tree.insert(proverPubKeyHash);
 
     membershipProof = tree.createProof(tree.indexOf(proverPubKeyHash));
@@ -54,7 +55,7 @@ describe('nym', () => {
       title: 'title',
       body: 'body',
       parentId: '0x',
-      groupRoot: bigIntToPrefixedHex(tree.root()),
+      groupRoot: bigIntToPrefixedHex(tree.root),
       timestamp: Math.round(Date.now() / 1000),
     };
 
