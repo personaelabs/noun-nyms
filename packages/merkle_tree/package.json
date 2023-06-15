@@ -6,6 +6,7 @@
   "scripts": {
     "build": "pnpm graphclient build",
     "writeTree": "pnpm ts-node ./src/writeTree.ts",
+    "writeTree:dev": "INCLUDE_DEV_ACCOUNTS=true pnpm ts-node ./src/writeTree.ts",
     "populateCache": "pnpm ts-node ./scripts/populateCache.ts"
   },
   "dependencies": {

@@ -8,9 +8,16 @@ import { PrismaClient, GroupType } from "@prisma/client";
 import alchemy from "./alchemy";
 import { FormattedHex } from "./types";
 import { formatHex } from "./utils";
+import DEV_ACCOUNTS from "../../../dev-accounts.json";
 
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
+
+type DevAccount = {
+  id: string; // address
+  pubKey: string;
+  tokenBalance: number;
+};
 
 type EOA = {
   address: FormattedHex;
@@ -31,16 +38,6 @@ const isManyNounsAccount = (account: EOA): boolean =>
   (account.tokenBalance !== null && account.tokenBalance >= 2) ||
   (account.delegatedVotes !== null && account.delegatedVotes >= 2);
 
-// Return true if the root already exists in the database
-const treeExists = async (root: string): Promise<boolean> =>
-  (await prisma.tree.findFirst({
-    where: {
-      root
-    }
-  }))
-    ? true
-    : false;
-
 // Write the public key tree constructed at the given block height to the database
 async function writeTree(blockHeight: number) {
   console.log("Writing tree to database at block", blockHeight);
@@ -56,12 +53,27 @@ async function writeTree(blockHeight: number) {
   ).delegates;
   console.timeEnd("Fetch owners and delegates from subgraph");
 
-  const accounts: (Owner | Delegate)[] = owners;
+  const accounts: (Owner | Delegate | DevAccount)[] = owners;
 
   // Add delegates to the list of all accounts if they are not already there
   for (let i = 0; i < delegates.length; i++) {
     if (!accounts.find(account => account.id === delegates[i].id)) {
       accounts.push(delegates[i]);
+    }
+  }
+
+  // Add dev accounts to the list of all accounts if they are not already there
+  if (process.env.INCLUDE_DEV_ACCOUNTS === "true") {
+    for (let i = 0; i < DEV_ACCOUNTS.length; i++) {
+      const address = DEV_ACCOUNTS[i].address.toLowerCase();
+      const pubKey = DEV_ACCOUNTS[i].pubKey.toLowerCase();
+      if (!accounts.find(account => account.id === address)) {
+        accounts.push({
+          id: address,
+          pubKey,
+          tokenBalance: 1
+        });
+      }
     }
   }
 

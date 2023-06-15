@@ -1,0 +1,32 @@
+[
+  {
+    "ens": "cha0sg0d.eth",
+    "pubKey": "2e1869b4aa4611eff68043fb8bfecf9e58a6252cf3de6547167099a3124345c0372b2a0edc636444c0718b53c76da503e3619e82bb4f0e2e34cbc02a84ad18d3",
+    "address": "3ff4EcB0D7A01235dcCD9fc59B0d4969Cb011032"
+  },
+  {
+    "ens": "amirbolous.eth",
+    "pubKey": "3ba0d5397de63df8884014d446fd68318345f236cfe3f808ae879dedb471fdb2673e0be282cbf9a422333c36afa2b5e6dc815bbb40e9cd0dc7df5179759d1383",
+    "address": "926B47C42Ce6BC92242c080CF8fAFEd34a164017"
+  },
+  {
+    "ens": "jessewldn.eth",
+    "pubKey": "68c5810a40f71b05b3d7b3a9b32fda173fdaad989ab906a4e95d615c2f63951a33dcf5ddbc001f8e65a22856ed5680867bbcb857a170f554dabc51d27b2d6357",
+    "address": "e7925d190aea9279400cd9a005e33ceb9389cc2b"
+  },
+  {
+    "ens": "alanalevin.eth",
+    "pubKey": "0da283936e4d6ca37550c4d3276c8a3cfbe85b66a4ab6d0e9568d1170d8a8db313384ae9a0007bc8e791f645b09a7372bb9054d087ce3969536be51612476820",
+    "address": "26f35e0f8f3030907044ac0a43e72c1a17284137"
+  },
+  {
+    "ens": "arthaud.eth",
+    "pubKey": "2ea13bb3e1a31ff5415796710618cc65ff8a1fa76a58b99588b605a2664aed2dc27247956cee495a55facba49b3df223ef02dd459aa5080e246a2c0b232aafc4",
+    "address": "95ec169fa2EF1b85f55713d8A6c5d244E15B9fD7"
+  },
+  {
+    "ens": "timbeiko.eth",
+    "pubKey": "5fed4a89d5c669b6774bc2f771b78170581f2170e77ec5ab29058153b4d8220244776bc4357341179080bbac29a830a8eb65cb4b46bfdd978c490ec9d9ce194c",
+    "address": "10f5d45854e038071485ac9e402308cf80d2d2fe"
+  }
+]
