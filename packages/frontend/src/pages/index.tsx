@@ -3,6 +3,7 @@ import Users from '@/components/Users';
 import { useState } from 'react';
 import { Tab } from '@headlessui/react';
 import { FAQ } from '@/components/FAQ';
+import Image from 'next/image';
 
 export enum Views {
   POSTS = 'Discussion',
@@ -22,14 +23,14 @@ export default function Home(props: HomeProps) {
     window.history.pushState(null, '', `${v === Views.USERS ? '/users' : '/'}`);
     setView(v);
   };
+
   return (
     <main className="flex w-full flex-col justify-center items-center">
       <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
         <div className="bg-gray-50 min-h-screen w-full">
           <div className="w-full bg-gray-50 max-w-3xl mx-auto pt-2 md:pt-4 px-4 md:px-0">
             <div className="grow flex justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="w-[100px]" src="/nouns.png" alt="nouns" />
+              <Image height={100} width={100} src="/nouns.png" alt="nouns" />
             </div>
             <div className="flex justify-center">
               <Tab.Group
@@ -41,13 +42,13 @@ export default function Home(props: HomeProps) {
                   {Object.values(Views).map((v) => (
                     <Tab key={v} onClick={() => changeView(v)}>
                       {({ selected }) => (
-                        <button
+                        <p
                           className={`py-1 px-3 rounded-full ${
                             selected ? 'bg-gray-100 font-semibold' : 'bg-white'
                           }`}
                         >
                           {v}
-                        </button>
+                        </p>
                       )}
                     </Tab>
                   ))}
