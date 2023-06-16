@@ -7,6 +7,7 @@ import { CopyLink } from './CopyLink';
 import { UserContext } from '@/pages/_app';
 import { useContext } from 'react';
 import { postPreview as TEXT } from '@/lib/text';
+import { Upvote } from '../Upvote';
 
 export const PostPreview = (postProps: PostProps) => {
   const { post, showUserHeader, handleOpenPost, onSuccess } = postProps;
@@ -73,6 +74,9 @@ export const PostPreview = (postProps: PostProps) => {
             <div className="min-w-0 flex flex-wrap gap-2 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
               <div className="flex gap-4">
+                <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={onSuccess}>
+                  <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
+                </Upvote>
                 <ReplyCount count={_count.descendants} />
                 <CopyLink id={id} />
               </div>

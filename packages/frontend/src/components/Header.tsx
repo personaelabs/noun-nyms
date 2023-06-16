@@ -22,7 +22,7 @@ export const Header = () => {
     <>
       {isMobile !== null && (
         <div className="bg-black dots w-full">
-          <div className="flex flex-col gap-2 py-4 md:pt-6 md:pb-0">
+          <div className="flex flex-col gap-2 py-3">
             <nav className="w-full px-4 md:px-6 flex justify-between items-center">
               <div
                 className="min-w-0 flex shrink gap-2 items-center cursor-pointer"
@@ -33,32 +33,14 @@ export const Header = () => {
                     <Image src={logo} alt="logo" />
                   </div>
                 </div>
-                {!isMobile && <h3 className="text-white font-semibold breakText">{TEXT.title}</h3>}
+                {!isMobile && <h4 className="text-white font-semibold breakText">{TEXT.title}</h4>}
               </div>
               <div className="flex gap-4 items-center">
                 {isMounted && address && isValid && <Notifications />}
                 {(!isMobile || !address || !isValid) && <ConnectWallet />}
-                {isMounted && address ? (
-                  <MyProfile address={address} />
-                ) : (
-                  <button
-                    className="flex items-center gap-2 rounded-xl px-2 py-1 h-10 border border-white hover:scale-105 active:scale-100 transition-all"
-                    onClick={() => pushRoute('/users')}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <FontAwesomeIcon icon={faUsers} color={'#ffffff'} />
-                      <p className="text-white font-semibold">{TEXT.allUsers}</p>
-                    </div>
-                  </button>
-                )}
+                {isMounted && address && <MyProfile address={address} />}
               </div>
             </nav>
-            {!isMobile && (
-              <div className="grow flex justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="w-[100px] md:w-[150px]" src="/nouns.png" alt="nouns" />
-              </div>
-            )}
           </div>
         </div>
       )}

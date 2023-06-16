@@ -1,7 +1,7 @@
 export const users = {
-  title: 'Users',
-  noUsers: 'No users found.',
-  fetchError: 'Could not fetch users:',
+  title: 'Nyms',
+  noUsers: 'No nyms found.',
+  fetchError: 'Could not fetch nyms:',
   filters: {
     all: 'All',
     doxed: 'Doxed',
@@ -22,19 +22,19 @@ export const user = {
     posts: 'Posts',
     replies: 'Replies',
   },
-  backButtonText: 'All users',
+  backButtonText: 'All nyms',
 };
 export const userTag = {
   lastActive: 'Last active',
   dash: '-',
 };
 export const posts = {
-  title: 'Posts',
+  title: 'Discussion',
   filters: {
     timestamp: '⏳ Recent',
     upvotes: '🔥 Top',
   },
-  buttonText: 'Start Discussion',
+  buttonText: 'Say Something',
   action: 'post',
   fetchError: 'Could not fetch posts:',
 };
@@ -59,6 +59,10 @@ export const notifications = {
   markAllAsRead: 'Mark all as read',
   markAsRead: 'Mark as read',
   lastUpdated: 'Last updated: ',
+  filters: {
+    all: 'All',
+    unread: 'Unread',
+  },
 };
 export const nestedReply = {
   showMoreReplies: 'Show more replies',
@@ -146,9 +150,14 @@ export const error500 = {
 };
 export const header = {
   title: 'Noun Nyms',
-  allUsers: 'All users',
+  allUsers: 'All nyms',
   myIdentities: 'My identities',
   wallet: 'My wallet',
+};
+
+export const FAQ = {
+  title: 'Noun Nyms',
+  body: 'is a message board that allows persistent pseudonyms and pseudonymous discussions. Pseudonymity lets users... more placeholder text here',
 };
 
 export const error = {

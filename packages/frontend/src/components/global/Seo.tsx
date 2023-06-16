@@ -7,7 +7,7 @@ interface SeoProps {
   ogDescription?: string;
 }
 
-export const TITLE = 'Nouns Nyms';
+export const TITLE = 'Noun Nyms';
 export const HOME_DESCRIPTION = 'Where the truth comes out';
 
 export function Seo(props: SeoProps) {
@@ -20,7 +20,7 @@ export function Seo(props: SeoProps) {
       openGraph={{
         title: ogTitle || TITLE,
         description: ogDescription || HOME_DESCRIPTION,
-        site_name: 'Nouns Nyms',
+        site_name: 'Noun Nyms',
         type: 'website',
         images: [{ url: 'https://nym.vercel.app/noun_og.jpg' }],
       }}

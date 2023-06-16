@@ -6,7 +6,6 @@ import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
 import { Fragment, useContext, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
-import { Upvote } from './Upvote';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
@@ -122,82 +121,65 @@ export default function Posts(props: PostsProps) {
         <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
       )}
       {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
-      <main className="flex w-full flex-col justify-center items-center">
-        <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-          <div className="bg-gray-50 min-h-screen w-full">
-            <div className="flex flex-col gap-8 max-w-3xl mx-auto py-5 md:py-10 px-4 md:px-0">
-              <div className="flex justify-between">
-                {isMobile ? (
-                  <SortSelect
-                    options={filterOptions}
-                    selectedQuery={filter}
-                    setSelectedQuery={setFilter}
-                  />
-                ) : (
-                  <Filters
-                    filters={filterOptions}
-                    selectedFilter={filter}
-                    setSelectedFilter={setFilter}
-                  />
-                )}
-                <div className="grow-0">
-                  <MainButton
-                    color="#0E76FD"
-                    message={TEXT.buttonText}
-                    handler={() => {
-                      if (!address || !isValid) {
-                        setShowWalletWarning(true);
-                      } else setNewPostOpen(true);
-                    }}
-                  />
-                </div>
-              </div>
-              {isLoading ? (
-                <>
-                  <Spinner />
-                </>
-              ) : data?.pages ? (
-                <>
-                  {data.pages.map((page, i) => (
-                    <Fragment key={i}>
-                      {page.map((post, j) => (
-                        <div
-                          className="w-full flex gap-2 items-center"
-                          key={post.id}
-                          id={
-                            i === data.pages.length - 1 && j === page.length - 1 ? 'lastPost' : ''
-                          }
-                        >
-                          <Upvote
-                            upvotes={post.upvotes}
-                            col={true}
-                            postId={post.id}
-                            onSuccess={refetch}
-                          >
-                            <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
-                          </Upvote>
-                          <PostPreview
-                            post={post}
-                            handleOpenPost={() => handleOpenPost(post.id)}
-                            onSuccess={async () => await refetchAndScrollToPost(refetch)}
-                          />
-                        </div>
-                      ))}
-                    </Fragment>
-                  ))}
-                  {isFetchingNextPage && (
-                    <div className="flex justify-center my-4">
-                      <Spinner />
-                    </div>
-                  )}
-                </>
-              ) : isError ? (
-                <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
-              ) : null}
-            </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between">
+          {isMobile ? (
+            <SortSelect
+              options={filterOptions}
+              selectedQuery={filter}
+              setSelectedQuery={setFilter}
+              leftAlign={true}
+            />
+          ) : (
+            <Filters
+              filters={filterOptions}
+              selectedFilter={filter}
+              setSelectedFilter={setFilter}
+            />
+          )}
+          <div className="grow-0">
+            <MainButton
+              color="#0E76FD"
+              message={TEXT.buttonText}
+              handler={() => {
+                if (!address || !isValid) {
+                  setShowWalletWarning(true);
+                } else setNewPostOpen(true);
+              }}
+            />
           </div>
         </div>
-      </main>
+      </div>
+      {isLoading ? (
+        <Spinner />
+      ) : data?.pages ? (
+        <>
+          {data.pages.map((page, i) => (
+            <Fragment key={i}>
+              {page.map((post, j) => (
+                <div
+                  className="w-full flex gap-2 items-center"
+                  key={post.id}
+                  id={i === data.pages.length - 1 && j === page.length - 1 ? 'lastPost' : ''}
+                >
+                  <PostPreview
+                    post={post}
+                    handleOpenPost={() => handleOpenPost(post.id)}
+                    onSuccess={async () => await refetchAndScrollToPost(refetch)}
+                  />
+                </div>
+              ))}
+            </Fragment>
+          ))}
+          {isFetchingNextPage && (
+            <div className="flex justify-center my-4">
+              <Spinner />
+            </div>
+          )}
+        </>
+      ) : isError ? (
+        <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={refetch} />
+      ) : null}
     </>
   );
 }
