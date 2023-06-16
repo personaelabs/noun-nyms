@@ -11,6 +11,8 @@ import { SortSelect } from '@/components/post/SortSelect';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { users as TEXT } from '@/lib/text';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const getUsers = async () => (await axios.get<UserPostCounts[]>('/api/v1/users')).data;
 
@@ -73,7 +75,7 @@ export default function Users() {
     },
   });
 
-  const { pushRoute } = useContext(UserContext) as UserContextType;
+  const { pushRoute, isMobile } = useContext(UserContext) as UserContextType;
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('lastActive');
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,26 +88,36 @@ export default function Users() {
   return (
     <>
       <div className="flex flex-col gap-4">
-        <div className="flex justify-between">
-          <h3>{TEXT.title}</h3>
-          <input
-            className="outline-none bg-white px-2"
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(event) => {
-              setSearchQuery(event.target.value);
-              filterBySearch(filteredUsers, searchQuery);
-            }}
-          />
-        </div>
         {users && (
-          <div className="flex flex-col sm:flex-row gap-4 justify-between">
-            <Filters
-              filters={filterOptions}
-              selectedFilter={filter}
-              setSelectedFilter={setFilter}
-            />
+          <div className="flex flex-row gap-4 justify-between">
+            {isMobile ? (
+              <SortSelect
+                options={filterOptions}
+                selectedQuery={filter}
+                setSelectedQuery={setFilter}
+                leftAlign={true}
+              />
+            ) : (
+              <Filters
+                filters={filterOptions}
+                selectedFilter={filter}
+                setSelectedFilter={setFilter}
+              />
+            )}
+            {/* Removing search for now */}
+            {/* <div className="flex gap-2 items-center bg-white px-2 py-1 rounded-full border border-gray-200">
+              <FontAwesomeIcon icon={faSearch} color={'#98A2B3'} />
+              <input
+                className="outline-none"
+                type="text"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  filterBySearch(filteredUsers, searchQuery);
+                }}
+              />
+            </div> */}
             <div className="flex gap-1 items-center">
               <p className="text-gray-500">Sort by</p>
               <SortSelect options={sortOptions} selectedQuery={sort} setSelectedQuery={setSort} />

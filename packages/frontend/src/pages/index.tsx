@@ -2,6 +2,7 @@ import Posts from '@/components/Posts';
 import Users from '@/components/Users';
 import { useState } from 'react';
 import { Tab } from '@headlessui/react';
+import { FAQ } from '@/components/FAQ';
 
 export enum Views {
   POSTS = 'Discussion',
@@ -15,6 +16,7 @@ interface HomeProps {
 export default function Home(props: HomeProps) {
   const { defaultView } = props;
   const [view, setView] = useState(defaultView ? defaultView : Views.POSTS);
+  const [showFAQ, setShowFAQ] = useState(true);
 
   const changeView = (v: Views) => {
     window.history.pushState(null, '', `${v === Views.USERS ? '/users' : '/'}`);
@@ -27,7 +29,7 @@ export default function Home(props: HomeProps) {
           <div className="w-full bg-gray-50 max-w-3xl mx-auto pt-2 md:pt-4 px-4 md:px-0">
             <div className="grow flex justify-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="w-[50px] md:w-[100px]" src="/nouns.png" alt="nouns" />
+              <img className="w-[100px]" src="/nouns.png" alt="nouns" />
             </div>
             <div className="flex justify-center">
               <Tab.Group
@@ -56,6 +58,7 @@ export default function Home(props: HomeProps) {
           <div className="flex flex-col gap-8 max-w-3xl mx-auto py-3 md:py-6 px-4 md:px-0">
             {view === Views.POSTS ? <Posts /> : <Users />}
           </div>
+          {showFAQ && <FAQ onHide={() => setShowFAQ(false)} />}
         </div>
       </div>
     </main>

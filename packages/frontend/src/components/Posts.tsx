@@ -6,7 +6,6 @@ import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
 import { Fragment, useContext, useState } from 'react';
 import { NewPost } from './userInput/NewPost';
-import { Upvote } from './Upvote';
 import { RetryError } from './global/RetryError';
 import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
@@ -123,13 +122,13 @@ export default function Posts(props: PostsProps) {
       )}
       {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
       <div className="flex flex-col gap-4">
-        <h3>{TEXT.title}</h3>
         <div className="flex justify-between">
           {isMobile ? (
             <SortSelect
               options={filterOptions}
               selectedQuery={filter}
               setSelectedQuery={setFilter}
+              leftAlign={true}
             />
           ) : (
             <Filters
@@ -163,9 +162,6 @@ export default function Posts(props: PostsProps) {
                   key={post.id}
                   id={i === data.pages.length - 1 && j === page.length - 1 ? 'lastPost' : ''}
                 >
-                  <Upvote upvotes={post.upvotes} col={true} postId={post.id} onSuccess={refetch}>
-                    <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
-                  </Upvote>
                   <PostPreview
                     post={post}
                     handleOpenPost={() => handleOpenPost(post.id)}

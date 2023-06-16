@@ -34,7 +34,7 @@ export const posts = {
     timestamp: '⏳ Recent',
     upvotes: '🔥 Top',
   },
-  buttonText: 'Start Discussion',
+  buttonText: 'Say Something',
   action: 'post',
   fetchError: 'Could not fetch posts:',
 };
@@ -153,6 +153,11 @@ export const header = {
   allUsers: 'All nyms',
   myIdentities: 'My identities',
   wallet: 'My wallet',
+};
+
+export const FAQ = {
+  title: 'Noun Nyms',
+  body: 'is a message board that allows persistent pseudonyms and pseudonymous discussions. Pseudonymity lets users... more placeholder text here',
 };
 
 export const error = {
