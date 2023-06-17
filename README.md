@@ -31,12 +31,6 @@
 | [db/](./packages/db)  | postgres db schema |
 | [test_data/](./packages/test_data)  | test data population for development builds |
 
+## Contributing
 
-## Running commands
-
-To run a specifc command in a workspace from the root folder:
-
-1. Make sure the package exists in the [package.json](./package.json) `dependencies` with `<package_name>: "workspace:*"`
-   - Ex: `"frontend": "workspace:*"`
-2. Run `pnpm -F <package_name> run <command>`
-   - Ex: `pnpm -F frontend run dev:all`
+If you're interested in contributing, see our [contribution guidelines](./CONTRIBUTING.md)!
