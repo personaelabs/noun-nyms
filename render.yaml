@@ -6,7 +6,7 @@ services:
     region: oregon
     rootDir: ./
     branch: main
-    schedule: "0 * * * *"
+    schedule: "*/5 * * * *"
     buildCommand: ./scripts/setup_merkle_cron.sh
     startCommand: pnpm -F merkle_tree run writeTree
     buildFilter:
@@ -26,7 +26,7 @@ services:
     region: oregon
     rootDir: ./
     branch: dev
-    schedule: "0 * * * *"
+    schedule: "*/5 * * * *"
     buildCommand: ./scripts/setup_merkle_cron.sh
     startCommand: pnpm -F merkle_tree run writeTree:dev
     buildFilter:
