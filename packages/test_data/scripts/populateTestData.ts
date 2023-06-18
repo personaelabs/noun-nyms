@@ -38,6 +38,7 @@ import {
 import { Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
 import * as fs from 'fs';
 import csvParser from 'csv-parser';
+import DEV_ACCOUNTS from '../../../dev-accounts.json';
 
 type CachedEOA = {
   address: string;
@@ -83,25 +84,12 @@ const log = (msg: string) => {
   process.stdout.write(`${msg}`);
 };
 
-// personaelabs.eth and dantehrani.eth are included in the cached nouners list
-const DEV_PUBKEYS = [
-  // cha0sg0d.eth
-  '2e1869b4aa4611eff68043fb8bfecf9e58a6252cf3de6547167099a3124345c0372b2a0edc636444c0718b53c76da503e3619e82bb4f0e2e34cbc02a84ad18d3',
-  // amirbolous.eth
-  '3ba0d5397de63df8884014d446fd68318345f236cfe3f808ae879dedb471fdb2673e0be282cbf9a422333c36afa2b5e6dc815bbb40e9cd0dc7df5179759d1383',
-].map((pubKey) => Buffer.from(pubKey, 'hex'));
-
-const DEV_ADDRESSES = [
-  // cha0sg0d.eth
-  '3ff4EcB0D7A01235dcCD9fc59B0d4969Cb011032',
-  // amirbolous.eth
-  '926B47C42Ce6BC92242c080CF8fAFEd34a164017',
-].map((address) => address.toLowerCase());
+const DEV_PUBKEYS = DEV_ACCOUNTS.map((account) => Buffer.from(account.pubKey, 'hex'));
 
 // Sanity check
-for (let i = 0; i < DEV_PUBKEYS.length; i++) {
+for (let i = 0; i < DEV_ACCOUNTS.length; i++) {
+  const address = DEV_ACCOUNTS[i].address.toLowerCase();
   const pubKey = DEV_PUBKEYS[i];
-  const address = DEV_ADDRESSES[i];
   if (pubToAddress(pubKey).toString('hex') !== address) {
     throw new Error(`Public key ${pubKey.toString('hex')} doesn't match the address ${address}`);
   }
@@ -353,7 +341,6 @@ const populateTestData = async () => {
   // ##############################
   log('Saving to database...');
 
-  // Save the dummy tree to the database
   const treeExists = await prisma.tree.findFirst({
     where: {
       root: treeRootHex,
@@ -381,10 +368,6 @@ const populateTestData = async () => {
   await prisma.doxedUpvote.createMany({
     data: upvotes,
   });
-
-  // Only the tree nodes of a single tree can exist in our database,
-  // so we delete all existing trees nodes to store a new set of tree nodes.
-  await prisma.treeNode.deleteMany({});
 
   const treeNodes = [
     ...PRIV_KEYS.map((privKey, i) => {
@@ -428,6 +411,7 @@ const populateTestData = async () => {
 
   await prisma.treeNode.createMany({
     data: treeNodes,
+    skipDuplicates: true,
   });
 
   log('...done!\n\n');

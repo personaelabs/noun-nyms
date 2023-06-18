@@ -8,9 +8,16 @@ import { PrismaClient, GroupType } from "@prisma/client";
 import alchemy from "./alchemy";
 import { FormattedHex } from "./types";
 import { formatHex } from "./utils";
+import DEV_ACCOUNTS from "../../../dev-accounts.json";
 
 const prisma = new PrismaClient();
 const poseidon = new Poseidon();
+
+type DevAccount = {
+  id: string; // address
+  pubKey: string;
+  tokenBalance: number;
+};
 
 type EOA = {
   address: FormattedHex;
@@ -31,16 +38,6 @@ const isManyNounsAccount = (account: EOA): boolean =>
   (account.tokenBalance !== null && account.tokenBalance >= 2) ||
   (account.delegatedVotes !== null && account.delegatedVotes >= 2);
 
-// Return true if the root already exists in the database
-const treeExists = async (root: string): Promise<boolean> =>
-  (await prisma.tree.findFirst({
-    where: {
-      root
-    }
-  }))
-    ? true
-    : false;
-
 // Write the public key tree constructed at the given block height to the database
 async function writeTree(blockHeight: number) {
   console.log("Writing tree to database at block", blockHeight);
@@ -56,12 +53,27 @@ async function writeTree(blockHeight: number) {
   ).delegates;
   console.timeEnd("Fetch owners and delegates from subgraph");
 
-  const accounts: (Owner | Delegate)[] = owners;
+  const accounts: (Owner | Delegate | DevAccount)[] = owners;
 
   // Add delegates to the list of all accounts if they are not already there
   for (let i = 0; i < delegates.length; i++) {
     if (!accounts.find(account => account.id === delegates[i].id)) {
       accounts.push(delegates[i]);
+    }
+  }
+
+  // Add dev accounts to the list of all accounts if they are not already there
+  if (process.env.INCLUDE_DEV_ACCOUNTS === "true") {
+    for (let i = 0; i < DEV_ACCOUNTS.length; i++) {
+      const address = DEV_ACCOUNTS[i].address.toLowerCase();
+      const pubKey = DEV_ACCOUNTS[i].pubKey.toLowerCase();
+      if (!accounts.find(account => account.id === address)) {
+        accounts.push({
+          id: address,
+          pubKey,
+          tokenBalance: 1
+        });
+      }
     }
   }
 
@@ -266,70 +278,80 @@ async function writeTree(blockHeight: number) {
   const anonSet2Root = `0x${anonSet2Tree.root().toString(16)}`;
 
   // Write only if the tree is new
-  if (!(await treeExists(anonSet1Root))) {
-    console.log("Creating new tree for set Noun = 1");
-    await prisma.tree.create({
-      data: {
+  console.log("Creating new tree for set Noun = 1");
+  await prisma.tree.upsert({
+    where: {
+      type_root_blockHeight: {
         type: GroupType.OneNoun,
         blockHeight,
         root: anonSet1Root
       }
-    });
+    },
+    update: {
+      type: GroupType.OneNoun,
+      blockHeight,
+      root: anonSet1Root
+    },
+    create: {
+      type: GroupType.OneNoun,
+      blockHeight,
+      root: anonSet1Root
+    }
+  });
 
-    await prisma.treeNode.deleteMany({
-      where: {
-        type: GroupType.OneNoun
-      }
-    });
-
-    await prisma.treeNode.createMany({
-      data: anonSet1.map((account, i) => {
-        const index = anonSet1Tree.indexOf(anonSet1PubKeyHashes[i]);
-        const merkleProof = anonSet1Tree.createProof(index);
-        return {
-          address: account.address,
-          pubkey: account.pubKey,
-          path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
-          indices: merkleProof.pathIndices.map(i => i.toString()),
-          type: GroupType.OneNoun,
-          root: anonSet1Root
-        };
-      })
-    });
-  }
+  await prisma.treeNode.createMany({
+    data: anonSet1.map((account, i) => {
+      const index = anonSet1Tree.indexOf(anonSet1PubKeyHashes[i]);
+      const merkleProof = anonSet1Tree.createProof(index);
+      return {
+        address: account.address,
+        pubkey: account.pubKey,
+        path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
+        indices: merkleProof.pathIndices.map(i => i.toString()),
+        type: GroupType.OneNoun,
+        root: anonSet1Root
+      };
+    }),
+    skipDuplicates: true
+  });
 
   // Write only if the tree is new
-  if (!(await treeExists(anonSet2Root))) {
-    console.log("Creating new tree for set Noun > 1");
-    await prisma.tree.create({
-      data: {
+  console.log("Creating new tree for set Noun > 1");
+  await prisma.tree.upsert({
+    where: {
+      type_root_blockHeight: {
         type: GroupType.ManyNouns,
         blockHeight,
         root: anonSet2Root
       }
-    });
+    },
+    update: {
+      type: GroupType.ManyNouns,
+      blockHeight,
+      root: anonSet2Root
+    },
+    create: {
+      type: GroupType.ManyNouns,
+      blockHeight,
+      root: anonSet2Root
+    }
+  });
 
-    await prisma.treeNode.deleteMany({
-      where: {
-        type: GroupType.ManyNouns
-      }
-    });
-
-    await prisma.treeNode.createMany({
-      data: anonSet2.map((account, i) => {
-        const index = anonSet2Tree.indexOf(anonSet2PubKeyHashes[i]);
-        const merkleProof = anonSet2Tree.createProof(index);
-        return {
-          address: account.address,
-          pubkey: account.pubKey,
-          path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
-          indices: merkleProof.pathIndices.map(i => i.toString()),
-          type: GroupType.ManyNouns,
-          root: anonSet2Root
-        };
-      })
-    });
-  }
+  await prisma.treeNode.createMany({
+    data: anonSet2.map((account, i) => {
+      const index = anonSet2Tree.indexOf(anonSet2PubKeyHashes[i]);
+      const merkleProof = anonSet2Tree.createProof(index);
+      return {
+        address: account.address,
+        pubkey: account.pubKey,
+        path: merkleProof.siblings.map(s => BigInt(s[0]).toString(16)),
+        indices: merkleProof.pathIndices.map(i => i.toString()),
+        type: GroupType.ManyNouns,
+        root: anonSet2Root
+      };
+    }),
+    skipDuplicates: true
+  });
 
   console.log(
     `Noun = 1 set size ${anonSet1.length}, ${numNoPubKeySet1} missing public keys`

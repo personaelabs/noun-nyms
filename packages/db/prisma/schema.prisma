@@ -17,20 +17,18 @@ model TreeNode {
   path      String[]
   indices   String[]
   root      String
-  tree      Tree      @relation(fields: [root], references: [root])
   createdAt DateTime  @default(now())
 
-  @@unique([type, pubkey])
+  @@unique([type, pubkey, root])
 }
 
 model Tree {
-  root        String        @id
+  root        String
   type        GroupType
   blockHeight Int
-  createdAt   DateTime      @default(now())
-  Post        Post[]
-  DoxedUpvote DoxedUpvote[]
-  TreeNode    TreeNode[]
+  createdAt   DateTime  @default(now())
+
+  @@unique([type, root, blockHeight])
 }
 
 model CachedEOA {
@@ -75,7 +73,6 @@ model Post {
   upvotes           DoxedUpvote[]
   venue             String
   groupRoot         String
-  group             Tree              @relation(fields: [groupRoot], references: [root])
   timestamp         DateTime
   attestation       String
   userId            String // Nym or ETH address
@@ -92,7 +89,6 @@ model DoxedUpvote {
   post      Post     @relation(fields: [postId], references: [id])
   address   String
   groupRoot String
-  group     Tree     @relation(fields: [groupRoot], references: [root])
   sig       String
   timestamp DateTime
   createdAt DateTime @default(now())
