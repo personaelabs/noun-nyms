@@ -49,5 +49,5 @@ databases:
   - name: nouns250-staging
     databaseName: nym
     region: oregon
-    plan: starter
+    plan: pro
     postgresMajorVersion: 15
