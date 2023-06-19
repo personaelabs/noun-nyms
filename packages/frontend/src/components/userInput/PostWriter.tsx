@@ -36,6 +36,11 @@ export const PostWriter = (props: IWriterProps) => {
   const [userError, setUserError] = useState('');
   const { errorMsg, isError, setError, clearError } = useError();
   const { proposals } = useProposals();
+  const [currProposals, setProposals] = useState(proposals);
+
+  useEffect(() => {
+    setProposals(proposals);
+  }, [proposals]);
 
   const { address } = useAccount();
   const { isMobile, isValid, setPostInProg, postInProg } = useContext(
@@ -68,6 +73,41 @@ export const PostWriter = (props: IWriterProps) => {
     setBody('');
     setTitle('');
     setCloseWriter(true);
+  };
+
+  const handleBodyChange = (newVal: string) => {
+    setBody(newVal);
+
+    const poundSignIndex = newVal.lastIndexOf('#');
+    const spaceIndex = newVal.lastIndexOf(' ');
+
+    if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
+      const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
+      console.log(textAfterLastPoundSign);
+      console.log(`last character`, textAfterLastPoundSign.slice(-1).charCodeAt(0));
+      // 10 is newline code
+      if (textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10) {
+        console.log(`replace ${textAfterLastPoundSign.slice(0, -1)} with ${currProposals?.[0].id}`);
+        // TODO: Figre out text replacement
+      }
+
+      if (textAfterLastPoundSign === '') {
+        console.log(currProposals?.slice(0, 5));
+        setProposals(currProposals?.slice(0, 5));
+      } else {
+        const results = proposals
+          ?.filter((p) => p.title.toLowerCase().includes(textAfterLastPoundSign.toLowerCase()))
+          .slice(0, 5);
+        console.log(results);
+        setProposals(results);
+      }
+
+      // Perform further actions with the extracted text...
+    } else {
+      const textAfterLastPoundSign = '';
+      console.log(textAfterLastPoundSign);
+      // Perform further actions when no valid text is present...
+    }
   };
 
   const sendPost = async () => {
@@ -155,7 +195,7 @@ export const PostWriter = (props: IWriterProps) => {
                   parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody
                 }
                 minHeight={100}
-                onChangeHandler={(newVal) => setBody(newVal)}
+                onChangeHandler={handleBodyChange}
               ></Textarea>
             </div>
           </div>
