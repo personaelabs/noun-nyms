@@ -16,6 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
 import { BLACK } from '@/lib/colors';
+import useProposals from '@/hooks/useProposals';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -34,6 +35,7 @@ export const PostWriter = (props: IWriterProps) => {
   const [sentPost, setSentPost] = useState(false);
   const [userError, setUserError] = useState('');
   const { errorMsg, isError, setError, clearError } = useError();
+  const { proposals } = useProposals();
 
   const { address } = useAccount();
   const { isMobile, isValid, setPostInProg, postInProg } = useContext(

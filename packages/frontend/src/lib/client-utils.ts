@@ -93,3 +93,10 @@ export const refetchAndScrollToPost = async (refetch: () => Promise<any>, postId
     if (post) post.style.setProperty('opacity', '1');
   }, 1000);
 };
+
+export const replaceHashNumberWithLink = (inputString: string) => {
+  const regex = /#(\d+)/g;
+  const replacement = '[$&](https://nouns.wtf/vote/$1)';
+  const outputString = inputString.replace(regex, replacement);
+  return outputString;
+};

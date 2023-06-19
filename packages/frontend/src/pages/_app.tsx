@@ -20,7 +20,6 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from '@/components/global/ErrorPage';
 import { error as TEXT } from '@/lib/text';
-import useProposals from '@/hooks/useProposals';
 
 config.autoAddCss = false;
 
@@ -52,7 +51,6 @@ export default function App({ Component, pageProps }: AppProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [postInProg, setPostInProg] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
-  const { proposals } = useProposals();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
