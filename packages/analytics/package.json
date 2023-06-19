@@ -1,0 +1,16 @@
+{
+  "name": "analytics",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "4.5.0",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "ts-node": "10.9.1"
+  }
+}

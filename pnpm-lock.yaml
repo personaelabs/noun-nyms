@@ -26,6 +26,19 @@ importers:
         specifier: 2.8.7
         version: 2.8.7
 
+  packages/analytics:
+    dependencies:
+      '@prisma/client':
+        specifier: 4.5.0
+        version: 4.5.0(prisma@4.5.0)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+    devDependencies:
+      ts-node:
+        specifier: 10.9.1
+        version: 10.9.1(@types/node@18.15.3)(typescript@5.0.4)
+
   packages/circuits:
     dependencies:
       '@personaelabs/spartan-ecdsa-circuits':
