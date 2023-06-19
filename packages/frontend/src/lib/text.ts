@@ -88,7 +88,7 @@ export const nameSelect = {
 export const newNym = {
   beforeTitle: 'Create a new pseudo',
   afterTitle: 'New pseudoynm created!',
-  beforeBody: 'You can re-use this nym as long as you control wallet you use to create it.',
+  beforeBody: 'You can re-use this nym as long as you control the wallet you used to create it.',
   afterBody: 'Your new nym now exists in the world. Use it wisely.',
   beforeButtonText: 'Confirm',
   afterButtonText: 'Say something',
