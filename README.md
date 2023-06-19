@@ -1,4 +1,5 @@
 <div align="center">
+    <img src="./packages/frontend/public/nouns.png">
     <h1>Noun Nyms</h1>
     <strong>Noun Nyms is a protocol and webapp for using nounish pseudonyms.</strong>
 </div>
