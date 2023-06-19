@@ -23,16 +23,16 @@ export const PostWithRepliesModal = (props: PostWithRepliesModalProps) => {
 
   return (
     <>
-      {discardWarningOpen && (
-        <DiscardPostWarning
-          handleCloseWarning={() => setDiscardWarningOpen(false)}
-          handleClosePost={() => {
-            handleCloseModal();
-            setDiscardWarningOpen(false);
-          }}
-        />
-      )}
+      <DiscardPostWarning
+        isOpen={discardWarningOpen}
+        handleCloseWarning={() => setDiscardWarningOpen(false)}
+        handleClosePost={() => {
+          handleCloseModal();
+          setDiscardWarningOpen(false);
+        }}
+      />
       <Modal
+        isOpen={true}
         startAtTop={true}
         handleClose={() => {
           if (postInProg) setDiscardWarningOpen(true);

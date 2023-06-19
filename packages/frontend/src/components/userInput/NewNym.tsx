@@ -14,6 +14,7 @@ import { UserContext } from '@/pages/_app';
 
 interface NewNymProps {
   address: string;
+  isOpen: boolean;
   handleClose: () => void;
   nymOptions: ClientName[];
   setNymOptions: (nymOptions: ClientName[]) => void;
@@ -45,7 +46,7 @@ const generateRandomString = (length: number) => {
 };
 
 export const NewNym = (props: NewNymProps) => {
-  const { address, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
+  const { address, isOpen, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
   const [nymName, setNymName] = useState('');
   const [newNym, setNewNym] = useState<ClientName>();
   const [loadingNym, setLoadingNym] = useState(false);
@@ -89,7 +90,7 @@ export const NewNym = (props: NewNymProps) => {
     }
   };
   return (
-    <Modal width="60%" handleClose={handleClose}>
+    <Modal isOpen={isOpen} width="60%" handleClose={handleClose}>
       {newNym && (
         <Confetti
           recycle={false}

@@ -3,14 +3,15 @@ import { Modal } from './global/Modal';
 import { discardPostWarning as TEXT } from '@/lib/text';
 
 interface DiscardPostWarningProps {
+  isOpen: boolean;
   handleClosePost: () => void;
   handleCloseWarning: () => void;
 }
 
 export const DiscardPostWarning = (props: DiscardPostWarningProps) => {
-  const { handleCloseWarning, handleClosePost } = props;
+  const { isOpen, handleCloseWarning, handleClosePost } = props;
   return (
-    <Modal handleClose={handleCloseWarning} width={'50%'}>
+    <Modal isOpen={isOpen} handleClose={handleCloseWarning} width={'50%'}>
       <p>{TEXT.body}</p>
 
       <div className="flex gap-2 justify-center">

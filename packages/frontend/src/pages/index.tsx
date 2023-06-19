@@ -60,7 +60,7 @@ export default function Home(props: HomeProps) {
           <div className="flex flex-col gap-8 max-w-3xl mx-auto py-3 md:py-6 px-4 md:px-0">
             {view === Views.POSTS ? <Posts /> : <Users />}
           </div>
-          {showFAQ && <FAQ onHide={() => setShowFAQ(false)} />}
+          <FAQ />
         </div>
       </div>
     </main>

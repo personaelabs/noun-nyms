@@ -98,15 +98,14 @@ export const NestedReply = (replyProps: IReplyProps) => {
 
   return (
     <>
-      {discardWarningOpen && (
-        <DiscardPostWarning
-          handleClosePost={() => {
-            setShowPostWriter(false);
-            setDiscardWarningOpen(false);
-          }}
-          handleCloseWarning={() => setDiscardWarningOpen(false)}
-        />
-      )}
+      <DiscardPostWarning
+        isOpen={discardWarningOpen}
+        handleClosePost={() => {
+          setShowPostWriter(false);
+          setDiscardWarningOpen(false);
+        }}
+        handleCloseWarning={() => setDiscardWarningOpen(false)}
+      />
       <div
         ref={divRef}
         id={localPost.id}

@@ -40,9 +40,10 @@ export const NameSelect = (props: NameSelectProps) => {
 
   return (
     <>
-      {address && isValid && openNewNym ? (
+      {address && isValid ? (
         <NewNym
           address={address}
+          isOpen={openNewNym}
           handleClose={() => setOpenNewNym(false)}
           nymOptions={nymOptions}
           setNymOptions={setNymOptions}

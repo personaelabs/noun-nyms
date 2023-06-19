@@ -67,8 +67,12 @@ export default function Notifications() {
             ) : (
               <p className="p-4 text-center">{TEXT.noNotifications}</p>
             )}
-            {isMounted && showWalletWarning && (
-              <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
+            {isMounted && (
+              <WalletWarning
+                isOpen={showWalletWarning}
+                handleClose={() => setShowWalletWarning(false)}
+                action={TEXT.action}
+              />
             )}
           </div>
         </div>

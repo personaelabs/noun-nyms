@@ -17,8 +17,8 @@ export const ValidUserWarning = () => {
 
   return (
     <>
-      {isValid || !showWarning ? null : (
-        <Modal width="60%" handleClose={() => setShowWarning(false)}>
+      {!isValid && (
+        <Modal isOpen={showWarning} width="60%" handleClose={() => setShowWarning(false)}>
           <h3>{TEXT.title}</h3>
           <p className="text-gray-700">{TEXT.body}</p>
           <div className="flex justify-center">

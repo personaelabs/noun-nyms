@@ -99,27 +99,27 @@ export default function Posts(props: PostsProps) {
 
   return (
     <>
-      {newPostOpen && (
-        <NewPost
-          handleClose={() => {
-            if (postInProg) setDiscardWarningOpen(true);
-            else setNewPostOpen(false);
-          }}
-          scrollToPost={async (postId: string) => await refetchAndScrollToPost(refetch, postId)}
-        />
-      )}
-      {discardWarningOpen && (
-        <DiscardPostWarning
-          handleCloseWarning={() => setDiscardWarningOpen(false)}
-          handleClosePost={() => {
-            setNewPostOpen(false);
-            setDiscardWarningOpen(false);
-          }}
-        />
-      )}
-      {showWalletWarning && (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
-      )}
+      <NewPost
+        isOpen={newPostOpen}
+        handleClose={() => {
+          if (postInProg) setDiscardWarningOpen(true);
+          else setNewPostOpen(false);
+        }}
+        scrollToPost={async (postId: string) => await refetchAndScrollToPost(refetch, postId)}
+      />
+      <DiscardPostWarning
+        isOpen={discardWarningOpen}
+        handleCloseWarning={() => setDiscardWarningOpen(false)}
+        handleClosePost={() => {
+          setNewPostOpen(false);
+          setDiscardWarningOpen(false);
+        }}
+      />
+      <WalletWarning
+        isOpen={showWalletWarning}
+        handleClose={() => setShowWalletWarning(false)}
+        action={TEXT.action}
+      />
       {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
       <div className="flex flex-col gap-4">
         <div className="flex justify-between">

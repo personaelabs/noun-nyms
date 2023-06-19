@@ -71,22 +71,20 @@ export const Upvote = (props: UpvoteIconProps) => {
   };
   return (
     <>
-      {errorMsg && isError ? (
-        <Modal width="50%" handleClose={clearError}>
-          <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
-        </Modal>
-      ) : showVoteWarning ? (
-        <UpvoteWarning
-          handleClose={() => handleModalClose(setShowVoteWarning)}
-          upvoteHandler={upvoteHandler}
-          loadingUpvote={loadingUpvote}
-        />
-      ) : showWalletWarning ? (
-        <WalletWarning
-          handleClose={() => handleModalClose(setShowWalletWarning)}
-          action={TEXT.action}
-        />
-      ) : null}
+      <Modal isOpen={isError} width="50%" handleClose={clearError}>
+        <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
+      </Modal>
+      <UpvoteWarning
+        isOpen={showVoteWarning}
+        handleClose={() => handleModalClose(setShowVoteWarning)}
+        upvoteHandler={upvoteHandler}
+        loadingUpvote={loadingUpvote}
+      />
+      <WalletWarning
+        isOpen={showWalletWarning}
+        handleClose={() => handleModalClose(setShowWalletWarning)}
+        action={TEXT.action}
+      />
       <button
         ref={buttonRef}
         onClick={handleClick}

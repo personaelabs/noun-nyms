@@ -29,7 +29,7 @@ export const SortSelect = (props: SortSelectProps) => {
           <Listbox.Options
             className={`absolute ${
               leftAlign ? 'left-0' : 'left-full -translate-x-full'
-            } mt-1 max-h-60 max-w-[100px] min-w-full w-max overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm`}
+            } mt-1 max-h-60 min-w-full w-max overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm`}
           >
             {Object.keys(options).map((s) => (
               <Listbox.Option
