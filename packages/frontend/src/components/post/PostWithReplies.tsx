@@ -103,28 +103,26 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     <>
       {root ? (
         <>
-          <div className="flex flex-col gap-4 py-6 px-6 md:px-12 md:py-10">
-            <div className="flex flex-col gap-3">
-              <div className="flex justify-between item-center">
-                <div className="self-start line-clamp-2">
-                  <h3 className="tracking-tight">{root.title}</h3>
-                </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between item-center">
+              <div className="self-start line-clamp-2">
+                <h3 className="tracking-tight">{root.title}</h3>
               </div>
-              <p>{root.body}</p>
             </div>
-            <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
-              <UserTag userId={root.userId} timestamp={root.timestamp} />
-              <div className="flex gap-2">
-                <ReplyCount count={root._count.descendants} />
-                <div className="border-l border-dotted border-gray-200 pl-2">
-                  <Upvote upvotes={root.upvotes} postId={root.id} onSuccess={refetch}>
-                    <p>{root.upvotes.length}</p>
-                  </Upvote>
-                </div>
+            <p>{root.body}</p>
+          </div>
+          <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
+            <UserTag userId={root.userId} timestamp={root.timestamp} />
+            <div className="flex gap-2">
+              <ReplyCount count={root._count.descendants} />
+              <div className="border-l border-dotted border-gray-200 pl-2">
+                <Upvote upvotes={root.upvotes} postId={root.id} onSuccess={refetch}>
+                  <p>{root.upvotes.length}</p>
+                </Upvote>
               </div>
             </div>
           </div>
-          <div className="flex grow flex-col gap-8 w-full bg-gray-50 p-6 pb-10">
+          <div className="flex grow flex-col gap-8 w-full bg-gray-50">
             <PostWriter
               parentId={root.id as PrefixedHex}
               scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}

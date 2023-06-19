@@ -98,63 +98,61 @@ export const NewNym = (props: NewNymProps) => {
           height={height}
         />
       )}
-      <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-        <div className="flex justify-start">
-          <h3>{newNym ? TEXT.afterTitle : TEXT.beforeTitle}</h3>
-        </div>
-        <p className="text-gray-700">{newNym ? TEXT.afterBody : TEXT.beforeBody}</p>
-        {errorMsg && (
-          <p className="error">
-            {TEXT.fetchError} {errorMsg}
-          </p>
-        )}
-        <div className="flex flex-wrap justify-start items-center gap-2">
-          <div className="flex gap-2 items-center">
-            <UserAvatar width={30} userId={newNym ? getUserIdFromName(newNym) : address} />
-            <div className="min-w-0 shrink relative border border-gray-200 rounded-md px-2 py-1">
-              {newNym ? (
-                <p>{newNym.name}</p>
-              ) : (
-                <input
-                  className="outline-none bg-transparent"
-                  type="text"
-                  placeholder="Name"
-                  value={nymName}
-                  onChange={(event) => {
-                    if (errorMsg) setError('');
-                    setNymName(event.target.value);
-                  }}
-                />
-              )}
-            </div>
+      <div className="flex justify-start">
+        <h3>{newNym ? TEXT.afterTitle : TEXT.beforeTitle}</h3>
+      </div>
+      <p className="text-gray-700">{newNym ? TEXT.afterBody : TEXT.beforeBody}</p>
+      {errorMsg && (
+        <p className="error">
+          {TEXT.fetchError} {errorMsg}
+        </p>
+      )}
+      <div className="flex flex-wrap justify-start items-center gap-2">
+        <div className="flex gap-2 items-center">
+          <UserAvatar width={30} userId={newNym ? getUserIdFromName(newNym) : address} />
+          <div className="min-w-0 shrink relative border border-gray-200 rounded-md px-2 py-1">
+            {newNym ? (
+              <p>{newNym.name}</p>
+            ) : (
+              <input
+                className="outline-none bg-transparent"
+                type="text"
+                placeholder="Name"
+                value={nymName}
+                onChange={(event) => {
+                  if (errorMsg) setError('');
+                  setNymName(event.target.value);
+                }}
+              />
+            )}
           </div>
-          {!newNym && (
-            <button
-              className="shrink-0 secondary underline"
-              onClick={() => setNymName(generateRandomString(5))}
-            >
-              {TEXT.generateRandom}
-            </button>
-          )}
         </div>
-        <div className="flex justify-center">
-          {newNym ? (
-            <MainButton
-              color="#0E76FD"
-              message={TEXT.afterButtonText}
-              handler={handleClose}
-              disabled={nymName === ''}
-            />
-          ) : (
-            <MainButton
-              color="#0E76FD"
-              message={TEXT.beforeButtonText}
-              loading={loadingNym}
-              handler={handleNewNym}
-              disabled={nymName === ''}
-            />
-          )}
-        </div>
+        {!newNym && (
+          <button
+            className="shrink-0 secondary underline"
+            onClick={() => setNymName(generateRandomString(5))}
+          >
+            {TEXT.generateRandom}
+          </button>
+        )}
+      </div>
+      <div className="flex justify-center">
+        {newNym ? (
+          <MainButton
+            color="#0E76FD"
+            message={TEXT.afterButtonText}
+            handler={handleClose}
+            disabled={nymName === ''}
+          />
+        ) : (
+          <MainButton
+            color="#0E76FD"
+            message={TEXT.beforeButtonText}
+            loading={loadingNym}
+            handler={handleNewNym}
+            disabled={nymName === ''}
+          />
+        )}
       </div>
     </Modal>
   );

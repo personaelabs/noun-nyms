@@ -29,15 +29,17 @@ export const Modal = (props: ModalProps) => {
             className="relative max-w-none md:max-w-3xl bg-gray-50 m-none md:mx-8 rounded-md rounded-b-none sm:rounded-b-md"
             style={{ width: width && !isMobile ? width : '100%' }}
           >
-            <div className="absolute p-6 top-0 right-0 cursor-pointer">
-              <FontAwesomeIcon
-                size={'xl'}
-                icon={faXmark}
-                color="#98A2B3"
-                onClick={handleClose as any}
-              />
+            <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
+              <div className="absolute p-6 top-0 right-0 cursor-pointer">
+                <FontAwesomeIcon
+                  size={'xl'}
+                  icon={faXmark}
+                  color="#98A2B3"
+                  onClick={handleClose as any}
+                />
+              </div>
+              {children}
             </div>
-            {children}
           </Dialog.Panel>
         </div>
       </div>

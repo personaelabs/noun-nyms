@@ -19,23 +19,21 @@ export const UpvoteWarning = (props: UpvoteWarningProps) => {
 
   return (
     <Modal width="60%" handleClose={handleClose}>
-      <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-        <h3>{TEXT.title}</h3>
-        <div className="w-max flex gap-2 items-center rounded-xl px-2 py-2.5 border border-gray-200">
-          <UserAvatar type={NameType.DOXED} userId={address as string} width={24} />
-          <p className="breakText">
-            <UserName userId={address as string} />
-          </p>
-        </div>
-        <p className="text-gray-700">{TEXT.body}</p>
-        <div className="flex justify-center">
-          <MainButton
-            color="#0E76FD"
-            message={TEXT.buttonText}
-            loading={loadingUpvote}
-            handler={upvoteHandler}
-          />
-        </div>
+      <h3>{TEXT.title}</h3>
+      <div className="w-max flex gap-2 items-center rounded-xl px-2 py-2.5 border border-gray-200">
+        <UserAvatar type={NameType.DOXED} userId={address as string} width={24} />
+        <p className="breakText">
+          <UserName userId={address as string} />
+        </p>
+      </div>
+      <p className="text-gray-700">{TEXT.body}</p>
+      <div className="flex justify-center">
+        <MainButton
+          color="#0E76FD"
+          message={TEXT.buttonText}
+          loading={loadingUpvote}
+          handler={upvoteHandler}
+        />
       </div>
     </Modal>
   );

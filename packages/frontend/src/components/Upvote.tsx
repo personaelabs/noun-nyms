@@ -73,9 +73,7 @@ export const Upvote = (props: UpvoteIconProps) => {
     <>
       {errorMsg && isError ? (
         <Modal width="50%" handleClose={clearError}>
-          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
-          </div>
+          <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
         </Modal>
       ) : showVoteWarning ? (
         <UpvoteWarning
