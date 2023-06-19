@@ -97,13 +97,10 @@ importers:
         version: 0.4.2
       '@nouns/sdk':
         specifier: ^0.4.0
-        version: 0.4.0(ethers@5.7.2)
+        version: 0.4.0(ethers@6.1.0)
       '@personaelabs/nymjs':
         specifier: '*'
         version: link:../nymjs
-      '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.4
-        version: 2.1.4
       '@prisma/client':
         specifier: 4.5.0
         version: 4.5.0(prisma@4.5.0)
@@ -204,6 +201,9 @@ importers:
       '@types/swagger-ui-react':
         specifier: ^4.18.0
         version: 4.18.0
+      '@zk-kit/incremental-merkle-tree':
+        specifier: ^1.0.0
+        version: 1.0.0
       autoprefixer:
         specifier: ^10.4.14
         version: 10.4.14(postcss@8.4.23)
@@ -328,18 +328,15 @@ importers:
       '@ethereumjs/util':
         specifier: ^8.0.5
         version: 8.0.5
-      '@personaelabs/spartan-ecdsa':
-        specifier: ^2.1.4
-        version: 2.1.4
-      circomlibjs:
-        specifier: ^0.1.7
-        version: 0.1.7
-      ethers:
-        specifier: ^5
-        version: 5.7.2
+      '@zk-kit/incremental-merkle-tree':
+        specifier: ^1.0.0
+        version: 1.0.0
       snarkjs:
         specifier: 0.5.0
         version: 0.5.0
+      viem:
+        specifier: ^0.3.19
+        version: 0.3.19(typescript@5.0.4)
     devDependencies:
       jest:
         specifier: ^29.5.0
@@ -4218,13 +4215,13 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@nouns/sdk@0.4.0(ethers@5.7.2):
+  /@nouns/sdk@0.4.0(ethers@6.1.0):
     resolution: {integrity: sha512-PLRDUad/TXCsGmP2ITXkYBrwlzQfO9DaoB0xwikvNPF/Vul+rAVnsXgMf8gm5KQ8CKVlxImoEnxsL8Dcx5elAw==}
     peerDependencies:
       ethers: '>=5.0.0'
     dependencies:
       '@nouns/contracts': 0.3.0
-      ethers: 5.7.2
+      ethers: 6.1.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate

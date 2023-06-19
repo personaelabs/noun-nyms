@@ -1,7 +1,7 @@
 // @ts-ignore
 const snarkJs = require('snarkjs');
 import * as fs from 'fs';
-import { keccak256 } from 'ethers/lib/utils';
+import { keccak256 } from 'viem';
 import {
   AttestationScheme,
   CONTENT_MESSAGE_TYPES,
@@ -17,11 +17,11 @@ import {
   Content,
   NYM_CODE_WARNING,
 } from './types';
-import { _TypedDataEncoder } from 'ethers/lib/utils';
 import { PrefixedHexString, ecrecover, fromRpcSig, pubToAddress } from '@ethereumjs/util';
-import { computeEffEcdsaPubInput } from '@personaelabs/spartan-ecdsa';
+import { computeEffEcdsaPubInput } from './eff_ecdsa';
 import { EIP712TypedData, EffECDSASig, Post, PublicInput, NymProofAuxiliary } from './types';
 import wasm, { init } from './wasm';
+import { hashTypedData } from 'viem';
 
 // Byte length of a spartan-ecdsa proof
 const PROOF_BYTE_LENGTH = 19391;
@@ -90,14 +90,18 @@ export const bigIntToHex = (val: bigint): string => {
   return hex.padStart(64, '0');
 };
 
-// Borrowing from: https://github.com/personaelabs/heyanoun/blob/main/frontend/utils/utils.ts#L83
 export function eip712MsgHash(
   domain: EIP712Domain,
   types: EIP712Types,
   value: EIP712Value,
 ): Buffer {
   //@ts-ignore
-  const hash = _TypedDataEncoder.hash(domain, types, value);
+  const hash = hashTypedData({
+    domain,
+    types,
+    primaryType: Object.keys(types)[0],
+    message: value,
+  });
   return Buffer.from(hash.replace('0x', ''), 'hex');
 }
 
@@ -174,6 +178,25 @@ async function poseidonHash(inputs: bigint[]): Promise<bigint> {
 
   const result = wasm.poseidon(inputsBytes);
   return bufferLeToBigInt(result);
+}
+
+// Assumes that the wasm module has been initialized
+export function poseidonHashSync(inputs: bigint[]): bigint {
+  const inputsBytes = new Uint8Array(32 * inputs.length);
+  for (let i = 0; i < inputs.length; i++) {
+    inputsBytes.set(bigIntToLeBytes(inputs[i], 32), i * 32);
+  }
+
+  const result = wasm.poseidon(inputsBytes);
+  return bufferLeToBigInt(result);
+}
+
+export async function poseidonHashPubKey(pubKey: Buffer): Promise<bigint> {
+  const pubKeyX = BigInt('0x' + pubKey.toString('hex').slice(0, 64));
+  const pubKeyY = BigInt('0x' + pubKey.toString('hex').slice(64, 128));
+
+  const pubKeyHash = await poseidonHash([pubKeyX, pubKeyY]);
+  return pubKeyHash;
 }
 
 // Compute nymHash = Poseidon([nymSig.s, nymSig.s])

@@ -17,10 +17,11 @@ import {
   Post,
   toTypedUpvote,
   toUpvote,
+  MerkleProof,
 } from '@personaelabs/nymjs';
 import * as path from 'path';
 import { ecsign, privateToAddress, privateToPublic, toCompactSig } from '@ethereumjs/util';
-import { MerkleProof, Poseidon, Tree } from '@personaelabs/spartan-ecdsa';
+import { IncrementalMerkleTree } from '@zk-kit/incremental-merkle-tree';
 import {
   INVALID_MERKLE_ROOT,
   INVALID_PROOF,
@@ -32,6 +33,7 @@ import {
   EMPTY_TITLE,
   EMPTY_BODY,
 } from '@/lib/errors';
+import { poseidonHashPubKey, poseidonHashSync } from '@personaelabs/nymjs/build/utils';
 
 // Create a supertest client from the Next.js API route handler
 const createTestClient = (handler: NextApiHandler, query: { [key: string]: string | number }) => {
@@ -96,7 +98,7 @@ let content: Content;
 let mockPost: Post;
 let contentSigStr: string;
 let typedContentHash: Buffer;
-let tree: Tree;
+let tree: IncrementalMerkleTree;
 let pubKeyHash: bigint;
 let merkleProof: MerkleProof;
 
@@ -111,12 +113,13 @@ const signContent = (content: Content): string => {
 
 beforeAll(async () => {
   // Construct the Merkle tree
-  const poseidon = new Poseidon();
-  await poseidon.initWasm();
-  tree = new Tree(20, poseidon);
-  pubKeyHash = poseidon.hashPubKey(privateToPublic(privKey));
+
+  // This call to `poseidonHashPubKey` initializes the wasm
+  pubKeyHash = await poseidonHashPubKey(privateToPublic(privKey));
+
+  tree = new IncrementalMerkleTree(poseidonHashSync, 20, BigInt(0));
   tree.insert(pubKeyHash);
-  treeRoot = `0x${tree.root().toString(16)}`;
+  treeRoot = `0x${tree.root.toString(16)}`;
   merkleProof = tree.createProof(tree.indexOf(pubKeyHash));
 
   // Prepare the post
