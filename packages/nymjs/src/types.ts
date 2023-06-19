@@ -101,7 +101,7 @@ export const DOMAIN: EIP712Domain = {
 };
 
 export const NYM_CODE_WARNING =
-  'Please make sure the url is `nymz.xyz`. Leaking this signature can leak your anonymity.';
+  'Please make sure the url ends with `.nymz.xyz`. Leaking this signature can leak your anonymity.';
 
 export const NYM_CODE_TYPE = {
   Nym: [
