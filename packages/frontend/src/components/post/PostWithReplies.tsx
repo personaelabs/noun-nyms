@@ -138,9 +138,9 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               <div className="self-start line-clamp-2">
                 <h3 className="tracking-tight">{root.title}</h3>
               </div>
-              <p>
+              <span>
                 <BodyWithPropLink body={root.body} />
-              </p>
+              </span>
             </div>
             <p className="whitespace-pre-wrap">{root.body}</p>
           </div>

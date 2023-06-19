@@ -76,22 +76,20 @@ export const PostWriter = (props: IWriterProps) => {
   };
 
   const handleBodyChange = (newVal: string) => {
-    setBody(newVal);
+    let finalVal = newVal;
 
     const poundSignIndex = newVal.lastIndexOf('#');
     const spaceIndex = newVal.lastIndexOf(' ');
-
     if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
+      const textBeforePoundSign = newVal.substring(0, poundSignIndex + 1);
       const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
-      console.log(textAfterLastPoundSign);
-      console.log(`last character`, textAfterLastPoundSign.slice(-1).charCodeAt(0));
-      // 10 is newline code
-      if (textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10) {
-        console.log(`replace ${textAfterLastPoundSign.slice(0, -1)} with ${currProposals?.[0].id}`);
-        // TODO: Figre out text replacement
-      }
-
-      if (textAfterLastPoundSign === '') {
+      if (
+        textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10 &&
+        currProposals &&
+        currProposals.length > 0
+      ) {
+        finalVal = textBeforePoundSign + `${currProposals[0].id}`;
+      } else if (textAfterLastPoundSign === '') {
         console.log(currProposals?.slice(0, 5));
         setProposals(currProposals?.slice(0, 5));
       } else {
@@ -101,13 +99,9 @@ export const PostWriter = (props: IWriterProps) => {
         console.log(results);
         setProposals(results);
       }
-
-      // Perform further actions with the extracted text...
-    } else {
-      const textAfterLastPoundSign = '';
-      console.log(textAfterLastPoundSign);
-      // Perform further actions when no valid text is present...
     }
+
+    setBody(finalVal);
   };
 
   const sendPost = async () => {
