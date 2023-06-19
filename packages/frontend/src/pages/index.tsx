@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Tab } from '@headlessui/react';
 import { FAQ } from '@/components/FAQ';
 import Image from 'next/image';
+import nouners from '../../public/nouns.png';
 
 export enum Views {
   POSTS = 'Discussion',
@@ -30,7 +31,7 @@ export default function Home(props: HomeProps) {
         <div className="bg-gray-50 min-h-screen w-full">
           <div className="w-full bg-gray-50 max-w-3xl mx-auto pt-2 md:pt-4 px-4 md:px-0">
             <div className="grow flex justify-center">
-              <Image height={100} width={100} src="/nouns.png" alt="nouns" />
+              <Image src={nouners} alt="nouns" width={100} />
             </div>
             <div className="flex justify-center">
               <Tab.Group

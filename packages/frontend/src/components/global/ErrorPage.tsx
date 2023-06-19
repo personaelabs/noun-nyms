@@ -3,6 +3,8 @@ import { MainButton } from '../MainButton';
 import { useContext } from 'react';
 import { UserContextType } from '@/types/components';
 import { errorPage as TEXT } from '@/lib/text';
+import Image from 'next/image';
+import nouners from '../../../public/nouns.png';
 
 interface ErrorPageProps {
   title: string;
@@ -20,8 +22,7 @@ export const ErrorPage = (props: ErrorPageProps) => {
         </div>
         <MainButton color={'#0e76fd'} message={TEXT.returnHome} handler={() => pushRoute('/')} />
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="w-80" src="/nouns.png" alt="nouns" />
+      <Image width={100} src={nouners} alt="nouns" />
     </main>
   );
 };
