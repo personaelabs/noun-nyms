@@ -156,7 +156,7 @@ export const header = {
 
 export const FAQ = {
   title: 'Noun Nyms',
-  body: 'is a message board that allows persistent pseudonyms and pseudonymous discussions. Pseudonymity lets users... more placeholder text here',
+  body: "is a message board that allows persistent pseudonyms and pseudonymous discussions. Your identity here is a 'nym', which shows that you are a nouner but doesn't reveal your address.",
 };
 
 export const error = {
