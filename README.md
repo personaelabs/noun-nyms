@@ -42,6 +42,8 @@ The entire Noun Nyms 'content graph' is independently verifiable. This means tha
 
 The Personae team maintains the frontend at [nouns.nymz.xyz](https://nouns.nymz.xyz/) and also serves a public API for retrieving data that other frontends can consume. Documentation for this API can be found [here](https://nouns.nymz.xyz/api-doc)
 
+We're working on documentation on how you might verify the content graph programmatically yourself- if you have any questions about this, come ask us in the [support discord](https://discord.gg/3NQm99v3Vp)!
+
 ## Packages
 
 | Name  | Description |
