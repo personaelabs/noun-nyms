@@ -88,8 +88,7 @@ export const nameSelect = {
 export const newNym = {
   beforeTitle: 'Create a new pseudo',
   afterTitle: 'New pseudoynm created!',
-  beforeBody:
-    'What does it mean to create a new nym? Any warnings the user should know beforehand?',
+  beforeBody: 'You can re-use this nym as long as you control the wallet you used to create it.',
   afterBody: 'Your new nym now exists in the world. Use it wisely.',
   beforeButtonText: 'Confirm',
   afterButtonText: 'Say something',
@@ -157,7 +156,7 @@ export const header = {
 
 export const FAQ = {
   title: 'Noun Nyms',
-  body: 'is a message board that allows persistent pseudonyms and pseudonymous discussions. Pseudonymity lets users... more placeholder text here',
+  body: "is a message board that allows persistent pseudonyms and pseudonymous discussions. Your identity here is a 'nym', which shows that you are a nouner but doesn't reveal your address. Check out our github for more details on how this works.",
 };
 
 export const error = {
