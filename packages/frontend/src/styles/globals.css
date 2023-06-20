@@ -47,7 +47,6 @@
     @apply text-xs;
     @apply text-red-700;
   }
-
 }
 
 @layer components {
@@ -62,36 +61,10 @@
   a {
     color: inherit;
     text-decoration: none;
-
   }
 
   * {
     box-sizing: border-box;
-  }
-
-  /* Comment Writer Styles */
-  textarea,
-  pre {
-    border: none;
-    width: 100%;
-    line-height: 1.5em;
-    margin: 0;
-    border-radius: 8px;
-    outline: none;
-    background: transparent;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-  }
-
-  textarea {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    overflow: hidden;
-    resize: none;
-    background: white;
   }
 
   .hoverIcon:hover {

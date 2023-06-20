@@ -37,6 +37,8 @@ export const PostWriter = (props: IWriterProps) => {
   const { errorMsg, isError, setError, clearError } = useError();
   const { proposals } = useProposals();
   const [currProposals, setProposals] = useState(proposals);
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [showProposals, setShowProposals] = useState(false);
 
   useEffect(() => {
     setProposals(proposals);
@@ -77,6 +79,7 @@ export const PostWriter = (props: IWriterProps) => {
 
   // TODO: Move this logic elsewhere / make it more general.
   const handleBodyChange = (newVal: string) => {
+    setShowProposals(false);
     let finalVal = newVal;
 
     const poundSignIndex = newVal.lastIndexOf('#');
@@ -97,6 +100,7 @@ export const PostWriter = (props: IWriterProps) => {
         // If just '#' sign, show 5 most recent proposals.
         console.log(currProposals?.slice(0, 5));
         setProposals(currProposals?.slice(0, 5));
+        setShowProposals(true);
       } else {
         const searchText = textAfterLastPoundSign.toLowerCase();
         // Filter the proposals for titles and prop numbers that match the text after the pound sign.
@@ -105,6 +109,7 @@ export const PostWriter = (props: IWriterProps) => {
           .slice(0, 5);
         console.log(results);
         setProposals(results);
+        setShowProposals(true);
       }
     }
 
@@ -184,9 +189,11 @@ export const PostWriter = (props: IWriterProps) => {
                 <Textarea
                   value={title}
                   placeholder={TEXT.placeholder.title}
-                  minHeight={50}
+                  minRows={2}
                   onChangeHandler={(newVal) => setTitle(newVal)}
-                ></Textarea>
+                  setCursorPosition={setCursorPosition}
+                  findCursor={showProposals}
+                />
               </div>
             ) : null}
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
@@ -195,10 +202,20 @@ export const PostWriter = (props: IWriterProps) => {
                 placeholder={
                   parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody
                 }
-                minHeight={100}
+                minRows={4}
                 onChangeHandler={handleBodyChange}
-              ></Textarea>
+                setCursorPosition={setCursorPosition}
+                findCursor={showProposals}
+              />
             </div>
+            {showProposals && (
+              <div
+                className="absolute bg-white w-10 h-10 rounded-xl"
+                style={{ top: cursorPosition.y, left: cursorPosition.x }}
+              >
+                <p>Test</p>
+              </div>
+            )}
           </div>
           <div className="w-full flex-wrap flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (
