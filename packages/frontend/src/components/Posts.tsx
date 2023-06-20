@@ -120,7 +120,11 @@ export default function Posts(props: PostsProps) {
         handleClose={() => setShowWalletWarning(false)}
         action={TEXT.action}
       />
-      {openPostId && <PostWithRepliesModal openPostId={openPostId} setOpenPostId={setOpenPostId} />}
+      <PostWithRepliesModal
+        isOpen={openPostId !== ''}
+        openPostId={openPostId}
+        setOpenPostId={setOpenPostId}
+      />
       <div className="flex flex-col gap-4">
         <div className="flex justify-between">
           {isMobile ? (

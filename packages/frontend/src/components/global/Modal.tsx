@@ -21,10 +21,10 @@ export const Modal = (props: ModalProps) => {
     <Transition
       show={isOpen}
       appear={true}
-      enter="transition-opacity duration-5000"
+      enter="transition-opacity duration-100"
       enterFrom="opacity-0"
       enterTo="opacity-100"
-      leave="transition-opacity duration-5000"
+      leave={isOpen ? 'transition-opacity duration-0' : ''}
       leaveFrom="opacity-100"
       leaveTo="opacity-0"
       as={Fragment}

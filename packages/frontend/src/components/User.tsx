@@ -75,8 +75,9 @@ export default function User({ userId }: { userId: string }) {
   return (
     <>
       <main className="flex h-screen bg-gray-50 w-full flex-col items-center">
-        {openPost && !isMobile && (
+        {!isMobile && (
           <PostWithRepliesModal
+            isOpen={openPost !== undefined}
             writerToShow={writerToShow}
             openPostId={openPostId}
             setOpenPostId={setOpenPostId}
