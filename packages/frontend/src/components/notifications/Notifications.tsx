@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu } from '@headlessui/react';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
-import { useContext, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import { NotificationsContext, UserContext } from '@/pages/_app';
 import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
@@ -62,21 +62,30 @@ export const Notifications = () => {
                     <>
                       {notsToShow.slice(0, 5).map((n, i) => {
                         return (
-                          <Menu.Item
-                            as={'div'}
-                            key={i}
-                            className="w-full px-3 py-2 rounded-xl bg-white border border-white hover:border-gray-500"
-                          >
-                            <SingleNotification n={n} setAsRead={setAsRead} trim={true} />
+                          <Menu.Item key={i} as={Fragment}>
+                            {({ active }) => (
+                              <div
+                                className={`w-full px-3 py-2 rounded-xl bg-white border ${
+                                  active ? 'border-gray-500' : 'border-white'
+                                }`}
+                              >
+                                <SingleNotification n={n} setAsRead={setAsRead} trim={true} />
+                              </div>
+                            )}
                           </Menu.Item>
                         );
                       })}
-                      <Menu.Item
-                        as={'div'}
-                        className="py-2 hover:underline hover:bg-gray-200 rounded-b-xl"
-                        onClick={() => pushRoute('/notifications')}
-                      >
-                        <p className="text-center">{TEXT.seeAllNotifications}</p>
+                      <Menu.Item as={Fragment}>
+                        {({ active }) => (
+                          <div
+                            className={`py-2  ${
+                              active ? 'underline bg-gray-200' : 'bg-white'
+                            } rounded-b-xl`}
+                            onClick={() => pushRoute('/notifications')}
+                          >
+                            <p className="text-center">{TEXT.seeAllNotifications}</p>
+                          </div>
+                        )}
                       </Menu.Item>
                     </>
                   ) : isLoading ? (

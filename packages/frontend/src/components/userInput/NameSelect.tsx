@@ -41,7 +41,7 @@ export const NameSelect = (props: NameSelectProps) => {
 
   return (
     <>
-      {address && isValid ? (
+      {address && isValid && (
         <NewNym
           address={address}
           isOpen={openNewNym}
@@ -50,7 +50,7 @@ export const NameSelect = (props: NameSelectProps) => {
           setNymOptions={setNymOptions}
           setSelectedName={setSelectedName}
         />
-      ) : null}
+      )}
       <p className="secondary shrink-0">{TEXT.postingAs}</p>
       <Menu as={'div'} className="min-w-0 max-w-min shrink grow relative basis-1/4 sm:basis-auto">
         {({ open }) => (
@@ -79,11 +79,7 @@ export const NameSelect = (props: NameSelectProps) => {
               >
                 <Menu.Item>
                   {({ active }) => (
-                    <MenuItem
-                      ref={menuItemRef}
-                      active={active}
-                      onClickHandler={() => setOpenNewNym(true)}
-                    >
+                    <MenuItem ref={menuItemRef} active={active} handler={() => setOpenNewNym(true)}>
                       <div className="flex gap-2 items-center">
                         <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
                         <p>{TEXT.newNym}</p>
@@ -99,7 +95,7 @@ export const NameSelect = (props: NameSelectProps) => {
                           <MenuItem
                             ref={menuItemRef}
                             active={active}
-                            onClickHandler={() => setSelectedName(nym)}
+                            handler={() => setSelectedName(nym)}
                           >
                             <NameMenuItem
                               type={NameType.PSEUDO}
@@ -118,7 +114,7 @@ export const NameSelect = (props: NameSelectProps) => {
                       <MenuItem
                         ref={menuItemRef}
                         active={active}
-                        onClickHandler={() => setSelectedName(doxedName)}
+                        handler={() => setSelectedName(doxedName)}
                       >
                         <NameMenuItem
                           type={NameType.DOXED}
