@@ -1,17 +1,18 @@
 import { faAngleDown, faAngleUp, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientName, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
-import { Menu, Transition } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 import { NameMenuItem } from './NameMenuItem';
 import { getUserIdFromName } from '@/lib/client-utils';
 import { nameSelect as TEXT } from '@/lib/text';
 import MenuItem from './MenuItem';
+import { TransitionFade } from '../global/TransitionFade';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -70,17 +71,7 @@ export const NameSelect = (props: NameSelectProps) => {
               </div>
               <FontAwesomeIcon icon={open ? faAngleUp : faAngleDown} />
             </Menu.Button>
-            <Transition
-              show={open}
-              appear={true}
-              enter="transition-opacity duration-5000"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="transition-opacity duration-5000"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-              as={Fragment}
-            >
+            <TransitionFade show={open}>
               <Menu.Items
                 className={`${
                   openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'
@@ -140,7 +131,7 @@ export const NameSelect = (props: NameSelectProps) => {
                   </Menu.Item>
                 )}
               </Menu.Items>
-            </Transition>
+            </TransitionFade>
           </>
         )}
       </Menu>

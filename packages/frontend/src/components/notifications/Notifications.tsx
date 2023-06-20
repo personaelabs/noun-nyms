@@ -1,9 +1,9 @@
 import { faBell, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Menu, Transition } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 import Spinner from '../global/Spinner';
 import { useAccount } from 'wagmi';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { NotificationsContext, UserContext } from '@/pages/_app';
 import { SingleNotification } from './SingleNotification';
 import { RefreshNotifications } from './RefreshNotifications';
@@ -12,6 +12,7 @@ import { Notification, NotificationsContextType } from '@/types/notifications';
 import { RetryError } from '../global/RetryError';
 import { NotificationsTools } from './NotificationsTools';
 import { notifications as TEXT } from '@/lib/text';
+import { TransitionFade } from '../global/TransitionFade';
 
 export const Notifications = () => {
   const { address } = useAccount();
@@ -40,17 +41,7 @@ export const Notifications = () => {
               )}
             </Menu.Button>
             {!isMobile && (
-              <Transition
-                show={open}
-                appear={true}
-                enter="transition-opacity duration-5000"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition-opacity duration-5000"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-                as={Fragment}
-              >
+              <TransitionFade show={open}>
                 <Menu.Items className="absolute z-50 top-full left-1/2 -translate-x-1/2 w-[400px] bg-white mt-4 border border-gray-200 rounded-xl cursor-pointer">
                   <div className="flex flex-col gap-2 px-3 mb-2">
                     <div className="flex items-center justify-between mt-2">
@@ -104,7 +95,7 @@ export const Notifications = () => {
                     <p className="p-4 text-center">{TEXT.noNotifications}</p>
                   )}
                 </Menu.Items>
-              </Transition>
+              </TransitionFade>
             )}
           </>
         )}

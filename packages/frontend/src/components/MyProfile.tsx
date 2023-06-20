@@ -1,14 +1,15 @@
 import { UserAvatar } from './global/UserAvatar';
-import { Fragment, useContext } from 'react';
+import { useContext } from 'react';
 import { NameType, UserContextType } from '@/types/components';
 import useName from '@/hooks/useName';
 import { UserContext } from '@/pages/_app';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import ConnectWallet from './ConnectWallet';
-import { Menu, Transition } from '@headlessui/react';
+import { Menu } from '@headlessui/react';
 import { getUserIdFromName } from '@/lib/client-utils';
 import { header as TEXT } from '@/lib/text';
+import { TransitionFade } from './global/TransitionFade';
 
 export const MyProfile = ({ address }: { address: string }) => {
   const { isMobile, nymOptions, isValid, pushRoute } = useContext(UserContext) as UserContextType;
@@ -24,17 +25,7 @@ export const MyProfile = ({ address }: { address: string }) => {
                 <UserAvatar width={30} userId={address} />
                 <FontAwesomeIcon icon={faAngleDown} color="#ffffff" />
               </Menu.Button>
-              <Transition
-                show={open}
-                appear={true}
-                enter="transition-opacity duration-5000"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition-opacity duration-5000"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-                as={Fragment}
-              >
+              <TransitionFade show={open}>
                 <Menu.Items className="max-w-[150px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer">
                   {isMobile && address && isValid && (
                     <>
@@ -70,7 +61,7 @@ export const MyProfile = ({ address }: { address: string }) => {
                       </Menu.Item>
                     ))}
                 </Menu.Items>
-              </Transition>
+              </TransitionFade>
             </>
           )}
         </Menu>

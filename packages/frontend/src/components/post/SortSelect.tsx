@@ -1,7 +1,7 @@
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Listbox, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Listbox } from '@headlessui/react';
+import { TransitionFade } from '../global/TransitionFade';
 
 interface SortSelectProps {
   options: { [key: string]: string };
@@ -21,17 +21,7 @@ export const SortSelect = (props: SortSelectProps) => {
               <FontAwesomeIcon icon={faChevronDown} />
             </span>
           </Listbox.Button>
-          <Transition
-            show={open}
-            appear={true}
-            enter="transition-opacity duration-5000"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="transition-opacity duration-5000"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-            as={Fragment}
-          >
+          <TransitionFade show={open}>
             <Listbox.Options
               className={`absolute ${
                 leftAlign ? 'left-0' : 'left-full -translate-x-full'
@@ -47,7 +37,7 @@ export const SortSelect = (props: SortSelectProps) => {
                 </Listbox.Option>
               ))}
             </Listbox.Options>
-          </Transition>
+          </TransitionFade>
         </div>
       )}
     </Listbox>

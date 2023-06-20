@@ -2,8 +2,9 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, ReactNode, useContext } from 'react';
+import { Dialog } from '@headlessui/react';
+import { ReactNode, useContext } from 'react';
+import { TransitionFade } from './TransitionFade';
 
 interface ModalProps {
   width?: string;
@@ -18,17 +19,7 @@ export const Modal = (props: ModalProps) => {
   const { isMobile } = useContext(UserContext) as UserContextType;
 
   return (
-    <Transition
-      show={isOpen}
-      appear={true}
-      enter="transition-opacity duration-100"
-      enterFrom="opacity-0"
-      enterTo="opacity-100"
-      leave={isOpen ? 'transition-opacity duration-0' : ''}
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
-      as={Fragment}
-    >
+    <TransitionFade show={isOpen}>
       <Dialog onClose={handleClose} className="relative z-50">
         {/* The backdrop, rendered as a fixed sibling to the panel container */}
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
@@ -56,6 +47,6 @@ export const Modal = (props: ModalProps) => {
           </div>
         </div>
       </Dialog>
-    </Transition>
+    </TransitionFade>
   );
 };
