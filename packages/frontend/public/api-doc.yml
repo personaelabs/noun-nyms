@@ -7,7 +7,7 @@ info:
   version: '1'
 servers:
   - url: /api/v1
-    description: Local server
+    description: Next.js server
 paths:
   /posts:
     get:
@@ -88,9 +88,9 @@ paths:
       responses:
         '200':
           description: OK
-  /posts/{postId}/fetchParents:
+  /posts/{postId}/parents:
     get:
-      description: Fetch all parent responses with the last descendant as post with {postId}
+      description: Fetch the parents of a given postId (default is 5 layers up)
       operationId: getPost
       parameters:
         - name: postId
@@ -142,6 +142,13 @@ paths:
           description: OK
         '400':
           description: Invalid set
+  /users:
+    get:
+      description: Get summary information about all users
+      operationId: getUsers
+      responses:
+        '200':
+          description: OK
   /users/{userId}/posts:
     get:
       description: Get posts of a user
