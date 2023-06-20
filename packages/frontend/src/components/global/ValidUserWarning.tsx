@@ -13,11 +13,11 @@ export const ValidUserWarning = () => {
 
   // disable warning when account changes and then reset it once isValid changes
   useEffect(() => setShowWarning(false), [address]);
-  useEffect(() => setShowWarning(!isValid), [isValid]);
+  useEffect(() => setShowWarning(!isValid), [isValid, address]);
 
   return (
     <>
-      {!isValid && (
+      {showWarning && (
         <Modal isOpen={showWarning} width="60%" handleClose={() => setShowWarning(false)}>
           <h3>{TEXT.title}</h3>
           <p className="text-gray-700">{TEXT.body}</p>
