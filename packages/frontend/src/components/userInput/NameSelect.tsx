@@ -1,13 +1,13 @@
 import { faAngleDown, faAngleUp, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { NewNym } from './NewNym';
 import { ClientName, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { useAccount } from 'wagmi';
 import { UserContext } from '@/pages/_app';
-import { Menu } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import { NameMenuItem } from './NameMenuItem';
 import { getUserIdFromName } from '@/lib/client-utils';
 import { nameSelect as TEXT } from '@/lib/text';
@@ -70,65 +70,77 @@ export const NameSelect = (props: NameSelectProps) => {
               </div>
               <FontAwesomeIcon icon={open ? faAngleUp : faAngleDown} />
             </Menu.Button>
-            <Menu.Items
-              className={`${
-                openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'
-              } w-max max-w-[180px] absolute left-full -translate-x-full bg-white border border-gray-200 rounded-xl cursor-pointer z-50`}
+            <Transition
+              show={open}
+              appear={true}
+              enter="transition-opacity duration-5000"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="transition-opacity duration-5000"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              as={Fragment}
             >
-              <Menu.Item>
-                {({ active }) => (
-                  <MenuItem
-                    ref={menuItemRef}
-                    active={active}
-                    onClickHandler={() => setOpenNewNym(true)}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
-                      <p>{TEXT.newNym}</p>
-                    </div>
-                  </MenuItem>
-                )}
-              </Menu.Item>
-              <div className="border-b border-dotted border-gray-300">
-                {nymOptions &&
-                  nymOptions.map((nym) => (
-                    <Menu.Item key={nym.nymSig}>
-                      {({ active }) => (
-                        <MenuItem
-                          ref={menuItemRef}
-                          active={active}
-                          onClickHandler={() => setSelectedName(nym)}
-                        >
-                          <NameMenuItem
-                            type={NameType.PSEUDO}
-                            userId={getUserIdFromName(nym)}
-                            name={nym.name}
-                            selected={nym.nymSig === selectedName?.nymSig}
-                          />
-                        </MenuItem>
-                      )}
-                    </Menu.Item>
-                  ))}
-              </div>
-              {address && (
+              <Menu.Items
+                className={`${
+                  openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'
+                } w-max max-w-[180px] absolute left-full -translate-x-full bg-white border border-gray-200 rounded-xl cursor-pointer z-50`}
+              >
                 <Menu.Item>
                   {({ active }) => (
                     <MenuItem
                       ref={menuItemRef}
                       active={active}
-                      onClickHandler={() => setSelectedName(doxedName)}
+                      onClickHandler={() => setOpenNewNym(true)}
                     >
-                      <NameMenuItem
-                        type={NameType.DOXED}
-                        userId={address}
-                        name={doxedName.name}
-                        selected={doxedName.name === selectedName?.name}
-                      />
+                      <div className="flex gap-2 items-center">
+                        <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
+                        <p>{TEXT.newNym}</p>
+                      </div>
                     </MenuItem>
                   )}
                 </Menu.Item>
-              )}
-            </Menu.Items>
+                <div className="border-b border-dotted border-gray-300">
+                  {nymOptions &&
+                    nymOptions.map((nym) => (
+                      <Menu.Item key={nym.nymSig}>
+                        {({ active }) => (
+                          <MenuItem
+                            ref={menuItemRef}
+                            active={active}
+                            onClickHandler={() => setSelectedName(nym)}
+                          >
+                            <NameMenuItem
+                              type={NameType.PSEUDO}
+                              userId={getUserIdFromName(nym)}
+                              name={nym.name}
+                              selected={nym.nymSig === selectedName?.nymSig}
+                            />
+                          </MenuItem>
+                        )}
+                      </Menu.Item>
+                    ))}
+                </div>
+                {address && (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <MenuItem
+                        ref={menuItemRef}
+                        active={active}
+                        onClickHandler={() => setSelectedName(doxedName)}
+                      >
+                        <NameMenuItem
+                          type={NameType.DOXED}
+                          userId={address}
+                          name={doxedName.name}
+                          selected={doxedName.name === selectedName?.name}
+                        />
+                      </MenuItem>
+                    )}
+                  </Menu.Item>
+                )}
+              </Menu.Items>
+            </Transition>
           </>
         )}
       </Menu>

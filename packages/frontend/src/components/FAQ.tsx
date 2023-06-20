@@ -1,7 +1,6 @@
-import { faQuestion, faQuestionCircle, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Popover, Transition } from '@headlessui/react';
-import { faGithub } from '@fortawesome/free-brands-svg-icons';
 import { Fragment, useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
@@ -16,7 +15,7 @@ export const FAQ = () => {
       <Popover className="relative">
         {({ open, close }) => (
           <>
-            <Popover.Button className="flex gap-2 items-center bg-white rounded-full p-2 border border-gray-200 shadow-md hover:scale-105 active:scale-100 transition-all">
+            <Popover.Button className="flex gap-2 items-center bg-white rounded-full p-2 md:p-3 border border-gray-200 shadow-md hover:scale-105 active:scale-100 transition-all">
               {isMobile ? (
                 <div className="w-4 h-4 flex items-center justify-center">
                   <FontAwesomeIcon icon={faQuestion} />
