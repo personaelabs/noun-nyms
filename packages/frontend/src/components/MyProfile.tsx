@@ -47,7 +47,7 @@ export const MyProfile = ({ address }: { address: string }) => {
                       >
                         <>
                           <UserAvatar type={NameType.DOXED} userId={address} width={20} />
-                          <p className="breakText">{name}</p>
+                          <p className="grow text-left breakText">{name}</p>
                         </>
                       </MenuItem>
                     )}
