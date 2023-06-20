@@ -10,7 +10,7 @@ export const FAQContent = () => {
         <span>{TEXT.body}</span>
       </p>
       <div className="flex gap-2">
-        <a href="https://github.com/personaelabs/nym">
+        <a href="https://github.com/personaelabs/noun-nyms">
           <FontAwesomeIcon icon={faGithub} size={'lg'} />
         </a>
       </div>

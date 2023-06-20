@@ -22,7 +22,7 @@ export function Seo(props: SeoProps) {
         description: ogDescription || HOME_DESCRIPTION,
         site_name: 'Noun Nyms',
         type: 'website',
-        images: [{ url: 'https://nym.vercel.app/noun_og.jpg' }],
+        images: [{ url: 'https://nouns.nymz.xyz/noun_og.jpg' }],
       }}
       twitter={{ cardType: 'summary', site: '@personaelabs' }}
     />
