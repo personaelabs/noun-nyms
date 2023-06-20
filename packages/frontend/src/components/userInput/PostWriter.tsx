@@ -75,14 +75,18 @@ export const PostWriter = (props: IWriterProps) => {
     setCloseWriter(true);
   };
 
+  // TODO: Move this logic elsewhere / make it more general.
   const handleBodyChange = (newVal: string) => {
     let finalVal = newVal;
 
     const poundSignIndex = newVal.lastIndexOf('#');
     const spaceIndex = newVal.lastIndexOf(' ');
+    // If there are no spaces after the most recent '#'
     if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
       const textBeforePoundSign = newVal.substring(0, poundSignIndex + 1);
       const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
+      // If current proposals have been found and the last character after the '#' was an Enter
+      // Replace the text after the last '#' with the prop number.
       if (
         textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10 &&
         currProposals &&
@@ -90,11 +94,14 @@ export const PostWriter = (props: IWriterProps) => {
       ) {
         finalVal = textBeforePoundSign + `${currProposals[0].id}`;
       } else if (textAfterLastPoundSign === '') {
+        // If just '#' sign, show 5 most recent proposals.
         console.log(currProposals?.slice(0, 5));
         setProposals(currProposals?.slice(0, 5));
       } else {
+        const searchText = textAfterLastPoundSign.toLowerCase();
+        // Filter the proposals for titles and prop numbers that match the text after the pound sign.
         const results = proposals
-          ?.filter((p) => p.title.toLowerCase().includes(textAfterLastPoundSign.toLowerCase()))
+          ?.filter((p) => p.title.toLowerCase().includes(searchText) || p.id.includes(searchText))
           .slice(0, 5);
         console.log(results);
         setProposals(results);
