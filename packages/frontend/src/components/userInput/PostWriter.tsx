@@ -17,6 +17,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
 import { BLACK } from '@/lib/colors';
 import useProposals from '@/hooks/useProposals';
+import { Proposals } from './Proposals';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -208,14 +209,7 @@ export const PostWriter = (props: IWriterProps) => {
                 findCursor={showProposals}
               />
             </div>
-            {showProposals && (
-              <div
-                className="absolute bg-white w-10 h-10 rounded-xl"
-                style={{ top: cursorPosition.y, left: cursorPosition.x }}
-              >
-                <p>Test</p>
-              </div>
-            )}
+            {showProposals && <Proposals position={cursorPosition} proposals={currProposals} />}
           </div>
           <div className="w-full flex-wrap flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (

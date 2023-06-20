@@ -31,7 +31,7 @@ export const Textarea = (props: TextAreaProps) => {
         setCursorPosition({ x: cursorX, y: cursorY });
       }
     }
-  }, [findCursor, value, setCursorPosition]);
+  }, [findCursor, setCursorPosition]);
 
   return (
     <div className="w-full relative">
