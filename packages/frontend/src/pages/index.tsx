@@ -13,10 +13,11 @@ export enum Views {
 
 interface HomeProps {
   defaultView?: Views;
+  openPostId?: string;
 }
 
 export default function Home(props: HomeProps) {
-  const { defaultView } = props;
+  const { defaultView, openPostId } = props;
   const [view, setView] = useState(defaultView ? defaultView : Views.POSTS);
   const [showFAQ, setShowFAQ] = useState(true);
 
@@ -58,7 +59,7 @@ export default function Home(props: HomeProps) {
             </div>
           </div>
           <div className="flex flex-col gap-8 max-w-3xl mx-auto py-3 md:py-6 px-4 md:px-0">
-            {view === Views.POSTS ? <Posts /> : <Users />}
+            {view === Views.POSTS ? <Posts initOpenPostId={openPostId} /> : <Users />}
           </div>
           <FAQ />
         </div>

@@ -1,5 +1,4 @@
 import { useRouter } from 'next/router';
-import Posts from '@/components/Posts';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple } from '@/types/api/postSelectSimple';
 import { getSimplePost } from '../api/v1/utils';
@@ -12,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { DiscardPostWarning } from '@/components/DiscardPostWarning';
 import { postId as TEXT } from '@/lib/text';
+import Home, { Views } from '..';
 
 // This function returns the IPostSimple post object as a prop to PostId
 export async function getServerSideProps(
@@ -66,7 +66,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
             </div>
           </>
         ) : (
-          <Posts initOpenPostId={openPostId} />
+          <Home defaultView={Views.POSTS} openPostId={openPostId} />
         ))}
     </div>
   );
