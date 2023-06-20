@@ -3,25 +3,20 @@ import { Modal } from './global/Modal';
 import { discardPostWarning as TEXT } from '@/lib/text';
 
 interface DiscardPostWarningProps {
+  isOpen: boolean;
   handleClosePost: () => void;
   handleCloseWarning: () => void;
 }
 
 export const DiscardPostWarning = (props: DiscardPostWarningProps) => {
-  const { handleCloseWarning, handleClosePost } = props;
+  const { isOpen, handleCloseWarning, handleClosePost } = props;
   return (
-    <Modal handleClose={handleCloseWarning} width={'50%'}>
-      <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10 items-center">
-        <p>{TEXT.body}</p>
+    <Modal isOpen={isOpen} handleClose={handleCloseWarning} width={'50%'}>
+      <p>{TEXT.body}</p>
 
-        <div className="flex gap-2">
-          <MainButton
-            message={TEXT.buttonText.cancel}
-            color="#000000"
-            handler={handleCloseWarning}
-          />
-          <MainButton message={TEXT.buttonText.okay} color="#0E76FD" handler={handleClosePost} />
-        </div>
+      <div className="flex gap-2 justify-center">
+        <MainButton message={TEXT.buttonText.cancel} color="#000000" handler={handleCloseWarning} />
+        <MainButton message={TEXT.buttonText.okay} color="#0E76FD" handler={handleClosePost} />
       </div>
     </Modal>
   );

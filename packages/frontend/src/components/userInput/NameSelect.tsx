@@ -12,6 +12,7 @@ import { NameMenuItem } from './NameMenuItem';
 import { getUserIdFromName } from '@/lib/client-utils';
 import { nameSelect as TEXT } from '@/lib/text';
 import MenuItem from './MenuItem';
+import { TransitionFade } from '../global/TransitionFade';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -40,15 +41,16 @@ export const NameSelect = (props: NameSelectProps) => {
 
   return (
     <>
-      {address && isValid && openNewNym ? (
+      {address && isValid && (
         <NewNym
           address={address}
+          isOpen={openNewNym}
           handleClose={() => setOpenNewNym(false)}
           nymOptions={nymOptions}
           setNymOptions={setNymOptions}
           setSelectedName={setSelectedName}
         />
-      ) : null}
+      )}
       <p className="secondary shrink-0">{TEXT.postingAs}</p>
       <Menu as={'div'} className="min-w-0 max-w-min shrink grow relative basis-1/4 sm:basis-auto">
         {({ open }) => (
@@ -69,65 +71,63 @@ export const NameSelect = (props: NameSelectProps) => {
               </div>
               <FontAwesomeIcon icon={open ? faAngleUp : faAngleDown} />
             </Menu.Button>
-            <Menu.Items
-              className={`${
-                openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'
-              } w-max max-w-[180px] absolute left-full -translate-x-full bg-white border border-gray-200 rounded-xl cursor-pointer z-50`}
-            >
-              <Menu.Item>
-                {({ active }) => (
-                  <MenuItem
-                    ref={menuItemRef}
-                    active={active}
-                    onClickHandler={() => setOpenNewNym(true)}
-                  >
-                    <div className="flex gap-2 items-center">
-                      <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
-                      <p>{TEXT.newNym}</p>
-                    </div>
-                  </MenuItem>
-                )}
-              </Menu.Item>
-              <div className="border-b border-dotted border-gray-300">
-                {nymOptions &&
-                  nymOptions.map((nym) => (
-                    <Menu.Item key={nym.nymSig}>
-                      {({ active }) => (
-                        <MenuItem
-                          ref={menuItemRef}
-                          active={active}
-                          onClickHandler={() => setSelectedName(nym)}
-                        >
-                          <NameMenuItem
-                            type={NameType.PSEUDO}
-                            userId={getUserIdFromName(nym)}
-                            name={nym.name}
-                            selected={nym.nymSig === selectedName?.nymSig}
-                          />
-                        </MenuItem>
-                      )}
-                    </Menu.Item>
-                  ))}
-              </div>
-              {address && (
+            <TransitionFade show={open}>
+              <Menu.Items
+                className={`${
+                  openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'
+                } w-max max-w-[180px] absolute left-full -translate-x-full bg-white border border-gray-200 rounded-xl cursor-pointer z-50`}
+              >
                 <Menu.Item>
                   {({ active }) => (
-                    <MenuItem
-                      ref={menuItemRef}
-                      active={active}
-                      onClickHandler={() => setSelectedName(doxedName)}
-                    >
-                      <NameMenuItem
-                        type={NameType.DOXED}
-                        userId={address}
-                        name={doxedName.name}
-                        selected={doxedName.name === selectedName?.name}
-                      />
+                    <MenuItem ref={menuItemRef} active={active} handler={() => setOpenNewNym(true)}>
+                      <div className="flex gap-2 items-center">
+                        <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
+                        <p>{TEXT.newNym}</p>
+                      </div>
                     </MenuItem>
                   )}
                 </Menu.Item>
-              )}
-            </Menu.Items>
+                <div className="border-b border-dotted border-gray-300">
+                  {nymOptions &&
+                    nymOptions.map((nym) => (
+                      <Menu.Item key={nym.nymSig}>
+                        {({ active }) => (
+                          <MenuItem
+                            ref={menuItemRef}
+                            active={active}
+                            handler={() => setSelectedName(nym)}
+                          >
+                            <NameMenuItem
+                              type={NameType.PSEUDO}
+                              userId={getUserIdFromName(nym)}
+                              name={nym.name}
+                              selected={nym.nymSig === selectedName?.nymSig}
+                            />
+                          </MenuItem>
+                        )}
+                      </Menu.Item>
+                    ))}
+                </div>
+                {address && (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <MenuItem
+                        ref={menuItemRef}
+                        active={active}
+                        handler={() => setSelectedName(doxedName)}
+                      >
+                        <NameMenuItem
+                          type={NameType.DOXED}
+                          userId={address}
+                          name={doxedName.name}
+                          selected={doxedName.name === selectedName?.name}
+                        />
+                      </MenuItem>
+                    )}
+                  </Menu.Item>
+                )}
+              </Menu.Items>
+            </TransitionFade>
           </>
         )}
       </Menu>

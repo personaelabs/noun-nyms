@@ -71,24 +71,20 @@ export const Upvote = (props: UpvoteIconProps) => {
   };
   return (
     <>
-      {errorMsg && isError ? (
-        <Modal width="50%" handleClose={clearError}>
-          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
-          </div>
-        </Modal>
-      ) : showVoteWarning ? (
-        <UpvoteWarning
-          handleClose={() => handleModalClose(setShowVoteWarning)}
-          upvoteHandler={upvoteHandler}
-          loadingUpvote={loadingUpvote}
-        />
-      ) : showWalletWarning ? (
-        <WalletWarning
-          handleClose={() => handleModalClose(setShowWalletWarning)}
-          action={TEXT.action}
-        />
-      ) : null}
+      <Modal isOpen={isError} width="50%" handleClose={clearError}>
+        <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={upvoteHandler} />
+      </Modal>
+      <UpvoteWarning
+        isOpen={showVoteWarning}
+        handleClose={() => handleModalClose(setShowVoteWarning)}
+        upvoteHandler={upvoteHandler}
+        loadingUpvote={loadingUpvote}
+      />
+      <WalletWarning
+        isOpen={showWalletWarning}
+        handleClose={() => handleModalClose(setShowWalletWarning)}
+        action={TEXT.action}
+      />
       <button
         ref={buttonRef}
         onClick={handleClick}

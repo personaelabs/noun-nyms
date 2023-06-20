@@ -123,15 +123,14 @@ export const PostWriter = (props: IWriterProps) => {
 
   return (
     <>
-      {showWalletWarning ? (
-        <WalletWarning handleClose={() => setShowWalletWarning(false)} action={TEXT.action} />
-      ) : errorMsg && isError ? (
-        <Modal width="50%" handleClose={clearErrors}>
-          <div className="flex flex-col gap-4 py-8 px-12 md:px-12 md:py-10">
-            <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={sendPost} />
-          </div>
-        </Modal>
-      ) : null}
+      <WalletWarning
+        isOpen={showWalletWarning}
+        handleClose={() => setShowWalletWarning(false)}
+        action={TEXT.action}
+      />
+      <Modal isOpen={isError} width="50%" handleClose={clearErrors}>
+        <RetryError message={TEXT.fetchError} error={errorMsg} refetchHandler={sendPost} />
+      </Modal>
       <div className="flex flex-col gap-2">
         {userError && (
           <p className="error">

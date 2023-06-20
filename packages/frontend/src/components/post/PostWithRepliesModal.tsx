@@ -6,13 +6,14 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 
 interface PostWithRepliesModalProps {
+  isOpen: boolean;
   openPostId: string;
   setOpenPostId: (id: string) => void;
   writerToShow?: string;
 }
 
 export const PostWithRepliesModal = (props: PostWithRepliesModalProps) => {
-  const { openPostId, setOpenPostId, writerToShow } = props;
+  const { isOpen, openPostId, setOpenPostId, writerToShow } = props;
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
   const { postInProg } = useContext(UserContext) as UserContextType;
 
@@ -23,16 +24,16 @@ export const PostWithRepliesModal = (props: PostWithRepliesModalProps) => {
 
   return (
     <>
-      {discardWarningOpen && (
-        <DiscardPostWarning
-          handleCloseWarning={() => setDiscardWarningOpen(false)}
-          handleClosePost={() => {
-            handleCloseModal();
-            setDiscardWarningOpen(false);
-          }}
-        />
-      )}
+      <DiscardPostWarning
+        isOpen={discardWarningOpen}
+        handleCloseWarning={() => setDiscardWarningOpen(false)}
+        handleClosePost={() => {
+          handleCloseModal();
+          setDiscardWarningOpen(false);
+        }}
+      />
       <Modal
+        isOpen={isOpen}
         startAtTop={true}
         handleClose={() => {
           if (postInProg) setDiscardWarningOpen(true);
