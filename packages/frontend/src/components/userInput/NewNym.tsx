@@ -22,15 +22,6 @@ interface NewNymProps {
 }
 
 const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string> => {
-  console.log('async nym input', {
-    primaryType: 'Nym',
-    domain: DOMAIN,
-    types: NYM_CODE_TYPE,
-    message: {
-      nymName,
-      warning: NYM_CODE_WARNING,
-    },
-  });
   const nymSig = await signTypedDataAsync({
     primaryType: 'Nym',
     domain: DOMAIN,

@@ -101,12 +101,6 @@ export function eip712MsgHash(
     primaryType: Object.keys(types)[0],
     message: value,
   });
-  console.log(`eip712 input`, {
-    domain,
-    types,
-    primaryType: Object.keys(types)[0],
-    message: value,
-  });
   return Buffer.from(hash.replace('0x', ''), 'hex');
 }
 
