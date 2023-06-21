@@ -31,6 +31,7 @@ export const rootSelectFields = {
   _count: {
     select: {
       descendants: true,
+      replies: true,
     },
   },
 };
