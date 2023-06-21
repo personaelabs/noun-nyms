@@ -433,7 +433,9 @@ function __wbg_get_imports() {
 }
 
 function __wbg_init_memory(imports, maybe_memory) {
-  imports.wbg.memory = maybe_memory || new WebAssembly.Memory({ initial: 18, maximum: 16384 });
+  imports.wbg.memory = maybe_memory || new WebAssembly.Memory({ initial: 18, maximum: 8192 });
+  // initial ~= 1.18MB
+  // maximum ~= 569MB
 }
 
 function __wbg_finalize_init(instance, module) {
