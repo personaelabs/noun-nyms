@@ -101,15 +101,22 @@ export type PostsQuery = {
   skip?: number;
   take?: number;
   sort?: string;
+  includeReplies?: boolean;
 };
 
 export const selectAndCleanPosts = async (query: PostsQuery) => {
-  const isNym = query.userId && !isAddress(query.userId);
+  let where = {};
 
-  // Determines whether we are searching for a user's posts or all root posts.
-  const where = query.userId
-    ? { userId: isNym ? query.userId : query.userId.toLowerCase() }
-    : { rootId: null };
+  // add user query
+  if (query.userId) {
+    const isNym = !isAddress(query.userId);
+    where = isNym ? { userId: query.userId } : { userId: query.userId.toLowerCase() };
+  }
+
+  // limit to only root posts if includeReplies: false or doesn't exist
+  if (!query.includeReplies) {
+    where = { ...where, rootId: null };
+  }
 
   const postsRaw = await prisma.post.findMany({
     select: postPreviewSelect,
