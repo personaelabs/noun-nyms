@@ -38,11 +38,11 @@ export default function PostId({ post }: { post?: IPostSimple }) {
   const [discardWarningOpen, setDiscardWarningOpen] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <>
       <Seo ogTitle={title} ogDescription={description} />
       {openPostId &&
         (isMobile ? (
-          <>
+          <div className="flex flex-col gap-6 p-6 min-h-screen bg-gray-50">
             <DiscardPostWarning
               isOpen={discardWarningOpen}
               handleCloseWarning={() => setDiscardWarningOpen(false)}
@@ -52,7 +52,7 @@ export default function PostId({ post }: { post?: IPostSimple }) {
               }}
             />
             <div
-              className="flex pt-6 px-6 gap-1 items-center underline cursor-pointer"
+              className="flex gap-1 items-center underline cursor-pointer"
               onClick={() => {
                 if (postInProg) setDiscardWarningOpen(true);
                 else pushRoute('/');
@@ -61,13 +61,11 @@ export default function PostId({ post }: { post?: IPostSimple }) {
               <FontAwesomeIcon icon={faArrowLeft} className="secondary" />
               <p>{TEXT.backButtonText}</p>
             </div>
-            <div className="px-12 py-10">
-              <PostWithReplies postId={openPostId} />
-            </div>
-          </>
+            <PostWithReplies postId={openPostId} />
+          </div>
         ) : (
           <Home defaultView={Views.POSTS} openPostId={openPostId} />
         ))}
-    </div>
+    </>
   );
 }

@@ -79,6 +79,7 @@ export const postWithReplies = {
 };
 export const replyText = {
   reply: 'reply',
+  Reply: 'Reply',
   replies: 'replies',
 };
 export const nameSelect = {
