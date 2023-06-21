@@ -84,6 +84,7 @@ export const postPseudo = async (
     }
     const merkleProof: MerkleProof = {
       pathIndices: userMerkleProof?.indices,
+      // TODO: Figure out why 0x is needed here.
       siblings: userMerkleProof?.path.map((sibling) => {
         return [BigInt('0x' + sibling)];
       }),
