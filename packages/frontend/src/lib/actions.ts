@@ -89,7 +89,7 @@ export const postPseudo = async (
       }),
       root: BigInt(group.root),
     };
-    console.log('merkle proof', merkleProof);
+
     // Construct the content to sign
     const content: Content = {
       venue: 'nouns',
