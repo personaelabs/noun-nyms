@@ -69,6 +69,12 @@ export const NewNym = (props: NewNymProps) => {
     localStorage.setItem(address, newVal);
   };
 
+  const onClose = () => {
+    setNewNym(undefined);
+    setNymName('');
+    handleClose();
+  };
+
   const handleNewNym = async () => {
     try {
       setError('');
@@ -82,7 +88,6 @@ export const NewNym = (props: NewNymProps) => {
       setNymOptions([...nymOptions, newNym]);
       setSelectedName(newNym);
       setNewNym(newNym);
-      // handleClose();
       setLoadingNym(false);
     } catch (error) {
       setError(error);
@@ -142,7 +147,7 @@ export const NewNym = (props: NewNymProps) => {
           <MainButton
             color="#0E76FD"
             message={TEXT.afterButtonText}
-            handler={handleClose}
+            handler={onClose}
             disabled={nymName === ''}
           />
         ) : (
