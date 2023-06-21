@@ -32,6 +32,11 @@ paths:
             enum:
               - timestamp
               - upvotes
+        - name: includeReplies
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: OK
