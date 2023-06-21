@@ -81,10 +81,12 @@ export const postPseudo = async (
     if (!userMerkleProof) {
       throw new Error('User not found in set');
     }
-
     const merkleProof: MerkleProof = {
       pathIndices: userMerkleProof?.indices,
-      siblings: userMerkleProof?.path.map((sibling) => [BigInt(sibling)]),
+      // TODO: Figure out why 0x is needed here.
+      siblings: userMerkleProof?.path.map((sibling) => {
+        return [BigInt('0x' + sibling)];
+      }),
       root: BigInt(group.root),
     };
 

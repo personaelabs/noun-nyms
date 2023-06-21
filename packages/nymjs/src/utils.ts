@@ -95,7 +95,6 @@ export function eip712MsgHash(
   types: EIP712Types,
   value: EIP712Value,
 ): Buffer {
-  //@ts-ignore
   const hash = hashTypedData({
     domain,
     types,
