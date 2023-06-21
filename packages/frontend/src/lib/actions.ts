@@ -73,7 +73,6 @@ export const postPseudo = async (
     const group = await getLatestGroup();
     const typedNymName = toTypedNymName(nymName);
     const userPubKey = getPubKeyFromEIP712Sig(typedNymName, nymSig);
-    console.log({ userPubKey });
 
     // Get the user's merkle proof
     const userMerkleProof = group.members.find((member) => member.pubkey === userPubKey);
