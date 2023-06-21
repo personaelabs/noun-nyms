@@ -14,7 +14,7 @@ export const CopyLink = (props: { id: string }) => {
   };
   return (
     <div
-      className="flex gap-1 items-center cursor-pointer"
+      className="flex gap-1 items-center cursor-pointer hoverIcon"
       onClick={async (e) => {
         e.stopPropagation();
         await copyLink();
