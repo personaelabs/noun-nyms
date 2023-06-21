@@ -111,7 +111,7 @@ export const postWriter = {
     invalidName: 'must select a valid identity to post',
   },
   action: 'reply',
-  fetchError: 'Coult not submit post:',
+  fetchError: 'Could not submit post:',
   userError: 'Error:',
   placeholder: {
     title: 'Add title',
