@@ -46,8 +46,11 @@ const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPre
   const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
   const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
   const sort = req.query.sort ? (req.query.sort as string) : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
+  const includeReplies = req.query.includeReplies
+    ? (req.query.includeReplies + '').toLowerCase() === 'true'
+    : false;
 
-  const posts = await selectAndCleanPosts({ skip, take, sort });
+  const posts = await selectAndCleanPosts({ skip, take, sort, includeReplies });
   res.send(posts);
 };
 
