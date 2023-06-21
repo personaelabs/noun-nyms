@@ -73,6 +73,7 @@ export const postPseudo = async (
     const group = await getLatestGroup();
     const typedNymName = toTypedNymName(nymName);
     const userPubKey = getPubKeyFromEIP712Sig(typedNymName, nymSig);
+    console.log({ userPubKey });
 
     // Get the user's merkle proof
     const userMerkleProof = group.members.find((member) => member.pubkey === userPubKey);
@@ -81,13 +82,17 @@ export const postPseudo = async (
     if (!userMerkleProof) {
       throw new Error('User not found in set');
     }
-
+    console.log(`made it past proof check`, BigInt(group.root));
+    console.log(`path`, userMerkleProof.path);
     const merkleProof: MerkleProof = {
       pathIndices: userMerkleProof?.indices,
-      siblings: userMerkleProof?.path.map((sibling) => [BigInt(sibling)]),
+      siblings: userMerkleProof?.path.map((sibling) => {
+        console.log(`sibling`, BigInt('0x' + sibling));
+        return [BigInt('0x' + sibling)];
+      }),
       root: BigInt(group.root),
     };
-
+    console.log('merkle proof', merkleProof);
     // Construct the content to sign
     const content: Content = {
       venue: 'nouns',

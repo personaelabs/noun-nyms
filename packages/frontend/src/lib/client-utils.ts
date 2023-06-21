@@ -49,6 +49,7 @@ export const getLatestGroup = async () => {
 };
 
 export const getPubKeyFromEIP712Sig = (typedData: EIP712TypedData, sig: string): string => {
+  console.log(`typed data`, typedData);
   const { v, r, s } = fromRpcSig(sig);
   return `0x${ecrecover(
     eip712MsgHash(typedData.domain, typedData.types, typedData.value),

@@ -95,8 +95,13 @@ export function eip712MsgHash(
   types: EIP712Types,
   value: EIP712Value,
 ): Buffer {
-  //@ts-ignore
   const hash = hashTypedData({
+    domain,
+    types,
+    primaryType: Object.keys(types)[0],
+    message: value,
+  });
+  console.log(`eip712 input`, {
     domain,
     types,
     primaryType: Object.keys(types)[0],
