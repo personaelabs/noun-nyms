@@ -29,11 +29,13 @@ paths:
           required: false
           schema:
             type: string
+          description: Timestamp in milliseconds
         - name: endTime
           in: query
           required: false
           schema:
             type: string
+          description: Timestamp in milliseconds
         - name: sort
           in: query
           required: false
