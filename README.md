@@ -8,7 +8,7 @@
 	<a href="https://github.com/personaelabs/nym/actions/workflows/ci.yml">
 		<img src="https://github.com/personaelabs/nym/actions/workflows/ci.yml/badge.svg">
 	</a>    
-	<a href="https://twitter.com/PersonaeLabs">
+	<a href="https://twitter.com/personae_labs">
         <img src="https://img.shields.io/twitter/follow/personae_labs?label=personae_labs&style=flat&logo=twitter&color=1DA1F2" alt="Twitter">
     </a>
 </div>
