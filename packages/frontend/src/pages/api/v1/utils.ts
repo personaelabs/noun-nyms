@@ -106,11 +106,11 @@ const buildWhere = (query: PostsQuery) => {
   if (!query.includeReplies) {
     where.rootId = null;
   }
-  if (query.startTime && query.endTime) {
-    where.timestamp = {
-      gte: new Date(query.startTime),
-      lte: new Date(query.endTime),
-    };
+  // Allows for optional args on start and end time
+  if (query.startTime || query.endTime) {
+    where.timestamp = {};
+    if (query.startTime) where.timestamp.gte = new Date(query.startTime);
+    if (query.endTime) where.timestamp.lte = new Date(query.endTime);
   }
 
   return where;
