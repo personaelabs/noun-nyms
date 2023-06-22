@@ -14,16 +14,28 @@ paths:
       description: Get posts
       operationId: getPosts
       parameters:
-        - name: offset
+        - name: skip
           in: query
           required: false
           schema:
             type: number
-        - name: limit
+        - name: take
           in: query
           required: false
           schema:
             type: number
+        - name: startTime
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Timestamp in milliseconds
+        - name: endTime
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Timestamp in milliseconds
         - name: sort
           in: query
           required: false
@@ -32,6 +44,11 @@ paths:
             enum:
               - timestamp
               - upvotes
+        - name: includeReplies
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: OK

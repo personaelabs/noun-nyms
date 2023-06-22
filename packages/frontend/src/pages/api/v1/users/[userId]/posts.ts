@@ -20,7 +20,7 @@ const handleGetUserPosts = async (
     return;
   }
 
-  const posts = await selectAndCleanPosts(userId, skip, take);
+  const posts = await selectAndCleanPosts({ userId, skip, take });
   res.send(posts);
 };
 

@@ -1,4 +1,3 @@
-import path from 'path';
 import prisma from '@/lib/prisma';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {
@@ -18,8 +17,7 @@ import {
   isTimestampValid,
   getPostDepthFromParent,
 } from '../v1/utils';
-import { IPostPreview } from '@/types/api';
-import fs from 'fs';
+import { IPostPreview, PostsQuery, RawPostsQuery } from '@/types/api';
 import {
   EMPTY_BODY,
   EMPTY_TITLE,
@@ -41,13 +39,20 @@ const verifyRoot = async (root: string): Promise<boolean> =>
     ? true
     : false;
 
+const cleanQuery = (query: RawPostsQuery): PostsQuery => {
+  const skip = query.skip ? parseInt(query.skip) : 0;
+  const take = query.take ? parseInt(query.take) : 10;
+  const sort = query.sort ? query.sort : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
+  const rootOnly = query.rootOnly ? query.rootOnly.toLowerCase() === 'true' : false;
+  const startTime = query.startTime ? parseInt(query.startTime) : undefined;
+  const endTime = query.endTime ? parseInt(query.endTime) : undefined;
+  return { skip, take, sort, rootOnly, startTime, endTime };
+};
+
 // Return posts as specified by the query parameters
 const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPreview[]>) => {
-  const skip = req.query.offset ? parseInt(req.query.offset as string) : 0;
-  const take = req.query.limit ? parseInt(req.query.limit as string) : 10;
-  const sort = req.query.sort ? (req.query.sort as string) : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
-
-  const posts = await selectAndCleanPosts(undefined, skip, take, sort);
+  const query = cleanQuery(req.query as RawPostsQuery);
+  const posts = await selectAndCleanPosts(query);
   res.send(posts);
 };
 

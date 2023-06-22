@@ -1,10 +1,11 @@
 import { deserializeNymAttestation } from '@personaelabs/nymjs';
 import prisma from '@/lib/prisma';
-import { IUser, postPreviewSelect } from '@/types/api';
+import { IUser, PostsQuery, postPreviewSelect } from '@/types/api';
 import { createPublicClient, http, isAddress } from 'viem';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
 import { mainnet } from 'viem/chains';
+import { Prisma } from '@prisma/client';
 
 // Duplicating here to avoid tests failing on Github. weird.
 const splitNym = (str: string) => {
@@ -95,22 +96,36 @@ export const getRootFromParent = async (parentId: string): Promise<string | null
   return rootId;
 };
 
-export const selectAndCleanPosts = async (
-  userId?: string,
-  skip?: number,
-  take?: number,
-  sort?: string,
-) => {
-  const isNym = userId && !isAddress(userId);
-  // Determines whether we are searching for a user's posts or all root posts.
-  const where = userId ? { userId: isNym ? userId : userId.toLowerCase() } : { rootId: null };
+const buildWhere = (query: PostsQuery) => {
+  const where: Prisma.PostFindManyArgs['where'] = {};
+
+  if (query.userId) {
+    const isNym = !isAddress(query.userId);
+    where.userId = isNym ? query.userId : query.userId.toLowerCase();
+  }
+  if (query.rootOnly) {
+    where.rootId = null;
+  }
+  // Allows for optional args on start and end time
+  if (query.startTime || query.endTime) {
+    where.timestamp = {};
+    if (query.startTime) where.timestamp.gte = new Date(query.startTime);
+    if (query.endTime) where.timestamp.lte = new Date(query.endTime);
+  }
+
+  return where;
+};
+
+export const selectAndCleanPosts = async (query: PostsQuery) => {
+  let where = buildWhere(query);
+
   const postsRaw = await prisma.post.findMany({
     select: postPreviewSelect,
     where,
-    skip,
-    take,
+    skip: query.skip,
+    take: query.take,
     orderBy:
-      sort === 'upvotes'
+      query.sort === 'upvotes'
         ? [
             { descendants: { _count: 'desc' } },
             { root: { descendants: { _count: 'desc' } } },
