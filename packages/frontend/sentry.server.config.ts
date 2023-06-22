@@ -8,7 +8,7 @@ Sentry.init({
   dsn: 'https://7ba02ad0a8cd461588447277236ede1c@o4505239028498432.ingest.sentry.io/4505239506649088',
 
   // Adjust this value in production, or use tracesSampler for greater control
-  tracesSampleRate: 1,
+  tracesSampleRate: 0.01, // Used for performance monitoring
 
   integrations: [
     new Sentry.Integrations.RequestData({
