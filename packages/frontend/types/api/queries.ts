@@ -14,7 +14,7 @@ export type PostsQuery = {
   skip?: number;
   take?: number;
   sort?: string;
-  startTime?: string;
-  endTime?: string;
+  startTime?: number;
+  endTime?: number;
   includeReplies?: boolean;
 };

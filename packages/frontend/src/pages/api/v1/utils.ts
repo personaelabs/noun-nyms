@@ -108,8 +108,8 @@ const buildWhere = (query: PostsQuery) => {
   }
   if (query.startTime && query.endTime) {
     where.timestamp = {
-      gte: query.startTime,
-      lte: query.endTime,
+      gte: new Date(query.startTime),
+      lte: new Date(query.endTime),
     };
   }
 

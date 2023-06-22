@@ -25,8 +25,8 @@ const getPosts = async ({ pageParam = 0 }: { pageParam?: number }, filter: Strin
   const data = (
     await axios.get<IPostPreview[]>('/api/v1/posts', {
       params: {
-        offset: pageParam,
-        limit: PER_FETCH,
+        skip: pageParam,
+        take: PER_FETCH,
         sort: filter,
       },
     })

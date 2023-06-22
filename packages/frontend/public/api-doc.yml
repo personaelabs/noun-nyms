@@ -14,16 +14,26 @@ paths:
       description: Get posts
       operationId: getPosts
       parameters:
-        - name: offset
+        - name: skip
           in: query
           required: false
           schema:
             type: number
-        - name: limit
+        - name: take
           in: query
           required: false
           schema:
             type: number
+        - name: startTime
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: endTime
+          in: query
+          required: false
+          schema:
+            type: string
         - name: sort
           in: query
           required: false

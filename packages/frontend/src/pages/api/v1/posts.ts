@@ -40,22 +40,20 @@ const verifyRoot = async (root: string): Promise<boolean> =>
     : false;
 
 const cleanQuery = (query: RawPostsQuery): PostsQuery => {
-  const skip = query.skip ? parseInt(query.skip as string) : 0;
-  const take = query.take ? parseInt(query.take as string) : 10;
-  const sort = query.sort ? (query.sort as string) : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
+  const skip = query.skip ? parseInt(query.skip) : 0;
+  const take = query.take ? parseInt(query.take) : 10;
+  const sort = query.sort ? query.sort : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
   const includeReplies = query.includeReplies
     ? (query.includeReplies + '').toLowerCase() === 'true'
     : false;
-  const startTime = query.startTime;
-  const endTime = query.endTime;
-
+  const startTime = query.startTime ? parseInt(query.startTime) : undefined;
+  const endTime = query.endTime ? parseInt(query.endTime) : undefined;
   return { skip, take, sort, includeReplies, startTime, endTime };
 };
 
 // Return posts as specified by the query parameters
 const handleGetPosts = async (req: NextApiRequest, res: NextApiResponse<IPostPreview[]>) => {
   const query = cleanQuery(req.query as RawPostsQuery);
-
   const posts = await selectAndCleanPosts(query);
   res.send(posts);
 };
