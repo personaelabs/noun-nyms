@@ -13,10 +13,9 @@ import { Upvote } from '../Upvote';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { postWithReplies as TEXT } from '@/lib/text';
 import { CopyLink } from './CopyLink';
+import { ShowMore } from './ShowMore';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -75,9 +74,38 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
       const postToPass = !topReply.rootId ? topReply.replies : [topReply];
       return resolveNestedReplyThreads(postToPass, 0, postToHighlight, writerToShow);
     } else {
-      return <div></div>;
+      return [];
     }
   }, [topReply, writerToShow, postToHighlight]);
+
+  const calcTopReplyDepth = (topReply: IPostWithReplies | undefined) => {
+    if (topReply) {
+      // log depth of top reply
+      if (!topReply.rootId) return topReply.replies?.[0].depth || 0;
+      else return topReply.depth;
+    } else {
+      return 0;
+    }
+  };
+
+  const showSiblings = useMemo(() => {
+    const depth = calcTopReplyDepth(topReply);
+    return depth === 1 && root && root._count.replies > nestedComponentThreads.length;
+  }, [topReply, root, nestedComponentThreads]);
+
+  const fetchSiblings = async (id: string) => {
+    try {
+      setError('');
+      setLoadingLocalFetch(true);
+      const res = await axios.get<IPostWithReplies>(`/api/v1/posts/${id}`);
+      setPostToHighlight(id);
+      setParent(res.data);
+    } catch (error) {
+      setError(error);
+    } finally {
+      setLoadingLocalFetch(false);
+    }
+  };
 
   const fetchParents = async (id: string) => {
     try {
@@ -94,7 +122,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   };
 
   useEffect(() => {
-    //if post is not the root, scroll to post
+    // If post is not the root, scroll to post
     if (singlePost && singlePost.id !== postId) {
       setTimeout(async () => await scrollToPost(postId), 500);
     }
@@ -136,27 +164,24 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-4">
-                {topReply && (
-                  <button className="w-max" onClick={() => fetchParents(topReply.id)}>
-                    {errorMsg ? (
-                      <p className="error cursor-pointer">
-                        {errorMsg + ' '}
-                        <span>
-                          <FontAwesomeIcon icon={faRefresh} />
-                        </span>
-                      </p>
-                    ) : topReply && topReply.depth > 1 ? (
-                      <p className="hover:underline font-semibold text-xs cursor-pointer">
-                        {loadingLocalFetch ? TEXT.showingParentReplies : TEXT.showParentReplies}
-                      </p>
-                    ) : (
-                      <></>
-                    )}
-                  </button>
+                {topReply && topReply.depth > 1 && (
+                  <ShowMore
+                    handler={() => fetchParents(topReply.id)}
+                    errorMsg={errorMsg}
+                    loading={loadingLocalFetch}
+                    text={{ before: TEXT.showParentReplies, after: TEXT.showingParentReplies }}
+                  />
                 )}
                 <div className="flex flex-col gap-6 w-full justify-center items-center">
                   {nestedComponentThreads}
                 </div>
+                {showSiblings && (
+                  <ShowMore
+                    handler={() => fetchSiblings(root.id)}
+                    errorMsg={errorMsg}
+                    loading={loadingLocalFetch}
+                  />
+                )}
               </div>
             </>
           </div>

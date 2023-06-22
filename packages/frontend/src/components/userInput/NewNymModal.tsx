@@ -95,7 +95,6 @@ export const NewNymModal = (props: NewNymProps) => {
     }
   };
 
-  console.log({ isOpen });
   return (
     <Modal isOpen={isOpen} width="60%" handleClose={handleClose}>
       {newNym && (

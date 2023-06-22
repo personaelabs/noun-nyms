@@ -42,13 +42,15 @@ export const SingleReply = (props: SingleReplyProps) => {
             <div className="flex flex-wrap gap-4 justify-center items-center">
               <ReplyCount count={replyCount} />
               <div
-                className="flex gap-2 items-center cursor-pointer hoverIcon"
+                className="flex gap-2 items-center cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleReply(id);
                 }}
               >
-                <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
+                <div className="hoverIcon text-[#d0d5dd]">
+                  <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
+                </div>
                 <p
                   className="secondary text-gray-700"
                   style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}
