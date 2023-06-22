@@ -138,11 +138,10 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
               <div className="self-start line-clamp-2">
                 <h3 className="tracking-tight">{root.title}</h3>
               </div>
-              <span>
-                <BodyWithPropLink body={root.body} />
-              </span>
             </div>
-            <p className="whitespace-pre-wrap">{root.body}</p>
+            <span className="whitespace-pre-wrap">
+              <BodyWithPropLink body={root.body} />
+            </span>
           </div>
           <div className="flex gap-2 flex-wrap justify-between pt-4 border-t border-dotted border-gray-300 items-center">
             <UserTag userId={root.userId} timestamp={root.timestamp} />

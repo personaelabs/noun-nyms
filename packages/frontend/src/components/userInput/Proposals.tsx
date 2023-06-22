@@ -60,11 +60,7 @@ export const Proposals = (props: ProposalProps) => {
         proposals.map((p) => (
           <Menu.Item as={'div'} key={p.id}>
             {({ active }) => (
-              <MenuItem
-                ref={menuItemRef}
-                active={active}
-                onClickHandler={() => console.log('clicked')}
-              >
+              <MenuItem ref={menuItemRef} active={active} handler={() => console.log('clicked')}>
                 <>
                   <div className="shrink-0">{getStatusIcon(p.status)}</div>
                   <p>#{p.id}</p>
