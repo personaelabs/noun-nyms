@@ -1,7 +1,7 @@
-import { faAngleDown, faAngleUp, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faAngleDown, faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { NewNym } from './NewNym';
+import { NewNymModal } from './NewNymModal';
 import { ClientName, NameType, UserContextType } from '@/types/components';
 import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
@@ -13,6 +13,7 @@ import { getUserIdFromName } from '@/lib/client-utils';
 import { nameSelect as TEXT } from '@/lib/text';
 import MenuItem from './MenuItem';
 import { TransitionFade } from '../global/TransitionFade';
+import { NewNymMenuItem } from './NewNymMenuItem';
 
 interface NameSelectProps {
   selectedName: ClientName | null;
@@ -42,7 +43,7 @@ export const NameSelect = (props: NameSelectProps) => {
   return (
     <>
       {address && isValid && (
-        <NewNym
+        <NewNymModal
           address={address}
           isOpen={openNewNym}
           handleClose={() => setOpenNewNym(false)}
@@ -80,10 +81,7 @@ export const NameSelect = (props: NameSelectProps) => {
                 <Menu.Item>
                   {({ active }) => (
                     <MenuItem ref={menuItemRef} active={active} handler={() => setOpenNewNym(true)}>
-                      <div className="flex gap-2 items-center">
-                        <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
-                        <p>{TEXT.newNym}</p>
-                      </div>
+                      <NewNymMenuItem />
                     </MenuItem>
                   )}
                 </Menu.Item>

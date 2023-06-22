@@ -18,7 +18,7 @@ interface NewNymProps {
   handleClose: () => void;
   nymOptions: ClientName[];
   setNymOptions: (nymOptions: ClientName[]) => void;
-  setSelectedName: (selectedNym: ClientName) => void;
+  setSelectedName?: (selectedNym: ClientName) => void;
 }
 
 const signNym = async (nymName: string, signTypedDataAsync: any): Promise<string> => {
@@ -45,7 +45,7 @@ const generateRandomString = (length: number) => {
   return string;
 };
 
-export const NewNym = (props: NewNymProps) => {
+export const NewNymModal = (props: NewNymProps) => {
   const { address, isOpen, handleClose, nymOptions, setNymOptions, setSelectedName } = props;
   const [nymName, setNymName] = useState('');
   const [newNym, setNewNym] = useState<ClientName>();
@@ -86,7 +86,7 @@ export const NewNym = (props: NewNymProps) => {
       if (nymSig) storeNym(nymSig, nymHash);
       const newNym = { type: NameType.PSEUDO, name: nymName, nymSig, nymHash };
       setNymOptions([...nymOptions, newNym]);
-      setSelectedName(newNym);
+      setSelectedName && setSelectedName(newNym);
       setNewNym(newNym);
       setLoadingNym(false);
     } catch (error) {
@@ -94,6 +94,8 @@ export const NewNym = (props: NewNymProps) => {
       setLoadingNym(false);
     }
   };
+
+  console.log({ isOpen });
   return (
     <Modal isOpen={isOpen} width="60%" handleClose={handleClose}>
       {newNym && (

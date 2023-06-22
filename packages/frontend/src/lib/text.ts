@@ -84,9 +84,9 @@ export const replyText = {
 };
 export const nameSelect = {
   postingAs: 'Posting as',
-  newNym: 'New Pseudo Nym',
 };
 export const newNym = {
+  newNym: 'New Pseudo Nym',
   beforeTitle: 'Create a new pseudo',
   afterTitle: 'New pseudoynm created!',
   beforeBody: 'You can re-use this nym as long as you control the wallet you used to create it.',
