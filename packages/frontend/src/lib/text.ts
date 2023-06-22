@@ -64,10 +64,6 @@ export const notifications = {
     unread: 'Unread',
   },
 };
-export const nestedReply = {
-  showMoreReplies: 'Show more replies',
-  showingMoreReplies: 'Showing more replies...',
-};
 export const postPreview = {
   repliedTo: 'replied to',
   postedBy: 'Posted by',
@@ -76,6 +72,8 @@ export const postWithReplies = {
   showingParentReplies: 'Showing parent replies...',
   showParentReplies: 'Show parent replies',
   fetchError: 'Could not fetch post:',
+  showMoreReplies: 'Show more replies',
+  showingMoreReplies: 'Showing more replies...',
 };
 export const replyText = {
   reply: 'reply',

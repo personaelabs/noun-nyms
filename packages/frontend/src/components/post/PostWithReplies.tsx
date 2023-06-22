@@ -13,10 +13,9 @@ import { Upvote } from '../Upvote';
 import Spinner from '../global/Spinner';
 import { RetryError } from '../global/RetryError';
 import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { postWithReplies as TEXT } from '@/lib/text';
 import { CopyLink } from './CopyLink';
+import { ShowMore } from './ShowMore';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -165,29 +164,23 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 {root._count.descendants} {root._count.descendants === 1 ? 'reply' : 'replies'}
               </h4>
               <div className="flex flex-col gap-4">
-                {topReply && (
-                  <button className="w-max" onClick={() => fetchParents(topReply.id)}>
-                    {errorMsg ? (
-                      <p className="error cursor-pointer">
-                        {errorMsg + ' '}
-                        <span>
-                          <FontAwesomeIcon icon={faRefresh} />
-                        </span>
-                      </p>
-                    ) : topReply && topReply.depth > 1 ? (
-                      <p className="hover:underline font-semibold text-xs cursor-pointer">
-                        {loadingLocalFetch ? TEXT.showingParentReplies : TEXT.showParentReplies}
-                      </p>
-                    ) : (
-                      <></>
-                    )}
-                  </button>
+                {topReply && topReply.depth > 1 && (
+                  <ShowMore
+                    handler={() => fetchParents(topReply.id)}
+                    errorMsg={errorMsg}
+                    loading={loadingLocalFetch}
+                    text={{ before: TEXT.showParentReplies, after: TEXT.showingParentReplies }}
+                  />
                 )}
                 <div className="flex flex-col gap-6 w-full justify-center items-center">
                   {nestedComponentThreads}
                 </div>
                 {showSiblings && (
-                  <button onClick={() => fetchSiblings(root.id)}>Show more replies</button>
+                  <ShowMore
+                    handler={() => fetchSiblings(root.id)}
+                    errorMsg={errorMsg}
+                    loading={loadingLocalFetch}
+                  />
                 )}
               </div>
             </>

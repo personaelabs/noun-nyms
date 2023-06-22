@@ -8,10 +8,8 @@ import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import axios from 'axios';
 import useError from '@/hooks/useError';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { scrollToPost } from '@/lib/client-utils';
-import { nestedReply as TEXT } from '@/lib/text';
+import { ShowMore } from './ShowMore';
 
 interface IReplyProps {
   post: IPostWithReplies;
@@ -121,28 +119,19 @@ export const NestedReply = (replyProps: IReplyProps) => {
           replyOpen={showPostWriter}
           handleReply={handleCloseWriterAttempt}
         >
-          {showPostWriter ? (
+          {showPostWriter && (
             <PostWriter
               parentId={localPost.id as PrefixedHex}
               scrollToPost={() => refetchAndScrollToPost(localPost.id)}
               handleCloseWriter={handleCloseWriterAttempt}
             />
-          ) : null}
+          )}
           {childrenLength > replies.length && (
-            <button className="flex cursor-pointer" onClick={() => refreshPost(localPost.id)}>
-              {errorMsg ? (
-                <p className="error">
-                  {errorMsg + ' '}
-                  <span>
-                    <FontAwesomeIcon icon={faRefresh} />
-                  </span>
-                </p>
-              ) : (
-                <p className="hover:underline font-semibold text-xs ">
-                  {loadingLocalFetch ? TEXT.showingMoreReplies : TEXT.showMoreReplies}
-                </p>
-              )}
-            </button>
+            <ShowMore
+              handler={() => refreshPost(localPost.id)}
+              errorMsg={errorMsg}
+              loading={loadingLocalFetch}
+            />
           )}
           {replies}
         </SingleReply>
