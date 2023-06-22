@@ -1,7 +1,7 @@
 import { PostPreview } from '@/components/post/PostPreview';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { IPostPreview } from '@/types/api';
+import { IPostPreview, PostsQuery } from '@/types/api';
 import Spinner from './global/Spinner';
 import { MainButton } from './MainButton';
 import { Fragment, useContext, useState } from 'react';
@@ -22,13 +22,15 @@ import { useAccount } from 'wagmi';
 
 const PER_FETCH = 20;
 const getPosts = async ({ pageParam = 0 }: { pageParam?: number }, filter: String) => {
+  const params: PostsQuery = {
+    skip: pageParam,
+    take: PER_FETCH,
+    sort: filter.toString(),
+    rootOnly: true,
+  };
   const data = (
     await axios.get<IPostPreview[]>('/api/v1/posts', {
-      params: {
-        skip: pageParam,
-        take: PER_FETCH,
-        sort: filter,
-      },
+      params,
     })
   ).data;
 

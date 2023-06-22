@@ -6,7 +6,7 @@ export type RawPostsQuery = {
   sort?: string;
   startTime?: string;
   endTime?: string;
-  includeReplies?: string;
+  rootOnly?: string;
 };
 
 export type PostsQuery = {
@@ -16,5 +16,5 @@ export type PostsQuery = {
   sort?: string;
   startTime?: number;
   endTime?: number;
-  includeReplies?: boolean;
+  rootOnly?: boolean;
 };

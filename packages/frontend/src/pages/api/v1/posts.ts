@@ -43,12 +43,10 @@ const cleanQuery = (query: RawPostsQuery): PostsQuery => {
   const skip = query.skip ? parseInt(query.skip) : 0;
   const take = query.take ? parseInt(query.take) : 10;
   const sort = query.sort ? query.sort : 'timestamp'; // 'upvotes' or 'timestamp'. Default is 'timestamp'.
-  const includeReplies = query.includeReplies
-    ? (query.includeReplies + '').toLowerCase() === 'true'
-    : false;
+  const rootOnly = query.rootOnly ? query.rootOnly.toLowerCase() === 'true' : false;
   const startTime = query.startTime ? parseInt(query.startTime) : undefined;
   const endTime = query.endTime ? parseInt(query.endTime) : undefined;
-  return { skip, take, sort, includeReplies, startTime, endTime };
+  return { skip, take, sort, rootOnly, startTime, endTime };
 };
 
 // Return posts as specified by the query parameters

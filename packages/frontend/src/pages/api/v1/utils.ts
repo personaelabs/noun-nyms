@@ -103,7 +103,7 @@ const buildWhere = (query: PostsQuery) => {
     const isNym = !isAddress(query.userId);
     where.userId = isNym ? query.userId : query.userId.toLowerCase();
   }
-  if (!query.includeReplies) {
+  if (query.rootOnly) {
     where.rootId = null;
   }
   // Allows for optional args on start and end time
