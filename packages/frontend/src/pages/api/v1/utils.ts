@@ -1,10 +1,11 @@
 import { deserializeNymAttestation } from '@personaelabs/nymjs';
 import prisma from '@/lib/prisma';
-import { IUser, postPreviewSelect } from '@/types/api';
+import { IUser, PostsQuery, postPreviewSelect } from '@/types/api';
 import { createPublicClient, http, isAddress } from 'viem';
 import { GetServerSidePropsContext } from 'next';
 import { IPostSimple, postSelectSimple } from '@/types/api/postSelectSimple';
 import { mainnet } from 'viem/chains';
+import { Prisma } from '@prisma/client';
 
 // Duplicating here to avoid tests failing on Github. weird.
 const splitNym = (str: string) => {
@@ -95,28 +96,28 @@ export const getRootFromParent = async (parentId: string): Promise<string | null
   return rootId;
 };
 
-// object defining all 'feed-type' post queries a frontend might make
-export type PostsQuery = {
-  userId?: string;
-  skip?: number;
-  take?: number;
-  sort?: string;
-  includeReplies?: boolean;
+const buildWhere = (query: PostsQuery) => {
+  const where: Prisma.PostFindManyArgs['where'] = {};
+
+  if (query.userId) {
+    const isNym = !isAddress(query.userId);
+    where.userId = isNym ? query.userId : query.userId.toLowerCase();
+  }
+  if (!query.includeReplies) {
+    where.rootId = null;
+  }
+  if (query.startTime && query.endTime) {
+    where.timestamp = {
+      gte: query.startTime,
+      lte: query.endTime,
+    };
+  }
+
+  return where;
 };
 
 export const selectAndCleanPosts = async (query: PostsQuery) => {
-  let where = {};
-
-  // add user query
-  if (query.userId) {
-    const isNym = !isAddress(query.userId);
-    where = isNym ? { userId: query.userId } : { userId: query.userId.toLowerCase() };
-  }
-
-  // limit to only root posts if includeReplies: false or doesn't exist
-  if (!query.includeReplies) {
-    where = { ...where, rootId: null };
-  }
+  let where = buildWhere(query);
 
   const postsRaw = await prisma.post.findMany({
     select: postPreviewSelect,
