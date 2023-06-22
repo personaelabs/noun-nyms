@@ -7,7 +7,7 @@ interface SeoProps {
   ogDescription?: string;
 }
 
-export const TITLE = 'Noun Nyms';
+export const TITLE = 'Nouns Nymz';
 export const HOME_DESCRIPTION = 'Where the truth comes out';
 
 export function Seo(props: SeoProps) {
