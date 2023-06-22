@@ -71,9 +71,9 @@ export const PostPreview = (postProps: PostProps) => {
         ) : (
           <>
             <span>{body}</span>
-            <div className="min-w-0 flex flex-wrap gap-2 justify-between items-center">
+            <div className="min-w-0 flex flex-wrap gap-4 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
-              <div className="flex gap-4">
+              <div className="flex gap-3 md:gap-4">
                 <Upvote upvotes={post.upvotes} postId={post.id} onSuccess={onSuccess}>
                   <p className="font-semibold text-gray-700">{post.upvotes.length}</p>
                 </Upvote>

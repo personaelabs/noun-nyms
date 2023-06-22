@@ -19,7 +19,6 @@ interface HomeProps {
 export default function Home(props: HomeProps) {
   const { defaultView, openPostId } = props;
   const [view, setView] = useState(defaultView ? defaultView : Views.POSTS);
-  const [showFAQ, setShowFAQ] = useState(true);
 
   const changeView = (v: Views) => {
     window.history.pushState(null, '', `${v === Views.USERS ? '/users' : '/'}`);
@@ -27,42 +26,40 @@ export default function Home(props: HomeProps) {
   };
 
   return (
-    <main className="flex w-full flex-col justify-center items-center">
-      <div className="w-full bg-gray-50 flex flex-col justify-center items-center">
-        <div className="bg-gray-50 min-h-screen w-full">
-          <div className="w-full bg-gray-50 max-w-3xl mx-auto pt-2 md:pt-4 px-4 md:px-0">
-            <div className="grow flex justify-center">
-              <Image src={nouners} alt="nouns" width={100} />
-            </div>
-            <div className="flex justify-center">
-              <Tab.Group
-                as={'div'}
-                defaultIndex={Object.values(Views).indexOf(view)}
-                className="bg-white rounded-full border border-gray-200 p-1"
-              >
-                <Tab.List>
-                  {Object.values(Views).map((v) => (
-                    <Tab key={v} onClick={() => changeView(v)}>
-                      {({ selected }) => (
-                        <p
-                          className={`py-1 px-3 rounded-full ${
-                            selected ? 'bg-gray-100 font-semibold' : 'bg-white'
-                          }`}
-                        >
-                          {v}
-                        </p>
-                      )}
-                    </Tab>
-                  ))}
-                </Tab.List>
-              </Tab.Group>
-            </div>
+    <main className="flex justify-center w-full min-h-screen bg-gray-50">
+      <div className="flex flex-col gap-4 w-full max-w-3xl px-4 md:px-0 py-3 md:py-6">
+        <div className="w-full">
+          <div className="grow flex justify-center">
+            <Image src={nouners} alt="nouns" width={100} />
           </div>
-          <div className="flex flex-col gap-8 max-w-3xl mx-auto py-3 md:py-6 px-4 md:px-0">
-            {view === Views.POSTS ? <Posts initOpenPostId={openPostId} /> : <Users />}
+          <div className="flex justify-center">
+            <Tab.Group
+              as={'div'}
+              defaultIndex={Object.values(Views).indexOf(view)}
+              className="bg-white rounded-full border border-gray-200 p-1"
+            >
+              <Tab.List>
+                {Object.values(Views).map((v) => (
+                  <Tab key={v} onClick={() => changeView(v)}>
+                    {({ selected }) => (
+                      <p
+                        className={`py-1 px-3 rounded-full ${
+                          selected ? 'bg-gray-100 font-semibold' : 'bg-white'
+                        }`}
+                      >
+                        {v}
+                      </p>
+                    )}
+                  </Tab>
+                ))}
+              </Tab.List>
+            </Tab.Group>
           </div>
-          <FAQ />
         </div>
+        <div className="flex flex-col w-full gap-4 md:gap-8">
+          {view === Views.POSTS ? <Posts initOpenPostId={openPostId} /> : <Users />}
+        </div>
+        <FAQ />
       </div>
     </main>
   );

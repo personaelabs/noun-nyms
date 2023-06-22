@@ -92,7 +92,7 @@ export const Upvote = (props: UpvoteIconProps) => {
           col ? 'flex-col' : 'flex-row'
         } gap-1 justify-center items-center cursor-pointer h-min`}
       >
-        <div className="hoverIcon">
+        <div className="hoverIcon text-[#d0d5dd]">
           <FontAwesomeIcon icon={faCircleUp} color={hasUpvoted ? '#0e76fd' : ''} />
         </div>
         <div

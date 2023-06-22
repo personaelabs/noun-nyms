@@ -133,7 +133,7 @@ export const PostWriter = (props: IWriterProps) => {
             {TEXT.userError} {userError}
           </p>
         )}
-        <div className="w-full flex flex-col gap-6 justify-center items-center">
+        <div className="w-full flex flex-col gap-4 md:gap-6 justify-center items-center">
           <div className="w-full flex flex-col gap-4">
             {parentId === '0x0' ? (
               <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">

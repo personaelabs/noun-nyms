@@ -125,33 +125,27 @@ export default function Posts(props: PostsProps) {
         openPostId={openPostId}
         setOpenPostId={setOpenPostId}
       />
-      <div className="flex flex-col gap-4">
-        <div className="flex justify-between">
-          {isMobile ? (
-            <SortSelect
-              options={filterOptions}
-              selectedQuery={filter}
-              setSelectedQuery={setFilter}
-              leftAlign={true}
-            />
-          ) : (
-            <Filters
-              filters={filterOptions}
-              selectedFilter={filter}
-              setSelectedFilter={setFilter}
-            />
-          )}
-          <div className="grow-0">
-            <MainButton
-              color="#0E76FD"
-              message={TEXT.buttonText}
-              handler={() => {
-                if (!address || !isValid) {
-                  setShowWalletWarning(true);
-                } else setNewPostOpen(true);
-              }}
-            />
-          </div>
+      <div className="flex justify-between">
+        {isMobile ? (
+          <SortSelect
+            options={filterOptions}
+            selectedQuery={filter}
+            setSelectedQuery={setFilter}
+            leftAlign={true}
+          />
+        ) : (
+          <Filters filters={filterOptions} selectedFilter={filter} setSelectedFilter={setFilter} />
+        )}
+        <div className="grow-0">
+          <MainButton
+            color="#0E76FD"
+            message={TEXT.buttonText}
+            handler={() => {
+              if (!address || !isValid) {
+                setShowWalletWarning(true);
+              } else setNewPostOpen(true);
+            }}
+          />
         </div>
       </div>
       {isLoading ? (

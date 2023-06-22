@@ -19,7 +19,7 @@ export const UserTag = (props: UserTagProps) => {
 
   return (
     <div
-      className="min-w-0 shrink grow basis-2/3 max-w-full flex gap-2 items-center"
+      className="min-w-0 shrink grow basis-1/2 max-w-full flex gap-2 items-center"
       onClick={(e) => e.stopPropagation()}
     >
       <UserAvatar

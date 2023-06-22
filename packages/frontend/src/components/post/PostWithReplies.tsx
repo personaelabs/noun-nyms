@@ -16,6 +16,7 @@ import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 import { postWithReplies as TEXT } from '@/lib/text';
+import { CopyLink } from './CopyLink';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -111,18 +112,21 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
             </div>
             <p>{root.body}</p>
           </div>
-          <div className="flex gap-2 flex-wrap justify-between pt-2 border-t border-dotted border-gray-300 items-center">
+          <div className="flex gap-2 flex-wrap justify-between pt-4 border-t border-dotted border-gray-300 items-center">
             <UserTag userId={root.userId} timestamp={root.timestamp} />
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <ReplyCount count={root._count.descendants} />
               <div className="border-l border-dotted border-gray-200 pl-2">
                 <Upvote upvotes={root.upvotes} postId={root.id} onSuccess={refetch}>
                   <p>{root.upvotes.length}</p>
                 </Upvote>
               </div>
+              <div className="border-l border-dotted border-gray-200 pl-2">
+                <CopyLink id={root.id} />
+              </div>
             </div>
           </div>
-          <div className="flex grow flex-col gap-8 w-full bg-gray-50">
+          <div className="flex grow flex-col gap-4 w-full bg-gray-50">
             <PostWriter
               parentId={root.id as PrefixedHex}
               scrollToPost={async (postId) => await refetchAndScrollToPost(refetch, postId)}

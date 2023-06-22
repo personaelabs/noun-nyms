@@ -49,8 +49,11 @@ export const SingleReply = (props: SingleReplyProps) => {
                 }}
               >
                 <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
-                <p className="secondary" style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}>
-                  {TEXT.reply}
+                <p
+                  className="secondary text-gray-700"
+                  style={{ fontWeight: replyOpen ? 'bold' : 'normal' }}
+                >
+                  {TEXT.Reply}
                 </p>
               </div>
               <CopyLink id={id} />
