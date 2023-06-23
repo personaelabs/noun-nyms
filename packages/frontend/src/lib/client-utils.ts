@@ -4,6 +4,7 @@ import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { ClientName, NameType } from '@/types/components';
+import { IGroup } from '@/types/api';
 dayjs.extend(relativeTime);
 
 export const splitNym = (str: string) => {
@@ -43,6 +44,17 @@ export const getLatestGroup = async () => {
   const group: {
     root: PrefixedHex;
     members: Member[];
+  } = data;
+
+  return group;
+};
+
+export const getGroupForUser = async (userId: string) => {
+  const { data } = await axios.get(`/users/${userId}/rootsUsed/latest`);
+
+  const group: {
+    root: PrefixedHex;
+    members: IGroup[];
   } = data;
 
   return group;

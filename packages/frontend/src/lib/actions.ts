@@ -8,9 +8,10 @@ import {
   UPVOTE_TYPES,
   toTypedNymName,
   MerkleProof,
+  computeNymHash,
 } from '@personaelabs/nymjs';
 import axiosBase from 'axios';
-import { getLatestGroup, getPubKeyFromEIP712Sig } from './client-utils';
+import { getLatestGroup, getGroupForUser, getPubKeyFromEIP712Sig } from './client-utils';
 
 const axios = axiosBase.create({
   baseURL: `/api/v1`,
@@ -70,7 +71,8 @@ export const postPseudo = async (
   onSigned?: () => void,
 ) => {
   if (nymName && nymSig) {
-    const group = await getLatestGroup();
+    const nymHash = await computeNymHash(nymSig);
+    const group = await getGroupForUser(`${nymName}-${nymHash}`);
     const typedNymName = toTypedNymName(nymName);
     const userPubKey = getPubKeyFromEIP712Sig(typedNymName, nymSig);
 
@@ -82,7 +84,7 @@ export const postPseudo = async (
       throw new Error('User not found in set');
     }
     const merkleProof: MerkleProof = {
-      pathIndices: userMerkleProof?.indices,
+      pathIndices: userMerkleProof?.indices.map((index) => parseInt(index)),
       // TODO: Figure out why 0x is needed here.
       siblings: userMerkleProof?.path.map((sibling) => {
         return [BigInt('0x' + sibling)];

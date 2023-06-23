@@ -19,3 +19,14 @@ export const latestRootUsedSelect = {
 type LatestRootUsedPayload = Prisma.PostGetPayload<{ select: typeof latestRootUsedSelect }>;
 
 export type ILatestRootUsed = LatestRootUsedPayload;
+
+export const groupSelect = {
+  address: true,
+  pubkey: true,
+  path: true,
+  indices: true,
+} satisfies Prisma.TreeNodeSelect;
+
+type GroupPayload = Prisma.TreeNodeGetPayload<{ select: typeof groupSelect }>;
+
+export type IGroup = GroupPayload;

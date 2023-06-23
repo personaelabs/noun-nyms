@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { latestRootUsedSelect, ILatestRootUsed } from '@/types/api';
+import { latestRootUsedSelect, groupSelect, IGroup } from '@/types/api';
 import prisma from '@/lib/prisma';
 
 // Return the latest group root used by the user
 const handleGetLatestRootUsed = async (
   req: NextApiRequest,
-  res: NextApiResponse<ILatestRootUsed | { error: string }>,
+  res: NextApiResponse<{ root: string; members: IGroup[] } | { error: string }>,
 ) => {
   const userId = req.query.userId as string;
 
@@ -26,7 +26,17 @@ const handleGetLatestRootUsed = async (
     return;
   }
 
-  res.send(root);
+  const group = await prisma.treeNode.findMany({
+    select: groupSelect,
+    where: {
+      root: root.groupRoot,
+    },
+  });
+
+  res.send({
+    root: root.groupRoot,
+    members: group,
+  });
 };
 
 // Entry point for the API below /api/v1/users/{userId}/posts
