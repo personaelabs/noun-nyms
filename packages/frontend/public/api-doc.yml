@@ -154,6 +154,12 @@ paths:
     get:
       description: Get all members and their Merkle proof of the latest group
       operationId: getLatestGroup
+      parameters:
+        - name: omitMerkleProofs
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: OK

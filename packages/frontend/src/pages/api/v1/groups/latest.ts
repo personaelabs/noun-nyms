@@ -1,9 +1,26 @@
 import prisma from '@/lib/prisma';
+import {
+  selectWithProofs,
+  selectWithoutProofs,
+  ITreeNodeWithProofs,
+  ITreeNodeWithoutProofs,
+} from '@/types/api/latestGroupSelect';
 import { GroupType } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Return all members of a group
-const handleGetLatestGroup = async (req: NextApiRequest, res: NextApiResponse) => {
+const handleGetLatestGroup = async (
+  req: NextApiRequest,
+  res: NextApiResponse<
+    | {
+        root: string;
+        members: ITreeNodeWithProofs[] | ITreeNodeWithoutProofs[];
+      }
+    | {
+        error: string;
+      }
+  >,
+) => {
   const latestTree = await prisma.tree.findFirst({
     select: {
       root: true,
@@ -18,17 +35,12 @@ const handleGetLatestGroup = async (req: NextApiRequest, res: NextApiResponse) =
   });
 
   if (!latestTree) {
-    res.status(404).send('No tree found');
+    res.status(404).send({ error: 'No tree found' });
     return;
   }
 
   const treeNodes = await prisma.treeNode.findMany({
-    select: {
-      address: true,
-      pubkey: true,
-      path: true,
-      indices: true,
-    },
+    select: req.query.omitMerkleProofs === 'true' ? selectWithoutProofs : selectWithProofs,
     where: {
       root: latestTree.root,
     },
