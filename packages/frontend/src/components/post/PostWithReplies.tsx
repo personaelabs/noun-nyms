@@ -81,7 +81,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
   const calcTopReplyDepth = (topReply: IPostWithReplies | undefined) => {
     if (topReply) {
       // log depth of top reply
-      if (!topReply.rootId) return topReply.replies?.[0].depth || 0;
+      if (!topReply.rootId) return topReply.replies?.[0]?.depth || 0;
       else return topReply.depth;
     } else {
       return 0;
