@@ -44,7 +44,7 @@ paths:
             enum:
               - timestamp
               - upvotes
-        - name: includeReplies
+        - name: rootOnly
           in: query
           required: false
           schema:
