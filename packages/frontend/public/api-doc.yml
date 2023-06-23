@@ -159,6 +159,21 @@ paths:
           description: OK
         '400':
           description: Invalid set
+  /groups/{rootId}:
+    get:
+      description: Get all members and their Merkle proof of a group
+      operationId: getGroup
+      parameters:
+        - name: rootId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Group not found
   /users:
     get:
       description: Get summary information about all users
@@ -210,6 +225,32 @@ paths:
           required: false
           schema:
             type: number
+      responses:
+        '200':
+          description: OK
+  /users/{userId}/rootsUsed:
+    get:
+      description: Get all group roots the user has used
+      operationId: getRootsUsed
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+  /users/{userId}/rootsUsed/latest:
+    get:
+      description: Get the latest group root the user used
+      operationId: getLatestRootUsed
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: OK
