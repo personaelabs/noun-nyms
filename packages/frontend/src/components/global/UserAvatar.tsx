@@ -12,7 +12,7 @@ const encoder = new PNGCollectionEncoder(ImageData.palette);
 
 interface UserAvatarProps {
   type?: NameType;
-  userId: string;
+  userId?: string;
   width: number;
 }
 
@@ -34,7 +34,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
 
   useEffect(() => {
     const scaleSVG = () => {
-      if (svgRef.current) {
+      if (userId && svgRef.current) {
         const svgElement = svgRef.current.children[0];
 
         svgElement.setAttribute('width', width.toString());
@@ -45,11 +45,14 @@ export const UserAvatar = (props: UserAvatarProps) => {
   });
 
   const avatar = useMemo(() => {
-    const seedFromUserId = getSeedFromHash(userId, 5, NOUNS_AVATAR_RANGES);
-    const { parts, background } = getNounData(seedFromUserId);
-    const svg = buildSVG(parts, encoder.data.palette, background);
+    if (userId) {
+      const seedFromUserId = getSeedFromHash(userId, 5, NOUNS_AVATAR_RANGES);
+      const { parts, background } = getNounData(seedFromUserId);
+      const svg = buildSVG(parts, encoder.data.palette, background);
 
-    return svg;
+      return svg;
+    }
+    return undefined;
   }, [userId]);
 
   const { data: avatarUrl } = useEnsAvatar({
@@ -66,7 +69,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
       style={{ borderRadius: '50%', overflow: 'hidden', border: `2px solid ${strokeColor}` }}
       className="shrink-0"
     />
-  ) : (
+  ) : avatar ? (
     <div
       className="shrink-0"
       style={{
@@ -79,5 +82,21 @@ export const UserAvatar = (props: UserAvatarProps) => {
       ref={svgRef}
       dangerouslySetInnerHTML={{ __html: avatar }}
     />
+  ) : (
+    <div
+      className="shrink-0"
+      style={{
+        borderRadius: '50%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
+        width: width + 4,
+        height: width + 4,
+        border: `2px solid ${strokeColor}`,
+      }}
+    >
+      <Image src={'/question.svg'} width={width - 8} height={width - 8} alt="question mark" />
+    </div>
   );
 };

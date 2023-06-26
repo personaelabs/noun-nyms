@@ -116,7 +116,11 @@ export const NewNymModal = (props: NewNymProps) => {
       )}
       <div className="flex flex-wrap justify-start items-center gap-2">
         <div className="flex gap-2 items-center">
-          <UserAvatar width={30} userId={newNym ? getUserIdFromName(newNym) : address} />
+          <UserAvatar
+            width={30}
+            userId={newNym ? getUserIdFromName(newNym) : ''}
+            type={NameType.PSEUDO}
+          />
           <div className="min-w-0 shrink relative border border-gray-200 rounded-md px-2 py-1">
             {newNym ? (
               <p>{newNym.name}</p>
