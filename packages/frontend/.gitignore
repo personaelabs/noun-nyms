@@ -1,3 +1,4 @@
 .env.staging
+.env.prod
 # Sentry Auth Token
 .sentryclirc

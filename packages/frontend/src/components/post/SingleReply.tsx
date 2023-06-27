@@ -34,7 +34,7 @@ export const SingleReply = (props: SingleReplyProps) => {
       <div className="relative flex flex-col gap-2 ml-2 md:ml-4 pl-2">
         <div className="absolute top-0 left-0 h-full w-[1px] p-2 border-l border-dotted border-gray-300 hover:border-gray-500" />
         <div className="relative z-10">
-          <span>{body}</span>
+          <span className="whitespace-pre-wrap">{body}</span>
           <div className="flex flex-wrap justify-between items-center py-2 border-t border-gray-300 z-30">
             <Upvote upvotes={upvotes} postId={id} onSuccess={onUpvote}>
               <p>{upvotes?.length}</p>

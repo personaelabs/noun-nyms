@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "dev:staging": "dotenv -e .env.staging -- next dev",
+    "dev:prod": "dotenv -e .env.prod -- next dev",
     "check": "tsc --noEmit --incremental",
     "lint": "next lint",
     "format": "prettier . --write .",
