@@ -55,7 +55,7 @@ export const PostPreview = (postProps: PostProps) => {
           <div className="flex flex-col gap-2">
             <UserTag userId={parent.userId} timestamp={parent.timestamp} />
             <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
-              <pre>{parent.body}</pre>
+              <span className="whitespace-pre-wrap">{parent.body}</span>
               <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 10 }}>
                 <SingleReply
                   post={post}
@@ -70,7 +70,7 @@ export const PostPreview = (postProps: PostProps) => {
           </div>
         ) : (
           <>
-            <pre>{body}</pre>
+            <span className="whitespace-pre-wrap">{body}</span>
             <div className="min-w-0 flex flex-wrap gap-4 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
               <div className="flex gap-3 md:gap-4">

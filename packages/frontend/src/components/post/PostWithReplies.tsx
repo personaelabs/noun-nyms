@@ -128,8 +128,6 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
     }
   }, [postId, singlePost]);
 
-  console.log(`post body`, root?.body, 'has');
-
   return (
     <>
       {root ? (
@@ -140,7 +138,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 <h3 className="tracking-tight">{root.title}</h3>
               </div>
             </div>
-            <pre>{root.body}</pre>
+            <p className="whitespace-pre-wrap">{root.body}</p>
           </div>
           <div className="flex gap-2 flex-wrap justify-between pt-4 border-t border-dotted border-gray-300 items-center">
             <UserTag userId={root.userId} timestamp={root.timestamp} />
