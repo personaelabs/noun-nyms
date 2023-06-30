@@ -26,7 +26,8 @@ config.autoAddCss = false;
 const { chains, publicClient } = configureChains([mainnet], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
-  appName: 'My RainbowKit App',
+  appName: 'Nouns Nymz',
+  projectId: 'Nouns Nymz',
   chains,
 });
 
