@@ -147,14 +147,14 @@ export const error500 = {
   subtitle: 'Internal Server Error',
 };
 export const header = {
-  title: 'Noun Nyms',
+  title: 'Nouns Nymz',
   allUsers: 'All nyms',
   myIdentities: 'My identities',
   wallet: 'My wallet',
 };
 
 export const FAQ = {
-  title: 'Noun Nyms',
+  title: 'Nouns Nymz',
   body: "is a message board that allows persistent pseudonyms and pseudonymous discussions. Your identity here is a 'nym', which shows that you are a nouner but doesn't reveal your address. Check out our github for more details on how this works.",
 };
 
