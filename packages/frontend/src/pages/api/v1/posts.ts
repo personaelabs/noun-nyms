@@ -28,6 +28,7 @@ import {
   PARENT_NOT_FOUND,
   USER_NOT_IN_LATEST_GROUP,
 } from '@/lib/errors';
+import { postTweet } from '../../../lib/post-tweet';
 
 // Check if the given root exists in the database or not
 const verifyRoot = async (root: string): Promise<boolean> =>
@@ -113,6 +114,7 @@ const handleCreateDoxedPost = async (
     },
   });
 
+  await postTweet(post.id, address);
   res.status(200).send({ postId: post.id });
 };
 
@@ -196,7 +198,7 @@ const handleCreatePseudoPost = async (
       depth,
     },
   });
-
+  await postTweet(post.id, nym);
   res.status(200).send({ postId: post.id });
 };
 
