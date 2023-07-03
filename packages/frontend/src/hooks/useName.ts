@@ -11,7 +11,7 @@ const useName = ({ userId }: { userId?: string }) => {
   });
 
   // If doxed, check ens. If ens, return ens. If not doxed, return nym name.
-  const name = isDoxed ? ensName || userId : userId ? splitNym(userId).nymName : '';
+  const name = isDoxed ? ensName || userId : userId ? splitNym(userId).nymName + ' (pseudo)' : '';
   const isEns = !!(isDoxed && ensName);
   return { name, isEns, isDoxed };
 };
