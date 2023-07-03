@@ -27,7 +27,7 @@ const { chains, publicClient } = configureChains([mainnet], [publicProvider()]);
 
 const { connectors } = getDefaultWallets({
   appName: 'Nouns Nymz',
-  projectId: 'Nouns Nymz',
+  projectId: '564add972ca30e293482fd9361543d69',
   chains,
 });
 
