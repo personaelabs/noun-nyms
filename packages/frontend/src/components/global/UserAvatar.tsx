@@ -64,8 +64,8 @@ export const UserAvatar = (props: UserAvatarProps) => {
     <Image
       src={avatarUrl}
       alt="ENS Avatar"
-      width={width + 4}
-      height={width + 4}
+      width={width + 8}
+      height={width + 8}
       style={{ borderRadius: '50%', overflow: 'hidden', border: `2px solid ${strokeColor}` }}
       className="shrink-0"
     />
@@ -75,9 +75,9 @@ export const UserAvatar = (props: UserAvatarProps) => {
       style={{
         borderRadius: '50%',
         overflow: 'hidden',
-        width: width + 4,
-        height: width + 4,
-        border: `2px solid ${strokeColor}`,
+        width: width + 8,
+        height: width + 8,
+        border: `4px solid ${strokeColor}`,
       }}
       ref={svgRef}
       dangerouslySetInnerHTML={{ __html: avatar }}
