@@ -26,7 +26,8 @@ export const Textarea = (props: TextAreaProps) => {
 
         // assign dimensions to cursor position
         const textareaRect = textareaRef.current.getBoundingClientRect();
-        const cursorX = textareaRect.left + hiddenDiv.offsetWidth;
+        // extra width and height values to account for padding
+        const cursorX = textareaRect.left + hiddenDiv.offsetWidth + 16;
         const cursorY = textareaRect.top + hiddenDiv.offsetHeight + 24;
         setCursorPosition({ x: cursorX, y: cursorY });
       }

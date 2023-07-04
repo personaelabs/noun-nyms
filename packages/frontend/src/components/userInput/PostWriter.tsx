@@ -25,6 +25,11 @@ interface IWriterProps {
   handleCloseWriter?: () => void;
 }
 
+interface CursorPosition {
+  x: number;
+  y: number;
+}
+
 export const PostWriter = (props: IWriterProps) => {
   const { parentId, handleCloseWriter, scrollToPost } = props;
   const [body, setBody] = useState('');
@@ -38,7 +43,7 @@ export const PostWriter = (props: IWriterProps) => {
   const { errorMsg, isError, setError, clearError } = useError();
   const { proposals } = useProposals();
   const [currProposals, setProposals] = useState(proposals);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [cursorPosition, setCursorPosition] = useState<CursorPosition | null>(null);
   const [showProposals, setShowProposals] = useState(false);
 
   useEffect(() => {
@@ -78,25 +83,29 @@ export const PostWriter = (props: IWriterProps) => {
     setCloseWriter(true);
   };
 
+  const replaceTextAfterPoundSign = (fullText: string, newVal: string, poundSignIdx: number) => {
+    const textBeforePoundSign = fullText.substring(0, poundSignIdx + 1);
+    return textBeforePoundSign + newVal;
+  };
+
   // TODO: Move this logic elsewhere / make it more general.
-  const handleBodyChange = (newVal: string) => {
+  const handleBodyChange = (newVal: string, replace = false, propId?: string) => {
     setShowProposals(false);
     let finalVal = newVal;
 
     const poundSignIndex = newVal.lastIndexOf('#');
+    const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
+    const replaceText = replace || textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10;
     const spaceIndex = newVal.lastIndexOf(' ');
+
     // If there are no spaces after the most recent '#'
     if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
-      const textBeforePoundSign = newVal.substring(0, poundSignIndex + 1);
       const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
       // If current proposals have been found and the last character after the '#' was an Enter
       // Replace the text after the last '#' with the prop number.
-      if (
-        textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10 &&
-        currProposals &&
-        currProposals.length > 0
-      ) {
-        finalVal = textBeforePoundSign + `${currProposals[0].id}`;
+      if (replaceText && currProposals && currProposals.length > 0) {
+        const replacementText = propId ? propId : currProposals[0].id;
+        finalVal = replaceTextAfterPoundSign(newVal, replacementText, poundSignIndex);
       } else if (textAfterLastPoundSign === '') {
         // If just '#' sign, show 5 most recent proposals.
         console.log(currProposals?.slice(0, 5));
@@ -209,7 +218,13 @@ export const PostWriter = (props: IWriterProps) => {
                 findCursor={showProposals}
               />
             </div>
-            {showProposals && <Proposals position={cursorPosition} proposals={currProposals} />}
+            {showProposals && cursorPosition && (
+              <Proposals
+                position={cursorPosition}
+                proposals={currProposals}
+                handleBodyChange={(propId) => handleBodyChange(body, true, propId)}
+              />
+            )}
           </div>
           <div className="w-full flex-wrap flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (
