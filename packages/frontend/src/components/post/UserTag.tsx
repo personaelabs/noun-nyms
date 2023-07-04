@@ -3,8 +3,9 @@ import { UserAvatar } from '../global/UserAvatar';
 import useName from '@/hooks/useName';
 import { NameType, UserContextType } from '@/types/components';
 import { useContext } from 'react';
-import { fromNowDate } from '@/lib/client-utils';
+import { fromNowDate, splitNym } from '@/lib/client-utils';
 import { userTag as TEXT } from '@/lib/text';
+import { useAccount } from 'wagmi';
 
 interface UserTagProps {
   userId: string;
@@ -14,7 +15,7 @@ interface UserTagProps {
 }
 export const UserTag = (props: UserTagProps) => {
   const { userId, avatarWidth, timestamp, lastActive } = props;
-  const { name, isDoxed } = useName({ userId });
+  const { name, subName, isEns, isDoxed } = useName({ userId });
   const { isMobile, pushRoute } = useContext(UserContext) as UserContextType;
 
   return (
@@ -29,10 +30,17 @@ export const UserTag = (props: UserTagProps) => {
       />
       <div className="min-w-0 flex flex-col gap-1">
         <div
-          className="font-semibold hover:underline breakText outline-none cursor-pointer"
+          className="font-semibold breakText outline-none cursor-pointer whitespace-pre-wrap"
           onClick={() => pushRoute(`/users/${userId}`)}
         >
-          {name}
+          <p>
+            <span className="hover:underline">
+              {!isEns && isDoxed ? name.substring(0, 7) + '...' : name}{' '}
+            </span>
+            <span className="text-xs text-gray-500 font-normal">
+              {subName ? subName.substring(0, 7) + '...' : ''}
+            </span>
+          </p>
         </div>
 
         {lastActive && (

@@ -165,7 +165,7 @@ export const userIdToName = async (userId: string) => {
     });
     return ensName || userId;
   } else {
-    return splitNym(userId).nymName + ' (pseudo)';
+    return splitNym(userId).nymName;
   }
 };
 

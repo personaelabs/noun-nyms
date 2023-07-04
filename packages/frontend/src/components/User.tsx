@@ -70,7 +70,7 @@ export default function User({ userId }: { userId: string }) {
     setOpenPostId(id);
   };
 
-  const { name, isDoxed } = useName({ userId });
+  const { name, subName, isDoxed } = useName({ userId });
 
   return (
     <>
@@ -102,7 +102,10 @@ export default function User({ userId }: { userId: string }) {
                   />
                 )}
               </div>
-              {name && <h2 className="break-words breakText">{name}</h2>}
+              <div className="flex flex-col gap-1">
+                {name && <h2 className="break-words breakText">{name}</h2>}
+                {subName && <p>{subName}</p>}
+              </div>
             </div>
           </div>
 
