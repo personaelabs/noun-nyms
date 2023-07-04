@@ -9,6 +9,7 @@ import { useContext } from 'react';
 import { UserContext } from '@/pages/_app';
 import { UserContextType } from '@/types/components';
 import { replyText as TEXT } from '@/lib/text';
+import { BLUE } from '@/lib/colors';
 
 interface SingleReplyProps {
   post: IPostWithReplies | IPostPreview;
@@ -48,8 +49,8 @@ export const SingleReply = (props: SingleReplyProps) => {
                   handleReply(id);
                 }}
               >
-                <div className="hoverIcon text-[#d0d5dd]">
-                  <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
+                <div className="hoverIcon text-gray-300">
+                  <FontAwesomeIcon icon={faReply} color={replyOpen ? BLUE : ''} />
                 </div>
                 <p
                   className="secondary text-gray-700"

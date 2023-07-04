@@ -149,15 +149,9 @@ export const NewNymModal = (props: NewNymProps) => {
       </div>
       <div className="flex justify-center">
         {newNym ? (
-          <MainButton
-            color="#0E76FD"
-            message={TEXT.afterButtonText}
-            handler={onClose}
-            disabled={nymName === ''}
-          />
+          <MainButton message={TEXT.afterButtonText} handler={onClose} disabled={nymName === ''} />
         ) : (
           <MainButton
-            color="#0E76FD"
             message={TEXT.beforeButtonText}
             loading={loadingNym}
             handler={handleNewNym}

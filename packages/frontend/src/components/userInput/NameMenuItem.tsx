@@ -18,7 +18,7 @@ export const NameMenuItem = (props: NameMenuItemProps) => {
         <UserAvatar type={type} userId={userId} width={20} />
         <p className="breakText">{name}</p>
       </div>
-      {selected ? <FontAwesomeIcon icon={faCheck} color={'#0E76FD'} className="shrink-0" /> : null}
+      {selected ? <FontAwesomeIcon icon={faCheck} className="shrink-0 text-blue" /> : null}
     </div>
   );
 };

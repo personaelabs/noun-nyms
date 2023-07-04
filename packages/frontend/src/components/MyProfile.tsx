@@ -39,7 +39,7 @@ export const MyProfile = ({ address }: { address: string }) => {
               <>
                 <Menu.Button className="flex items-center gap-2 rounded-xl px-2 py-1 border border-white hover:scale-105 active:scale-100 transition-all">
                   <UserAvatar width={30} userId={address} />
-                  <FontAwesomeIcon icon={faAngleDown} color="#ffffff" />
+                  <FontAwesomeIcon icon={faAngleDown} className="text-white" />
                 </Menu.Button>
                 <TransitionFade show={open}>
                   <Menu.Items className="max-w-[180px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer">

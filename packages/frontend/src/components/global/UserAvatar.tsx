@@ -1,5 +1,6 @@
 import useName from '@/hooks/useName';
 import { getSeedFromHash } from '@/lib/avatar-utils';
+import { DOXED, PSEUDO } from '@/lib/colors';
 import { NOUNS_AVATAR_RANGES } from '@/lib/constants';
 import { NameType } from '@/types/components';
 import { ImageData, getNounData } from '@nouns/assets';
@@ -26,11 +27,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
   const userType = type || isDoxed ? NameType.DOXED : NameType.PSEUDO;
 
   const strokeColor =
-    userType === NameType.DOXED
-      ? '#0E76FD'
-      : userType === NameType.PSEUDO
-      ? '#6B21A8'
-      : 'transparent';
+    userType === NameType.DOXED ? DOXED : userType === NameType.PSEUDO ? PSEUDO : 'transparent';
 
   useEffect(() => {
     const scaleSVG = () => {
@@ -66,7 +63,7 @@ export const UserAvatar = (props: UserAvatarProps) => {
       alt="ENS Avatar"
       width={width + 8}
       height={width + 8}
-      style={{ borderRadius: '50%', overflow: 'hidden', border: `2px solid ${strokeColor}` }}
+      style={{ borderRadius: '50%', overflow: 'hidden', border: `4px solid ${strokeColor}` }}
       className="shrink-0"
     />
   ) : avatar ? (
@@ -91,9 +88,9 @@ export const UserAvatar = (props: UserAvatarProps) => {
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
-        width: width + 4,
-        height: width + 4,
-        border: `2px solid ${strokeColor}`,
+        width: width + 8,
+        height: width + 8,
+        border: `4px solid ${strokeColor}`,
       }}
     >
       <Image src={'/question.svg'} width={width - 8} height={width - 8} alt="question mark" />

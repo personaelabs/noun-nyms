@@ -20,7 +20,7 @@ export const ErrorPage = (props: ErrorPageProps) => {
           <h1 className="text-black">{title}</h1>
           <h4>{subtitle}</h4>
         </div>
-        <MainButton color={'#0e76fd'} message={TEXT.returnHome} handler={() => pushRoute('/')} />
+        <MainButton message={TEXT.returnHome} handler={() => pushRoute('/')} />
       </div>
       <Image width={100} src={nouners} alt="nouns" />
     </main>

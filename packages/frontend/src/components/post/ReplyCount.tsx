@@ -6,7 +6,7 @@ export const ReplyCount = (replyCountProps: { count: number }) => {
 
   return (
     <div className="flex gap-1 justify-center items-center">
-      <FontAwesomeIcon icon={faMessage} color={'#d0d5dd'} />
+      <FontAwesomeIcon icon={faMessage} className="text-gray-300" />
       <p className="postDetail">{count}</p>
     </div>
   );
