@@ -13,7 +13,6 @@ import useError from '@/hooks/useError';
 import { UserContext } from '@/pages/_app';
 import { UserName } from './global/UserName';
 import { upvote as TEXT } from '@/lib/text';
-import { BLUE } from '@/lib/colors';
 
 interface UpvoteIconProps {
   upvotes: ClientUpvote[];
@@ -94,7 +93,7 @@ export const Upvote = (props: UpvoteIconProps) => {
         } gap-1 justify-center items-center cursor-pointer h-min`}
       >
         <div className="hoverIcon text-gray-300">
-          <FontAwesomeIcon icon={faCircleUp} color={hasUpvoted ? BLUE : ''} />
+          <FontAwesomeIcon icon={faCircleUp} className={`${hasUpvoted ? 'text-blue' : ''}`} />
         </div>
         <div
           className="relative"

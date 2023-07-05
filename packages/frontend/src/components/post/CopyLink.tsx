@@ -1,4 +1,3 @@
-import { BLUE } from '@/lib/colors';
 import { faCheck, faLink } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
@@ -21,7 +20,10 @@ export const CopyLink = (props: { id: string }) => {
         await copyLink();
       }}
     >
-      <FontAwesomeIcon icon={linkCopied ? faCheck : faLink} color={linkCopied ? BLUE : ''} />
+      <FontAwesomeIcon
+        icon={linkCopied ? faCheck : faLink}
+        className={`${linkCopied ? 'text-blue' : ''}`}
+      />
     </div>
   );
 };
