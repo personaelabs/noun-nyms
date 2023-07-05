@@ -1,17 +1,28 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 interface TextAreaProps {
   value: string;
-  onChangeHandler: (newVal: string) => void;
+  onChange: (newVal: string) => void;
   placeholder: string;
   minRows: number;
   setCursorPosition: ({}: { x: number; y: number }) => void;
+  setCursorIndex: (idx: number) => void;
   findCursor: boolean;
+  handleKeyDown?: (evt: any) => void;
 }
 
 export const Textarea = (props: TextAreaProps) => {
-  const { value, onChangeHandler, placeholder, minRows, setCursorPosition, findCursor } = props;
+  const {
+    value,
+    onChange,
+    placeholder,
+    minRows,
+    setCursorPosition,
+    setCursorIndex,
+    findCursor,
+    handleKeyDown,
+  } = props;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // used to calculate the width of the text content
@@ -32,7 +43,14 @@ export const Textarea = (props: TextAreaProps) => {
         setCursorPosition({ x: cursorX, y: cursorY });
       }
     }
+    // the useEffect should not run if value, a suggested dependency, changes
+    // the open menu should stay in its original position as the text value changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [findCursor, setCursorPosition]);
+
+  useEffect(() => {
+    if (textareaRef.current) setCursorIndex(textareaRef.current.selectionStart);
+  });
 
   return (
     <div className="w-full relative">
@@ -42,7 +60,11 @@ export const Textarea = (props: TextAreaProps) => {
         minRows={minRows}
         placeholder={placeholder}
         value={value}
-        onChange={(evt) => onChangeHandler(evt.target.value)}
+        onChange={(evt) => onChange(evt.target.value)}
+        onKeyDown={(evt) => {
+          if (textareaRef.current) setCursorIndex(textareaRef.current.selectionStart);
+          handleKeyDown && handleKeyDown(evt.key);
+        }}
       />
       <div className="absolute invisible" ref={hiddenDivRef} />
     </div>

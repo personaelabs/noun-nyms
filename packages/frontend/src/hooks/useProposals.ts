@@ -59,7 +59,7 @@ async function fetchData() {
 
 fetchData();
 
-const useProposals = () => {
+export const useProposals = () => {
   const [proposals, setProposals] = useState<Proposal[]>();
   useEffect(() => {
     const getProps = async () => {
@@ -75,5 +75,3 @@ const useProposals = () => {
 
   return { proposals };
 };
-
-export default useProposals;

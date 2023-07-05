@@ -16,7 +16,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
 import { BLACK } from '@/lib/colors';
-import useProposals from '@/hooks/useProposals';
+import { type Proposal, useProposals } from '@/hooks/useProposals';
 import { Proposals } from './Proposals';
 
 interface IWriterProps {
@@ -42,13 +42,21 @@ export const PostWriter = (props: IWriterProps) => {
   const [userError, setUserError] = useState('');
   const { errorMsg, isError, setError, clearError } = useError();
   const { proposals } = useProposals();
-  const [currProposals, setProposals] = useState(proposals);
+  const [currProposals, setProposals] = useState(proposals || []);
   const [cursorPosition, setCursorPosition] = useState<CursorPosition | null>(null);
+  const [cursorIndex, setCursorIndex] = useState(0);
   const [showProposals, setShowProposals] = useState(false);
+  const [focusedProposal, setFocusedProposal] = useState<Proposal | null>(null);
+
+  const bodyType = parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody;
 
   useEffect(() => {
-    setProposals(proposals);
+    setProposals(proposals || []);
   }, [proposals]);
+
+  useEffect(() => {
+    setFocusedProposal(currProposals[0]);
+  }, [currProposals]);
 
   const { address } = useAccount();
   const { isMobile, isValid, setPostInProg, postInProg } = useContext(
@@ -94,22 +102,23 @@ export const PostWriter = (props: IWriterProps) => {
     let finalVal = newVal;
 
     const poundSignIndex = newVal.lastIndexOf('#');
+    console.log({ poundSignIndex }, { cursorIndex });
     const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
     const replaceText = replace || textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10;
     const spaceIndex = newVal.lastIndexOf(' ');
 
-    // If there are no spaces after the most recent '#'
-    if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
+    // If there are no spaces after the most recent '#' and the cursor is after the most recent '#'
+    if (poundSignIndex !== -1 && spaceIndex < poundSignIndex && poundSignIndex <= cursorIndex) {
       const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
       // If current proposals have been found and the last character after the '#' was an Enter
       // Replace the text after the last '#' with the prop number.
-      if (replaceText && currProposals && currProposals.length > 0) {
-        const replacementText = propId ? propId : currProposals[0].id;
+      if (replaceText && currProposals.length > 0) {
+        const replacementText = propId || focusedProposal?.id || currProposals[0].id;
         finalVal = replaceTextAfterPoundSign(newVal, replacementText, poundSignIndex);
       } else if (textAfterLastPoundSign === '') {
         // If just '#' sign, show 5 most recent proposals.
-        console.log(currProposals?.slice(0, 5));
-        setProposals(currProposals?.slice(0, 5));
+        console.log(currProposals.slice(0, 5));
+        setProposals(currProposals.slice(0, 5));
         setShowProposals(true);
       } else {
         const searchText = textAfterLastPoundSign.toLowerCase();
@@ -118,12 +127,22 @@ export const PostWriter = (props: IWriterProps) => {
           ?.filter((p) => p.title.toLowerCase().includes(searchText) || p.id.includes(searchText))
           .slice(0, 5);
         console.log(results);
-        setProposals(results);
+        setProposals(results || []);
         setShowProposals(true);
       }
     }
 
     setBody(finalVal);
+  };
+
+  const handleKeyDown = (key: string) => {
+    let currIdx = focusedProposal ? currProposals.indexOf(focusedProposal) : -1;
+    if (key === 'ArrowUp') {
+      if (currIdx > 0) currIdx--;
+    } else if (key === 'ArrowDown') {
+      if (currIdx < currProposals.length) currIdx++;
+    }
+    setFocusedProposal(currProposals[currIdx]);
   };
 
   const sendPost = async () => {
@@ -200,8 +219,9 @@ export const PostWriter = (props: IWriterProps) => {
                   value={title}
                   placeholder={TEXT.placeholder.title}
                   minRows={2}
-                  onChangeHandler={(newVal) => setTitle(newVal)}
+                  onChange={(newVal) => setTitle(newVal)}
                   setCursorPosition={setCursorPosition}
+                  setCursorIndex={setCursorIndex}
                   findCursor={showProposals}
                 />
               </div>
@@ -209,13 +229,16 @@ export const PostWriter = (props: IWriterProps) => {
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
               <Textarea
                 value={body}
-                placeholder={
-                  parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody
-                }
+                placeholder={bodyType}
                 minRows={4}
-                onChangeHandler={handleBodyChange}
+                onChange={handleBodyChange}
                 setCursorPosition={setCursorPosition}
+                setCursorIndex={setCursorIndex}
                 findCursor={showProposals}
+                handleKeyDown={(evt) => {
+                  handleKeyDown(evt);
+                  handleBodyChange(body);
+                }}
               />
             </div>
             {showProposals && cursorPosition && (
@@ -223,6 +246,7 @@ export const PostWriter = (props: IWriterProps) => {
                 position={cursorPosition}
                 proposals={currProposals}
                 handleBodyChange={(propId) => handleBodyChange(body, true, propId)}
+                focusedItem={focusedProposal}
               />
             )}
           </div>
