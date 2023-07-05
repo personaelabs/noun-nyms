@@ -61,10 +61,7 @@ export const Textarea = (props: TextAreaProps) => {
         placeholder={placeholder}
         value={value}
         onChange={(evt) => onChange(evt.target.value)}
-        onKeyDown={(evt) => {
-          if (textareaRef.current) setCursorIndex(textareaRef.current.selectionStart);
-          handleKeyDown && handleKeyDown(evt.key);
-        }}
+        onKeyDown={(evt) => handleKeyDown && handleKeyDown(evt.key)}
       />
       <div className="absolute invisible" ref={hiddenDivRef} />
     </div>

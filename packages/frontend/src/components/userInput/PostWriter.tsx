@@ -102,7 +102,6 @@ export const PostWriter = (props: IWriterProps) => {
     let finalVal = newVal;
 
     const poundSignIndex = newVal.lastIndexOf('#');
-    console.log({ poundSignIndex }, { cursorIndex });
     const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
     const replaceText = replace || textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10;
     const spaceIndex = newVal.lastIndexOf(' ');
@@ -235,10 +234,7 @@ export const PostWriter = (props: IWriterProps) => {
                 setCursorPosition={setCursorPosition}
                 setCursorIndex={setCursorIndex}
                 findCursor={showProposals}
-                handleKeyDown={(evt) => {
-                  handleKeyDown(evt);
-                  handleBodyChange(body);
-                }}
+                handleKeyDown={(evt) => handleKeyDown(evt)}
               />
             </div>
             {showProposals && cursorPosition && (
