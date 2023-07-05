@@ -77,6 +77,15 @@
     white-space: nowrap;
   }
 
+  .propLink>p>a {
+    font-weight: bold;
+    color: #0e76fd;
+  }
+
+  .propLink>p>a:hover {
+    text-decoration: underline;
+  }
+
   :focus {
     outline: none;
   }

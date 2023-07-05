@@ -4,6 +4,7 @@ import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { ClientName, NameType } from '@/types/components';
+import { Proposal } from '@/hooks/useProposals';
 dayjs.extend(relativeTime);
 
 export const splitNym = (str: string) => {
@@ -94,9 +95,15 @@ export const refetchAndScrollToPost = async (refetch: () => Promise<any>, postId
   }, 1000);
 };
 
-export const replaceHashNumberWithLink = (inputString: string) => {
+export const replaceHashNumberWithLink = (inputString: string, props: Proposal[]) => {
+  const getPropName = (str: string) => {
+    const propNumber = str.substring(1);
+    const propToShow = props.find((p) => p.id === propNumber);
+    const replacement = propToShow?.title || str;
+    return `[#${propNumber} ${replacement}](https://nouns.wtf/vote/$1)`;
+  };
+
   const regex = /#(\d+)/g;
-  const replacement = '[$&](https://nouns.wtf/vote/$1)';
-  const outputString = inputString.replace(regex, replacement);
+  const outputString = inputString.replace(regex, getPropName);
   return outputString;
 };
