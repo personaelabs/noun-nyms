@@ -100,7 +100,7 @@ export const replaceHashNumberWithLink = (inputString: string, props: Proposal[]
     const propNumber = str.substring(1);
     const propToShow = props.find((p) => p.id === propNumber);
     const replacement = propToShow?.title || str;
-    return `[#${propNumber} ${replacement}](https://nouns.wtf/vote/$1)`;
+    return `[#${propNumber} ${replacement}](https://nouns.wtf/vote/${propNumber})`;
   };
 
   const regex = /#(\d+)/g;
