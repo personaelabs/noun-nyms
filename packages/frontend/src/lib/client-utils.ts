@@ -107,3 +107,10 @@ export const replaceHashNumberWithLink = (inputString: string, props: Proposal[]
   const outputString = inputString.replace(regex, getPropName);
   return outputString;
 };
+
+export const calculateNodeDistanceFromRight = (node: HTMLElement): number => {
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  const rect = node.getBoundingClientRect();
+  const distanceFromRight = viewportWidth - rect.right;
+  return distanceFromRight;
+};
