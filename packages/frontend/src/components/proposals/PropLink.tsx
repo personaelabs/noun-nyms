@@ -10,6 +10,7 @@ interface PropLinkProps {
 export const PropLink = (props: PropLinkProps) => {
   const { string, proposal } = props;
   const { id, status, title } = proposal;
+  const link = `https://nouns.wtf/vote/${id}`;
 
   const [showPreview, setShowPreview] = useState(false);
 
@@ -17,7 +18,7 @@ export const PropLink = (props: PropLinkProps) => {
     <span className="relative w-full">
       <a
         className="relative underline font-bold text-blue"
-        href={`https://nouns.wtf/vote/${id}`}
+        href={link}
         key={id}
         onPointerEnter={() => setShowPreview(true)}
         onPointerLeave={() => setShowPreview(false)}
@@ -25,8 +26,9 @@ export const PropLink = (props: PropLinkProps) => {
         {string}
       </a>
       <TransitionFade duration={100} show={showPreview}>
-        <div className="absolute bottom-full mb-2  left-1/2">
-          <div className="flex flex-col w-[250px] px-4 py-2 bg-white border border-gray-200 shadow-md rounded-xl">
+        <div className="absolute bottom-full mb-2 left-0">
+          <div className="flex flex-col gap-2 w-[250px] px-4 py-2 bg-white border border-gray-200 shadow-md rounded-xl">
+            <p className="secondary underline">{link}</p>
             <div className="flex gap-2">
               <PropStatusTag status={status as Status} />
               <p className="secondary text-gray-700 font-bold">
