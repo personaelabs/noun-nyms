@@ -1,7 +1,9 @@
 import { Proposal } from '@/hooks/useProposals';
-import { useRef, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { PropPreview } from './PropPreview';
 import { TransitionFade } from '../global/TransitionFade';
+import { UserContext } from '@/pages/_app';
+import { UserContextType } from '@/types/components';
 
 interface PropLinkProps {
   string: string;
@@ -9,6 +11,7 @@ interface PropLinkProps {
 }
 export const PropLink = (props: PropLinkProps) => {
   const { string, proposal } = props;
+  const { isMobile } = useContext(UserContext) as UserContextType;
   const link = `https://nouns.wtf/vote/${proposal.id}`;
 
   const linkRef = useRef<HTMLAnchorElement>(null);
@@ -22,8 +25,12 @@ export const PropLink = (props: PropLinkProps) => {
         href={link}
         target="_blank"
         key={proposal.id}
-        onMouseEnter={() => setShowPreview(true)}
-        onMouseLeave={() => setShowPreview(false)}
+        onMouseEnter={() => {
+          if (!isMobile) setShowPreview(true);
+        }}
+        onMouseLeave={() => {
+          if (!isMobile) setShowPreview(false);
+        }}
       >
         {string}
       </a>

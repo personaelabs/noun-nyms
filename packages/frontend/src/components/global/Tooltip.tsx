@@ -45,13 +45,11 @@ export const Tooltip = (props: TooltipProps) => {
     if (distFromRight && distFromRight < maxWidth)
       offsetX = initX - (maxWidth - distFromRight + OFFSET_PADDING);
 
-    console.log({ distFromTop });
     //render tooltip below ref if tooltip will overflow top
     if (distFromTop && distFromTop < maxHeight) setRenderAbove(false);
 
     setPosition({
       left: offsetX || initX,
-      // only assign top value if given (default is 100%)
       top: initPosition && initPosition.top,
     });
   }, [setPosition, maxWidth, maxHeight, refElem, initPosition]);

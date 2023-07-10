@@ -106,13 +106,18 @@ export const Upvote = (props: UpvoteIconProps) => {
             <Tooltip refElem={buttonRef.current} maxWidth={150}>
               <div className="mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2">
                 <div className="min-w-0 shrink text-left">
-                  {upvotes.map((u) => {
+                  {upvotes.slice(0, 9).map((u) => {
                     return (
                       <p key={u.id} className="w-full text-white breakText">
                         <UserName userId={u.address} />
                       </p>
                     );
                   })}
+                  {upvotes.length > 9 && (
+                    <p className="w-full text-white breakText">
+                      {TEXT.and} {upvotes.length - 9} {TEXT.more}
+                    </p>
+                  )}
                 </div>
               </div>
             </Tooltip>
