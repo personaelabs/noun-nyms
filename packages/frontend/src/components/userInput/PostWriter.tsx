@@ -5,18 +5,18 @@ import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { NameSelect } from './NameSelect';
-import { ClientName, NameType, UserContextType } from '@/types/components';
+import { ClientName, NameType, PropsContextType, UserContextType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
-import { UserContext } from '@/pages/_app';
+import { PropsContext, UserContext } from '@/pages/_app';
 import useProver from '@/hooks/useProver';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
 import { BLACK } from '@/lib/colors';
-import { type Proposal, useProposals } from '@/hooks/useProposals';
+import { type Proposal } from '@/hooks/useProposals';
 import { Proposals } from './Proposals';
 
 interface IWriterProps {
@@ -32,16 +32,21 @@ interface CursorPosition {
 
 export const PostWriter = (props: IWriterProps) => {
   const { parentId, handleCloseWriter, scrollToPost } = props;
+
+  const { proposals } = useContext(PropsContext) as PropsContextType;
+  const { isMobile, isValid, setPostInProg, postInProg } = useContext(
+    UserContext,
+  ) as UserContextType;
+
   const [body, setBody] = useState('');
   const [title, setTitle] = useState('');
+  const [name, setName] = useState<ClientName | null>(null);
   const [closeWriter, setCloseWriter] = useState(false);
   const [showWalletWarning, setShowWalletWarning] = useState(false);
   const [sendingPost, setSendingPost] = useState(false);
   const [hasSignedPost, setHasSignedPost] = useState(false);
   const [sentPost, setSentPost] = useState(false);
   const [userError, setUserError] = useState('');
-  const { errorMsg, isError, setError, clearError } = useError();
-  const { proposals } = useProposals();
   const [currProposals, setProposals] = useState(proposals || []);
   const [cursorPosition, setCursorPosition] = useState<CursorPosition | null>(null);
   const [cursorIndex, setCursorIndex] = useState(0);
@@ -58,11 +63,8 @@ export const PostWriter = (props: IWriterProps) => {
     setFocusedProposal(currProposals[0]);
   }, [currProposals]);
 
+  const { errorMsg, isError, setError, clearError } = useError();
   const { address } = useAccount();
-  const { isMobile, isValid, setPostInProg, postInProg } = useContext(
-    UserContext,
-  ) as UserContextType;
-  const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
   const prover = useProver({

@@ -53,7 +53,7 @@ export const Proposals = (props: ProposalProps) => {
         createPortal(
           <Tooltip
             initPosition={{
-              top: position.y + scrollOffset,
+              top: position.y + scrollOffset - content.offsetTop,
               left: position.x - content.offsetLeft,
             }}
             maxWidth={WIDTH}

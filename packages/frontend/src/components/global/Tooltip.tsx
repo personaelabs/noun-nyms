@@ -21,8 +21,6 @@ export const Tooltip = (props: TooltipProps) => {
   const { refElem, initPosition, maxWidth, children } = props;
   const [position, setPosition] = useState<Position | null>(null);
 
-  console.log({ initPosition });
-
   // calculate left offset to avoid tooltip overflow
   useEffect(() => {
     let offsetX,

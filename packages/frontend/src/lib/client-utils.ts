@@ -4,7 +4,6 @@ import { ecrecover, fromRpcSig } from '@ethereumjs/util';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { ClientName, NameType } from '@/types/components';
-import { Proposal } from '@/hooks/useProposals';
 dayjs.extend(relativeTime);
 
 export const splitNym = (str: string) => {
@@ -95,17 +94,30 @@ export const refetchAndScrollToPost = async (refetch: () => Promise<any>, postId
   }, 1000);
 };
 
-export const replaceHashNumberWithLink = (inputString: string, props: Proposal[]) => {
-  const getPropName = (str: string) => {
-    const propNumber = str.substring(1);
-    const propToShow = props.find((p) => p.id === propNumber);
-    const replacement = propToShow?.title || str;
-    return `[#${propNumber} ${replacement}](https://nouns.wtf/vote/${propNumber})`;
-  };
+export const splitStringByExp = (text: string, search: RegExp): string[] => {
+  const matches = [];
+  let lastIndex = 0;
+  let match;
 
-  const regex = /#(\d+)/g;
-  const outputString = inputString.replace(regex, getPropName);
-  return outputString;
+  while ((match = search.exec(text)) !== null) {
+    const matchIndex = match.index;
+    const matchString = match[0];
+
+    if (lastIndex !== matchIndex) {
+      const substring = text.substring(lastIndex, matchIndex);
+      matches.push(substring);
+    }
+
+    matches.push(matchString);
+    lastIndex = search.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    const remainingString = text.substring(lastIndex);
+    matches.push(remainingString);
+  }
+
+  return matches;
 };
 
 export const calcNodeDistFromRight = (node: HTMLElement): number => {
