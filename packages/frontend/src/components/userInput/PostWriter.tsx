@@ -47,21 +47,20 @@ export const PostWriter = (props: IWriterProps) => {
   const [hasSignedPost, setHasSignedPost] = useState(false);
   const [sentPost, setSentPost] = useState(false);
   const [userError, setUserError] = useState('');
-  const [currProposals, setCurrProposals] = useState(proposals || []);
+  const [propsToShow, setPropsToShow] = useState(proposals || []);
   const [cursorPosition, setCursorPosition] = useState<CursorPosition | null>(null);
-  const [cursorIndex, setCursorIndex] = useState(0);
   const [showProposals, setShowProposals] = useState(false);
   const [focusedProposal, setFocusedProposal] = useState<Proposal | null>(null);
 
   const bodyType = parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody;
 
   useEffect(() => {
-    setCurrProposals(proposals || []);
+    setPropsToShow(proposals?.slice(0, 5) || []);
   }, [proposals]);
 
   useEffect(() => {
-    setFocusedProposal(currProposals[0]);
-  }, [currProposals]);
+    setFocusedProposal(propsToShow[0]);
+  }, [propsToShow]);
 
   const { errorMsg, isError, setError, clearError } = useError();
   const { address } = useAccount();
@@ -108,42 +107,34 @@ export const PostWriter = (props: IWriterProps) => {
     const replaceText = replace || textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10;
     const spaceIndex = newVal.lastIndexOf(' ');
 
-    // If there are no spaces after the most recent '#' and the cursor is after the most recent '#'
-    if (poundSignIndex !== -1 && spaceIndex < poundSignIndex && poundSignIndex <= cursorIndex) {
-      const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
+    // If there are no spaces after the most recent '#'
+    if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
       // If current proposals have been found and the last character after the '#' was an Enter
       // Replace the text after the last '#' with the prop number.
-      if (replaceText && currProposals.length > 0) {
-        const replacementText = propId || focusedProposal?.id || currProposals[0].id;
+      if (replaceText && proposals && proposals.length > 0) {
+        const replacementText = propId || focusedProposal?.id || propsToShow[0].id;
         finalVal = replaceTextAfterPoundSign(newVal, replacementText, poundSignIndex);
-      } else if (textAfterLastPoundSign === '') {
-        // If just '#' sign, show 5 most recent proposals.
-        console.log(currProposals.slice(0, 5));
-        setCurrProposals(currProposals.slice(0, 5));
-        setShowProposals(true);
       } else {
         const searchText = textAfterLastPoundSign.toLowerCase();
         // Filter the proposals for titles and prop numbers that match the text after the pound sign.
         const results = proposals
           ?.filter((p) => p.title.toLowerCase().includes(searchText) || p.id.includes(searchText))
           .slice(0, 5);
-        console.log(results);
-        setCurrProposals(results || []);
+        setPropsToShow(results || []);
         setShowProposals(true);
       }
     }
-
     setBody(finalVal);
   };
 
   const handleKeyDown = (key: string) => {
-    let currIdx = focusedProposal ? currProposals.indexOf(focusedProposal) : -1;
+    let currIdx = focusedProposal ? propsToShow.indexOf(focusedProposal) : -1;
     if (key === 'ArrowUp') {
       if (currIdx > 0) currIdx--;
     } else if (key === 'ArrowDown') {
-      if (currIdx < currProposals.length) currIdx++;
+      if (currIdx < propsToShow.length) currIdx++;
     }
-    setFocusedProposal(currProposals[currIdx]);
+    setFocusedProposal(propsToShow[currIdx]);
   };
 
   const sendPost = async () => {
@@ -222,7 +213,6 @@ export const PostWriter = (props: IWriterProps) => {
                   minRows={2}
                   onChange={(newVal) => setTitle(newVal)}
                   setCursorPosition={setCursorPosition}
-                  setCursorIndex={setCursorIndex}
                   findCursor={showProposals}
                 />
               </div>
@@ -234,7 +224,6 @@ export const PostWriter = (props: IWriterProps) => {
                 minRows={4}
                 onChange={handleBodyChange}
                 setCursorPosition={setCursorPosition}
-                setCursorIndex={setCursorIndex}
                 findCursor={showProposals}
                 handleKeyDown={(evt) => handleKeyDown(evt)}
               />
@@ -242,7 +231,7 @@ export const PostWriter = (props: IWriterProps) => {
             {showProposals && cursorPosition && (
               <Proposals
                 position={cursorPosition}
-                proposals={currProposals}
+                proposals={propsToShow}
                 handleBodyChange={(propId) => handleBodyChange(body, true, propId)}
                 focusedItem={focusedProposal}
               />

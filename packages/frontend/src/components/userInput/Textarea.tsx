@@ -7,22 +7,13 @@ interface TextAreaProps {
   placeholder: string;
   minRows: number;
   setCursorPosition: ({}: { x: number; y: number }) => void;
-  setCursorIndex: (idx: number) => void;
   findCursor: boolean;
   handleKeyDown?: (evt: any) => void;
 }
 
 export const Textarea = (props: TextAreaProps) => {
-  const {
-    value,
-    onChange,
-    placeholder,
-    minRows,
-    setCursorPosition,
-    setCursorIndex,
-    findCursor,
-    handleKeyDown,
-  } = props;
+  const { value, onChange, placeholder, minRows, setCursorPosition, findCursor, handleKeyDown } =
+    props;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // used to calculate the width of the text content
@@ -47,10 +38,6 @@ export const Textarea = (props: TextAreaProps) => {
     // the open menu should stay in its original position as the text value changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [findCursor, setCursorPosition]);
-
-  useEffect(() => {
-    if (textareaRef.current) setCursorIndex(textareaRef.current.selectionStart);
-  });
 
   return (
     <div className="w-full relative">

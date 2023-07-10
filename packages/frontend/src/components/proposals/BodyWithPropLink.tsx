@@ -11,9 +11,10 @@ export const BodyWithPropLink = ({ body }: { body: string }) => {
 
   const bodyWithPropLink = strings.map((s) => {
     regex.lastIndex = 0;
-    const proposal = proposals?.find((p) => p.id === s.substring(1));
-    if (proposal && regex.test(s)) return <PropLink string={s} proposal={proposal} />;
-    else return <span>{s}</span>;
+    if (regex.test(s)) {
+      const proposal = proposals?.find((p) => p.id === s.substring(1));
+      return proposal ? <PropLink string={s} proposal={proposal} /> : <span>{s}</span>;
+    } else return <span>{s}</span>;
   });
 
   return <div className="inline-block whitespace-pre-wrap">{bodyWithPropLink}</div>;

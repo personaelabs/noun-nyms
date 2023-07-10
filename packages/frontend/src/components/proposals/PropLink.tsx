@@ -17,7 +17,7 @@ export const PropLink = (props: PropLinkProps) => {
   return (
     <div className="inline-block relative">
       <a
-        className="underline font-bold text-blue"
+        className="hover:underline font-bold text-blue"
         ref={linkRef}
         href={link}
         target="_blank"
