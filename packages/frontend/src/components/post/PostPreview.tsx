@@ -8,7 +8,7 @@ import { UserContext } from '@/pages/_app';
 import { useContext } from 'react';
 import { postPreview as TEXT } from '@/lib/text';
 import { Upvote } from '../Upvote';
-import { BodyWithPropLink } from './BodyWithPropLink';
+import { BodyWithPropLink } from '../proposals/BodyWithPropLink';
 
 export const PostPreview = (postProps: PostProps) => {
   const { post, showUserHeader, handleOpenPost, onSuccess } = postProps;
@@ -56,9 +56,7 @@ export const PostPreview = (postProps: PostProps) => {
           <div className="flex flex-col gap-2">
             <UserTag userId={parent.userId} timestamp={parent.timestamp} />
             <div className="flex flex-col gap-2 ml-3 pl-2 border-l border-dotted border-gray-300">
-              <span className="whitespace-pre-wrap">
-                <BodyWithPropLink body={parent.body} />
-              </span>
+              <BodyWithPropLink body={parent.body} />
               <div className="p-4 rounded-xl bg-gray-50" style={{ marginLeft: 10 }}>
                 <SingleReply
                   post={post}
@@ -73,7 +71,7 @@ export const PostPreview = (postProps: PostProps) => {
           </div>
         ) : (
           <>
-            <span className="whitespace-pre-wrap">{body}</span>
+            <BodyWithPropLink body={body} />
             <div className="min-w-0 flex flex-wrap gap-4 justify-between items-center">
               <UserTag userId={userId} timestamp={timestamp} />
               <div className="flex gap-3 md:gap-4">

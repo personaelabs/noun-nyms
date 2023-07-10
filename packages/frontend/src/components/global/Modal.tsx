@@ -19,7 +19,7 @@ export const Modal = (props: ModalProps) => {
   const { isMobile } = useContext(UserContext) as UserContextType;
 
   return (
-    <TransitionFade show={isOpen}>
+    <TransitionFade show={isOpen} transitionOnLeave={false}>
       <Dialog onClose={handleClose} className="relative z-50">
         {/* The backdrop, rendered as a fixed sibling to the panel container */}
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />

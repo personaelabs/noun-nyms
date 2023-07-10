@@ -21,7 +21,7 @@ export const SortSelect = (props: SortSelectProps) => {
               <FontAwesomeIcon icon={faChevronDown} />
             </span>
           </Listbox.Button>
-          <TransitionFade show={open}>
+          <TransitionFade show={open} transitionOnLeave={false}>
             <Listbox.Options
               className={`absolute ${
                 leftAlign ? 'left-0' : 'left-full -translate-x-full'

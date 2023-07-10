@@ -17,7 +17,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
 import { BLACK } from '@/lib/colors';
 import { type Proposal } from '@/hooks/useProposals';
-import { Proposals } from './Proposals';
+import { Proposals } from '../proposals/Proposals';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -47,7 +47,7 @@ export const PostWriter = (props: IWriterProps) => {
   const [hasSignedPost, setHasSignedPost] = useState(false);
   const [sentPost, setSentPost] = useState(false);
   const [userError, setUserError] = useState('');
-  const [currProposals, setProposals] = useState(proposals || []);
+  const [currProposals, setCurrProposals] = useState(proposals || []);
   const [cursorPosition, setCursorPosition] = useState<CursorPosition | null>(null);
   const [cursorIndex, setCursorIndex] = useState(0);
   const [showProposals, setShowProposals] = useState(false);
@@ -56,7 +56,7 @@ export const PostWriter = (props: IWriterProps) => {
   const bodyType = parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody;
 
   useEffect(() => {
-    setProposals(proposals || []);
+    setCurrProposals(proposals || []);
   }, [proposals]);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export const PostWriter = (props: IWriterProps) => {
       } else if (textAfterLastPoundSign === '') {
         // If just '#' sign, show 5 most recent proposals.
         console.log(currProposals.slice(0, 5));
-        setProposals(currProposals.slice(0, 5));
+        setCurrProposals(currProposals.slice(0, 5));
         setShowProposals(true);
       } else {
         const searchText = textAfterLastPoundSign.toLowerCase();
@@ -128,7 +128,7 @@ export const PostWriter = (props: IWriterProps) => {
           ?.filter((p) => p.title.toLowerCase().includes(searchText) || p.id.includes(searchText))
           .slice(0, 5);
         console.log(results);
-        setProposals(results || []);
+        setCurrProposals(results || []);
         setShowProposals(true);
       }
     }

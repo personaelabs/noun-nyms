@@ -72,7 +72,7 @@ export const NameSelect = (props: NameSelectProps) => {
               </div>
               <FontAwesomeIcon icon={open ? faAngleUp : faAngleDown} />
             </Menu.Button>
-            <TransitionFade show={open}>
+            <TransitionFade show={open} transitionOnLeave={false}>
               <Menu.Items
                 className={`${
                   openMenuAbove ? 'bottom-full mb-2' : 'top-full mt-2'

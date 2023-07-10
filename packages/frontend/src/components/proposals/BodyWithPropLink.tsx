@@ -16,5 +16,5 @@ export const BodyWithPropLink = ({ body }: { body: string }) => {
     else return <span>{s}</span>;
   });
 
-  return <>{bodyWithPropLink}</>;
+  return <span className="block whitespace-pre-wrap w-full">{bodyWithPropLink}</span>;
 };

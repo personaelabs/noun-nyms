@@ -1,9 +1,10 @@
 import { Proposal } from '@/hooks/useProposals';
 import { Menu } from '@headlessui/react';
-import MenuItem from './MenuItem';
+import MenuItem from '../userInput/MenuItem';
 import { useEffect, useRef, useState } from 'react';
 import { Tooltip } from '../global/Tooltip';
 import { createPortal } from 'react-dom';
+import { PropStatusTag, Status } from './PropStatusTag';
 
 interface ProposalProps {
   position: { x: number; y: number };
@@ -11,25 +12,6 @@ interface ProposalProps {
   handleBodyChange: (val: string) => void;
   focusedItem: Proposal | null;
 }
-
-enum Status {
-  PENDING = 'PENDING',
-  ACTIVE = 'ACTIVE',
-  SUCCEEDED = 'SUCCEEDED',
-  QUEUED = 'QUEUED',
-  EXECUTED = 'EXECUTED',
-  CANCELLED = 'CANCELLED',
-  DEFEATED = 'DEFEATED',
-}
-
-const getStatusColor = (status: string) => {
-  if (status === Status.PENDING || status === Status.ACTIVE || status === Status.SUCCEEDED) {
-    return 'bg-green-800';
-  } else if (status === Status.EXECUTED) return 'bg-[#0E76FD]';
-  else if (status === Status.CANCELLED || status === Status.DEFEATED) {
-    return 'bg-red-700';
-  } else return 'bg-gray-500';
-};
 
 export const Proposals = (props: ProposalProps) => {
   const { position, proposals, handleBodyChange, focusedItem } = props;
@@ -73,13 +55,7 @@ export const Proposals = (props: ProposalProps) => {
                       }}
                     >
                       <>
-                        <div
-                          className={`shrink-0 text-white text-[8px] font-bold px-2 py-0 rounded-md ${getStatusColor(
-                            p.status,
-                          )}`}
-                        >
-                          {p.status}
-                        </div>
+                        <PropStatusTag status={p.status as Status} />
                         <p>#{p.id}</p>
                         <p className="breakText font-semibold">{p.title}</p>
                       </>

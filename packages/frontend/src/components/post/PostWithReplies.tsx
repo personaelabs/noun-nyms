@@ -16,7 +16,7 @@ import { refetchAndScrollToPost, scrollToPost } from '@/lib/client-utils';
 import { postWithReplies as TEXT } from '@/lib/text';
 import { CopyLink } from './CopyLink';
 import { ShowMore } from './ShowMore';
-import { BodyWithPropLink } from './BodyWithPropLink';
+import { BodyWithPropLink } from '../proposals/BodyWithPropLink';
 
 const getPostById = async (postId: string) =>
   (await axios.get<IPostWithReplies>(`/api/v1/posts/${postId}`)).data;
@@ -139,9 +139,7 @@ export const PostWithReplies = (postWithRepliesProps: PostWithRepliesProps) => {
                 <h3 className="tracking-tight">{root.title}</h3>
               </div>
             </div>
-            <span className="whitespace-pre-wrap">
-              <BodyWithPropLink body={root.body} />
-            </span>
+            <BodyWithPropLink body={root.body} />
           </div>
           <div className="flex gap-2 flex-wrap justify-between pt-4 border-t border-dotted border-gray-300 items-center">
             <UserTag userId={root.userId} timestamp={root.timestamp} />
