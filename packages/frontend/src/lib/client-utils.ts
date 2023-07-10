@@ -128,6 +128,13 @@ export const calcNodeDistFromRight = (node: HTMLElement): number => {
   return distanceFromRight;
 };
 
+export const calcNodeDistFromTop = (node: HTMLElement): number => {
+  if (!node) return 0;
+  const rect = node.getBoundingClientRect();
+  const distanceFromTop = rect.top;
+  return distanceFromTop;
+};
+
 export const calcDistFromRight = (xPos: number): number => {
   const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
   return viewportWidth - xPos;

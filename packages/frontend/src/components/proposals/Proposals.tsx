@@ -24,8 +24,8 @@ export const Proposals = (props: ProposalProps) => {
 
   useEffect(() => {
     setContent(document.getElementById('main_modal') || document.body);
-    const viewWindow = document.getElementById('modal_window') || document.body;
-    setScrollOffset(viewWindow.scrollTop);
+    const viewWindow = document.getElementById('modal_window');
+    setScrollOffset(viewWindow ? viewWindow.scrollTop : window.scrollY);
   }, [setContent, content]);
 
   return (

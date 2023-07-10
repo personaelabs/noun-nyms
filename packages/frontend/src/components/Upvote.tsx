@@ -103,7 +103,7 @@ export const Upvote = (props: UpvoteIconProps) => {
         >
           <div className="hover:font-bold">{children}</div>
           {showUsers && upvotes.length > 0 && (
-            <Tooltip refElem={buttonRef} maxWidth={150}>
+            <Tooltip refElem={buttonRef.current} maxWidth={150}>
               <div className="mt-2 w-max max-w-[150px] bg-gray-800 rounded-xl p-2">
                 <div className="min-w-0 shrink text-left">
                   {upvotes.map((u) => {

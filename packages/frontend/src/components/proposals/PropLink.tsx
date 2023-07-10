@@ -1,7 +1,7 @@
 import { Proposal } from '@/hooks/useProposals';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { PropPreview } from './PropPreview';
 import { TransitionFade } from '../global/TransitionFade';
-import { PropStatusTag, Status } from './PropStatusTag';
 
 interface PropLinkProps {
   string: string;
@@ -9,35 +9,26 @@ interface PropLinkProps {
 }
 export const PropLink = (props: PropLinkProps) => {
   const { string, proposal } = props;
-  const { id, status, title } = proposal;
-  const link = `https://nouns.wtf/vote/${id}`;
+  const link = `https://nouns.wtf/vote/${proposal.id}`;
 
+  const linkRef = useRef<HTMLAnchorElement>(null);
   const [showPreview, setShowPreview] = useState(false);
 
   return (
-    <span className="relative w-full">
+    <div className="inline-block relative">
       <a
-        className="relative underline font-bold text-blue"
+        className="underline font-bold text-blue"
+        ref={linkRef}
         href={link}
-        key={id}
+        key={proposal.id}
         onPointerEnter={() => setShowPreview(true)}
         onPointerLeave={() => setShowPreview(false)}
       >
         {string}
       </a>
       <TransitionFade duration={100} show={showPreview}>
-        <div className="absolute bottom-full mb-2 left-0">
-          <div className="flex flex-col gap-2 w-[250px] px-4 py-2 bg-white border border-gray-200 shadow-md rounded-xl">
-            <p className="secondary underline">{link}</p>
-            <div className="flex gap-2">
-              <PropStatusTag status={status as Status} />
-              <p className="secondary text-gray-700 font-bold">
-                {title} <span className="font-normal">#{id}</span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <PropPreview prop={proposal} linkRef={linkRef} />
       </TransitionFade>
-    </span>
+    </div>
   );
 };

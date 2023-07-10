@@ -1,12 +1,14 @@
 import { Transition } from '@headlessui/react';
 import { Fragment, ReactNode } from 'react';
 
-export const TransitionFade = (props: {
+interface TransitionProps {
   show: boolean;
   duration?: number;
   transitionOnLeave?: boolean;
   children: ReactNode;
-}) => {
+}
+
+export const TransitionFade = (props: TransitionProps) => {
   const { show, duration = 100, transitionOnLeave = true, children } = props;
   const durationString = 'duration-' + duration;
   return (
@@ -21,7 +23,7 @@ export const TransitionFade = (props: {
       leaveTo="opacity-0"
       as={Fragment}
     >
-      {children}
+      {(ref) => <div ref={ref}>{children}</div>}
     </Transition>
   );
 };
