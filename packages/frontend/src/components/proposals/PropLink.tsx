@@ -20,9 +20,10 @@ export const PropLink = (props: PropLinkProps) => {
         className="underline font-bold text-blue"
         ref={linkRef}
         href={link}
+        target="_blank"
         key={proposal.id}
-        onPointerEnter={() => setShowPreview(true)}
-        onPointerLeave={() => setShowPreview(false)}
+        onMouseEnter={() => setShowPreview(true)}
+        onMouseLeave={() => setShowPreview(false)}
       >
         {string}
       </a>
