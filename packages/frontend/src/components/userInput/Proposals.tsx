@@ -1,7 +1,9 @@
 import { Proposal } from '@/hooks/useProposals';
 import { Menu } from '@headlessui/react';
 import MenuItem from './MenuItem';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Tooltip } from '../global/Tooltip';
+import { createPortal } from 'react-dom';
 
 interface ProposalProps {
   position: { x: number; y: number };
@@ -32,38 +34,62 @@ const getStatusColor = (status: string) => {
 export const Proposals = (props: ProposalProps) => {
   const { position, proposals, handleBodyChange, focusedItem } = props;
   const menuItemRef = useRef<HTMLButtonElement>(null);
+  const WIDTH = 200;
+
+  //content stores the document or the modal that contains the post content, used for positioning the tooltip
+  const [content, setContent] = useState<HTMLElement | null>(null);
+  const [scrollOffset, setScrollOffset] = useState<number | null>(null);
+
+  useEffect(() => {
+    setContent(document.getElementById('main_modal') || document.body);
+    const viewWindow = document.getElementById('modal_window') || document.body;
+    setScrollOffset(viewWindow.scrollTop);
+  }, [setContent, content]);
+
   return (
-    <div className="fixed top-0 left-0">
-      <Menu
-        as={'div'}
-        className="flex flex-col absolute bg-white rounded-xl max-w-[200px] border border-gray-100 shadow-md z-50"
-        style={{ top: position.y, left: position.x }}
-      >
-        {proposals &&
-          proposals.map((p) => (
-            <Menu.Item key={p.id}>
-              <MenuItem
-                ref={menuItemRef}
-                active={p.id === focusedItem?.id}
-                handler={() => {
-                  handleBodyChange(p.id);
-                }}
-              >
-                <>
-                  <div
-                    className={`shrink-0 text-white text-[8px] font-bold px-2 py-0 rounded-md ${getStatusColor(
-                      p.status,
-                    )}`}
-                  >
-                    {p.status}
-                  </div>
-                  <p>#{p.id}</p>
-                  <p className="breakText font-semibold">{p.title}</p>
-                </>
-              </MenuItem>
-            </Menu.Item>
-          ))}
-      </Menu>
-    </div>
+    <>
+      {content &&
+        scrollOffset !== null &&
+        createPortal(
+          <Tooltip
+            initPosition={{
+              top: position.y + scrollOffset,
+              left: position.x - content.offsetLeft,
+            }}
+            maxWidth={WIDTH}
+          >
+            <Menu
+              as={'div'}
+              className="flex flex-col bg-white rounded-xl max-w-[200px] border border-gray-100 shadow-md"
+            >
+              {proposals &&
+                proposals.map((p) => (
+                  <Menu.Item key={p.id}>
+                    <MenuItem
+                      ref={menuItemRef}
+                      active={p.id === focusedItem?.id}
+                      handler={() => {
+                        handleBodyChange(p.id);
+                      }}
+                    >
+                      <>
+                        <div
+                          className={`shrink-0 text-white text-[8px] font-bold px-2 py-0 rounded-md ${getStatusColor(
+                            p.status,
+                          )}`}
+                        >
+                          {p.status}
+                        </div>
+                        <p>#{p.id}</p>
+                        <p className="breakText font-semibold">{p.title}</p>
+                      </>
+                    </MenuItem>
+                  </Menu.Item>
+                ))}
+            </Menu>
+          </Tooltip>,
+          content,
+        )}
+    </>
   );
 };

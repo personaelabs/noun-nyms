@@ -108,9 +108,15 @@ export const replaceHashNumberWithLink = (inputString: string, props: Proposal[]
   return outputString;
 };
 
-export const calculateNodeDistanceFromRight = (node: HTMLElement): number => {
+export const calcNodeDistFromRight = (node: HTMLElement): number => {
+  if (!node) return 0;
   const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
   const rect = node.getBoundingClientRect();
   const distanceFromRight = viewportWidth - rect.right;
   return distanceFromRight;
+};
+
+export const calcDistFromRight = (xPos: number): number => {
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  return viewportWidth - xPos;
 };
