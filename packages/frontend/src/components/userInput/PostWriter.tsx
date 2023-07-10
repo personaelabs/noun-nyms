@@ -15,6 +15,7 @@ import useProver from '@/hooks/useProver';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
+import { BLACK } from '@/lib/colors';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -165,7 +166,7 @@ export const PostWriter = (props: IWriterProps) => {
               />
             ) : null}
             <MainButton
-              color="black"
+              color={BLACK}
               handler={sendPost}
               loading={sendingPost}
               message={TEXT.buttonText.before}

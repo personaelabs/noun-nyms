@@ -35,7 +35,12 @@ export const RefreshNotifications = (props: { nymOptions: ClientName[] }) => {
           {refetching ? (
             <Spinner />
           ) : (
-            <FontAwesomeIcon icon={faRefresh} size={'lg'} color={'#98A2B3'} onClick={refetch} />
+            <FontAwesomeIcon
+              icon={faRefresh}
+              size={'lg'}
+              className="text-gray-300"
+              onClick={refetch}
+            />
           )}
         </div>
       </div>

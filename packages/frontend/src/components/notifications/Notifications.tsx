@@ -35,7 +35,7 @@ export const Notifications = () => {
                 if (isMobile) pushRoute('/notifications');
               }}
             >
-              <FontAwesomeIcon icon={faBell} size={'2xl'} color={'#ffffff'} />
+              <FontAwesomeIcon icon={faBell} size={'2xl'} className="text-white" />
               {unread.length > 0 && (
                 <div className="absolute bottom-full left-full translate-y-3/4 -translate-x-3/4 rounded-full w-4 h-4 bg-red-700" />
               )}
@@ -51,8 +51,8 @@ export const Notifications = () => {
                         <FontAwesomeIcon
                           icon={faXmark}
                           size={'lg'}
-                          color="#98A2B3"
                           onClick={close}
+                          className="text-gray-500"
                         />
                       </div>
                     </div>

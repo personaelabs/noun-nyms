@@ -48,8 +48,8 @@ export const SingleReply = (props: SingleReplyProps) => {
                   handleReply(id);
                 }}
               >
-                <div className="hoverIcon text-[#d0d5dd]">
-                  <FontAwesomeIcon icon={faReply} color={replyOpen ? '#0E76FD' : ''} />
+                <div className="hoverIcon text-gray-300">
+                  <FontAwesomeIcon icon={faReply} className={`${replyOpen ? 'text-blue' : ''}`} />
                 </div>
                 <p
                   className="secondary text-gray-700"

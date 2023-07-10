@@ -1,6 +1,7 @@
 import { MainButton } from './MainButton';
 import { Modal } from './global/Modal';
 import { discardPostWarning as TEXT } from '@/lib/text';
+import { BLACK } from '@/lib/colors';
 
 interface DiscardPostWarningProps {
   isOpen: boolean;
@@ -15,8 +16,8 @@ export const DiscardPostWarning = (props: DiscardPostWarningProps) => {
       <p>{TEXT.body}</p>
 
       <div className="flex gap-2 justify-center">
-        <MainButton message={TEXT.buttonText.cancel} color="#000000" handler={handleCloseWarning} />
-        <MainButton message={TEXT.buttonText.okay} color="#0E76FD" handler={handleClosePost} />
+        <MainButton message={TEXT.buttonText.cancel} color={BLACK} handler={handleCloseWarning} />
+        <MainButton message={TEXT.buttonText.okay} handler={handleClosePost} />
       </div>
     </Modal>
   );

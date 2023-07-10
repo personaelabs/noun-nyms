@@ -5,7 +5,7 @@ import { newNym as TEXT } from '@/lib/text';
 export const NewNymMenuItem = () => {
   return (
     <div className="flex gap-2 items-center">
-      <FontAwesomeIcon icon={faPlus} className="w-5" color={'#0E76FD'} />
+      <FontAwesomeIcon icon={faPlus} className="w-5 text-blue" />
       <p>{TEXT.newNym}</p>
     </div>
   );

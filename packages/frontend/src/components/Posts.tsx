@@ -140,7 +140,6 @@ export default function Posts(props: PostsProps) {
         )}
         <div className="grow-0">
           <MainButton
-            color="#0E76FD"
             message={TEXT.buttonText}
             handler={() => {
               if (!address || !isValid) {

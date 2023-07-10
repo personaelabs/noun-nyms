@@ -37,7 +37,7 @@ export const Modal = (props: ModalProps) => {
                   <FontAwesomeIcon
                     size={'xl'}
                     icon={faXmark}
-                    color="#98A2B3"
+                    className="text-gray-500"
                     onClick={handleClose as any}
                   />
                 </div>

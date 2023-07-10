@@ -29,12 +29,7 @@ export const UpvoteWarning = (props: UpvoteWarningProps) => {
       </div>
       <p className="text-gray-700">{TEXT.body}</p>
       <div className="flex justify-center">
-        <MainButton
-          color="#0E76FD"
-          message={TEXT.buttonText}
-          loading={loadingUpvote}
-          handler={upvoteHandler}
-        />
+        <MainButton message={TEXT.buttonText} loading={loadingUpvote} handler={upvoteHandler} />
       </div>
     </Modal>
   );
