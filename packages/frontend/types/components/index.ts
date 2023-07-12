@@ -1,6 +1,7 @@
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { IPostPreview } from '../api';
 import { Dispatch, SetStateAction } from 'react';
+import { Proposal } from '@/hooks/useProposals';
 
 export type PostProps = {
   post: IPostPreview;
@@ -61,4 +62,8 @@ export type UserContextType = {
   isValid: boolean;
   routeLoading: boolean;
   pushRoute: (route: string) => void;
+};
+
+export type PropsContextType = {
+  proposals: Proposal[] | undefined;
 };

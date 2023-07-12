@@ -93,3 +93,49 @@ export const refetchAndScrollToPost = async (refetch: () => Promise<any>, postId
     if (post) post.style.setProperty('opacity', '1');
   }, 1000);
 };
+
+export const splitStringByExp = (text: string, search: RegExp): string[] => {
+  const matches = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = search.exec(text)) !== null) {
+    const matchIndex = match.index;
+    const matchString = match[0];
+
+    if (lastIndex !== matchIndex) {
+      const substring = text.substring(lastIndex, matchIndex);
+      matches.push(substring);
+    }
+
+    matches.push(matchString);
+    lastIndex = search.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    const remainingString = text.substring(lastIndex);
+    matches.push(remainingString);
+  }
+
+  return matches;
+};
+
+export const calcNodeDistFromRight = (node: HTMLElement): number => {
+  if (!node) return 0;
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  const rect = node.getBoundingClientRect();
+  const distanceFromRight = viewportWidth - rect.right;
+  return distanceFromRight;
+};
+
+export const calcNodeDistFromTop = (node: HTMLElement): number => {
+  if (!node) return 0;
+  const rect = node.getBoundingClientRect();
+  const distanceFromTop = rect.top;
+  return distanceFromTop;
+};
+
+export const calcDistFromRight = (xPos: number): number => {
+  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+  return viewportWidth - xPos;
+};

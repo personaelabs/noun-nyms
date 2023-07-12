@@ -41,7 +41,7 @@ export const MyProfile = ({ address }: { address: string }) => {
                   <UserAvatar width={30} userId={address} />
                   <FontAwesomeIcon icon={faAngleDown} className="text-white" />
                 </Menu.Button>
-                <TransitionFade show={open}>
+                <TransitionFade show={open} transitionOnLeave={false}>
                   <Menu.Items className="max-w-[180px] absolute top-full right-0 bg-white mt-2 border border-gray-200 rounded-xl cursor-pointer">
                     {isMobile && address && isValid && (
                       <>

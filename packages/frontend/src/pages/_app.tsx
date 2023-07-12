@@ -11,7 +11,7 @@ import { ValidUserWarning } from '@/components/global/ValidUserWarning';
 import { getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { createContext, useEffect, useState } from 'react';
 import useUserInfo from '@/hooks/useUserInfo';
-import { UserContextType } from '@/types/components';
+import { PropsContextType, UserContextType } from '@/types/components';
 import { NotificationsContextType } from '@/types/notifications';
 import usePushRoute from '@/hooks/usePushRoute';
 import { RouteLoadingSpinner } from '@/components/global/RouteLoadingSpinner';
@@ -20,6 +20,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ErrorPage } from '@/components/global/ErrorPage';
 import { error as TEXT } from '@/lib/text';
+import { useProposals } from '@/hooks/useProposals';
 
 config.autoAddCss = false;
 
@@ -42,6 +43,7 @@ const queryClient = new QueryClient();
 
 export const UserContext = createContext<UserContextType | null>(null);
 export const NotificationsContext = createContext<NotificationsContextType | null>(null);
+export const PropsContext = createContext<PropsContextType | null>(null);
 
 export default function App({ Component, pageProps }: AppProps) {
   const { address } = useAccount();
@@ -51,6 +53,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [postInProg, setPostInProg] = useState(false);
   const { routeLoading, pushRoute } = usePushRoute();
+  const { proposals } = useProposals();
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -61,7 +64,7 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  const userCtxValue = {
+  const userCtx = {
     isMobile,
     nymOptions,
     setNymOptions,
@@ -82,22 +85,26 @@ export default function App({ Component, pageProps }: AppProps) {
     errorMsg,
   };
 
+  const propsCtx = { proposals };
+
   return (
     <QueryClientProvider client={queryClient}>
       <WagmiConfig config={appConfig}>
-        <UserContext.Provider value={userCtxValue}>
-          <Head>
-            <link type="favicon" rel="icon" href="/favicon-3.ico" />
-          </Head>
-          <Seo />
-          {routeLoading && <RouteLoadingSpinner />}
-          <ErrorBoundary fallback={<ErrorPage title={TEXT.title} subtitle={TEXT.subtitle} />}>
-            <NotificationsContext.Provider value={notificationsCtx}>
-              <Header />
-              <Component {...pageProps} />
-            </NotificationsContext.Provider>
-            <ValidUserWarning />
-          </ErrorBoundary>
+        <UserContext.Provider value={userCtx}>
+          <PropsContext.Provider value={propsCtx}>
+            <Head>
+              <link type="favicon" rel="icon" href="/favicon-3.ico" />
+            </Head>
+            <Seo />
+            {routeLoading && <RouteLoadingSpinner />}
+            <ErrorBoundary fallback={<ErrorPage title={TEXT.title} subtitle={TEXT.subtitle} />}>
+              <NotificationsContext.Provider value={notificationsCtx}>
+                <Header />
+                <Component {...pageProps} />
+              </NotificationsContext.Provider>
+              <ValidUserWarning />
+            </ErrorBoundary>
+          </PropsContext.Provider>
         </UserContext.Provider>
       </WagmiConfig>
     </QueryClientProvider>

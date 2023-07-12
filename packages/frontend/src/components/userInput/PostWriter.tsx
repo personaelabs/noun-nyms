@@ -5,17 +5,19 @@ import { postDoxed, postPseudo } from '@/lib/actions';
 import { useAccount, useSignTypedData } from 'wagmi';
 import { PrefixedHex } from '@personaelabs/nymjs';
 import { NameSelect } from './NameSelect';
-import { ClientName, NameType, UserContextType } from '@/types/components';
+import { ClientName, NameType, PropsContextType, UserContextType } from '@/types/components';
 import { WalletWarning } from '../WalletWarning';
 import { Modal } from '../global/Modal';
 import { RetryError } from '../global/RetryError';
 import useError from '@/hooks/useError';
-import { UserContext } from '@/pages/_app';
+import { PropsContext, UserContext } from '@/pages/_app';
 import useProver from '@/hooks/useProver';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { postWriter as TEXT } from '@/lib/text';
 import { BLACK } from '@/lib/colors';
+import { type Proposal } from '@/hooks/useProposals';
+import { Proposals } from '../proposals/Proposals';
 
 interface IWriterProps {
   parentId: PrefixedHex;
@@ -23,23 +25,45 @@ interface IWriterProps {
   handleCloseWriter?: () => void;
 }
 
+interface CursorPosition {
+  x: number;
+  y: number;
+}
+
 export const PostWriter = (props: IWriterProps) => {
   const { parentId, handleCloseWriter, scrollToPost } = props;
+
+  const { proposals } = useContext(PropsContext) as PropsContextType;
+  const { isMobile, isValid, setPostInProg, postInProg } = useContext(
+    UserContext,
+  ) as UserContextType;
+
   const [body, setBody] = useState('');
   const [title, setTitle] = useState('');
+  const [name, setName] = useState<ClientName | null>(null);
   const [closeWriter, setCloseWriter] = useState(false);
   const [showWalletWarning, setShowWalletWarning] = useState(false);
   const [sendingPost, setSendingPost] = useState(false);
   const [hasSignedPost, setHasSignedPost] = useState(false);
   const [sentPost, setSentPost] = useState(false);
   const [userError, setUserError] = useState('');
-  const { errorMsg, isError, setError, clearError } = useError();
+  const [propsToShow, setPropsToShow] = useState(proposals || []);
+  const [cursorPosition, setCursorPosition] = useState<CursorPosition | null>(null);
+  const [showProposals, setShowProposals] = useState(false);
+  const [focusedProposal, setFocusedProposal] = useState<Proposal | null>(null);
 
+  const bodyType = parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody;
+
+  useEffect(() => {
+    setPropsToShow(proposals?.slice(0, 5) || []);
+  }, [proposals]);
+
+  useEffect(() => {
+    setFocusedProposal(propsToShow[0]);
+  }, [propsToShow]);
+
+  const { errorMsg, isError, setError, clearError } = useError();
   const { address } = useAccount();
-  const { isMobile, isValid, setPostInProg, postInProg } = useContext(
-    UserContext,
-  ) as UserContextType;
-  const [name, setName] = useState<ClientName | null>(null);
   const { signTypedDataAsync } = useSignTypedData();
   const signedHandler = () => setHasSignedPost(true);
   const prover = useProver({
@@ -66,6 +90,51 @@ export const PostWriter = (props: IWriterProps) => {
     setBody('');
     setTitle('');
     setCloseWriter(true);
+  };
+
+  const replaceTextAfterPoundSign = (fullText: string, newVal: string, poundSignIdx: number) => {
+    const textBeforePoundSign = fullText.substring(0, poundSignIdx + 1);
+    return textBeforePoundSign + newVal;
+  };
+
+  // TODO: Move this logic elsewhere / make it more general.
+  const handleBodyChange = (newVal: string, replace = false, propId?: string) => {
+    setShowProposals(false);
+    let finalVal = newVal;
+
+    const poundSignIndex = newVal.lastIndexOf('#');
+    const textAfterLastPoundSign = newVal.substring(poundSignIndex + 1);
+    const replaceText = replace || textAfterLastPoundSign.slice(-1).charCodeAt(0) === 10;
+    const spaceIndex = newVal.lastIndexOf(' ');
+
+    // If there are no spaces after the most recent '#'
+    if (poundSignIndex !== -1 && spaceIndex < poundSignIndex) {
+      // If current proposals have been found and the last character after the '#' was an Enter
+      // Replace the text after the last '#' with the prop number.
+      if (replaceText && proposals && proposals.length > 0) {
+        const replacementText = propId || focusedProposal?.id || propsToShow[0].id;
+        finalVal = replaceTextAfterPoundSign(newVal, replacementText, poundSignIndex);
+      } else {
+        const searchText = textAfterLastPoundSign.toLowerCase();
+        // Filter the proposals for titles and prop numbers that match the text after the pound sign.
+        const results = proposals
+          ?.filter((p) => p.title.toLowerCase().includes(searchText) || p.id.includes(searchText))
+          .slice(0, 5);
+        setPropsToShow(results || []);
+        setShowProposals(true);
+      }
+    }
+    setBody(finalVal);
+  };
+
+  const handleKeyDown = (key: string) => {
+    let currIdx = focusedProposal ? propsToShow.indexOf(focusedProposal) : -1;
+    if (key === 'ArrowUp') {
+      if (currIdx > 0) currIdx--;
+    } else if (key === 'ArrowDown') {
+      if (currIdx < propsToShow.length) currIdx++;
+    }
+    setFocusedProposal(propsToShow[currIdx]);
   };
 
   const sendPost = async () => {
@@ -141,21 +210,32 @@ export const PostWriter = (props: IWriterProps) => {
                 <Textarea
                   value={title}
                   placeholder={TEXT.placeholder.title}
-                  minHeight={50}
-                  onChangeHandler={(newVal) => setTitle(newVal)}
-                ></Textarea>
+                  minRows={2}
+                  onChange={(newVal) => setTitle(newVal)}
+                  setCursorPosition={setCursorPosition}
+                  findCursor={showProposals}
+                />
               </div>
             ) : null}
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-clip w-full">
               <Textarea
                 value={body}
-                placeholder={
-                  parentId === '0x0' ? TEXT.placeholder.newBody : TEXT.placeholder.replyBody
-                }
-                minHeight={100}
-                onChangeHandler={(newVal) => setBody(newVal)}
-              ></Textarea>
+                placeholder={bodyType}
+                minRows={4}
+                onChange={handleBodyChange}
+                setCursorPosition={setCursorPosition}
+                findCursor={showProposals}
+                handleKeyDown={(evt) => handleKeyDown(evt)}
+              />
             </div>
+            {showProposals && cursorPosition && (
+              <Proposals
+                position={cursorPosition}
+                proposals={propsToShow}
+                handleBodyChange={(propId) => handleBodyChange(body, true, propId)}
+                focusedItem={focusedProposal}
+              />
+            )}
           </div>
           <div className="w-full flex-wrap flex gap-2 items-center justify-end text-gray-500">
             {address && isValid ? (

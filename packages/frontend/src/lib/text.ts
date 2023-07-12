@@ -44,6 +44,8 @@ export const postId = {
 export const upvote = {
   fetchError: 'Could not upvote:',
   action: 'upvote',
+  and: 'and',
+  more: 'more...',
 };
 export const upvoteWarning = {
   title: "You're voting as",

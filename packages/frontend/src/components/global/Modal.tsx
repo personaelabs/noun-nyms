@@ -19,16 +19,17 @@ export const Modal = (props: ModalProps) => {
   const { isMobile } = useContext(UserContext) as UserContextType;
 
   return (
-    <TransitionFade show={isOpen}>
+    <TransitionFade show={isOpen} transitionOnLeave={false}>
       <Dialog onClose={handleClose} className="relative z-50">
         {/* The backdrop, rendered as a fixed sibling to the panel container */}
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-        <div className="fixed inset-0 overflow-y-auto">
+        <div className="fixed inset-0 overflow-y-auto" id="modal_window">
           <div
             className="flex min-h-full justify-center"
             style={{ alignItems: startAtTop ? 'top' : isMobile ? 'end' : 'center' }}
           >
             <Dialog.Panel
+              id="main_modal"
               className="relative max-w-none md:max-w-3xl bg-gray-50 m-none md:mx-8 rounded-md rounded-b-none sm:rounded-b-md"
               style={{ width: width && !isMobile ? width : '100%' }}
             >

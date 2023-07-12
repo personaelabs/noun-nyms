@@ -30,7 +30,7 @@ export const FAQ = () => {
                 <FAQContent />
               </Modal>
             ) : (
-              <TransitionFade show={open}>
+              <TransitionFade duration={100} show={open}>
                 <Popover.Panel className="flex flex-col w-[24rem] gap-4 absolute -top-2 left-full -translate-x-full -translate-y-full bg-white p-4 border border-gray-200 shadow-md rounded-xl">
                   <FAQContent />
                 </Popover.Panel>
