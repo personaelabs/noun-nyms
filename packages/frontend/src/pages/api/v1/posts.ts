@@ -114,7 +114,9 @@ const handleCreateDoxedPost = async (
     },
   });
 
-  await postTweet(post.id, address);
+  if (process.env.NODE_ENV === 'production') {
+    await postTweet(post.id, address);
+  }
   res.status(200).send({ postId: post.id });
 };
 
@@ -198,7 +200,9 @@ const handleCreatePseudoPost = async (
       depth,
     },
   });
-  await postTweet(post.id, nym);
+  if (process.env.NODE_ENV === 'production') {
+    await postTweet(post.id, nym);
+  }
   res.status(200).send({ postId: post.id });
 };
 
