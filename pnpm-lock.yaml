@@ -180,6 +180,9 @@ importers:
       tailwindcss:
         specifier: ^3.3.2
         version: 3.3.2(ts-node@10.9.1)
+      twitter-api-v2:
+        specifier: ^1.15.0
+        version: 1.15.0
       viem:
         specifier: ^0.3.50
         version: 0.3.50(typescript@5.0.4)
@@ -16718,6 +16721,10 @@ packages:
 
   /tween-functions@1.2.0:
     resolution: {integrity: sha512-PZBtLYcCLtEcjL14Fzb1gSxPBeL7nWvGhO5ZFPGqziCcr8uvHp0NDmdjBchp6KHL+tExcg0m3NISmKxhU394dA==}
+    dev: false
+
+  /twitter-api-v2@1.15.0:
+    resolution: {integrity: sha512-Cqg3pIGhSwPyFBndpBrucdeNXecNFnYcXy3ixQ4brJHd/3k1CAtBVcX0e3s6jRYl/QIx5BmyGXS/SHEGtYZ3gw==}
     dev: false
 
   /type-check@0.4.0:
