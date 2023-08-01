@@ -12,6 +12,7 @@ export const BodyWithPropLink = ({ body }: { body: string }) => {
 
   const bodyWithPropLink = strings.map((s) => {
     propRegex.lastIndex = 0;
+    urlRegex.lastIndex = 0;
     if (propRegex.test(s)) {
       const proposal = proposals?.find((p) => p.id === s.substring(1));
       return proposal ? <PropLink string={s} proposal={proposal} /> : <span>{s}</span>;
