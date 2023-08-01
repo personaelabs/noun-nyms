@@ -94,22 +94,23 @@ export const refetchAndScrollToPost = async (refetch: () => Promise<any>, postId
   }, 1000);
 };
 
-export const splitStringByExp = (text: string, search: RegExp): string[] => {
+export const splitStringByExps = (text: string, searchArray: RegExp[]): string[] => {
   const matches = [];
   let lastIndex = 0;
-  let match;
+  for (const search of searchArray) {
+    let match;
+    while ((match = search.exec(text)) !== null) {
+      const matchIndex = match.index;
+      const matchString = match[0];
 
-  while ((match = search.exec(text)) !== null) {
-    const matchIndex = match.index;
-    const matchString = match[0];
+      if (lastIndex !== matchIndex) {
+        const substring = text.substring(lastIndex, matchIndex);
+        matches.push(substring);
+      }
 
-    if (lastIndex !== matchIndex) {
-      const substring = text.substring(lastIndex, matchIndex);
-      matches.push(substring);
+      matches.push(matchString);
+      lastIndex = search.lastIndex;
     }
-
-    matches.push(matchString);
-    lastIndex = search.lastIndex;
   }
 
   if (lastIndex < text.length) {
