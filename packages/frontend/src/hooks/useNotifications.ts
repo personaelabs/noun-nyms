@@ -89,12 +89,15 @@ const buildNotifications = (raw: RawNotifications, myIds: string[]): Notificatio
   const relevantPosts = posts.reduce((result: Notification[], p) => {
     const rootAuthor = p.root?.userId.toLowerCase();
     const parentAuthor = p.parent?.userId.toLowerCase();
-    // If rootAuthor is one of my ids, this is discussion reply
-    if (rootAuthor && myIds.includes(rootAuthor))
+    // If rootAuthor is one of my ids, this is discussion reply.
+    // Ignore if post is one of my ids, no notifications for replying to myself.
+    if (rootAuthor && myIds.includes(rootAuthor) && !myIds.includes(p.userId)) {
       result.push(cleanRelevantPost(p, NotificationType.DiscussionReply));
+    }
     // If parentAuthor is one of my ids, this is a direct reply
-    else if (parentAuthor && myIds.includes(parentAuthor))
+    else if (parentAuthor && myIds.includes(parentAuthor) && !myIds.includes(p.userId)) {
       result.push(cleanRelevantPost(p, NotificationType.DirectReply));
+    }
     return result;
   }, []);
 
